@@ -27,4 +27,4 @@ Power switch is controlled by Raspberry PI's GPIO ports. This functionality is e
 
 
 ## USB Storage Device
-
+(Some of) ECU Boards have to be updated by the help of USB Devices. The main aim is to realize that function remotely.
