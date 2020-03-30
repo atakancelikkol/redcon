@@ -28,3 +28,18 @@ Power switch is controlled by Raspberry PI's GPIO ports. This functionality is e
 
 ## USB Storage Device
 (Some of) ECU Boards have to be updated by the help of USB Devices. The main aim is to realize that function remotely.
+
+
+# How to commit
+1. Checkout a new branch from development to your feature branch
+```
+git checkout -b feature/<name of the feature branch>
+
+bugfix/<name of the bugfix branch>
+```
+2. Complete the development on that branch and commit your code
+3. Push your branch to the remote server
+```
+git push --set-upstream origin feature/<name of the feature branch>
+```
+4. Open a merge request to the development branch. After review it will be merged to the development by the reviewer.
