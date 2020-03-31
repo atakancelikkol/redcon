@@ -1,0 +1,57 @@
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
+export default class WebSocketConnector {
+  constructor({ store }) {
+    this.connectionSocket = null;
+    this.store = store;
+  }
+
+  init() {
+    console.log("initializing web socket connector"); // eslint-disable-line
+    this.connectionSocket = new ReconnectingWebSocket(this.getWebSocketURL());
+    this.connectionSocket.onopen = this.onOpen.bind(this);
+    this.connectionSocket.onmessage = this.onMessage.bind(this);
+    this.connectionSocket.onclose = this.onClose.bind(this);
+  }
+
+  getWebSocketURL() {
+    let loc = window.location;
+    let newUri;
+    if (loc.protocol === "https:") {
+      newUri = "wss:";
+    } else {
+      newUri = "ws:";
+    }
+
+    if (process.env.NODE_ENV == 'production') {
+      newUri += "//" + loc.host;
+    } else {
+      newUri += "//localhost:3000";
+    }
+
+    return newUri;
+  }
+
+  onOpen(/*event*/) {
+    this.store.dispatch('updateConnectionStatus', true);
+    console.log("websocket connection is opened!") // eslint-disable-line
+  }
+
+  onMessage(event) {
+    let obj = JSON.parse(event.data);
+    console.log("received data", obj) // eslint-disable-line
+    this.store.dispatch('onDataReceived', obj);
+  }
+
+  onClose() {
+    this.store.dispatch('updateConnectionStatus', false);
+    console.log("websocket connection is closed!") // eslint-disable-line
+  }
+
+  sendGPIOUpdateMessage({ gpioPort, value }) {
+    var obj = { gpio: { port: gpioPort, state: value } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+}
+
+

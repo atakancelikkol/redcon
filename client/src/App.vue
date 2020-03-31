@@ -1,0 +1,69 @@
+<template>
+  <div class="app-container">
+    <div class="app-reconnect-warning">
+      <b-alert :show="!isConnected" variant="warning" style="margin: auto; text-align: center">Connection is lost! It will try to connect automatically.</b-alert>
+    </div>
+    <div class="app-left-menu">
+      <LeftMenu />
+    </div>
+    <div class="app-main-container">
+      <router-view></router-view>
+    </div>
+  </div>
+</template>
+
+<script>
+import LeftMenu from './components/LeftMenu.vue'
+import { mapState } from 'vuex'
+
+export default {
+  name: 'App',
+  components: {
+    LeftMenu,
+  },
+  computed: {
+    ...mapState(['isConnected']),
+  }
+}
+</script>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.app-reconnect-warning {
+  position: fixed;
+  width: 100%;
+  left:0;
+  top: 0;
+  display: flex;
+  font-size: 10pt;
+  z-index: 1;
+}
+
+.app-left-menu {
+  width: 200px;
+  padding: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.app-main-container {
+  flex: 1;
+  padding: 10px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+</style>
