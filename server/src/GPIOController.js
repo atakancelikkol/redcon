@@ -20,7 +20,7 @@ class GPIOController {
     gpioPorts.forEach((portNum) => {
       if (isNaN(portNum) == false) {
         // open all ports as LOW
-        rpio.open(portNum, rpio.OUTPUT, rpio.HIGH);
+        rpio.open(portNum, rpio.OUTPUT, this.gpioState[portNum]);
       }
     });
   }
