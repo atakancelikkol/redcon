@@ -2,6 +2,8 @@
 
 REDCON is a utility that makes it easier to connect and debug ECU boards. This project is designed to run on a raspberry pi device. This device is used for isolating ECU board from the network and controlling it remotely. A typical setup is shown in the diagram given below.
 
+## REDCON Overview 
+![alt text](docs/diagrams/redcon-overview.png "Overview" )
 
 ## Packet Forwarding
 Configurable packet forwarding is used for directly accessing ECU boards. This is practical for using multiple ECU boards in the same network with predefined static IPs. An example is given below.
