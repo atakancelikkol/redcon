@@ -2,14 +2,20 @@
   <div class="board-control-container">
     <b-card title="Board Control" style="flex:1">
         <div v-for="(gpioPort, index) in GPIOPorts" :key="index">
-          <b-form-checkbox :checked="receivedData.gpio.state[gpioPort] == 1" @input="onPortChanged(gpioPort, $event)" name="check-button" size="lg" switch>
-            <span v-if="gpioPort == 3">POWER </span>
-            <span v-else-if="gpioPort == 5">CONTACT </span>
-            <span>PORT #{{gpioPort}}</span>
-          </b-form-checkbox>
+          <div @click="onSwitchClicked($event, gpioPort)">
+            <b-form-checkbox :checked="receivedData.gpio.state[gpioPort] == 0" name="check-button" size="lg" switch>
+              <span v-if="gpioPort == 3">POWER </span>
+              <span v-else-if="gpioPort == 5">CONTACT </span>
+              <span>PORT #{{gpioPort}}</span>
+            </b-form-checkbox>
+          </div>
         </div>
 
-        <b-table striped hover :items="eventItems" :fields="eventFields"></b-table>
+        <div>
+          Total Time: 
+        </div>
+
+        <b-table striped hover :items="eventItems" :fields="eventFields" class="board-control-container__table"></b-table>
     </b-card>
   </div>
 </template>
@@ -42,7 +48,7 @@ export default {
       let history = cloneDeep(this.receivedData.gpio.history);
       history.forEach(item => {
         item.port = "PORT #" + item.port;
-        item.state =  item.state ? 'ON' : 'OFF';
+        item.state =  item.state == 0 ? 'ON' : 'OFF'; // LOW_PIN means its on
         item.date = new Date(item.date).toTimeString();
       });
 
@@ -51,8 +57,12 @@ export default {
   },
   methods: {
     ...mapActions(['changeGPIOPort']),
-    onPortChanged(gpioPort, value) {
+    onSwitchClicked(event, gpioPort) {
+      event.preventDefault();
+      event.stopPropagation();
+      let value = !(this.receivedData.gpio.state[gpioPort] == 1); // toggle the current value
       this.changeGPIOPort({gpioPort, value});
+      return false;
     }
   }
 };
@@ -63,5 +73,9 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.board-control-container__table {
+  max-width: 500px;
 }
 </style>

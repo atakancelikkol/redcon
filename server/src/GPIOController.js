@@ -19,7 +19,7 @@ class GPIOController {
     let gpioPorts = Object.keys(this.gpioState);
     gpioPorts.forEach((portNum) => {
       if (isNaN(portNum) == false) {
-        // open all ports as LOW
+        // open all ports regarding default value
         rpio.open(portNum, rpio.OUTPUT, this.gpioState[portNum]);
       }
     });
