@@ -13,7 +13,7 @@ fi
 cd -
 
 # copy build files to public folder
-cp ../client/dist/* ../server/public/
+cp ../client/dist/* ../server/public/ -R
 
 echo "Done."
 
