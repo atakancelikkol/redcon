@@ -22,7 +22,14 @@ sudo apt-get install nodejs npm
 Build and run script is can be found on <project_dir>/scripts/buildandrun.sh. This script builds the client project and copies it to server's public directory. Then starts the server in the background.
 ```
 cd scripts
-./buildandrun.sh
+# sudo is required as server will listen to port 80
+sudo ./buildandrun.sh
+
+# if you dont want to build it 
+sudo ./buildandrun.sh --no-build
+
+# if you dont want to run at the end
+sudo ./buildandrun.sh --no-run
 ```
 Server should be accesible at http://localhost
 
