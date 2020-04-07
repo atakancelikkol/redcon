@@ -51,6 +51,12 @@ export default class WebSocketConnector {
   sendGPIOUpdateMessage({ gpioPort, value }) {
     var obj = { gpio: { port: gpioPort, state: value } };
     this.connectionSocket.send(JSON.stringify(obj));
+
+  }
+  sendUSBUpdateMessage({ gpioPort, value }) {
+    var obj = { usb: { port: gpioPort, state: value } };
+    this.connectionSocket.send(JSON.stringify(obj));
+
   }
 }
 
