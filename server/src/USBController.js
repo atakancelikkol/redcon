@@ -9,8 +9,8 @@ const USB_RELAY_CHANNEL4_PIN = 35;
 // const USB_RELAY_Vcc = 37;  Not sure whether I should plug Vcc pin of the relay to the GPIO or not
 
 class USBController {
-  constructor({sendMessageCallback2}) {
-    this.sendMessageCallback2 = sendMessageCallback2;
+  constructor({sendMessageCallback}) {
+    this.sendMessageCallback = sendMessageCallback;
     this.gpioState = {};
     this.gpioState[29] = rpio.HIGH;    // Default State is this way.
     this.gpioState[31] = rpio.HIGH;    // Relay is switched by making LOW.
@@ -48,7 +48,7 @@ class USBController {
     obj["usb"] = this.getCopyState();
   }
 
-  handleMessage(obj) {
+  handleMessage(obj) { 
     if(typeof obj.usb != "undefined") {
       let gpioPin = obj["usb"].port;
       let state = obj["usb"].state ? rpio.HIGH : rpio.LOW;
@@ -98,7 +98,7 @@ class USBController {
   
     let obj = {};
     this.appendData(obj);
-    this.sendMessageCallback2(obj);
+    this.sendMessageCallback(obj);
   }
 }
 

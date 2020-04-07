@@ -4,7 +4,7 @@ const AppServer = require('./AppServer');
 
 dataHandlers = [];
 dataHandlers.push(new GPIOController({sendMessageCallback}));
-dataHandlers.push(new USBController({sendMessageCallback2}));
+dataHandlers.push(new USBController({sendMessageCallback}));
 //console.log(dataHandlers);
 // create connection manager
 const appServer = new AppServer({dataHandlers});
@@ -17,11 +17,6 @@ dataHandlers.forEach((handler) => {
 
 
 function sendMessageCallback(obj) {
-  appServer.sendToAllClients(obj);
-
-}
-
-function sendMessageCallback2(obj) {
   appServer.sendToAllClients(obj);
 
 }
