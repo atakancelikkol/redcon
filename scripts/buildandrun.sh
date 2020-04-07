@@ -20,7 +20,7 @@ echo "Done."
 # start run while loop with nohup
 cd ../server
 npm install
-nohup ..scripts/util/whilerun.sh > server-log.txt 2>&1 &
+nohup ../scripts/util/whilerun.sh > server-log.txt 2>&1 &
 cd -
 
 echo "Server will start shortly in the background."
