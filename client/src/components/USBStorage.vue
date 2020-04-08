@@ -2,9 +2,9 @@
   <div class="usb-storage-container">
     <b-card title="USB Storage" style="flex:1">
          <div @click="onSwitchClicked($event)" style="display:flex; flex-direction: row;">
-           <div> RPi </div>
-            <b-form-checkbox :checked="receivedData.usb.pluggedDevice == 'ecu'" name="check-button" size="lg" switch>
-              <span>ECU</span>
+           <div> NONE </div>
+            <b-form-checkbox :checked="receivedData.usb.pluggedDevice == 'rpi'" name="check-button" size="lg" switch>
+              <span>RPi</span>
             </b-form-checkbox>
           </div>
     </b-card>
@@ -31,7 +31,7 @@ export default {
       event.stopPropagation();
 
       const currentDevice = this.receivedData.usb.pluggedDevice;
-      let targetDevice = currentDevice == 'rpi' ? 'ecu' : 'rpi';
+      let targetDevice = (currentDevice == 'none') ? 'rpi' : 'none';
 
       this.changeUSBPort({device: targetDevice});
       return false;
