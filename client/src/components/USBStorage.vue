@@ -3,18 +3,16 @@
     <b-card title="USB Storage" style="flex:1">
          <div @click="onSwitchClicked($event)" style="display:flex; flex-direction: row;">
            <div> RPi </div>
-            <b-form-checkbox :checked="receivedData.usb.state == 0" name="check-button" size="lg" switch>
+            <b-form-checkbox :checked="receivedData.usb.pluggedDevice == 'ecu'" name="check-button" size="lg" switch>
               <span>ECU</span>
             </b-form-checkbox>
           </div>
-        <b-table striped hover :items="eventItems" :fields="eventFields" class="usb-storage-container__table"></b-table>
     </b-card>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
-//const cloneDeep = require('clone-deep');
 
 export default {
   name: "USBStorage",
@@ -25,32 +23,17 @@ export default {
   },
   computed: {
     ...mapState(['receivedData']),
-    eventItems() {
-      if(!this.receivedData.usb) {
-        return [];
-      }
-      
-      /*let history = cloneDeep(this.receivedData.usb.history);
-      history.forEach(item => {
-        
-        item.state =  item.state == 0 ? 'USB Flash Storage has switched to the ECU' : 'USB Flash Storage has switched to the RPi';
-        
-
-      });
-
-      return history; */
-      return [];
-    }
-
   },
   methods: {
     ...mapActions(['changeUSBPort']),
     onSwitchClicked(event) {
       event.preventDefault();
       event.stopPropagation();
-      //let flag = !(this.receivedData.usb.pluggedDevice == 1); // toggle the current value
-      console.log(this.receivedData.usb.pluggedDevice);
-      //this.changeUSBPort({device});
+
+      const currentDevice = this.receivedData.usb.pluggedDevice;
+      let targetDevice = currentDevice == 'rpi' ? 'ecu' : 'rpi';
+
+      this.changeUSBPort({device: targetDevice});
       return false;
     }
   }
@@ -62,9 +45,5 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.usb-storage-container__table {
-  max-width: 500px;
 }
 </style>

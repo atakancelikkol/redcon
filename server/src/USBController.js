@@ -54,8 +54,8 @@ class USBController {
     if (typeof obj.usb != "undefined") {
       let state = obj["usb"].state ? rpio.HIGH : rpio.LOW;
       //var obj = { usb: {action:'changeDirection', device: value} };
-      if (obj.usb.action == 'changeDirection' && this.usb.device != undefined) {
-        this.changeUsbDeviceDirection(this.usb.device);
+      if (obj.usb.action == 'changeDirection') {
+        this.changeUsbDeviceDirection(obj.usb.device);
       }
     }
   }
@@ -68,24 +68,20 @@ class USBController {
     if (this.usbState.pluggedDevice == deviceString) {
       return;
     }
-    // TODO: implement on off sequence correctly.
-    this.pinPlugSequence().then(() => {
-      this.sendCurrentState();
-    });
 
-
+    this.pinPlugSequence(deviceString);
+    this.sendCurrentState();
   }
 
-  async pinPlugSequence() {
-    if (this.usbState.pluggedDevice == 'rpi') {
-      state = 0;
-      this.usbState.pluggedDevice = 'ecu';
-    }
-    else {
-      state = 1;
-      this.usbState.pluggedDevice = 'rpi';
-    }
+  pinPlugSequence(deviceString) {
+    let state = deviceString == 'rpi' ? 1 : 0;
     rpio.write(USB_RELAY_CHANNEL1_PIN, state);
+    rpio.write(USB_RELAY_CHANNEL4_PIN, state);
+    rpio.write(USB_RELAY_CHANNEL3_PIN, state);
+    rpio.write(USB_RELAY_CHANNEL2_PIN, state);
+
+    this.usbState.pluggedDevice = deviceString;
+    /*rpio.write(USB_RELAY_CHANNEL1_PIN, state);
     await pin4();
     await pin3();
     await pin2();
@@ -106,10 +102,8 @@ class USBController {
         setTimeout(() => { rpio.write(USB_RELAY_CHANNEL2_PIN, state); }, 500);
         console.log("500ms bekle");
       })
-    }
+    }*/
   }
-
-
 
   sendCurrentState() {
     let obj = {};
