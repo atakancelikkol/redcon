@@ -8,6 +8,11 @@ class AppServer {
   constructor({dataHandlers}) {
     this.dataHandlers = dataHandlers;
     this.port = 3000;
+    if(process.argv[2] === "production")
+    {
+      // change the port to 80 as this is running in production mode
+      this.port = 80;
+    }
     this.app = null;
     this.httpServer = null;
     this.webSocketServer = null;
