@@ -57,6 +57,16 @@ export default class WebSocketConnector {
     let obj = { portconfig: {action: "readConfigFile"} };
     this.connectionSocket.send(JSON.stringify(obj));
   }
+
+  sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
+    var obj = { serial: { action: "openDevice", path: devicePath, baudRate } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendlistSerialDevicesMessage() {
+    var obj = { serial: { action: "listDevices"} };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
 }
 
 
