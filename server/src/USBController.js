@@ -11,35 +11,37 @@ const USB_RELAY_CHANNEL4_PIN = 35;
 class USBController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
-    this.gpioState = {};
+    this.usbState = {
+      pluggedDevice: 'rpi', // or 'ecu'
+      poweredOn: true,
+    };
+
+    /*this.gpioState = {};
     this.gpioState[29] = rpio.HIGH;    // Default State is this way.
     this.gpioState[31] = rpio.HIGH;    // Relay is switched by making LOW.
     this.gpioState[33] = rpio.HIGH;    // HIGH -> Flash Storage is on PI
-    this.gpioState[35] = rpio.HIGH;    // LOW -> Flash Storage is on ECU 
-    //this.gpioState[37] = rpio.HIGH; //  Not sure
-    //this.startTime = 0;               // 
-    //this.endTime = 0;                 // 
-    this.history = [];
+    this.gpioState[35] = rpio.HIGH;    // LOW -> Flash Storage is on ECU */
   }
 
   init() {
-    console.log("initializing USBController");
+    /*console.log("initializing USBController");
     let gpioPins = Object.keys(this.gpioState);
     gpioPins.forEach((pinNum) => {
       if (isNaN(pinNum) == false) {
         // open all pins regarding default value
         rpio.open(pinNum, rpio.OUTPUT, this.gpioState[pinNum]);
       }
-    });
+    });*/
+
+    // connect usb device to raspberry pi
+    rpio.open(USB_RELAY_CHANNEL1_PIN, rpio.OUTPUT, rpio.HIGH);
+    rpio.open(USB_RELAY_CHANNEL2_PIN, rpio.OUTPUT, rpio.HIGH);
+    rpio.open(USB_RELAY_CHANNEL3_PIN, rpio.OUTPUT, rpio.HIGH);
+    rpio.open(USB_RELAY_CHANNEL4_PIN, rpio.OUTPUT, rpio.HIGH);
   }
 
   getCopyState() {
-    return {
-      state: this.gpioState[29],   // O anki state'i PIN29'dan cekiyoruz
-      //startTime: this.startTime,
-      //endTime: this.endTime,
-      history: [...this.history],
-    }
+    return cloneDeep(this.usbState);
   }
 
   appendData(obj) {
@@ -52,6 +54,42 @@ class USBController {
       let state = obj["usb"].state ? rpio.HIGH : rpio.LOW;
       this.setGPIOPin(/*gpioPin,*/state);
     }
+  }
+
+  changeUsbDeviceDirection(deviceString) {
+    if(deviceString != 'rpi' && deviceString != 'ecu') {
+      console.log("USBController: invalid device name")
+    }
+
+    if(this.usbState.pluggedDevice == deviceString) {
+      return;
+    }
+
+    // TODO: implement on off sequence correctly.
+    // this.powerOnSequence().then(()=>{
+    //   this.sendCurrentState();
+    //});
+    rpio.write(USB_RELAY_CHANNEL1_PIN, state);
+    /*setTimeout(() => {
+      rpio.write(USB_RELAY_CHANNEL4_PIN, state);
+      setTimeout(() => { rpio.write(USB_RELAY_CHANNEL4_PIN, state); }, 50);  
+    }, 50);*/
+    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL4_PIN, state); }, 250);
+    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL3_PIN, state); }, 250);
+    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL2_PIN, state); }, 250);
+
+    // Completed 
+
+  }
+
+  async powerOnSequence() {
+
+  }
+
+  sendCurrentState() {
+    let obj = {};
+    this.appendData(obj);
+    this.sendMessageCallback(obj);
   }
 
   setGPIOPin(/*gpioPin,*/state) {
