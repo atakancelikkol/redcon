@@ -24,8 +24,8 @@ class USBController {
   }
 
   init() {
-    /*console.log("initializing USBController");
-    let gpioPins = Object.keys(this.gpioState);
+    console.log("initializing USBController");
+    /*let gpioPins = Object.keys(this.gpioState);
     gpioPins.forEach((pinNum) => {
       if (isNaN(pinNum) == false) {
         // open all pins regarding default value
@@ -33,7 +33,8 @@ class USBController {
       }
     });*/
 
-    // connect usb device to raspberry pi
+    // Initially connect usb device to raspberry pi
+    // Initially Relay's Common and NO Pins are connected
     rpio.open(USB_RELAY_CHANNEL1_PIN, rpio.OUTPUT, rpio.HIGH);
     rpio.open(USB_RELAY_CHANNEL2_PIN, rpio.OUTPUT, rpio.HIGH);
     rpio.open(USB_RELAY_CHANNEL3_PIN, rpio.OUTPUT, rpio.HIGH);
@@ -52,72 +53,65 @@ class USBController {
   handleMessage(obj) {
     if (typeof obj.usb != "undefined") {
       let state = obj["usb"].state ? rpio.HIGH : rpio.LOW;
-      this.setGPIOPin(/*gpioPin,*/state);
+      //var obj = { usb: {action:'changeDirection', device: value} };
+      if (obj.usb.action == 'changeDirection' && this.usb.device != undefined) {
+        this.changeUsbDeviceDirection(this.usb.device);
+      }
     }
   }
 
   changeUsbDeviceDirection(deviceString) {
-    if(deviceString != 'rpi' && deviceString != 'ecu') {
+    if (deviceString != 'rpi' && deviceString != 'ecu') {
       console.log("USBController: invalid device name")
     }
 
-    if(this.usbState.pluggedDevice == deviceString) {
+    if (this.usbState.pluggedDevice == deviceString) {
       return;
     }
-
     // TODO: implement on off sequence correctly.
-    // this.powerOnSequence().then(()=>{
-    //   this.sendCurrentState();
-    //});
+    this.pinPlugSequence().then(() => {
+      this.sendCurrentState();
+    });
+
+
+  }
+
+  async pinPlugSequence() {
+    if (this.usbState.pluggedDevice == 'rpi') {
+      state = 0;
+      this.usbState.pluggedDevice = 'ecu';
+    }
+    else {
+      state = 1;
+      this.usbState.pluggedDevice = 'rpi';
+    }
     rpio.write(USB_RELAY_CHANNEL1_PIN, state);
-    /*setTimeout(() => {
-      rpio.write(USB_RELAY_CHANNEL4_PIN, state);
-      setTimeout(() => { rpio.write(USB_RELAY_CHANNEL4_PIN, state); }, 50);  
-    }, 50);*/
-    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL4_PIN, state); }, 250);
-    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL3_PIN, state); }, 250);
-    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL2_PIN, state); }, 250);
-
-    // Completed 
-
+    await pin4();
+    await pin3();
+    await pin2();
+    pin4 = () => {
+      return new Promise(resolve => {
+        setTimeout(() => { rpio.write(USB_RELAY_CHANNEL4_PIN, state); }, 500);
+        console.log("500ms bekle");
+      })
+    }
+    pin3 = () => {
+      return new Promise(resolve => {
+        setTimeout(() => { rpio.write(USB_RELAY_CHANNEL3_PIN, state); }, 500);
+        console.log("500ms bekle");
+      })
+    }
+    pin2 = () => {
+      return new Promise(resolve => {
+        setTimeout(() => { rpio.write(USB_RELAY_CHANNEL2_PIN, state); }, 500);
+        console.log("500ms bekle");
+      })
+    }
   }
 
-  async powerOnSequence() {
 
-  }
 
   sendCurrentState() {
-    let obj = {};
-    this.appendData(obj);
-    this.sendMessageCallback(obj);
-  }
-
-  setGPIOPin(/*gpioPin,*/state) {
-
-    // update state
-    this.gpioState[USB_RELAY_CHANNEL1_PIN] = state;
-    this.gpioState[USB_RELAY_CHANNEL2_PIN] = state;
-    this.gpioState[USB_RELAY_CHANNEL3_PIN] = state;
-    this.gpioState[USB_RELAY_CHANNEL4_PIN] = state;
-    // write to pin
-    rpio.write(USB_RELAY_CHANNEL1_PIN, state);
-    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL4_PIN, state); }, 250);
-    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL3_PIN, state); }, 250);
-    setTimeout(() => { rpio.write(USB_RELAY_CHANNEL2_PIN, state); }, 250);
-
-    /*
-    if (state == rpio.LOW) {
-      this.startTime = new Date();
-    }
-
-    if (state == rpio.HIGH) {
-      this.endTime = new Date();
-    }
-    */
-
-    this.history.unshift({ /*port: gpioPin, */state/*, date: new Date() */});
-    this.history = this.history.slice(0, 10);
-
     let obj = {};
     this.appendData(obj);
     this.sendMessageCallback(obj);

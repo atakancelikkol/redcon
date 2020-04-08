@@ -53,8 +53,8 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
 
   }
-  sendUSBUpdateMessage({ value }) {
-    var obj = { usb: {state: value} };
+  sendUSBUpdateMessage({ device }) {
+    var obj = { usb: {action:'changeDirection', device} };
     this.connectionSocket.send(JSON.stringify(obj));
 
   }
