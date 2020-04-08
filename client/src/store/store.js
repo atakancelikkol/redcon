@@ -17,6 +17,9 @@ const store = new Vuex.Store({
     changeGPIOPort({commit}, {gpioPort, value}) { // eslint-disable-line
       webSocketConnector.sendGPIOUpdateMessage({gpioPort, value});
     },
+    fetchPortMappingConfiguration({commit}) { // eslint-disable-line
+      webSocketConnector.sendFetchPortMappingConfigurationMessage();
+    },
     updateConnectionStatus({commit}, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     }
