@@ -52,6 +52,11 @@ export default class WebSocketConnector {
     var obj = { gpio: { port: gpioPort, state: value } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
+
+  sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
+    var obj = { serial: { action: "openDevice", path: devicePath, baudRate } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
 }
 
 

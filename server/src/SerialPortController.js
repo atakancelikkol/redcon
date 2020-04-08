@@ -4,6 +4,7 @@ const serialport = require('serialport');
 class SerialPortController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
+
     /*[
       {
         path: 'COM7',
@@ -16,17 +17,15 @@ class SerialPortController {
         isOpen: false
       }
     ]*/
-
     this.ports = [];
+
     /*this.portStatusObj = {
       "COM7": {isOpen: false},
       "COM1": {isOpen: false}
     };*/
     this.portStatusObj = {};
-    
   }
 
-  
   init() { }
 
   getCopyState() {
@@ -41,12 +40,23 @@ class SerialPortController {
     obj["serial"] = this.getCopyState();
   }
 
-  UpdatePortStatus(){
+  updatePortStatus() {
     let obj = {};
     this.appendData(obj);
     this.sendMessageCallback(obj);
   }
-//list currently active serial ports
+
+  handleMessage(obj) {
+    // { serial: { action: "openDevice", path, baudRate } };
+    if(obj["serial"]) {
+      let action = obj["serial"].action;
+      if(action == "openDevice") {
+        this.openSerialPort(path, baudRate);
+      }
+    }
+  }
+
+  //list currently active serial ports
   async listPorts() {
     this.ports = [];
     let ports = await serialport.list();
@@ -69,7 +79,7 @@ class SerialPortController {
       }
     })
     console.log(ports)
-    this.UpdatePortStatus()
+    this.updatePortStatus()
 
   }
 
@@ -77,55 +87,47 @@ class SerialPortController {
   openSerialPort(devicePath, baudRate = 115200) {
     //number and string check
     if (typeof devicePath != 'string' || typeof baudRate != 'number') {
-      console.log("invalid parameters",devicePath,baudRate)
+      console.log("invalid parameters", devicePath, baudRate)
       return
     }
 
     const port = new serialport(devicePath, { baudRate });
- 
+
     port.on('open', this.onPortOpened.bind(this, port));
     port.on('close', this.onPortClosed.bind(this, port));
     port.on('error', function (err) {
       console.log('Error: ', err.message)
     })
 
-    
+
     // create parser
     let Readline = serialport.parsers.Readline; // make instance of Readline parser
     let parser = new Readline(); // make a new parser to read ASCII lines
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
 
-    }
+  }
 
   onPortOpened(port) {
-
     this.portStatusObj[port.path] = true;
     console.log('port open.', port.path);
-    this.UpdatePortStatus()
-    
-    // Send data to clients
-    // { serialport: { type: "portOpened", portPath: ""  } }
+    this.updatePortStatus()
   }
 
   onPortDataReceived(port, data) {
     // Find and update port list item
     console.log('port data received', data);
-    
+
     // Send data to clients
-    // { serialport: { type: "portDataReceived", data: ""  } }
+    // { serialport: { serialdata: {path: "COM7", data: ""}} }
   }
 
   onPortClosed(port) {
     // Find and update port list
     this.portStatusObj[port.path] = false;
     console.log('port closed.', port.path);
-    this.UpdatePortStatus()
-    // Send data to clients
-    // { serialport: { type: "portClosed", portPath: ""  } }
+    this.updatePortStatus()
   }
-
-
 }
 
 

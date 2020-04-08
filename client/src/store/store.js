@@ -17,6 +17,9 @@ const store = new Vuex.Store({
     changeGPIOPort({commit}, {gpioPort, value}) { // eslint-disable-line
       webSocketConnector.sendGPIOUpdateMessage({gpioPort, value});
     },
+    openSerialDevice({commit}, {devicePath, baudRate}) { // eslint-disable-line
+      webSocketConnector.sendOpenSerialDeviceMessage({devicePath, baudRate});
+    },
     updateConnectionStatus({commit}, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     }
