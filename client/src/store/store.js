@@ -20,6 +20,9 @@ const store = new Vuex.Store({
     openSerialDevice({commit}, {devicePath, baudRate}) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({devicePath, baudRate});
     },
+    listSerialDevices( ) { 
+      webSocketConnector.sendlistSerialDevicesMessage();
+    },
     updateConnectionStatus({commit}, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     }

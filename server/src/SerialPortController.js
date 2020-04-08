@@ -1,6 +1,5 @@
 const serialport = require('serialport');
 
-
 class SerialPortController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
@@ -48,10 +47,13 @@ class SerialPortController {
 
   handleMessage(obj) {
     // { serial: { action: "openDevice", path, baudRate } };
-    if(obj["serial"]) {
+    if (obj["serial"]) {
       let action = obj["serial"].action;
-      if(action == "openDevice") {
-        this.openSerialPort(path, baudRate);
+      if (action == "openDevice") {
+        this.openSerialPort(obj["serial"].path, obj["serial"].baudRate);
+      }
+      else if (action == 'listDevices') {
+        this.listPorts();
       }
     }
   }
@@ -61,7 +63,6 @@ class SerialPortController {
     this.ports = [];
     let ports = await serialport.list();
     this.ports = ports;
-
     let statusList = Object.keys(this.portStatusObj);
 
     // delete removed port items from portStatusObj
@@ -78,13 +79,12 @@ class SerialPortController {
         this.portStatusObj[item.path] = { isOpen: false };
       }
     })
-    console.log(ports)
     this.updatePortStatus()
-
   }
 
   //open serial port console log parsed serial data
   openSerialPort(devicePath, baudRate = 115200) {
+
     //number and string check
     if (typeof devicePath != 'string' || typeof baudRate != 'number') {
       console.log("invalid parameters", devicePath, baudRate)
@@ -99,23 +99,22 @@ class SerialPortController {
       console.log('Error: ', err.message)
     })
 
-
     // create parser
     let Readline = serialport.parsers.Readline; // make instance of Readline parser
     let parser = new Readline(); // make a new parser to read ASCII lines
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
-
   }
 
   onPortOpened(port) {
-    this.portStatusObj[port.path] = true;
+    this.portStatusObj[port.path].isOpen = true;
     console.log('port open.', port.path);
     this.updatePortStatus()
   }
 
   onPortDataReceived(port, data) {
     // Find and update port list item
+
     console.log('port data received', data);
 
     // Send data to clients
@@ -123,8 +122,7 @@ class SerialPortController {
   }
 
   onPortClosed(port) {
-    // Find and update port list
-    this.portStatusObj[port.path] = false;
+    this.portStatusObj[port.path].isOpen = false;
     console.log('port closed.', port.path);
     this.updatePortStatus()
   }
