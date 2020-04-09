@@ -23,16 +23,9 @@ class SerialPortController {
       "COM1": {isOpen: false}
     };*/
     this.portStatusObj = {};
-    this.serialdata = []
   }
 
   init() { }
-
-  updateSerialData() {
-    let obj = {};
-    obj["serialdata"] = { serialdata: { ...this.serialdata } };
-    this.sendMessageCallback(obj);
-  }
 
   getCopyState() {
     return {
@@ -121,9 +114,13 @@ class SerialPortController {
 
   onPortDataReceived(port, data) {
     // Find and update port list item
-    this.serialdata = data
+    /*this.serialdata = data;
     console.log('port data received', this.serialdata);
-    this.updateSerialData()
+    this.updateSerialData()*/
+
+    let obj = {};
+    obj["serialData"] = { path: port.path, data: data };
+    this.sendMessageCallback(obj);
     
     // Send data to clients
     // { serialport: { serialdata: {path: "COM7", data: ""}} }

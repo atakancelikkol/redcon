@@ -16,7 +16,7 @@
         ></b-form-input>
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
       </div>
-      <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;"></b-form-textarea>
+      <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]"></b-form-textarea>
     </b-card>
   </div>
 </template>
@@ -36,7 +36,7 @@ export default {
     this.listSerialDevices();
   },
   computed: {
-    ...mapState(["receivedData"]), // receivedData.serial.ports  receivedData.serial.portStatus
+    ...mapState(["receivedData", "serialData"]), // receivedData.serial.ports  receivedData.serial.portStatus
     serialDeviceList() {
       if (
         this.receivedData.serial == undefined ||
