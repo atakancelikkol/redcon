@@ -2,9 +2,10 @@
   <div class="usb-storage-container">
     <b-card title="USB Storage" style="flex:1">
          <div @click="onSwitchClicked($event)" style="display:flex; flex-direction: row;">
-           <div> NONE </div>
-            <b-form-checkbox :checked="receivedData.usb.pluggedDevice == 'rpi'" name="check-button" size="lg" switch>
-              <span>RPi</span>
+           <div size="lg"> <b>NONE</b>-</div>
+           
+            <b-form-checkbox :checked="receivedData.usb.pluggedDevice == 'rpi'" name="check-button" size="default" switch>
+              <span><b>RPi</b></span>
             </b-form-checkbox>
           </div>
     </b-card>
