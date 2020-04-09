@@ -4,7 +4,7 @@
       <b-form-textarea
         ref="configRef"
         rows="25"
-        :value="configContents"
+        v-model="textAreaContent"
       >
       </b-form-textarea>
     <b-button @click='onSaveButtonClicked'>Save</b-button>
@@ -16,6 +16,11 @@
 import { mapActions, mapState } from "vuex";
 export default {
   name: "PortMapping",
+  data() {
+    return {
+      textAreaContent: '',
+    }
+  },
   mounted() {
     this.fetchPortMappingConfiguration();
   },
@@ -32,11 +37,13 @@ export default {
   methods: {
     ...mapActions(["fetchPortMappingConfiguration", "setPortMappingConfiguration"], ),
     onSaveButtonClicked() {
-    this.$refs.configRef;
-    let setConfigFile = this.receivedData.portconfig.configContents; 
-    console.log("Saving..")
-    console.log(this.$refs.configRef);
-    this.setPortMappingConfiguration({ setConfigFile });
+      this.setPortMappingConfiguration({ configContents: this.textAreaContent });
+    }
+  },
+  watch: {
+    configContents() {
+      console.log("config content changed.");
+      this.textAreaContent = this.configContents;
     }
   }
 };

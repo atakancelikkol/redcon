@@ -1,6 +1,7 @@
 const fs = require('fs')
 
 const CONFIG_FILE_PATH = "../scripts/port_forwarding/int.config";
+const CONFIG_CUSTOM_CONFIG_PATH = "../scripts/port_forwarding/custom.config";
 
 class PortConfigController {
   constructor({sendMessageCallback}) {
@@ -32,8 +33,7 @@ class PortConfigController {
       if(commandObject["action"] == "readConfigFile") {
         this.readAndSendConfigFile();
       } else if(commandObject["action"] == "setConfigFile" && commandObject["configContents"]) {
-        let setConfig = commandObject.configContents;
-        this.setConfigFile(setConfig);
+        this.setConfigFile(commandObject.configContents);
       }
     }
   }
@@ -52,12 +52,9 @@ class PortConfigController {
     this.sendMessageCallback(configResponse);
   }
 
-  setConfigFile(setConfig) {
-    // TODO: update config contents
-    console.log("hello");
-    console.log(setConfig);
-    fs.writeFile('C:/Users/mert.dolapci/Desktop/deneme/deneme.txt', setConfig, (err, setConfig) => {
-    this.readAndSendConfigFile();
+  setConfigFile(configContents) {
+    fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
+      this.readAndSendConfigFile();
     })
   }
 }
