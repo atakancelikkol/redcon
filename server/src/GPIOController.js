@@ -40,7 +40,7 @@ class GPIOController {
   }
 
   handleMessage(obj) {
-    if(typeof obj.gpio != "undefined") {
+    if(obj["gpio"]) {
       let gpioPort = obj["gpio"].port;
       let state = obj["gpio"].state ? rpio.HIGH : rpio.LOW;
       this.setGPIOPort(gpioPort, state);
