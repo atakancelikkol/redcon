@@ -2,7 +2,7 @@
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 
-const USB_RELAY_PIN_ARRAY = [ 29 , 31 , 33 , 35 ];
+const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
 // const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
 
 class USBController {
@@ -11,7 +11,9 @@ class USBController {
     this.usbState = {
       pluggedDevice: 'none', // or 'rpi', 'ecu'
       poweredOn: true,
+
     };
+    this.timeToCheckSafety = 0;
   }
 
   init() {
@@ -43,16 +45,38 @@ class USBController {
   }
 
   changeUsbDeviceDirection(deviceString) {
-    if (deviceString != 'rpi' && deviceString != 'ecu' && deviceString != 'none') {
+    if (deviceString != 'rpi' && deviceString != 'none' && deviceString != 'ecu') {
       console.log("USBController: invalid device name")
     }
 
     if (this.usbState.pluggedDevice == deviceString) {
       return;
     }
+    let safety = this.isSafeTochangeUsbDeviceDirection();
+    if (safety) {
+      this.pinPlugSequence(deviceString);
+      this.sendCurrentState();
+    }
+    else {
+      console.log("Pressing the button repeatedly Alert!");
+      return;
+    }
+  }
 
-    this.pinPlugSequence(deviceString);
-    this.sendCurrentState();
+  isSafeTochangeUsbDeviceDirection() {
+    if (this.timeToCheckSafety == 0) {
+      this.timeToCheckSafety = new Date().valueOf();
+      return 1;
+    }
+
+    else if ((new Date().valueOf() - this.timeToCheckSafety) > 250) {
+
+      this.timeToCheckSafety = new Date().valueOf();
+      return 1;
+    }
+
+    else { return 0; }
+
   }
 
   pinPlugSequence(deviceString) {
