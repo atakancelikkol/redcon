@@ -1,11 +1,15 @@
 const GPIOController = require('./GPIOController');
 const USBController = require('./USBController');
 const AppServer = require('./AppServer');
+const SerialPortController = require('./SerialPortController');
+const PortConfigController = require('./PortConfigController');
 
 dataHandlers = [];
 dataHandlers.push(new GPIOController({sendMessageCallback}));
 dataHandlers.push(new USBController({sendMessageCallback}));
-//console.log(dataHandlers);
+dataHandlers.push(new SerialPortController({sendMessageCallback}));
+dataHandlers.push(new PortConfigController({sendMessageCallback}));
+
 // create connection manager
 const appServer = new AppServer({dataHandlers});
 appServer.init();

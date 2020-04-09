@@ -49,7 +49,22 @@ export default class WebSocketConnector {
   }
 
   sendGPIOUpdateMessage({ gpioPort, value }) {
-    var obj = { gpio: { port: gpioPort, state: value } };
+    let obj = { gpio: { port: gpioPort, state: value } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendFetchPortMappingConfigurationMessage() {
+    let obj = { portconfig: {action: "readConfigFile"} };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
+    var obj = { serial: { action: "openDevice", path: devicePath, baudRate } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendlistSerialDevicesMessage() {
+    var obj = { serial: { action: "listDevices"} };
     this.connectionSocket.send(JSON.stringify(obj));
 
   }

@@ -14,19 +14,28 @@ const store = new Vuex.Store({
     onDataReceived({ commit/*, state, getters*/ }, data) {
       commit('APPEND_PARTIAL_DATA', data);
     },
-    changeGPIOPort({commit}, {gpioPort, value}) { // eslint-disable-line
-      webSocketConnector.sendGPIOUpdateMessage({gpioPort, value});
+    changeGPIOPort({ commit }, { gpioPort, value }) { // eslint-disable-line
+      webSocketConnector.sendGPIOUpdateMessage({ gpioPort, value });
     },
     changeUSBPort({commit}, {device}) { // eslint-disable-line
       webSocketConnector.sendUSBUpdateMessage({device});
     },
-    updateConnectionStatus({commit}, status) {
+    openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
+      webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
+    },
+    listSerialDevices() {
+      webSocketConnector.sendlistSerialDevicesMessage();
+    },
+    fetchPortMappingConfiguration({ commit }) { // eslint-disable-line
+      webSocketConnector.sendFetchPortMappingConfigurationMessage();
+    },
+    updateConnectionStatus({ commit }, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     }
   },
   mutations: {
     APPEND_PARTIAL_DATA(state, data) {
-      state.receivedData = {...state.receivedData, ...data};
+      state.receivedData = { ...state.receivedData, ...data };
     },
     UPDATE_CONNECTION_STATUS(state, status) {
       state.isConnected = status;
@@ -34,7 +43,7 @@ const store = new Vuex.Store({
   },
 });
 
-webSocketConnector = new WebSocketConnector({store});
+webSocketConnector = new WebSocketConnector({ store });
 webSocketConnector.init();
 
 export default store;

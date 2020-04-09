@@ -12,8 +12,10 @@
   "dependencies": {
     "clone-deep": "^4.0.1",
     "express": "^4.17.1",
+    "fs": "0.0.1-security",
     "http": "0.0.0",
     "rpio": "^2.1.1",
+    "serialport": "^8.0.7",
     "uuid": "^7.0.2",
     "ws": "^7.2.3"
   }
