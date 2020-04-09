@@ -57,6 +57,10 @@ export default class WebSocketConnector {
     let obj = { portconfig: {action: "readConfigFile"} };
     this.connectionSocket.send(JSON.stringify(obj));
   }
+  sendSetPortMappingConfigurationMessage({ setConfigFile }) {
+    let obj = { portconfig: {action: "setConfigFile", configContents: setConfigFile} };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
 
   sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
     var obj = { serial: { action: "openDevice", path: devicePath, baudRate } };

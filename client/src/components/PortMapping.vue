@@ -2,11 +2,12 @@
   <div class="port-mapping-container">
     <b-card title="Port Mapping" style="flex:1">
       <b-form-textarea
-        id="textarea"
+        ref="configRef"
         rows="25"
         :value="configContents"
       >
       </b-form-textarea>
+    <b-button @click='onSaveButtonClicked'>Save</b-button>
     </b-card>
   </div>
 </template>
@@ -29,7 +30,14 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["fetchPortMappingConfiguration"])
+    ...mapActions(["fetchPortMappingConfiguration", "setPortMappingConfiguration"], ),
+    onSaveButtonClicked() {
+    this.$refs.configRef;
+    let setConfigFile = this.receivedData.portconfig.configContents; 
+    console.log("Saving..")
+    console.log(this.$refs.configRef);
+    this.setPortMappingConfiguration({ setConfigFile });
+    }
   }
 };
 </script>
