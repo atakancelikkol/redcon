@@ -53,11 +53,15 @@ For development, client and server should be run separately.
 ```
 # frontend will start at port 8080
 cd client
+# if you didnt install the dependencies, call npm install first
+npm install
 npm run serve
 cd ..
 
 # backend will start at port 3000
 cd server
+# if you didnt install the dependencies, call npm install first
+npm install
 npm run serve
 cd ..
 ```
