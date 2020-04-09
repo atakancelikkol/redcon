@@ -39,8 +39,15 @@ class PortConfigController {
   }
 
   readAndSendConfigFile() {
-    fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
-      this.sendConfigFileToClients(data, err);
+    fs.readFile(CONFIG_CUSTOM_CONFIG_PATH, 'utf-8', (err, data) => {
+      if(!err) {
+        this.sendConfigFileToClients(data, err);
+      } else {
+        fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
+          this.sendConfigFileToClients(data, err);
+        })
+      }
+      
     })
   }
 

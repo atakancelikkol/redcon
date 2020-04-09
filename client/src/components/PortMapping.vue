@@ -42,7 +42,6 @@ export default {
   },
   watch: {
     configContents() {
-      console.log("config content changed.");
       this.textAreaContent = this.configContents;
     }
   }
