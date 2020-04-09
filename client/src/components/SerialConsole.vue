@@ -16,7 +16,7 @@
         ></b-form-input>
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
       </div>
-      <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]"></b-form-textarea>
+      <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]" disabled></b-form-textarea>
     </b-card>
   </div>
 </template>

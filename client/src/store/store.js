@@ -41,7 +41,13 @@ const store = new Vuex.Store({
       state.receivedData = { ...state.receivedData, ...data };
     },
     APPEND_SERIAL_DATA(state, serialData) {
-      state.serialData[serialData.path] += serialData.data;
+      if (state.serialData[serialData.path] == undefined) {
+        state.serialData[serialData.path] = "";
+      }
+
+      let currentData = state.serialData[serialData.path];
+      const newData = currentData + serialData.data;
+      Vue.set(state.serialData, serialData.path, newData);
     },
     UPDATE_CONNECTION_STATUS(state, status) {
       state.isConnected = status;
