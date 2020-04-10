@@ -14,7 +14,7 @@
             style="max-width: 100px; margin-right: 30px"
           ></b-form-select>
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
-        <b-button style="margin-left: 5px" @click="closeSelectedDevice">Close Selected Device</b-button>
+        <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
       </div>
       <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]" disabled></b-form-textarea>
     </b-card>
@@ -84,7 +84,6 @@ export default {
       console.log("close selected device is clicked", this.currentSerialDevice);
       this.closeSerialDevice({
         devicePath: this.currentSerialDevice,
-        baudRate: this.baudRate
       });
     }
   }

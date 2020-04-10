@@ -45,8 +45,9 @@ class SerialPortController {
   init() { }
 
   startVirtualDevice() {
-    if (this.virtualStarted) { return }
-
+    if (this.virtualStarted) {
+      return
+    }
 
     setInterval(() => {
       let date = new Date()
@@ -82,12 +83,10 @@ class SerialPortController {
       let action = obj["serial"].action;
       if (action == "openDevice") {
         this.openSerialPort(obj["serial"].path, obj["serial"].baudRate);
-      }
-      else if (action == 'listDevices') {
+      } else if (action == 'listDevices') {
         this.listPorts();
-      }
-      else if (action == 'closeDevice') {
-        this.closeSerialPort(obj["serial"].path, obj["serial"].baudRate);
+      } else if (action == 'closeDevice') {
+        this.closeSerialPort(obj["serial"].path);
       }
     }
   }
@@ -98,8 +97,7 @@ class SerialPortController {
     if (virtualDeviceMode == true) {
       this.ports = virtualPorts
       this.portStatusObj = virtualPortStatusObj
-    }
-    else {
+    } else {
       let ports = await serialport.list();
       this.ports = ports;
       let statusList = Object.keys(this.portStatusObj);
@@ -122,41 +120,39 @@ class SerialPortController {
     this.updatePortStatus()
   }
   //close serial port
-  closeSerialPort(devicePath, baudRate = 115200) {
+  closeSerialPort(devicePath) {
     //number and string check
-    if (typeof devicePath != 'string' || typeof baudRate != 'number') {
-      console.log("invalid parameters", devicePath, baudRate)
+    if (typeof devicePath != 'string') {
+      console.log("invalid parameters", devicePath)
       return
     }
+
     if (virtualDeviceMode == true) {
-
-      this.onPortClosedpened(virtualPorts[0])
-
-      return
-    }
-    else {
-      port.close('close', this.onPortClosed.bind(this, port));
-
+      this.onPortClosedpened(virtualPorts[0]);
+    } else {
+      serialport.list().then(ports => {
+        // find the port with the provided path
+        let requestedPort = ports.find(p => p.path == devicePath);
+        if(requestedPort) {
+          requestedPort.close(this.onPortClosed.bind(this, requestedPort));
+        }
+      });
     }
   }
 
-
-
   //open serial port console log parsed serial data
   openSerialPort(devicePath, baudRate = 115200) {
-
     //number and string check
     if (typeof devicePath != 'string' || typeof baudRate != 'number') {
       console.log("invalid parameters", devicePath, baudRate)
       return
     }
+
     if (virtualDeviceMode == true) {
 
       this.onPortOpened(virtualPorts[0])
       this.startVirtualDevice()
-    }
-    else {
-
+    } else {
       const port = new serialport(devicePath, { baudRate });
       console.log(port.path)
       port.on('open', this.onPortOpened.bind(this, port));
