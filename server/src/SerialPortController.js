@@ -1,4 +1,20 @@
 const serialport = require('serialport');
+const virtualDeviceMode = false;
+const virtualPorts = [
+  {
+    path: 'COM7',
+    manufacturer: 'Arduino LLC (www.arduino.cc)',
+    serialNumber: '95437313234351105111',
+    pnpId: 'USB\\VID_2341&PID_0043\\95437313234351105111',
+    locationId: 'Port_#0002.Hub_#0001',
+    vendorId: '2341',
+    productId: '0043',
+    isOpen: false
+  }
+];
+const virtualPortStatusObj = {
+  "COM7": { isOpen: false },
+}
 
 class SerialPortController {
   constructor({ sendMessageCallback }) {
@@ -23,9 +39,25 @@ class SerialPortController {
       "COM1": {isOpen: false}
     };*/
     this.portStatusObj = {};
+    this.virtualStarted = false
   }
 
   init() { }
+
+  startVirtualDevice() {
+    if (this.virtualStarted)
+    {return}
+
+
+    setInterval(() => {
+      let date = new Date()
+      let data = date + 'virtualdevice\n'
+      let obj = {};
+      obj["serialData"] = { path: virtualPorts[0].path, data: data };
+      this.sendMessageCallback(obj);
+    }, 500);
+    this.virtualStarted = true
+  }
 
   getCopyState() {
     return {
@@ -61,24 +93,30 @@ class SerialPortController {
   //list currently active serial ports
   async listPorts() {
     this.ports = [];
-    let ports = await serialport.list();
-    this.ports = ports;
-    let statusList = Object.keys(this.portStatusObj);
+    if (virtualDeviceMode == true) {
+      this.ports = virtualPorts
+      this.portStatusObj = virtualPortStatusObj
+    }
+    else {
+      let ports = await serialport.list();
+      this.ports = ports;
+      let statusList = Object.keys(this.portStatusObj);
 
-    // delete removed port items from portStatusObj
-    statusList.forEach(port => {
-      let devicePort = this.ports.find(item => item.path == port)
-      if (devicePort == undefined) {
-        delete this.portStatusObj[port];
-      }
-    })
+      // delete removed port items from portStatusObj
+      statusList.forEach(port => {
+        let devicePort = this.ports.find(item => item.path == port)
+        if (devicePort == undefined) {
+          delete this.portStatusObj[port];
+        }
+      })
+      // add new items to portStatusObj
+      this.ports.forEach(item => {
+        if (this.portStatusObj[item.path] == undefined) {
+          this.portStatusObj[item.path] = { isOpen: false };
+        }
+      })
+    }
 
-    // add new items to portStatusObj
-    this.ports.forEach(item => {
-      if (this.portStatusObj[item.path] == undefined) {
-        this.portStatusObj[item.path] = { isOpen: false };
-      }
-    })
     this.updatePortStatus()
   }
 
@@ -90,20 +128,26 @@ class SerialPortController {
       console.log("invalid parameters", devicePath, baudRate)
       return
     }
+    if (virtualDeviceMode == true) {
 
-    const port = new serialport(devicePath, { baudRate });
+      this.onPortOpened(virtualPorts[0])
+      this.startVirtualDevice()
+    }
+    else {
+      const port = new serialport(devicePath, { baudRate });
+      console.log(port.path)
+      port.on('open', this.onPortOpened.bind(this, port));
+      port.on('close', this.onPortClosed.bind(this, port));
+      port.on('error', function (err) {
+        console.log('Error: ', err.message)
+      })
 
-    port.on('open', this.onPortOpened.bind(this, port));
-    port.on('close', this.onPortClosed.bind(this, port));
-    port.on('error', function (err) {
-      console.log('Error: ', err.message)
-    })
-
-    // create parser
-    let Readline = serialport.parsers.Readline; // make instance of Readline parser
-    let parser = new Readline(); // make a new parser to read ASCII lines
-    port.pipe(parser);
-    parser.on('data', this.onPortDataReceived.bind(this, port));
+      // create parser
+      let Readline = serialport.parsers.Readline; // make instance of Readline parser
+      let parser = new Readline(); // make a new parser to read ASCII lines
+      port.pipe(parser);
+      parser.on('data', this.onPortDataReceived.bind(this, port));
+    }
   }
 
   onPortOpened(port) {
@@ -121,7 +165,7 @@ class SerialPortController {
     let obj = {};
     obj["serialData"] = { path: port.path, data: data };
     this.sendMessageCallback(obj);
-    
+
     // Send data to clients
     // { serialport: { serialdata: {path: "COM7", data: ""}} }
   }

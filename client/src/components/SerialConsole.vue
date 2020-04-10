@@ -8,12 +8,11 @@
           :options="serialDeviceList"
           style="flex: 1; margin-right: 5px"
         ></b-form-select>
-        <b-form-input
-          id
-          type="number"
-          v-model="baudRate"
-          style="max-width: 100px; margin-right: 5px"
-        ></b-form-input>
+        <b-form-select
+            v-model="baudRate"
+            :options="serialDeviceRate"
+            style="max-width: 100px; margin-right: 30px"
+          ></b-form-select>
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
       </div>
       <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]" disabled></b-form-textarea>
@@ -29,7 +28,12 @@ export default {
   data() {
     return {
       currentSerialDevice: null,
-      baudRate: 115200
+      baudRate: 115200,
+        serialDeviceRate: [
+          { value: 115200, text: '115200' },
+          { value: 57600, text: '57600' },
+          
+        ]
     };
   },
   mounted() {
@@ -68,6 +72,7 @@ export default {
   methods: {
     ...mapActions(["openSerialDevice", "listSerialDevices"]),
     openSelectedDevice() {
+      console.log(this.baudRate)
       console.log("open selected device is clicked", this.currentSerialDevice);
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,
