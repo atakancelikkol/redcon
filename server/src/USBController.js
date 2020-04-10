@@ -1,6 +1,9 @@
 // Class for Controlling the USB Flash Storage
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
+var usbDetect = require('usb-detection');
+//const usbEvents = require('detect-usb');  // Var veya Const ???
+const drivelist = require('drivelist');
 
 const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
 // const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
@@ -41,7 +44,59 @@ class USBController {
       if (obj.usb.action == 'changeDirection') {
         this.changeUsbDeviceDirection(obj.usb.device);
       }
+      else if (obj.usb.action == 'detectUsbDevice') {
+        this.detectUsbDevice();
+      }
     }
+  }
+
+  detectUsbDevice() {
+    usbEvents.startListening();
+    console.log("1!!");
+    // To get list of connected USBs
+
+    /*(async () => {
+      console.log("2!!");
+      console.log(await usbEvents.getUSBList());
+    })();
+
+    (async () => {
+      console.log("5!!");
+      let a = await drivelist.list()
+      console.log(a);
+      console.log(a[0]);
+      console.log(a[1]);
+    })();
+
+
+    /*
+    usbEvents.on('insert', (data) => {
+      console.log("3!!");
+      console.log(data);
+    })
+
+    usbEvents.on('eject', (data) => {
+      console.log("4!!");
+      console.log(data);
+    })
+    */
+    // To stop listening
+    usbEvents.stopListening();
+    /*
+    console.log("1!!");
+    usbDetect.startMonitoring();
+    usbDetect.on('add', function (devices) {
+      console.log("2!!");
+      console.log(devices);
+    });
+    usbDetect.find().then(function (devices) {
+      console.log("3!!");
+      console.log(devices);
+    }).catch(function (err) {
+      console.log(err);
+    });
+    usbDetect.stopMonitoring();
+*/
   }
 
   changeUsbDeviceDirection(deviceString) {
