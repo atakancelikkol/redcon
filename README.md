@@ -37,13 +37,13 @@ Please see the document at docs/README.md
 # How to commit
 1. Checkout a new branch from development to your feature branch
 ```
-git checkout -b feature/<name of the feature branch>
+git checkout -b feature/redcon-<issue number>
 
-bugfix/<name of the bugfix branch>
+bugfix/redcon-<issue number>
 ```
 2. Complete the development on that branch and commit your code
 3. Push your branch to the remote server
 ```
-git push --set-upstream origin feature/<name of the feature branch>
+git push --set-upstream origin feature/redcon-<issue number>
 ```
 4. Open a merge request to the development branch. After review it will be merged to the development by the reviewer.
