@@ -1,9 +1,10 @@
 // Class for Controlling the USB Flash Storage
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
-var usbDetect = require('usb-detection');
-//const usbEvents = require('detect-usb');  // Var veya Const ???
 const drivelist = require('drivelist');
+const { execSync } = require('child_process');
+const nodePath = require('path');
+
 
 const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
 // const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
@@ -32,15 +33,13 @@ class USBController {
   getCopyState() {
     return cloneDeep(this.usbState);
   }
-
   appendData(obj) {
     // this function returns the initial state
     obj["usb"] = this.getCopyState();
   }
-
   handleMessage(obj) {
     if (typeof obj.usb != "undefined") {
-      //var obj = { usb: {action:'changeDirection', device: value} };
+      //var obj = { usb: {action, device} };
       if (obj.usb.action == 'changeDirection') {
         this.changeUsbDeviceDirection(obj.usb.device);
       }
@@ -51,52 +50,32 @@ class USBController {
   }
 
   detectUsbDevice() {
-    usbEvents.startListening();
-    console.log("1!!");
-    // To get list of connected USBs
-
-    /*(async () => {
-      console.log("2!!");
-      console.log(await usbEvents.getUSBList());
-    })();
-
+    // To get list of connected Drives
     (async () => {
-      console.log("5!!");
-      let a = await drivelist.list()
-      console.log(a);
-      console.log(a[0]);
-      console.log(a[1]);
+      let driveList = await drivelist.list();
+      var index;
+      for (index = 0; index < driveList.length; index++) {
+        if (driveList[index].isUSB) {
+          console.log(index);
+          let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
+          if (process.platform == 'win32') {
+            let dl = mountPath.slice(0, -1); //Output= D: for windows
+            console.log("MountPoint:"+dl)
+            let USBName = execSync(`wmic logicaldisk where "deviceid='${dl}'" get volumename`);
+            console.log("DeviceName:"+USBName.toString().split('\n')[1]);
+          }
+          else {
+            let USBName = nodePath.basename(mountPath);
+            console.log("DeviceName:"+USBName);
+          }
+          break;
+        }
+        else if (index == driveList.length - 1) {
+          console.log(index);
+          console.log("There are no USB Drives!!!");
+        }
+      }
     })();
-
-
-    /*
-    usbEvents.on('insert', (data) => {
-      console.log("3!!");
-      console.log(data);
-    })
-
-    usbEvents.on('eject', (data) => {
-      console.log("4!!");
-      console.log(data);
-    })
-    */
-    // To stop listening
-    usbEvents.stopListening();
-    /*
-    console.log("1!!");
-    usbDetect.startMonitoring();
-    usbDetect.on('add', function (devices) {
-      console.log("2!!");
-      console.log(devices);
-    });
-    usbDetect.find().then(function (devices) {
-      console.log("3!!");
-      console.log(devices);
-    }).catch(function (err) {
-      console.log(err);
-    });
-    usbDetect.stopMonitoring();
-*/
   }
 
   changeUsbDeviceDirection(deviceString) {
@@ -123,15 +102,11 @@ class USBController {
       this.timeToCheckSafety = new Date().valueOf();
       return 1;
     }
-
     else if ((new Date().valueOf() - this.timeToCheckSafety) > 250) {
-
       this.timeToCheckSafety = new Date().valueOf();
       return 1;
     }
-
     else { return 0; }
-
   }
 
   pinPlugSequence(deviceString) {
