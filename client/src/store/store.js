@@ -32,6 +32,9 @@ const store = new Vuex.Store({
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
     },
+    writeSerialDevice({ commit }, { devicePath, serialCmd }) { // eslint-disable-line
+      webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd  });
+    },
     listSerialDevices() {
       webSocketConnector.sendlistSerialDevicesMessage();
     },

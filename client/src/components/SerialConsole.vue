@@ -16,8 +16,11 @@
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
         <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
       </div>
-      <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" disabled></b-form-textarea>
-    </b-card>
+        <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" disabled></b-form-textarea>
+
+       <b-form-input v-model="serialmsg" placeholder="Serial Send"></b-form-input>
+       <div class="mt-2">Serial: {{ serialmsg }} <b-button style="margin-left: 10px" @click="writeSelectedDevice">Write to Serial Device</b-button> </div>
+      </b-card>
   </div>
 </template>
 
@@ -33,8 +36,9 @@ export default {
         serialDeviceRate: [
           { value: 115200, text: '115200' },
           { value: 57600, text: '57600' },
-          
-        ]
+        
+        ],
+      serialmsg:''
     };
   },
   mounted() {
@@ -75,7 +79,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices"]),
+    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice"]),
     openSelectedDevice() {
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,
@@ -85,6 +89,13 @@ export default {
     closeSelectedDevice() {
       this.closeSerialDevice({
         devicePath: this.currentSerialDevice,
+      });
+    },
+    writeSelectedDevice() {
+      console.log("write to serial device is clicked", this.currentSerialDevice, this.serialmsg);
+      this.writeSerialDevice({
+        devicePath: this.currentSerialDevice,
+        serialCmd: this.serialmsg,
       });
     },
     updateInitialSelection() {

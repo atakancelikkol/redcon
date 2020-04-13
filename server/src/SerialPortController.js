@@ -88,6 +88,8 @@ class SerialPortController {
         this.listPorts();
       } else if (action == 'closeDevice') {
         this.closeSerialPort(obj["serial"].path);
+      } else if (action == 'writeDevice'){
+        this.writeSerialPort(obj["serial"].path, obj["serial"].data);
       }
     }
   }
@@ -116,6 +118,24 @@ class SerialPortController {
 
     this.updatePortStatus();
   }
+
+  //write serial data to device
+  writeSerialPort(devicePath, serialCmd) {
+    if (typeof serialCmd != 'string') {
+      console.log("invalid parameters", serialCmd)
+      return
+    }
+    console.log("Sending to device(",devicePath,") :", serialCmd)
+    /* if(this.portInstances[devicePath]) {
+      const port = this.portInstances[devicePath];
+      port.write(serialCmd);
+    } else {
+      console.log("port write error! can not find port with the specified path.", devicePath);
+    } */
+
+  }
+
+
   //close serial port
   closeSerialPort(devicePath) {
     //number and string check
