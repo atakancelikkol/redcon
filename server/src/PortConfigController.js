@@ -23,13 +23,12 @@ class PortConfigController {
         action: "readConfigFile",
       }
 
-      obj["portconfig"] = {
+    obj["portconfig"] = {
         action: "setConfigFile",
         configContents: "",
       }
-      obj["portconfig"] = {
+    obj["portconfig"] = {
         action: "resetConfigFile",
-        configContents: "",
       }      
     */
     if (obj["portconfig"]) {
@@ -58,12 +57,17 @@ class PortConfigController {
   }
 
   sendConfigFileToClients(data, error) {
-    let configResponse = {
-      portconfig: {
-        configContents: error ? "An error occurred while reading file" : data,
-      }
-    };
-    this.sendMessageCallback(configResponse);
+    if (typeof data != 'string') {
+      console.log("Invalid parameters", data);
+      return;
+    } else {
+      let configResponse = {
+        portconfig: {
+          configContents: error ? "An error occurred while reading file" : data,
+        }
+      };
+      this.sendMessageCallback(configResponse);
+    }
   }
 
   setConfigFile(configContents) {
@@ -76,7 +80,7 @@ class PortConfigController {
     fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
       fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (err) => {
         this.readAndSendConfigFile();
-    })    
+      })
     })
   }
 }
