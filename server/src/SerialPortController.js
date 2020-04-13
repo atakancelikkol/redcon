@@ -1,4 +1,13 @@
 const serialport = require('serialport');
+const virtualDeviceMode = false;
+const mockDevicePath = '/dev/ROBOT';
+
+if(virtualDeviceMode) {
+  const SerialPort = require('@serialport/stream')
+  const MockBinding = require('@serialport/binding-mock')
+  SerialPort.Binding = MockBinding;
+  MockBinding.createPort(mockDevicePath, { echo: true, record: true })
+}
 
 class SerialPortController {
   constructor({ sendMessageCallback }) {
@@ -23,9 +32,32 @@ class SerialPortController {
       "COM1": {isOpen: false}
     };*/
     this.portStatusObj = {};
+
+    // Port objects are stored here
+    this.portInstances = {};
+
+    this.virtualDeviceInterval = undefined;
   }
 
   init() { }
+
+  startVirtualDevice() {
+    if(this.virtualDeviceInterval) {
+      return;
+    }
+
+    this.virtualDeviceInterval = setInterval(()=>{
+      let date = new Date();
+      let data = date + ' virtual device \n\r'
+      this.portInstances[mockDevicePath].emit('data', data);
+    }, 500);
+  }
+
+  stopVirtualDevice() {
+    if(this.virtualDeviceInterval) {
+      clearInterval(this.virtualDeviceInterval);
+    }
+  }
 
   getCopyState() {
     return {
@@ -51,9 +83,10 @@ class SerialPortController {
       let action = obj["serial"].action;
       if (action == "openDevice") {
         this.openSerialPort(obj["serial"].path, obj["serial"].baudRate);
-      }
-      else if (action == 'listDevices') {
+      } else if (action == 'listDevices') {
         this.listPorts();
+      } else if (action == 'closeDevice') {
+        this.closeSerialPort(obj["serial"].path);
       }
     }
   }
@@ -71,7 +104,7 @@ class SerialPortController {
       if (devicePort == undefined) {
         delete this.portStatusObj[port];
       }
-    })
+    });
 
     // add new items to portStatusObj
     this.ports.forEach(item => {
@@ -79,12 +112,27 @@ class SerialPortController {
         this.portStatusObj[item.path] = { isOpen: false };
       }
     })
-    this.updatePortStatus()
+
+    this.updatePortStatus();
+  }
+  //close serial port
+  closeSerialPort(devicePath) {
+    //number and string check
+    if (typeof devicePath != 'string') {
+      console.log("invalid parameters", devicePath)
+      return
+    }
+
+    if(this.portInstances[devicePath]) {
+      const port = this.portInstances[devicePath];
+      port.close(this.onPortClosed.bind(this, port));
+    } else {
+      console.log("port close error! can not find port with the specified path.", devicePath);
+    }
   }
 
   //open serial port console log parsed serial data
   openSerialPort(devicePath, baudRate = 115200) {
-
     //number and string check
     if (typeof devicePath != 'string' || typeof baudRate != 'number') {
       console.log("invalid parameters", devicePath, baudRate)
@@ -92,7 +140,7 @@ class SerialPortController {
     }
 
     const port = new serialport(devicePath, { baudRate });
-
+    this.portInstances[port.path] = port;
     port.on('open', this.onPortOpened.bind(this, port));
     port.on('close', this.onPortClosed.bind(this, port));
     port.on('error', function (err) {
@@ -104,27 +152,32 @@ class SerialPortController {
     let parser = new Readline(); // make a new parser to read ASCII lines
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
+
+    if(virtualDeviceMode) {
+      this.startVirtualDevice();
+    }
   }
 
   onPortOpened(port) {
-    this.portStatusObj[port.path].isOpen = true;
     console.log('port open.', port.path);
-    this.updatePortStatus()
+    this.portStatusObj[port.path].isOpen = true;
+    this.updatePortStatus();
   }
 
   onPortDataReceived(port, data) {
-    // Find and update port list item
-
-    console.log('port data received', data);
-
-    // Send data to clients
-    // { serialport: { serialdata: {path: "COM7", data: ""}} }
+    let obj = {};
+    obj["serialData"] = { path: port.path, data: data };
+    this.sendMessageCallback(obj);
   }
 
   onPortClosed(port) {
-    this.portStatusObj[port.path].isOpen = false;
     console.log('port closed.', port.path);
-    this.updatePortStatus()
+    this.portStatusObj[port.path].isOpen = false;
+    this.updatePortStatus();
+
+    if(virtualDeviceMode) {
+      this.stopVirtualDevice();
+    }
   }
 }
 

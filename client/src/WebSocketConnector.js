@@ -73,6 +73,11 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
+  sendCloseSerialDeviceMessage({ devicePath }) {
+    var obj = { serial: { action: "closeDevice", path: devicePath } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
   sendlistSerialDevicesMessage() {
     var obj = { serial: { action: "listDevices"} };
     this.connectionSocket.send(JSON.stringify(obj));
