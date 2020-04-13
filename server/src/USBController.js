@@ -18,6 +18,12 @@ class USBController {
 
     };
     this.timeToCheckSafety = 0;
+    this.usbID = {
+      mountedPath: [],
+      usbName: [],
+
+    };
+
   }
 
   init() {
@@ -37,11 +43,17 @@ class USBController {
     // this function returns the initial state
     obj["usb"] = this.getCopyState();
   }
+
+
+
   handleMessage(obj) {
     if (typeof obj.usb != "undefined") {
       //var obj = { usb: {action, device} };
       if (obj.usb.action == 'changeDirection') {
-        this.changeUsbDeviceDirection(obj.usb.device);
+        this.changeUsbDeviceDirection(obj.usb.device).then(()=>{
+          this.detectUsbDevice();
+        });
+        
       }
       else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
@@ -49,36 +61,47 @@ class USBController {
     }
   }
 
-  detectUsbDevice() {
+
+
+
+  async detectUsbDevice() {
     // To get list of connected Drives
-    (async () => {
-      let driveList = await drivelist.list();
-      var index;
-      for (index = 0; index < driveList.length; index++) {
-        if (driveList[index].isUSB) {
-          console.log(index);
-          let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
-          if (process.platform == 'win32') {
-            let dl = mountPath.slice(0, -1); //Output= D: for windows
-            console.log("MountPoint:"+dl)
-            let USBName = execSync(`wmic logicaldisk where "deviceid='${dl}'" get volumename`);
-            console.log("DeviceName:"+USBName.toString().split('\n')[1]);
-          }
-          else {
-            let USBName = nodePath.basename(mountPath);
-            console.log("DeviceName:"+USBName);
-          }
-          break;
+    let driveList = await drivelist.list();
+    var index;
+    for (index = 0; index < driveList.length; index++) {
+      if (driveList[index].isUSB) {
+        let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
+        if (process.platform == 'win32') {
+          mountPath = mountPath.slice(0, -1); //Output= D: for windows
+          let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
+          this.usbID.mountPath = mountPath;
+          this.usbID.usbName = USBName.toString().split('\n')[1];
+          console.log(this.usbID.mountPath);
+          console.log(this.usbID.usbName);
         }
-        else if (index == driveList.length - 1) {
-          console.log(index);
-          console.log("There are no USB Drives!!!");
+        else {
+          let USBName = nodePath.basename(mountPath);
+          this.usbID.mountPath = mountPath;
+          this.usbID.usbName = USBName;
+          console.log(this.usbID.mountPath);
+          console.log(this.usbID.usbName);
         }
+        break;
       }
-    })();
+      else if (index == driveList.length - 1) {
+        this.usbID.mountPath = [];
+        this.usbID.usbName = [];
+        console.log("There are no USB Drives!!!");
+        console.log(this.usbID.mountPath);
+        console.log(this.usbID.usbName);
+        
+
+      }
+    }
+
   }
 
-  changeUsbDeviceDirection(deviceString) {
+  async changeUsbDeviceDirection(deviceString) {
     if (deviceString != 'rpi' && deviceString != 'none' && deviceString != 'ecu') {
       console.log("USBController: invalid device name")
     }
