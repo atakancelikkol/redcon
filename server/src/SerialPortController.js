@@ -126,6 +126,8 @@ class SerialPortController {
       return
     }
     console.log("Sending to device(",devicePath,") :", serialCmd)
+
+    //TODO:
     /* if(this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.write(serialCmd);
