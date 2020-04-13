@@ -67,12 +67,11 @@ class PortConfigController {
   setConfigFile(configContents) {
     if (typeof configContents != 'string') {
       console.log("Invalid parameters", configContents);
-      return;
-    } else {
-      fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
-        this.readAndSendConfigFile();
-      })
+      return
     }
+    fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
+      this.readAndSendConfigFile();
+    })
   }
 
   resetConfigFile() {
