@@ -50,10 +50,10 @@ class USBController {
     if (typeof obj.usb != "undefined") {
       //var obj = { usb: {action, device} };
       if (obj.usb.action == 'changeDirection') {
-        this.changeUsbDeviceDirection(obj.usb.device).then(()=>{
+        this.changeUsbDeviceDirection(obj.usb.device).then(() => {
           this.detectUsbDevice();
         });
-        
+
       }
       else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
@@ -94,7 +94,7 @@ class USBController {
         console.log("There are no USB Drives!!!");
         console.log(this.usbID.mountPath);
         console.log(this.usbID.usbName);
-        
+
 
       }
     }
