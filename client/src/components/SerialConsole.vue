@@ -124,7 +124,10 @@ export default {
     currentSerialData() {
       this.$nextTick(() => {
         let textArea = this.$refs.dataArea.$el;
-        textArea.scrollTop = textArea.scrollHeight;
+        let currentScroll = textArea.scrollTop + textArea.offsetHeight;
+        if(currentScroll + 50 >= textArea.scrollHeight) {
+          textArea.scrollTop = textArea.scrollHeight;
+        }
       });
     },
     serialDeviceList() {

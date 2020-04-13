@@ -61,7 +61,11 @@ const store = new Vuex.Store({
       }
 
       let currentData = state.serialData[serialData.path];
-      const newData = currentData + serialData.data;
+      let newData = currentData + serialData.data;
+      const maxSize = 20000;
+      if(newData.length > maxSize) {
+        newData = newData.substr(newData.length - maxSize);
+      }
       Vue.set(state.serialData, serialData.path, newData);
     },
     UPDATE_CONNECTION_STATUS(state, status) {
