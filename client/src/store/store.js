@@ -29,6 +29,12 @@ const store = new Vuex.Store({
     fetchPortMappingConfiguration({ commit }) { // eslint-disable-line
       webSocketConnector.sendFetchPortMappingConfigurationMessage();
     },
+    setPortMappingConfiguration({ commit }, { configContents }) { // eslint-disable-line
+      webSocketConnector.sendSetPortMappingConfigurationMessage({ configContents });
+    },
+    resetPortMappingConfiguration({ commit },) { // eslint-disable-line
+      webSocketConnector.sendResetPortMappingConfigurationMessage();
+    },    
     updateConnectionStatus({ commit }, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     }
