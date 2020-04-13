@@ -52,28 +52,27 @@ class PortConfigController {
           this.sendConfigFileToClients(data, err);
         })
       }
-
     })
   }
 
   sendConfigFileToClients(data, error) {
-    if (typeof data != 'string') {
-      console.log("Invalid parameters", data);
-      return;
-    } else {
-      let configResponse = {
-        portconfig: {
-          configContents: error ? "An error occurred while reading file" : data,
-        }
-      };
-      this.sendMessageCallback(configResponse);
-    }
+    let configResponse = {
+      portconfig: {
+        configContents: error ? "An error occurred while reading file" : data,
+      }
+    };
+    this.sendMessageCallback(configResponse);
   }
 
   setConfigFile(configContents) {
-    fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
-      this.readAndSendConfigFile();
-    })
+    if (typeof configContents != 'string') {
+      console.log("Invalid parameters", configContents);
+      return;
+    } else {
+      fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
+        this.readAndSendConfigFile();
+      })
+    }
   }
 
   resetConfigFile() {
