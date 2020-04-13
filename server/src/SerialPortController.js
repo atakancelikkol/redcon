@@ -2,7 +2,7 @@ const serialport = require('serialport');
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
 
-if(virtualDeviceMode) {
+if (virtualDeviceMode) {
   const SerialPort = require('@serialport/stream')
   const MockBinding = require('@serialport/binding-mock')
   SerialPort.Binding = MockBinding;
@@ -41,21 +41,22 @@ class SerialPortController {
 
   init() { }
 
-  startVirtualDevice() {
-    if(this.virtualDeviceInterval) {
+  startVirtualDevice(devicePath) {
+    if (this.virtualDeviceInterval) {
       return;
     }
 
-    this.virtualDeviceInterval = setInterval(()=>{
+    this.virtualDeviceInterval = setInterval(() => {
       let date = new Date();
       let data = date + ' virtual device \n\r'
-      this.portInstances[mockDevicePath].emit('data', data);
+      this.portInstances[devicePath].emit('data', data);
     }, 500);
   }
 
   stopVirtualDevice() {
-    if(this.virtualDeviceInterval) {
+    if (this.virtualDeviceInterval) {
       clearInterval(this.virtualDeviceInterval);
+      this.virtualDeviceInterval = undefined;
     }
   }
 
@@ -123,7 +124,7 @@ class SerialPortController {
       return
     }
 
-    if(this.portInstances[devicePath]) {
+    if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.close(this.onPortClosed.bind(this, port));
     } else {
@@ -153,8 +154,8 @@ class SerialPortController {
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
 
-    if(virtualDeviceMode) {
-      this.startVirtualDevice();
+    if (virtualDeviceMode) {
+      this.startVirtualDevice(devicePath);
     }
   }
 
@@ -175,7 +176,7 @@ class SerialPortController {
     this.portStatusObj[port.path].isOpen = false;
     this.updatePortStatus();
 
-    if(virtualDeviceMode) {
+    if (virtualDeviceMode) {
       this.stopVirtualDevice();
     }
   }

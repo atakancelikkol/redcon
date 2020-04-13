@@ -16,7 +16,7 @@
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
         <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
       </div>
-      <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]" disabled></b-form-textarea>
+      <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" disabled></b-form-textarea>
     </b-card>
   </div>
 </template>
@@ -39,6 +39,7 @@ export default {
   },
   mounted() {
     this.listSerialDevices();
+    this.updateInitialSelection();
   },
   computed: {
     ...mapState(["receivedData", "serialData"]), // receivedData.serial.ports  receivedData.serial.portStatus
@@ -68,23 +69,55 @@ export default {
         deviceList.push(deviceItem);
       });
       return deviceList;
+    },
+    currentSerialData() {
+      return this.serialData[this.currentSerialDevice];
     }
   },
   methods: {
     ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices"]),
     openSelectedDevice() {
-      console.log(this.baudRate)
-      console.log("open selected device is clicked", this.currentSerialDevice);
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,
         baudRate: this.baudRate
       });
     },
     closeSelectedDevice() {
-      console.log("close selected device is clicked", this.currentSerialDevice);
       this.closeSerialDevice({
         devicePath: this.currentSerialDevice,
       });
+    },
+    updateInitialSelection() {
+      if(this.currentSerialDevice == null &&
+         this.receivedData.serial &&
+         this.receivedData.serial.ports)
+      {
+        let portKeys = Object.keys(this.receivedData.serial.ports);
+        portKeys.forEach(key => {
+          let item = this.receivedData.serial.ports[key];
+          if(this.currentSerialDevice == null) {
+            this.currentSerialDevice = item.path;
+          } else if(this.receivedData.serial.portStatus) {
+            let currentStatus = this.receivedData.serial.portStatus[this.currentSerialDevice];
+            if(currentStatus.isOpen == false && this.receivedData.serial.portStatus[item.path].isOpen == true) {
+              // prefer selecting open device
+              this.currentSerialDevice = item.path;
+            }
+          }
+        })
+      }
+
+    },
+  },
+  watch: {
+    currentSerialData() {
+      this.$nextTick(() => {
+        let textArea = this.$refs.dataArea.$el;
+        textArea.scrollTop = textArea.scrollHeight;
+      });
+    },
+    serialDeviceList() {
+      this.updateInitialSelection();
     }
   }
 };

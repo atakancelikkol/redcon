@@ -54,7 +54,7 @@ const store = new Vuex.Store({
     },
     APPEND_SERIAL_DATA(state, serialData) {
       if (state.serialData[serialData.path] == undefined) {
-        state.serialData[serialData.path] = "";
+        Vue.set(state.serialData, serialData.path, "");
       }
 
       let currentData = state.serialData[serialData.path];
