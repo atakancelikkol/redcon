@@ -5,7 +5,6 @@ const drivelist = require('drivelist');
 const { execSync } = require('child_process');
 const nodePath = require('path');
 
-
 const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
 // const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
 
@@ -15,15 +14,12 @@ class USBController {
     this.usbState = {
       pluggedDevice: 'none', // or 'rpi', 'ecu'
       poweredOn: true,
-
     };
     this.timeToCheckSafety = 0;
     this.usbID = {
       mountedPath: [],
       usbName: [],
-
     };
-
   }
 
   init() {
@@ -39,12 +35,11 @@ class USBController {
   getCopyState() {
     return cloneDeep(this.usbState);
   }
+
   appendData(obj) {
     // this function returns the initial state
     obj["usb"] = this.getCopyState();
   }
-
-
 
   handleMessage(obj) {
     if (typeof obj.usb != "undefined") {
@@ -53,16 +48,12 @@ class USBController {
         this.changeUsbDeviceDirection(obj.usb.device).then(() => {
           this.detectUsbDevice();
         });
-
       }
       else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
       }
     }
   }
-
-
-
 
   async detectUsbDevice() {
     // To get list of connected Drives
@@ -94,11 +85,8 @@ class USBController {
         console.log("There are no USB Drives!!!");
         console.log(this.usbID.mountPath);
         console.log(this.usbID.usbName);
-
-
       }
     }
-
   }
 
   async changeUsbDeviceDirection(deviceString) {
@@ -109,27 +97,27 @@ class USBController {
     if (this.usbState.pluggedDevice == deviceString) {
       return;
     }
-    let safety = this.isSafeTochangeUsbDeviceDirection();
+
+    let safety = this.isSafeToChangeUsbDeviceDirection();
     if (safety) {
       this.pinPlugSequence(deviceString);
       this.sendCurrentState();
-    }
-    else {
+    } else {
       console.log("Pressing the button repeatedly Alert!");
       return;
     }
   }
 
-  isSafeTochangeUsbDeviceDirection() {
+  isSafeToChangeUsbDeviceDirection() {
     if (this.timeToCheckSafety == 0) {
       this.timeToCheckSafety = new Date().valueOf();
-      return 1;
-    }
-    else if ((new Date().valueOf() - this.timeToCheckSafety) > 250) {
+      return true;
+    } else if ((new Date().valueOf() - this.timeToCheckSafety) > 250) {
       this.timeToCheckSafety = new Date().valueOf();
-      return 1;
+      return true;
+    } else {
+      return false;
     }
-    else { return 0; }
   }
 
   pinPlugSequence(deviceString) {
