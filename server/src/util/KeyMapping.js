@@ -4,7 +4,7 @@ const CTRL_KEY_MAP= {
   "B": 2,
   "C": 3,
 }
-
+//TODO implement SHIFT_KEY_MAP
 class KeyMapping {
   static ConvertKey(keyCode, charCode, ctrlKey, shiftKey) {
     let dataToSend = charCode;

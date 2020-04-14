@@ -124,6 +124,9 @@ export default {
       if(evt.keyCode >= 16 && evt.keyCode <= 20 ) {
         // ignore keys shift, ctrl, alt
         return;
+      } else if(evt.keyCode == 13){
+        let textArea = this.$refs.dataArea.$el;
+        textArea.scrollTop = textArea.scrollHeight;
       }
 
       let keyCode = evt.keyCode;
