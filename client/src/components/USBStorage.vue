@@ -1,7 +1,7 @@
 <template>
   <div class="usb-storage-container">
-    <b-card title="USB Storage" style="flex:1">
-      <b-button variant="outline-primary" @click="onButtonClicked">Detect USB Devices</b-button>
+    <b-card title="USB Storage" style="flex:1; display:flex">
+      <b-button variant="outline-primary" @click="onButtonClicked" class="button_class">Detect USB Devices</b-button>
       <div @click="onSwitchClicked($event)" style="display:flex; flex-direction: row;">
         <div size="lg">
           <b>NONE</b>-
@@ -18,7 +18,27 @@
           </span>
         </b-form-checkbox>
       </div>
+      <div>File Storage Area of REDCON USB</div>
+      <b-card title="File Storage Area of REDCON USB" style="flex:1">
+        <b-form-file
+          v-model="file"
+          :state="Boolean(file)"
+          ref="file-input"
+          placeholder="Choose a file or drop it here..."
+          drop-placeholder="Drop file here..."
+        ></b-form-file>
+        <div class="mt-3">
+          Selected file: {{ file ? file.name : '' }}
+          <b-button variant="outline-primary" @click="uploadFile">Upload Chosen File</b-button>
+          <span style="margin-left: 15px">Reset File:</span>
+          <b-button
+            @click="clearFiles"
+            variant="outline-primary"
+            style="margin-left: 5px"
+          >Reset File</b-button>
+        </div>
       </b-card>
+    </b-card>
   </div>
 </template>
 
@@ -29,7 +49,8 @@ export default {
   name: "USBStorage",
   data() {
     return {
-      eventFields: ["state"]
+      eventFields: ["state"],
+      file: null
     };
   },
   computed: {
@@ -52,8 +73,11 @@ export default {
       const currentDevice = this.receivedData.usb.pluggedDevice;
       this.detectUSBDevice({ device: currentDevice });
       return false;
-     }
+    },
+    clearFiles() {
+      this.$refs["file-input"].reset();
     }
+  }
 };
 </script>
 
