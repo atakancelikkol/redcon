@@ -14,12 +14,10 @@ class USBController {
     this.usbState = {
       pluggedDevice: 'none', // or 'rpi', 'ecu'
       poweredOn: true,
-    };
-    this.timeToCheckSafety = 0;
-    this.usbID = {
       mountedPath: [],
       usbName: [],
     };
+    this.timeToCheckSafety = 0;
   }
 
   init() {
@@ -65,26 +63,26 @@ class USBController {
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
           let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
-          this.usbID.mountPath = mountPath;
-          this.usbID.usbName = USBName.toString().split('\n')[1];
-          console.log(this.usbID.mountPath);
-          console.log(this.usbID.usbName);
+          this.usbState.mountPath = mountPath;
+          this.usbState.usbName = USBName.toString().split('\n')[1];
+          console.log(this.usbState.mountPath);
+          console.log(this.usbState.usbName);
         }
         else {
           let USBName = nodePath.basename(mountPath);
-          this.usbID.mountPath = mountPath;
-          this.usbID.usbName = USBName;
-          console.log(this.usbID.mountPath);
-          console.log(this.usbID.usbName);
+          this.usbState.mountPath = mountPath;
+          this.usbState.usbName = USBName;
+          console.log(this.usbState.mountPath);
+          console.log(this.usbState.usbName);
         }
         break;
       }
       else if (index == driveList.length - 1) {
-        this.usbID.mountPath = [];
-        this.usbID.usbName = [];
+        this.usbState.mountPath = [];
+        this.usbState.usbName = [];
         console.log("There are no USB Drives!!!");
-        console.log(this.usbID.mountPath);
-        console.log(this.usbID.usbName);
+        console.log(this.usbState.mountPath);
+        console.log(this.usbState.usbName);
       }
     }
   }

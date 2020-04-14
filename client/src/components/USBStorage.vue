@@ -1,7 +1,6 @@
 <template>
   <div class="usb-storage-container">
     <b-card title="USB Storage" style="flex:1">
-      
       <b-button variant="outline-primary" @click="onButtonClicked">Detect USB Devices</b-button>
       <div @click="onSwitchClicked($event)" style="display:flex; flex-direction: row;">
         <div size="lg">
@@ -19,7 +18,7 @@
           </span>
         </b-form-checkbox>
       </div>
-    </b-card>
+      </b-card>
   </div>
 </template>
 
@@ -38,6 +37,7 @@ export default {
   },
   methods: {
     ...mapActions(["changeUSBPort"]),
+    ...mapActions(["detectUSBDevice"]),
     onSwitchClicked(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -45,23 +45,26 @@ export default {
       const currentDevice = this.receivedData.usb.pluggedDevice;
       let targetDevice = currentDevice == "none" ? "rpi" : "none";
 
-      this.changeUSBPort({ action: 'changeDirection',device: targetDevice });
+      this.changeUSBPort({ device: targetDevice });
       return false;
     },
     onButtonClicked() {
-      
       const currentDevice = this.receivedData.usb.pluggedDevice;
-      //if currentDevice == 
-      this.changeUSBPort({ action: 'detectUsbDevice',device: currentDevice });
+      this.detectUSBDevice({ device: currentDevice });
       return false;
+     }
     }
-  }
 };
 </script>
 
 <style>
 .usb-storage-container {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.usb-storage-container > .card > .card-body {
   display: flex;
   flex-direction: column;
 }
