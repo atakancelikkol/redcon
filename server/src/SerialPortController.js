@@ -1,6 +1,7 @@
 const serialport = require('serialport');
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
+const KeyMapping = require('./util/KeyMapping');
 
 if (virtualDeviceMode) {
   const SerialPort = require('@serialport/stream')
@@ -90,6 +91,8 @@ class SerialPortController {
         this.closeSerialPort(obj["serial"].path);
       } else if (action == 'writeDevice') {
         this.writeSerialPort(obj["serial"].path, obj["serial"].data);
+      } else if (action == 'writeKeyDevice') {
+        this.writeKeySerialPort(obj["serial"].path, obj["serial"].keyCode, obj["serial"].charCode, obj["serial"].ctrlKey, obj["serial"].shiftKey);
       }
     }
   }
@@ -129,6 +132,20 @@ class SerialPortController {
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.write(serialCmd);
+    } else {
+      console.log("port write error! can not find port with the specified path.", devicePath);
+    }
+  }
+
+  writeKeySerialPort(devicePath, keyCode, charCode, ctrlKey, shiftKey) {
+    console.log("send key to device", keyCode, ctrlKey, shiftKey);
+    if (this.portInstances[devicePath]) {
+      const port = this.portInstances[devicePath];
+
+      let dataToSend = KeyMapping.ConvertKey(keyCode, charCode, ctrlKey, shiftKey);
+
+      console.log("data to send = ", dataToSend);
+      port.write([dataToSend]);
     } else {
       console.log("port write error! can not find port with the specified path.", devicePath);
     }

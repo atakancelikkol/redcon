@@ -16,7 +16,7 @@
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
         <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
       </div>
-        <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" disabled></b-form-textarea>
+        <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
 
        <b-form-input v-model="serialmsg" placeholder="Serial Send"></b-form-input>
        <div class="mt-2">Serial: {{ serialmsg }} <b-button style="margin-left: 10px" @click="writeSelectedDevice">Write to Serial Device</b-button> </div>
@@ -79,7 +79,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice"]),
+    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice","writeKeySerialDevice"]),
     openSelectedDevice() {
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,
@@ -117,8 +117,30 @@ export default {
           }
         })
       }
-
     },
+    onKeyDown(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      if(evt.keyCode >= 16 && evt.keyCode <= 20 ) {
+        // ignore keys shift, ctrl, alt
+        return;
+      }
+
+      let keyCode = evt.keyCode;
+      let charCode = -1;
+      if(evt.key && evt.key.length == 1) {
+        charCode = evt.key.charCodeAt(0);
+      }
+
+      console.log(evt.keyCode, evt.ctrlKey, evt.shiftKey,evt);
+      this.writeKeySerialDevice({
+        devicePath: this.currentSerialDevice,
+        keyCode: keyCode,
+        charCode: charCode,
+        ctrlKey: evt.ctrlKey, 
+        shiftKey: evt.shiftKey,
+      });
+    }
   },
   watch: {
     currentSerialData() {
