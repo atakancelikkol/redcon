@@ -18,8 +18,11 @@
       </div>
         <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
 
-       <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
-       <div class="mt-2">Serial: {{ serialmsg }} <b-button style="margin-left: 10px" @click="writeSelectedDevice">Write to Serial Device</b-button> </div>
+       
+       <div class="mt-2" style="display:flex">
+         <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
+         <b-button style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
+        </div>
       </b-card>
   </div>
 </template>
