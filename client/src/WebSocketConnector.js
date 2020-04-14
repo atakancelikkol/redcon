@@ -54,7 +54,7 @@ export default class WebSocketConnector {
   }
 
   sendFetchPortMappingConfigurationMessage() {
-    let obj = { portconfig: {action: "readConfigFile"} };
+    let obj = { portconfig: { action: "readConfigFile" } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
@@ -79,15 +79,22 @@ export default class WebSocketConnector {
   }
 
   sendlistSerialDevicesMessage() {
-    var obj = { serial: { action: "listDevices"} };
+    var obj = { serial: { action: "listDevices" } };
     this.connectionSocket.send(JSON.stringify(obj));
 
   }
+
   sendUSBUpdateMessage({ device }) {
-    var obj = { usb: {action:'changeDirection', device} };
+    var obj = { usb: { action: "changeDirection", device } };
     this.connectionSocket.send(JSON.stringify(obj));
 
   }
+
+  sendUSBDetectMessage({ device }) {
+    var obj = { usb: { action: "detectUsbDevice", device } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
 }
 
 

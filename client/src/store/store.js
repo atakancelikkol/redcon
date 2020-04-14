@@ -23,8 +23,11 @@ const store = new Vuex.Store({
     changeGPIOPort({ commit }, { gpioPort, value }) { // eslint-disable-line
       webSocketConnector.sendGPIOUpdateMessage({ gpioPort, value });
     },
-    changeUSBPort({commit}, {device}) { // eslint-disable-line
-      webSocketConnector.sendUSBUpdateMessage({device});
+    changeUSBPort({ commit }, { device }) { // eslint-disable-line
+      webSocketConnector.sendUSBUpdateMessage({ device });
+    },
+    detectUSBDevice({ commit }, { device }) { // eslint-disable-line
+      webSocketConnector.sendUSBDetectMessage({ device });
     },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
