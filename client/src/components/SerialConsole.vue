@@ -18,7 +18,7 @@
       </div>
         <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
 
-       <b-form-input v-model="serialmsg" placeholder="Serial Send"></b-form-input>
+       <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
        <div class="mt-2">Serial: {{ serialmsg }} <b-button style="margin-left: 10px" @click="writeSelectedDevice">Write to Serial Device</b-button> </div>
       </b-card>
   </div>
@@ -97,6 +97,7 @@ export default {
         devicePath: this.currentSerialDevice,
         serialCmd: this.serialmsg,
       });
+      this.serialmsg=null
     },
     updateInitialSelection() {
       if(this.currentSerialDevice == null &&
@@ -116,6 +117,15 @@ export default {
             }
           }
         })
+      }
+    },
+    onEnterKey(evt){
+      if(evt.keyCode == 13 ) {
+        this.writeSerialDevice({
+        devicePath: this.currentSerialDevice,
+        serialCmd: this.serialmsg,
+        })
+       this.serialmsg=null
       }
     },
     onKeyDown(evt) {
