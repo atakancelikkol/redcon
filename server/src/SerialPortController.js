@@ -138,13 +138,13 @@ class SerialPortController {
   }
 
   writeKeySerialPort(devicePath, keyCode, charCode, ctrlKey, shiftKey) {
-    console.log("send key to device", keyCode, ctrlKey, shiftKey);
+   // console.log("send key to device", keyCode, ctrlKey, shiftKey);
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
 
       let dataToSend = KeyMapping.ConvertKey(keyCode, charCode, ctrlKey, shiftKey);
 
-      console.log("data to send = ", dataToSend);
+      //console.log("data to send = ", dataToSend);
       port.write([dataToSend]);
     } else {
       console.log("port write error! can not find port with the specified path.", devicePath);
