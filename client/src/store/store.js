@@ -35,6 +35,12 @@ const store = new Vuex.Store({
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
     },
+    writeSerialDevice({ commit }, { devicePath, serialCmd }) { // eslint-disable-line
+      webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd  });
+    },
+    writeKeySerialDevice({ commit }, { devicePath, keyCode, charCode, ctrlKey, shiftKey }) { // eslint-disable-line
+      webSocketConnector.sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey  });
+    },
     listSerialDevices() {
       webSocketConnector.sendlistSerialDevicesMessage();
     },
@@ -57,11 +63,15 @@ const store = new Vuex.Store({
     },
     APPEND_SERIAL_DATA(state, serialData) {
       if (state.serialData[serialData.path] == undefined) {
-        state.serialData[serialData.path] = "";
+        Vue.set(state.serialData, serialData.path, "");
       }
 
       let currentData = state.serialData[serialData.path];
-      const newData = currentData + serialData.data;
+      let newData = currentData + serialData.data;
+      const maxSize = 20000;
+      if(newData.length > maxSize) {
+        newData = newData.substr(newData.length - maxSize);
+      }
       Vue.set(state.serialData, serialData.path, newData);
     },
     UPDATE_CONNECTION_STATUS(state, status) {
