@@ -17,7 +17,7 @@
       <b-card  style="flex:1">
         <div class="mt-3" style="width: 437px">
         <b-form-file id="browse" v-model="file" :state="Boolean(file)" :disabled="receivedData.usb.isAvailable == false" ref="file-input" 
-          placeholder="Choose a file or drop it here..." drop-placeholder="Drop file here..." > 
+          placeholder="Choose a file or drop it here..." drop-placeholder="Drop file here..." multiple=true> 
         </b-form-file>
         </div>
         <div class="mt-3">
