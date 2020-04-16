@@ -16,8 +16,14 @@
         <b-button @click="openSelectedDevice">Open Selected Device</b-button>
         <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
       </div>
-      <b-form-textarea id="textarea" rows="20" style="margin-top: 10px;" :value="serialData[currentSerialDevice]" disabled></b-form-textarea>
-    </b-card>
+        <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
+
+       
+       <div class="mt-2" style="display:flex">
+         <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
+         <b-button style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
+        </div>
+      </b-card>
   </div>
 </template>
 
@@ -33,12 +39,14 @@ export default {
         serialDeviceRate: [
           { value: 115200, text: '115200' },
           { value: 57600, text: '57600' },
-          
-        ]
+        
+        ],
+      serialmsg:''
     };
   },
   mounted() {
     this.listSerialDevices();
+    this.updateInitialSelection();
   },
   computed: {
     ...mapState(["receivedData", "serialData"]), // receivedData.serial.ports  receivedData.serial.portStatus
@@ -68,23 +76,100 @@ export default {
         deviceList.push(deviceItem);
       });
       return deviceList;
+    },
+    currentSerialData() {
+      return this.serialData[this.currentSerialDevice];
     }
   },
   methods: {
-    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices"]),
+    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice","writeKeySerialDevice"]),
     openSelectedDevice() {
-      console.log(this.baudRate)
-      console.log("open selected device is clicked", this.currentSerialDevice);
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,
         baudRate: this.baudRate
       });
     },
     closeSelectedDevice() {
-      console.log("close selected device is clicked", this.currentSerialDevice);
       this.closeSerialDevice({
         devicePath: this.currentSerialDevice,
       });
+    },
+    writeSelectedDevice() {
+      console.log("write to serial device is clicked", this.currentSerialDevice, this.serialmsg);
+      this.writeSerialDevice({
+        devicePath: this.currentSerialDevice,
+        serialCmd: this.serialmsg,
+      });
+      this.serialmsg=null
+    },
+    updateInitialSelection() {
+      if(this.currentSerialDevice == null &&
+         this.receivedData.serial &&
+         this.receivedData.serial.ports)
+      {
+        let portKeys = Object.keys(this.receivedData.serial.ports);
+        portKeys.forEach(key => {
+          let item = this.receivedData.serial.ports[key];
+          if(this.currentSerialDevice == null) {
+            this.currentSerialDevice = item.path;
+          } else if(this.receivedData.serial.portStatus) {
+            let currentStatus = this.receivedData.serial.portStatus[this.currentSerialDevice];
+            if(currentStatus.isOpen == false && this.receivedData.serial.portStatus[item.path].isOpen == true) {
+              // prefer selecting open device
+              this.currentSerialDevice = item.path;
+            }
+          }
+        })
+      }
+    },
+    onEnterKey(evt){
+      if(evt.keyCode == 13 ) {
+        this.writeSerialDevice({
+        devicePath: this.currentSerialDevice,
+        serialCmd: this.serialmsg,
+        })
+       this.serialmsg=null
+      }
+    },
+    onKeyDown(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      if(evt.keyCode >= 16 && evt.keyCode <= 20 ) {
+        // ignore keys shift, ctrl, alt
+        return;
+      } else if(evt.keyCode == 13){
+        let textArea = this.$refs.dataArea.$el;
+        textArea.scrollTop = textArea.scrollHeight;
+      }
+
+      let keyCode = evt.keyCode;
+      let charCode = -1;
+      if(evt.key && evt.key.length == 1) {
+        charCode = evt.key.charCodeAt(0);
+      }
+
+      console.log(evt.keyCode, evt.ctrlKey, evt.shiftKey,evt);
+      this.writeKeySerialDevice({
+        devicePath: this.currentSerialDevice,
+        keyCode: keyCode,
+        charCode: charCode,
+        ctrlKey: evt.ctrlKey, 
+        shiftKey: evt.shiftKey,
+      });
+    }
+  },
+  watch: {
+    currentSerialData() {
+      this.$nextTick(() => {
+        let textArea = this.$refs.dataArea.$el;
+        let currentScroll = textArea.scrollTop + textArea.offsetHeight;
+        if(currentScroll + 50 >= textArea.scrollHeight) {
+          textArea.scrollTop = textArea.scrollHeight;
+        }
+      });
+    },
+    serialDeviceList() {
+      this.updateInitialSelection();
     }
   }
 };

@@ -1,8 +1,9 @@
 const serialport = require('serialport');
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
+const KeyMapping = require('./util/KeyMapping');
 
-if(virtualDeviceMode) {
+if (virtualDeviceMode) {
   const SerialPort = require('@serialport/stream')
   const MockBinding = require('@serialport/binding-mock')
   SerialPort.Binding = MockBinding;
@@ -41,21 +42,22 @@ class SerialPortController {
 
   init() { }
 
-  startVirtualDevice() {
-    if(this.virtualDeviceInterval) {
+  startVirtualDevice(devicePath) {
+    if (this.virtualDeviceInterval) {
       return;
     }
 
-    this.virtualDeviceInterval = setInterval(()=>{
+    this.virtualDeviceInterval = setInterval(() => {
       let date = new Date();
       let data = date + ' virtual device \n\r'
-      this.portInstances[mockDevicePath].emit('data', data);
+      this.portInstances[devicePath].emit('data', data);
     }, 500);
   }
 
   stopVirtualDevice() {
-    if(this.virtualDeviceInterval) {
+    if (this.virtualDeviceInterval) {
       clearInterval(this.virtualDeviceInterval);
+      this.virtualDeviceInterval = undefined;
     }
   }
 
@@ -87,6 +89,10 @@ class SerialPortController {
         this.listPorts();
       } else if (action == 'closeDevice') {
         this.closeSerialPort(obj["serial"].path);
+      } else if (action == 'writeDevice') {
+        this.writeSerialPort(obj["serial"].path, obj["serial"].data);
+      } else if (action == 'writeKeyDevice') {
+        this.writeKeySerialPort(obj["serial"].path, obj["serial"].keyCode, obj["serial"].charCode, obj["serial"].ctrlKey, obj["serial"].shiftKey);
       }
     }
   }
@@ -115,6 +121,36 @@ class SerialPortController {
 
     this.updatePortStatus();
   }
+
+  //write serial data to device
+  writeSerialPort(devicePath, serialCmd) {
+    if (typeof serialCmd != 'string') {
+      console.log("invalid parameters", serialCmd)
+      return
+    }
+    console.log("Sending to device(", devicePath, ") :", serialCmd)
+    if (this.portInstances[devicePath]) {
+      const port = this.portInstances[devicePath];
+      port.write(serialCmd);
+    } else {
+      console.log("port write error! can not find port with the specified path.", devicePath);
+    }
+  }
+
+  writeKeySerialPort(devicePath, keyCode, charCode, ctrlKey, shiftKey) {
+   // console.log("send key to device", keyCode, ctrlKey, shiftKey);
+    if (this.portInstances[devicePath]) {
+      const port = this.portInstances[devicePath];
+
+      let dataToSend = KeyMapping.ConvertKey(keyCode, charCode, ctrlKey, shiftKey);
+
+      //console.log("data to send = ", dataToSend);
+      port.write([dataToSend]);
+    } else {
+      console.log("port write error! can not find port with the specified path.", devicePath);
+    }
+  }
+
   //close serial port
   closeSerialPort(devicePath) {
     //number and string check
@@ -123,7 +159,7 @@ class SerialPortController {
       return
     }
 
-    if(this.portInstances[devicePath]) {
+    if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.close(this.onPortClosed.bind(this, port));
     } else {
@@ -153,8 +189,8 @@ class SerialPortController {
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
 
-    if(virtualDeviceMode) {
-      this.startVirtualDevice();
+    if (virtualDeviceMode) {
+      this.startVirtualDevice(devicePath);
     }
   }
 
@@ -175,7 +211,7 @@ class SerialPortController {
     this.portStatusObj[port.path].isOpen = false;
     this.updatePortStatus();
 
-    if(virtualDeviceMode) {
+    if (virtualDeviceMode) {
       this.stopVirtualDevice();
     }
   }

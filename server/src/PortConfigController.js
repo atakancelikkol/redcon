@@ -1,4 +1,6 @@
 const fs = require('fs')
+const { exec } = require("child_process")
+const os = require('os')
 
 const CONFIG_FILE_PATH = "../scripts/port_forwarding/int.config";
 const CONFIG_CUSTOM_CONFIG_PATH = "../scripts/port_forwarding/custom.config";
@@ -71,6 +73,7 @@ class PortConfigController {
     }
     fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
       this.readAndSendConfigFile();
+      this.applyConfigFile();
     })
   }
 
@@ -78,8 +81,19 @@ class PortConfigController {
     fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
       fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (err) => {
         this.readAndSendConfigFile();
+        this.applyConfigFile();
       })
     })
+  }
+
+  applyConfigFile() {
+    if (os.platform() != "linux") {
+      console.log("Port forwarding script can be used only in linux operating system.");
+    } else {
+      exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', function (error, stdout, stderr) {
+        console.log(error, stdout, stderr);
+      })
+    }
   }
 }
 
