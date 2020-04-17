@@ -67,28 +67,19 @@ class USBController {
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
-          console.log(this.usbState.mountedPath);
-          console.log(this.usbState.usbName);
           this.sendCurrentState();
-        }
-        else {
+        } else {
           let USBName = nodePath.basename(mountPath);
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName;
           this.usbState.isAvailable = true;
-          console.log(this.usbState.mountedPath);
-          console.log(this.usbState.usbName);
           this.sendCurrentState();
         }
         break;
-      }
-      else if (index == driveList.length - 1) {
+      } else if (index == driveList.length - 1) {
         this.usbState.mountedPath = [];
         this.usbState.usbName = [];
         this.usbState.isAvailable = false;
-        console.log("There are no USB Drives!!!");
-        console.log(this.usbState.mountPath);
-        console.log(this.usbState.usbName);
         this.sendCurrentState();
       }
     }
