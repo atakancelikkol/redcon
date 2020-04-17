@@ -1,0 +1,18 @@
+[Unit]
+Description=REDCON Web Interface
+Wants = network-online.target
+After=network-online.target
+StartLimitIntervalSec=500
+StartLimitBurst=10000
+ 
+[Service]
+ExecStart=/bin/bash /home/pi/Desktop/Workspace/redcon/scripts/util/server-run.sh
+WorkingDirectory=/home/pi/Desktop/Workspace/redcon/scripts/util
+StandardOutput=inherit
+StandardError=inherit
+Restart=on-failure
+RestartSec=5s
+User=pi
+ 
+[Install]
+WantedBy=multi-user.target
