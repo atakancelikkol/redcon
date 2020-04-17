@@ -12,8 +12,9 @@ class USBController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
     this.usbState = {
+      isAvailable: false,
       pluggedDevice: 'none', // or 'rpi', 'ecu'
-      poweredOn: true,
+      poweredOn: false,
       mountedPath: [],
       usbName: [],
     };
@@ -63,26 +64,23 @@ class USBController {
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
           let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
-          this.usbState.mountPath = mountPath;
-          this.usbState.usbName = USBName.toString().split('\n')[1];
-          console.log(this.usbState.mountPath);
-          console.log(this.usbState.usbName);
-        }
-        else {
+          this.usbState.mountedPath = mountPath;
+          this.usbState.usbName = USBName.toString().split('\n')[1].trim();
+          this.usbState.isAvailable = true;
+          this.sendCurrentState();
+        } else {
           let USBName = nodePath.basename(mountPath);
-          this.usbState.mountPath = mountPath;
+          this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName;
-          console.log(this.usbState.mountPath);
-          console.log(this.usbState.usbName);
+          this.usbState.isAvailable = true;
+          this.sendCurrentState();
         }
         break;
-      }
-      else if (index == driveList.length - 1) {
-        this.usbState.mountPath = [];
+      } else if (index == driveList.length - 1) {
+        this.usbState.mountedPath = [];
         this.usbState.usbName = [];
-        console.log("There are no USB Drives!!!");
-        console.log(this.usbState.mountPath);
-        console.log(this.usbState.usbName);
+        this.usbState.isAvailable = false;
+        this.sendCurrentState();
       }
     }
   }
@@ -99,7 +97,7 @@ class USBController {
     let safety = this.isSafeToChangeUsbDeviceDirection();
     if (safety) {
       this.pinPlugSequence(deviceString);
-      this.sendCurrentState();
+      //this.sendCurrentState(); It's not necessary now since sending state after changing direction with the detecting usb in line 47-48
     } else {
       console.log("Pressing the button repeatedly Alert!");
       return;
@@ -125,12 +123,14 @@ class USBController {
       rpio.write(USB_RELAY_PIN_ARRAY[3], state);
       rpio.write(USB_RELAY_PIN_ARRAY[2], state);
       rpio.write(USB_RELAY_PIN_ARRAY[1], state);
+      this.poweredOn = true;
     }
     else if (state == 1) {
       rpio.write(USB_RELAY_PIN_ARRAY[1], state);
       rpio.write(USB_RELAY_PIN_ARRAY[2], state);
       rpio.write(USB_RELAY_PIN_ARRAY[3], state);
       rpio.write(USB_RELAY_PIN_ARRAY[0], state);
+      this.poweredOn = false;
     }
     this.usbState.pluggedDevice = deviceString;
   }
