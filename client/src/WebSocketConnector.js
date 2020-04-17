@@ -93,8 +93,8 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendRPiControlMessage() {
-    let obj = { rpi: { action: "reboot"} };
+  sendRebootDeviceMessage() {
+    let obj = { utility: { action: "reboot"} };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
