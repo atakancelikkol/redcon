@@ -91,17 +91,20 @@ export default class WebSocketConnector {
   sendlistSerialDevicesMessage() {
     var obj = { serial: { action: "listDevices" } };
     this.connectionSocket.send(JSON.stringify(obj));
-
   }
 
   sendUSBUpdateMessage({ device }) {
     var obj = { usb: { action: "changeDirection", device } };
     this.connectionSocket.send(JSON.stringify(obj));
-
   }
 
   sendUSBDetectMessage({ device }) {
     var obj = { usb: { action: "detectUsbDevice", device } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendRebootDeviceMessage() {
+    let obj = { utility: { action: "reboot"} };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
