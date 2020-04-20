@@ -5,7 +5,8 @@ const drivelist = require('drivelist');
 const { execSync } = require('child_process');
 const nodePath = require('path');
 
-const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
+const USB_KVM_PIN = [33];
+//const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
 // const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
 
 class USBController {
@@ -13,8 +14,8 @@ class USBController {
     this.sendMessageCallback = sendMessageCallback;
     this.usbState = {
       isAvailable: false,
-      pluggedDevice: 'none', // or 'rpi', 'ecu'
-      poweredOn: false,
+      pluggedDevice: 'rpi', // or 'none', 'ecu'
+      poweredOn: true,
       mountedPath: [],
       usbName: [],
     };
@@ -23,12 +24,12 @@ class USBController {
 
   init() {
     console.log("initializing USBController");
-    USB_RELAY_PIN_ARRAY.forEach((pinNum) => {
-      if (isNaN(pinNum) == false) {
+    //USB_RELAY_PIN_ARRAY.forEach((pinNum) => {
+      //if (isNaN(pinNum) == false) {
         // open all ports regarding default value
-        rpio.open(pinNum, rpio.OUTPUT, rpio.HIGH);
-      }
-    });
+        //rpio.open(pinNum, rpio.OUTPUT, rpio.HIGH);
+     //}
+    //});
   }
 
   getCopyState() {
@@ -108,7 +109,7 @@ class USBController {
     if (this.timeToCheckSafety == 0) {
       this.timeToCheckSafety = new Date().valueOf();
       return true;
-    } else if ((new Date().valueOf() - this.timeToCheckSafety) > 250) {
+    } else if ((new Date().valueOf() - this.timeToCheckSafety) > 1000) { // Safety Margin is increased due to design
       this.timeToCheckSafety = new Date().valueOf();
       return true;
     } else {
@@ -119,18 +120,16 @@ class USBController {
   pinPlugSequence(deviceString) {
     let state = (deviceString == 'rpi') ? 0 : 1;
     if (state == 0) {
-      rpio.write(USB_RELAY_PIN_ARRAY[0], state);
-      rpio.write(USB_RELAY_PIN_ARRAY[3], state);
-      rpio.write(USB_RELAY_PIN_ARRAY[2], state);
-      rpio.write(USB_RELAY_PIN_ARRAY[1], state);
-      this.poweredOn = true;
+      rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
+      rpio.msleep(200);
+      rpio.close(USB_KVM_PIN);
+      this.poweredOn = false; // for now its false but switching direction btw rpi-ecu -> this will be true
     }
     else if (state == 1) {
-      rpio.write(USB_RELAY_PIN_ARRAY[1], state);
-      rpio.write(USB_RELAY_PIN_ARRAY[2], state);
-      rpio.write(USB_RELAY_PIN_ARRAY[3], state);
-      rpio.write(USB_RELAY_PIN_ARRAY[0], state);
-      this.poweredOn = false;
+      rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
+      rpio.msleep(200);
+      rpio.close(USB_KVM_PIN);
+      this.poweredOn = true; 
     }
     this.usbState.pluggedDevice = deviceString;
   }
