@@ -35,10 +35,19 @@ export default {
   data() {
     return {
       currentSerialDevice: null,
-      baudRate: 115200,
+      baudRate: 57600,
         serialDeviceRate: [
-          { value: 115200, text: '115200' },
+          { value: 1200, text: '1200' },
+          { value: 2400, text: '2400' },
+          { value: 4800, text: '4800' },
+          { value: 9600, text: '9600' },
+          { value: 19200, text: '19200' },
+          { value: 38400, text: '38400' },
           { value: 57600, text: '57600' },
+          { value: 115200, text: '115200' },
+          { value: 460800, text: '460800' },
+          { value: 921600, text: '921600' },
+          { value: 230400, text: '230400' },
         
         ],
       serialmsg:''
@@ -77,7 +86,7 @@ export default {
       });
       return deviceList;
     },
-    currentSerialData() {
+        currentSerialData() {
       return this.serialData[this.currentSerialDevice];
     }
   },
