@@ -26,7 +26,7 @@
           </div>
  
         </div>
-        <div style="margin-left: 20px; max-width: 150px; display: flex; flex-direction: column">
+        <div style="margin-left: 20px; max-width: 200px; display: flex; flex-direction: column">
           <b-form-select v-model="selectedLogFile" :options="listSerialConsoleFiles" :select-size="24"></b-form-select>
           <b-button style="margin-top: 8px;" @click="openLogfile">Download Selected</b-button>
         </div>

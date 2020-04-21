@@ -208,7 +208,7 @@ class SerialPortController {
   exportSerialFile(port, data) {
     let date = new Date();
 
-    let serialOutput_Path = `../server/public/SerialOut/SerialConsoleOut_${port.path}_(${date.toISOString().slice(0, 10)}).txt`;
+    let serialOutput_Path = `../server/public/SerialOut/${port.path}_(${date.toISOString().slice(0, 10)}).txt`;
     fs.writeFile(serialOutput_Path, data, { 'flag': 'a' }, (err) => {
       if (err) {
         console.log("serialfile write error!")
