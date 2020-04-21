@@ -26,9 +26,9 @@
           </div>
  
         </div>
-        <div style="margin-left: 20px">
-          <b-form-select v-model="selected" :options="listSerialConsoleFiles" multiple :select-size="26"></b-form-select>
-          
+        <div style="margin-left: 20px; max-width: 150px; display: flex; flex-direction: column">
+          <b-form-select v-model="selectedLogFile" :options="listSerialConsoleFiles" :select-size="24"></b-form-select>
+          <b-button style="margin-top: 8px;" @click="openLogfile">Download Selected</b-button>
         </div>
       </div>
     </b-card>
@@ -58,13 +58,14 @@ export default {
           { value: 230400, text: '230400' },
         
         ],
-        serialmsg:''
+        serialmsg:'',
+        selectedLogFile: ''
     };
   },
   mounted() {
     this.listSerialDevices();
     this.updateInitialSelection();
-    this.listSerialConsoleFiles();
+    
   },
   computed: {
     ...mapState(["receivedData", "serialData"]), // receivedData.serial.ports  receivedData.serial.portStatus
@@ -95,6 +96,7 @@ export default {
       });
       return deviceList;
     },
+
     listSerialConsoleFiles(){
       if (
         this.receivedData.serial.serialFiles == undefined
@@ -112,12 +114,26 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice","writeKeySerialDevice","listSerialConsoleFiles"]),
+    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice","writeKeySerialDevice"]),
     openSelectedDevice() {
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,
         baudRate: this.baudRate
       });
+    },
+    openLogfile(){
+
+      //console.log(process.env.NODE_ENV);
+      let loc = window.location;
+      let addr;
+      if (process.env.NODE_ENV == 'production') {
+        addr = "//" + loc.host;
+      } else {
+        addr = "//localhost:3000";
+      }
+      let filePath= addr+"/SerialOut/" + this.listSerialConsoleFiles[this.selectedLogFile];
+      console.log(filePath)
+      window.open(filePath)
     },
     closeSelectedDevice() {
       this.closeSerialDevice({

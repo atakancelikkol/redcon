@@ -93,11 +93,6 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendlistSerialConsoleFilesMessage() {
-    var obj = { serial: { action: "listSerialHistory" } };
-    this.connectionSocket.send(JSON.stringify(obj));
-  }
-
   sendUSBUpdateMessage({ device }) {
     var obj = { usb: { action: "changeDirection", device } };
     this.connectionSocket.send(JSON.stringify(obj));

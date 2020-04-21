@@ -44,6 +44,7 @@ class SerialPortController {
   }
 
   init() { }
+
   readOutputFiles() {
     let serialOutput_Path = `../server/public/SerialOut/`;
     let files = fs.readdirSync(serialOutput_Path);
@@ -103,8 +104,6 @@ class SerialPortController {
         this.writeSerialPort(obj["serial"].path, obj["serial"].data);
       } else if (action == 'writeKeyDevice') {
         this.writeKeySerialPort(obj["serial"].path, obj["serial"].keyCode, obj["serial"].charCode, obj["serial"].ctrlKey, obj["serial"].shiftKey);
-      } else if (action == 'listSerialHistory') {
-        this.readOutputFiles();
       }
     }
   }
