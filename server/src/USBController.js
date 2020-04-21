@@ -18,6 +18,7 @@ class USBController {
       poweredOn: true,
       mountedPath: [],
       usbName: [],
+      device: [],
     };
     this.timeToCheckSafety = 0;
   }
@@ -69,8 +70,9 @@ class USBController {
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
           this.sendCurrentState();
-        } else {
+        } else if(process.platform == 'linux'){
           let USBName = nodePath.basename(mountPath);
+          this.usbState.device = driveList[index].device;
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName;
           this.usbState.isAvailable = true;
@@ -80,6 +82,7 @@ class USBController {
       } else if (index == driveList.length - 1) {
         this.usbState.mountedPath = [];
         this.usbState.usbName = [];
+        this.usbState.device = [] ;
         this.usbState.isAvailable = false;
         this.sendCurrentState();
       }
@@ -98,10 +101,23 @@ class USBController {
     let safety = this.isSafeToChangeUsbDeviceDirection();
     if (safety) {
       this.pinPlugSequence(deviceString);
+      if(this.usbState.pluggedDevice == 'rpi'){
+        this.ejectUSBDriveSafely();
+      }
       //this.sendCurrentState(); It's not necessary now since sending state after changing direction with the detecting usb in line 47-48
     } else {
       console.log("Pressing the button repeatedly Alert!");
       return;
+    }
+  }
+
+  ejectUSBDriveSafely(){
+    if (process.platform == 'win32'){
+
+    }
+    else if (process.platform == 'linux'){
+      execSync(`sudo eject ${this.usbState.device}`);
+      this.poweredOn = false; 
     }
   }
 
@@ -118,16 +134,15 @@ class USBController {
   }
 
   pinPlugSequence(deviceString) {
-    let state = (deviceString == 'rpi') ? 0 : 1;
-    if (state == 0) {
+    if (deviceString == 'none') {
       rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
-      rpio.msleep(200);
+      rpio.msleep(150); // It should be between 10ms and 290ms
       rpio.close(USB_KVM_PIN);
-      this.poweredOn = false; // for now its false but switching direction btw rpi-ecu -> this will be true
+      // this.poweredOn has already assigned to false in fnc ejectUSBDriveSafely line 119
     }
-    else if (state == 1) {
+    else if (deviceString == 'rpi') {
       rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
-      rpio.msleep(200);
+      rpio.msleep(150); // It should be between 10ms and 290ms
       rpio.close(USB_KVM_PIN);
       this.poweredOn = true; 
     }
