@@ -2,28 +2,36 @@
   <div class="serial-console-container">
     <b-card title="Serial Console" style="flex:1">
       <div style="display: flex; flex-direction: row">
-        <div style="margin-right: 5px; margin-top: 8px">Serial Device:</div>
-        <b-form-select
-          v-model="currentSerialDevice"
-          :options="serialDeviceList"
-          style="flex: 1; margin-right: 5px"
-        ></b-form-select>
-        <b-form-select
-            v-model="baudRate"
-            :options="serialDeviceRate"
-            style="max-width: 100px; margin-right: 30px"
-          ></b-form-select>
-        <b-button @click="openSelectedDevice">Open Selected Device</b-button>
-        <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
-      </div>
-        <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
-
-       
-       <div class="mt-2" style="display:flex">
-         <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
-         <b-button style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
+        <div style="flex: 1;">
+          <div style="display: flex; flex-direction: row">
+            <div style="margin-right: 5px; margin-top: 8px">Serial Device:</div>
+            <b-form-select
+              v-model="currentSerialDevice"
+              :options="serialDeviceList"
+              style="flex: 1; margin-right: 5px"
+            ></b-form-select>
+            <b-form-select
+                v-model="baudRate"
+                :options="serialDeviceRate"
+                style="max-width: 100px; margin-right: 30px"
+              ></b-form-select>
+            <b-button @click="openSelectedDevice">Open Selected Device</b-button>
+            <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
+          </div>
+           <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
+ 
+          <div class="mt-2" style="display:flex">
+            <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
+            <b-button style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
+          </div>
+ 
         </div>
-      </b-card>
+        <div style="margin-left: 20px">
+          <b-form-select v-model="selected" :options="listSerialConsoleFiles" multiple :select-size="26"></b-form-select>
+          
+        </div>
+      </div>
+    </b-card>
   </div>
 </template>
 
@@ -50,12 +58,13 @@ export default {
           { value: 230400, text: '230400' },
         
         ],
-      serialmsg:''
+        serialmsg:''
     };
   },
   mounted() {
     this.listSerialDevices();
     this.updateInitialSelection();
+    this.listSerialConsoleFiles();
   },
   computed: {
     ...mapState(["receivedData", "serialData"]), // receivedData.serial.ports  receivedData.serial.portStatus
@@ -86,12 +95,24 @@ export default {
       });
       return deviceList;
     },
-        currentSerialData() {
+    listSerialConsoleFiles(){
+      if (
+        this.receivedData.serial.serialFiles == undefined
+      ) {
+        return [];
+      }
+
+      let filelist =this.receivedData.serial.serialFiles
+
+      return filelist;
+
+    },
+    currentSerialData() {
       return this.serialData[this.currentSerialDevice];
     }
   },
   methods: {
-    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice","writeKeySerialDevice"]),
+    ...mapActions(["openSerialDevice","closeSerialDevice","listSerialDevices","writeSerialDevice","writeKeySerialDevice","listSerialConsoleFiles"]),
     openSelectedDevice() {
       this.openSerialDevice({
         devicePath: this.currentSerialDevice,

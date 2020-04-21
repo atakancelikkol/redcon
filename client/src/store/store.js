@@ -44,6 +44,9 @@ const store = new Vuex.Store({
     listSerialDevices() {
       webSocketConnector.sendlistSerialDevicesMessage();
     },
+    listSerialConsoleFiles() {
+      webSocketConnector.sendlistSerialConsoleFilesMessage();
+    },
     fetchPortMappingConfiguration({ commit }) { // eslint-disable-line
       webSocketConnector.sendFetchPortMappingConfigurationMessage();
     },

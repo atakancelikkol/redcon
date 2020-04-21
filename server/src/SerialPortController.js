@@ -2,6 +2,7 @@ const serialport = require('serialport');
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
 const KeyMapping = require('./util/KeyMapping');
+const fs = require('fs');
 
 if (virtualDeviceMode) {
   const SerialPort = require('@serialport/stream')
@@ -38,10 +39,18 @@ class SerialPortController {
     this.portInstances = {};
 
     this.virtualDeviceInterval = undefined;
+
+    this.serialFiles = [];
   }
 
   init() { }
-
+  readOutputFiles() {
+    let serialOutput_Path = `../server/public/SerialOut/`;
+    let files = fs.readdirSync(serialOutput_Path);
+    this.serialFiles = files
+    console.log(this.serialFiles);
+    this.updatePortStatus();
+  }
   startVirtualDevice(devicePath) {
     if (this.virtualDeviceInterval) {
       return;
@@ -65,6 +74,7 @@ class SerialPortController {
     return {
       ports: { ...this.ports },
       portStatus: { ...this.portStatusObj },
+      serialFiles: {...this.serialFiles },
     }
   }
 
@@ -93,17 +103,19 @@ class SerialPortController {
         this.writeSerialPort(obj["serial"].path, obj["serial"].data);
       } else if (action == 'writeKeyDevice') {
         this.writeKeySerialPort(obj["serial"].path, obj["serial"].keyCode, obj["serial"].charCode, obj["serial"].ctrlKey, obj["serial"].shiftKey);
+      } else if (action == 'listSerialHistory') {
+        this.readOutputFiles();
       }
     }
   }
 
   //list currently active serial ports
   async listPorts() {
+    this.readOutputFiles()
     this.ports = [];
     let ports = await serialport.list();
     this.ports = ports;
     let statusList = Object.keys(this.portStatusObj);
-
     // delete removed port items from portStatusObj
     statusList.forEach(port => {
       let devicePort = this.ports.find(item => item.path == port)
@@ -138,7 +150,7 @@ class SerialPortController {
   }
 
   writeKeySerialPort(devicePath, keyCode, charCode, ctrlKey, shiftKey) {
-   // console.log("send key to device", keyCode, ctrlKey, shiftKey);
+    // console.log("send key to device", keyCode, ctrlKey, shiftKey);
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
 
@@ -176,7 +188,7 @@ class SerialPortController {
     }
 
     const port = new serialport(devicePath, { baudRate });
-    this.portInstances[port.path] = port;
+
     port.on('open', this.onPortOpened.bind(this, port));
     port.on('close', this.onPortClosed.bind(this, port));
     port.on('error', function (err) {
@@ -194,15 +206,31 @@ class SerialPortController {
     }
   }
 
+  exportSerialFile(port, data) {
+    let date = new Date();
+
+    let serialOutput_Path = `../server/public/SerialOut/SerialConsoleOut_${port.path}_(${date.toISOString().slice(0, 10)}).txt`;
+    fs.writeFile(serialOutput_Path, data, { 'flag': 'a' }, (err) => {
+      if (err) {
+        console.log("serialfile write error!")
+      }
+    })
+    //fs.close(serialOutput_Path);
+
+  }
   onPortOpened(port) {
     console.log('port open.', port.path);
     this.portStatusObj[port.path].isOpen = true;
+    this.portInstances[port.path] = port;
     this.updatePortStatus();
+
   }
 
   onPortDataReceived(port, data) {
     let obj = {};
     obj["serialData"] = { path: port.path, data: data };
+    //Export serial data
+    this.exportSerialFile(port, data)
     this.sendMessageCallback(obj);
   }
 
