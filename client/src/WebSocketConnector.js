@@ -103,6 +103,16 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
+  sendListFilesUSBDeviceMessage({ path }) {
+    var obj = { usb: { action: "listFiles", path } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendDeleteFileUSBDeviceMessage({ path, fileName }) {
+    var obj = { usb: { action: "deleteFile", path, fileName } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
   sendRebootDeviceMessage() {
     let obj = { utility: { action: "reboot"} };
     this.connectionSocket.send(JSON.stringify(obj));
