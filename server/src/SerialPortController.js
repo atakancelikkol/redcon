@@ -49,7 +49,6 @@ class SerialPortController {
     let serialOutput_Path = `../server/public/SerialOut/`;
     let files = fs.readdirSync(serialOutput_Path);
     this.serialFiles = files
-    console.log(this.serialFiles);
     this.updatePortStatus();
   }
   startVirtualDevice(devicePath) {
