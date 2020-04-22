@@ -48,6 +48,7 @@ class SerialPortController {
   readOutputFiles() {
     let serialOutput_Path = `../server/public/SerialOut/`;
     let files = fs.readdirSync(serialOutput_Path);
+    files.splice(files.indexOf('.gitkeep'), 1);
     this.serialFiles = files
     this.updatePortStatus();
   }
@@ -138,7 +139,7 @@ class SerialPortController {
       console.log("invalid parameters", serialCmd)
       return
     }
-    console.log("Sending to device(", devicePath, ") :", serialCmd)
+    //console.log("Sending to device(", devicePath, ") :", serialCmd)
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.write(serialCmd);

@@ -43,7 +43,7 @@ export default {
   data() {
     return {
       currentSerialDevice: null,
-      baudRate: 57600,
+      baudRate: 115200,
         serialDeviceRate: [
           { value: 1200, text: '1200' },
           { value: 2400, text: '2400' },
@@ -140,7 +140,8 @@ export default {
       });
     },
     writeSelectedDevice() {
-      console.log("write to serial device is clicked", this.currentSerialDevice, this.serialmsg);
+      //console.log("write to serial device is clicked", this.currentSerialDevice, this.serialmsg);
+      this.serialmsg+=String.fromCharCode(13)
       this.writeSerialDevice({
         devicePath: this.currentSerialDevice,
         serialCmd: this.serialmsg,
@@ -169,11 +170,7 @@ export default {
     },
     onEnterKey(evt){
       if(evt.keyCode == 13 ) {
-        this.writeSerialDevice({
-        devicePath: this.currentSerialDevice,
-        serialCmd: this.serialmsg,
-        })
-       this.serialmsg=null
+        this.writeSelectedDevice()
       }
     },
     onKeyDown(evt) {
@@ -193,7 +190,7 @@ export default {
         charCode = evt.key.charCodeAt(0);
       }
 
-      console.log(evt.keyCode, evt.ctrlKey, evt.shiftKey,evt);
+      //console.log(evt.keyCode, evt.ctrlKey, evt.shiftKey,evt);
       this.writeKeySerialDevice({
         devicePath: this.currentSerialDevice,
         keyCode: keyCode,
