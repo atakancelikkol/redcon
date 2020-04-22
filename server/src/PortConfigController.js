@@ -62,7 +62,7 @@ class PortConfigController {
     let configResponse = {
       portconfig: {
         configContents: error ? "An error occurred while reading file" : data,
-        shellOuput: this.shellOutput,
+        shellOutput: this.shellOutput,
         shellError: this.shellError,
       }
     };
