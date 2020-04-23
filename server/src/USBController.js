@@ -91,6 +91,7 @@ class USBController {
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
+          this.usbState.pluggedDevice = 'rpi';
           this.sendCurrentState();
         } else if (process.platform == 'linux') {
           let USBName = nodePath.basename(mountPath);
@@ -98,6 +99,7 @@ class USBController {
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName;
           this.usbState.isAvailable = true;
+          this.usbState.pluggedDevice = 'rpi';
           this.sendCurrentState();
         }
         break;
@@ -106,6 +108,7 @@ class USBController {
         this.usbState.usbName = [];
         this.usbState.device = [];
         this.usbState.isAvailable = false;
+        this.usbState.pluggedDevice = 'none';
         this.sendCurrentState();
       }
     }
@@ -136,7 +139,7 @@ class USBController {
 
   ejectUSBDriveSafely() {
     if (process.platform == 'win32') {
-
+      //could not find right cmd on windows to eject usb drive for now
     }
     else if (process.platform == 'linux') {
       execSync(`sudo eject ${this.usbState.device}`);
@@ -182,7 +185,6 @@ class USBController {
     process.on('SIGINT', function () {
       usbDetect.stopMonitoring();
       process.exit();
-
     });
   }
 }
