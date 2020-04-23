@@ -25,3 +25,7 @@ dataHandlers.forEach((handler) => {
 function sendMessageCallback(obj) {
   appServer.sendToAllClients(obj);
 }
+
+dataHandlers.forEach((handler) => {
+  handler.onExit();
+});

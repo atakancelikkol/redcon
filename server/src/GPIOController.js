@@ -72,6 +72,10 @@ class GPIOController {
     this.appendData(obj);
     this.sendMessageCallback(obj);
   }
+
+  onExit(){
+    
+  }
 }
 
 module.exports = GPIOController;

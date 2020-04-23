@@ -4,10 +4,10 @@ const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
 const { execSync } = require('child_process');
 const nodePath = require('path');
+var usbDetect = require('usb-detection');
 
 const USB_KVM_PIN = [33];
-//const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
-// const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
+const toggleHoldTime = 150; //ms
 
 class USBController {
   constructor({ sendMessageCallback }) {
@@ -25,12 +25,16 @@ class USBController {
 
   init() {
     console.log("initializing USBController");
-    //USB_RELAY_PIN_ARRAY.forEach((pinNum) => {
-      //if (isNaN(pinNum) == false) {
-        // open all ports regarding default value
-        //rpio.open(pinNum, rpio.OUTPUT, rpio.HIGH);
-     //}
-    //});
+    usbDetect.startMonitoring();
+    usbDetect.on('add', (device) => {
+      console.log('add', device);
+      this.detectDriveChanges();
+    });
+    usbDetect.on('remove', (device) => {
+      console.log('remove', device);
+      this.detectDriveChanges();
+    });
+    this.detectUsbDevice();
   }
 
   getCopyState() {
@@ -46,13 +50,33 @@ class USBController {
     if (typeof obj.usb != "undefined") {
       //var obj = { usb: {action, device} };
       if (obj.usb.action == 'changeDirection') {
-        this.changeUsbDeviceDirection(obj.usb.device).then(() => {
-          this.detectUsbDevice();
-        });
+        this.changeUsbDeviceDirection(obj.usb.device);
       }
       else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
       }
+    }
+  }
+
+  detectDriveChanges() {
+    if ((this.usbState.usbName).length == 0) {
+      var self = this;
+      setTimeout(async function detectUsbInsertionInTimeIntervals() {
+        await self.detectUsbDevice();
+        if ((self.usbState.usbName).length == 0) {
+          setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+        }
+      }, 1000);
+    }
+    else {
+      var self = this;
+      setTimeout(async function detectUsbEjectionInTimeIntervals() {
+        await self.detectUsbDevice();
+        if ((self.usbState.usbName).length != 0) {
+          setTimeout(detectUsbEjectionInTimeIntervals, 1000);
+        }
+      }, 1000);
+
     }
   }
 
@@ -61,7 +85,7 @@ class USBController {
     let driveList = await drivelist.list();
     var index;
     for (index = 0; index < driveList.length; index++) {
-      if (driveList[index].isUSB) {
+      if (driveList[index].isUSB && this.usbState.poweredOn && (driveList[index].mountpoints[0] != "undefined")) {
         let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
@@ -70,7 +94,7 @@ class USBController {
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
           this.sendCurrentState();
-        } else if(process.platform == 'linux'){
+        } else if (process.platform == 'linux') {
           let USBName = nodePath.basename(mountPath);
           this.usbState.device = driveList[index].device;
           this.usbState.mountedPath = mountPath;
@@ -82,7 +106,7 @@ class USBController {
       } else if (index == driveList.length - 1) {
         this.usbState.mountedPath = [];
         this.usbState.usbName = [];
-        this.usbState.device = [] ;
+        this.usbState.device = [];
         this.usbState.isAvailable = false;
         this.sendCurrentState();
       }
@@ -100,24 +124,25 @@ class USBController {
 
     let safety = this.isSafeToChangeUsbDeviceDirection();
     if (safety) {
-      this.pinPlugSequence(deviceString);
-      if(this.usbState.pluggedDevice == 'rpi'){
+      if (this.usbState.pluggedDevice == 'rpi') {
         this.ejectUSBDriveSafely();
       }
-      //this.sendCurrentState(); It's not necessary now since sending state after changing direction with the detecting usb in line 47-48
+      this.pinPlugSequence(deviceString);
+
+      //this.sendCurrentState(); It's not necessary now since sending state after changing direction with the detecting usb
     } else {
       console.log("Pressing the button repeatedly Alert!");
       return;
     }
   }
 
-  ejectUSBDriveSafely(){
-    if (process.platform == 'win32'){
+  ejectUSBDriveSafely() {
+    if (process.platform == 'win32') {
 
     }
-    else if (process.platform == 'linux'){
+    else if (process.platform == 'linux') {
       execSync(`sudo eject ${this.usbState.device}`);
-      this.poweredOn = false; 
+      this.usbState.poweredOn = false;
     }
   }
 
@@ -136,15 +161,15 @@ class USBController {
   pinPlugSequence(deviceString) {
     if (deviceString == 'none') {
       rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
-      rpio.msleep(150); // It should be between 10ms and 290ms
+      rpio.msleep(toggleHoldTime); // It should be between 10ms and 290ms
       rpio.close(USB_KVM_PIN);
-      // this.poweredOn has already assigned to false in fnc ejectUSBDriveSafely line 119
+      // this.usbState.poweredOn has already assigned to false in fnc ejectUSBDriveSafely line 119
     }
     else if (deviceString == 'rpi') {
       rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
-      rpio.msleep(150); // It should be between 10ms and 290ms
+      rpio.msleep(toggleHoldTime); // It should be between 10ms and 290ms
       rpio.close(USB_KVM_PIN);
-      this.poweredOn = true; 
+      this.usbState.poweredOn = true;
     }
     this.usbState.pluggedDevice = deviceString;
   }
@@ -153,6 +178,12 @@ class USBController {
     let obj = {};
     this.appendData(obj);
     this.sendMessageCallback(obj);
+  }
+
+  onExit() {
+    process.on('SIGINT', function () {
+      process.exit();
+    });
   }
 }
 

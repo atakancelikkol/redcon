@@ -215,6 +215,10 @@ class SerialPortController {
       this.stopVirtualDevice();
     }
   }
+  
+  onExit(){
+    
+  }
 }
 
 

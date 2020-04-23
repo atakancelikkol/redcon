@@ -37,6 +37,10 @@ class UtilityDataHandler {
 
     execSync("reboot");
   }
+
+  onExit(){
+    
+  }
 }
 
 module.exports = UtilityDataHandler;
