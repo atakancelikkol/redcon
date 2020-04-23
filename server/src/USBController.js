@@ -27,11 +27,9 @@ class USBController {
     console.log("initializing USBController");
     usbDetect.startMonitoring();
     usbDetect.on('add', (device) => {
-      console.log('add', device);
       this.detectDriveChanges();
     });
     usbDetect.on('remove', (device) => {
-      console.log('remove', device);
       this.detectDriveChanges();
     });
     this.detectUsbDevice();
@@ -182,7 +180,9 @@ class USBController {
 
   onExit() {
     process.on('SIGINT', function () {
+      usbDetect.stopMonitoring();
       process.exit();
+
     });
   }
 }
