@@ -8,7 +8,8 @@ const CONFIG_CUSTOM_CONFIG_PATH = "../scripts/port_forwarding/custom.config";
 class PortConfigController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
-
+    this.shellOutput = '';
+    this.shellError = '';
   }
 
   init() {
@@ -61,6 +62,8 @@ class PortConfigController {
     let configResponse = {
       portconfig: {
         configContents: error ? "An error occurred while reading file" : data,
+        shellOutput: this.shellOutput,
+        shellError: this.shellError,
       }
     };
     this.sendMessageCallback(configResponse);
@@ -72,7 +75,6 @@ class PortConfigController {
       return
     }
     fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
-      this.readAndSendConfigFile();
       this.applyConfigFile();
     })
   }
@@ -80,7 +82,6 @@ class PortConfigController {
   resetConfigFile() {
     fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
       fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (err) => {
-        this.readAndSendConfigFile();
         this.applyConfigFile();
       })
     })
@@ -89,9 +90,13 @@ class PortConfigController {
   applyConfigFile() {
     if (os.platform() != "linux") {
       console.log("Port forwarding script can be used only in linux operating system.");
+      this.readAndSendConfigFile();
     } else {
-      exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', function (error, stdout, stderr) {
+        exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
+        this.shellOutput = stdout;
+        this.shellError = stderr;
+        this.readAndSendConfigFile();
       })
     }
   }

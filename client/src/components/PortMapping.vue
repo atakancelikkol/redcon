@@ -4,6 +4,12 @@
       <b-form-textarea ref="configRef" rows="25" v-model="textAreaContent"></b-form-textarea>
       <b-button @click="onSaveButtonClicked" class="mb1">Save</b-button>
       <b-button @click="onResetButtonClicked" class="mb2">Default Config</b-button>
+      <div style="white-space:pre; margin-top: 5px; color:red">
+        {{shellError}}
+      </div>
+      <div style="white-space:pre; color:green">
+        {{shellOutput}}
+      </div>      
     </b-card>
   </div>
 </template>
@@ -27,9 +33,20 @@ export default {
       if (this.receivedData.portconfig) {
         return this.receivedData.portconfig.configContents;
       }
-
       return "";
-    }
+    },
+    shellError() {
+      if (this.receivedData.portconfig) {
+        return this.receivedData.portconfig.shellError;
+      }
+      return "";
+    },
+    shellOutput() {
+      if (this.receivedData.portconfig) {
+        return this.receivedData.portconfig.shellOutput;
+      }
+      return "";
+    }      
   },
   methods: {
     ...mapActions([
