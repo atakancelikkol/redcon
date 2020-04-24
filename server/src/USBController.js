@@ -62,8 +62,6 @@ class USBController {
     setTimeout(async function detectUsbInsertionInTimeIntervals() {
       await self.detectUsbDevice();
       TryCount++;
-      console.log(TryCount);
-      console.log(self.usbState.isAvailable);
       if (self.usbState.isAvailable == lastState) {
         if (TryCount < maxTryCount){
         setTimeout(detectUsbInsertionInTimeIntervals, 1000);
@@ -124,8 +122,7 @@ class USBController {
         this.ejectUSBDriveSafely();
       }
       this.pinPlugSequence(deviceString);
-
-      this.sendCurrentState();
+      this.sendCurrentState(); // Send current state now since after change dir. there is no detect event
     } else {
       console.log("Pressing the button repeatedly Alert!");
       return;
