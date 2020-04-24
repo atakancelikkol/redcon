@@ -14,7 +14,7 @@ class USBController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
     this.usbState = {
-      isAvailable: false,
+      isAvailable: true,
       pluggedDevice: 'rpi', // or 'none', 'ecu'
       poweredOn: true,
       mountedPath: [],
@@ -24,13 +24,18 @@ class USBController {
     this.timeToCheckSafety = 0;
   }
 
-  init() {
+  async init() {
     console.log("initializing USBController");
     usbDetect.startMonitoring();
     usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
-    this.detectUsbDevice();
+    await this.detectUsbDevice();
+    if (this.usbState.isAvailable == false){
+      this.usbState.pluggedDevice = 'none';
+      this.poweredOn = false;
+      this.sendCurrentState();
+    }
   }
 
   getCopyState() {
@@ -84,7 +89,6 @@ class USBController {
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
-          this.usbState.pluggedDevice = 'rpi';
           this.sendCurrentState();
         } else if (process.platform == 'linux') {
           let USBName = nodePath.basename(mountPath);
@@ -92,7 +96,6 @@ class USBController {
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName;
           this.usbState.isAvailable = true;
-          this.usbState.pluggedDevice = 'rpi';
           this.sendCurrentState();
         }
         break;
@@ -101,7 +104,6 @@ class USBController {
         this.usbState.usbName = [];
         this.usbState.device = [];
         this.usbState.isAvailable = false;
-        this.usbState.pluggedDevice = 'none';
         this.sendCurrentState();
       }
     }
