@@ -8,6 +8,7 @@ var usbDetect = require('usb-detection');
 
 const USB_KVM_PIN = [33];
 const toggleHoldTime = 150; //ms
+const maxTryCount = 30;
 
 class USBController {
   constructor({ sendMessageCallback }) {
@@ -26,10 +27,7 @@ class USBController {
   init() {
     console.log("initializing USBController");
     usbDetect.startMonitoring();
-    usbDetect.on('add', (device) => {
-      this.detectDriveChanges();
-    });
-    usbDetect.on('remove', (device) => {
+    usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
     this.detectUsbDevice();
@@ -57,25 +55,22 @@ class USBController {
   }
 
   detectDriveChanges() {
-    if ((this.usbState.usbName).length == 0) {
-      var self = this;
-      setTimeout(async function detectUsbInsertionInTimeIntervals() {
-        await self.detectUsbDevice();
-        if ((self.usbState.usbName).length == 0) {
-          setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+    let lastState = this.usbState.isAvailable;
+    let self = this;
+    let TryCount = 0;
+    
+    setTimeout(async function detectUsbInsertionInTimeIntervals() {
+      await self.detectUsbDevice();
+      TryCount++;
+      console.log(TryCount);
+      console.log(self.usbState.isAvailable);
+      if (self.usbState.isAvailable == lastState) {
+        if (TryCount < maxTryCount){
+        setTimeout(detectUsbInsertionInTimeIntervals, 1000);
         }
-      }, 1000);
-    }
-    else {
-      var self = this;
-      setTimeout(async function detectUsbEjectionInTimeIntervals() {
-        await self.detectUsbDevice();
-        if ((self.usbState.usbName).length != 0) {
-          setTimeout(detectUsbEjectionInTimeIntervals, 1000);
-        }
-      }, 1000);
-
-    }
+        else console.log('detectUsbDevice try count has been exceeded');
+      }
+    }, 0);
   }
 
   async detectUsbDevice() {
@@ -130,7 +125,7 @@ class USBController {
       }
       this.pinPlugSequence(deviceString);
 
-      //this.sendCurrentState(); It's not necessary now since sending state after changing direction with the detecting usb
+      this.sendCurrentState();
     } else {
       console.log("Pressing the button repeatedly Alert!");
       return;
