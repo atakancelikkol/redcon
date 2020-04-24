@@ -48,10 +48,11 @@ class SerialPortController {
   readOutputFiles() {
     let serialOutput_Path = `../server/public/SerialOut/`;
     let files = fs.readdirSync(serialOutput_Path);
-    files.splice(files.indexOf('.gitkeep'), 1);
+    files = files.filter(item => item !== '.gitkeep');
     this.serialFiles = files
     this.updatePortStatus();
   }
+  
   startVirtualDevice(devicePath) {
     if (this.virtualDeviceInterval) {
       return;
@@ -207,22 +208,17 @@ class SerialPortController {
 
   exportSerialFile(port, data) {
     let date = new Date();
-
     let serialOutput_Path = `../server/public/SerialOut/${port.path}_(${date.toISOString().slice(0, 10)}).txt`;
-    fs.writeFile(serialOutput_Path, data, { 'flag': 'a' }, (err) => {
-      if (err) {
-        console.log("serialfile write error!")
-      }
-    })
-    //fs.close(serialOutput_Path);
-
+    let writer = fs.createWriteStream(serialOutput_Path, {
+      flags: 'a'
+    });
+    writer.write(data);
   }
   onPortOpened(port) {
     console.log('port open.', port.path);
     this.portStatusObj[port.path].isOpen = true;
     this.portInstances[port.path] = port;
     this.updatePortStatus();
-
   }
 
   onPortDataReceived(port, data) {
