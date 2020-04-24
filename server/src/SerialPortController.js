@@ -42,7 +42,7 @@ class SerialPortController {
 
     this.serialFiles = [];
 
-    this.writer={};
+    this.writerInstances = {};
   }
 
   init() { }
@@ -54,7 +54,7 @@ class SerialPortController {
     this.serialFiles = files
     this.updatePortStatus();
   }
-  
+
   startVirtualDevice(devicePath) {
     if (this.virtualDeviceInterval) {
       return;
@@ -78,7 +78,7 @@ class SerialPortController {
     return {
       ports: { ...this.ports },
       portStatus: { ...this.portStatusObj },
-      serialFiles: {...this.serialFiles },
+      serialFiles: { ...this.serialFiles },
     }
   }
 
@@ -132,7 +132,6 @@ class SerialPortController {
         this.portStatusObj[item.path] = { isOpen: false };
       }
     })
-
     this.updatePortStatus();
   }
 
@@ -172,27 +171,26 @@ class SerialPortController {
       console.log("invalid parameters", devicePath)
       return
     }
-    
-        if (this.portInstances[devicePath]) {
+
+    if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
-      port.close(this.onPortClosed.bind(this, port));
-      const writer=this.writer[devicePath];
-      writer.close();
+      port.close();
     } else {
       console.log("port close error! can not find port with the specified path.", devicePath);
     }
   }
 
-  openWriteStream(portpath){
+  openWriteStream(portpath) {
     //export serial stream to txt
     let date = new Date();
-    let serialOutput_Path = `../server/public/SerialOut/${portpath}_(${date.toISOString().slice(0, 10)}).txt`;
-    let writer = fs.createWriteStream(serialOutput_Path, {
+    let serialOutputPath = `../server/public/SerialOut/${portpath}_(${date.toISOString().slice(0, 10)}).txt`;
+    let writer = fs.createWriteStream(serialOutputPath, {
       flags: 'a'
     });
-    this.writer[portpath] = writer;
-    
+    this.writerInstances[portpath] = writer;
+
   }
+
   //open serial port console log parsed serial data
   openSerialPort(devicePath, baudRate = 115200) {
     //number and string check
@@ -209,15 +207,13 @@ class SerialPortController {
       console.log('Error: ', err.message)
     })
 
-    this.openWriteStream(port.path)
-
     // create parser
     let Readline = serialport.parsers.Readline; // make instance of Readline parser
     let parser = new Readline(); // make a new parser to read ASCII lines
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
 
-        if (virtualDeviceMode) {
+    if (virtualDeviceMode) {
       this.startVirtualDevice(devicePath);
     }
   }
@@ -226,13 +222,17 @@ class SerialPortController {
     console.log('port open.', port.path);
     this.portStatusObj[port.path].isOpen = true;
     this.portInstances[port.path] = port;
+    this.openWriteStream(port.path)
     this.updatePortStatus();
   }
 
   onPortDataReceived(port, data) {
     let obj = {};
     obj["serialData"] = { path: port.path, data: data };
-    this.writer[port.path].write(data)
+    const writer = this.writerInstances[port.path];
+    if (writer !== undefined) {
+      writer.write(data);
+    }
     this.sendMessageCallback(obj);
   }
 
@@ -240,7 +240,10 @@ class SerialPortController {
     console.log('port closed.', port.path);
     this.portStatusObj[port.path].isOpen = false;
     this.updatePortStatus();
-
+    const writer = this.writerInstances[port.path];
+    if (writer !== undefined) {
+      writer.close();
+    }
     if (virtualDeviceMode) {
       this.stopVirtualDevice();
     }
