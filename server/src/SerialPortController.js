@@ -41,6 +41,8 @@ class SerialPortController {
     this.virtualDeviceInterval = undefined;
 
     this.serialFiles = [];
+
+    this.writer={};
   }
 
   init() { }
@@ -170,15 +172,27 @@ class SerialPortController {
       console.log("invalid parameters", devicePath)
       return
     }
-
-    if (this.portInstances[devicePath]) {
+    
+        if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.close(this.onPortClosed.bind(this, port));
+      const writer=this.writer[devicePath];
+      writer.close();
     } else {
       console.log("port close error! can not find port with the specified path.", devicePath);
     }
   }
 
+  openWriteStream(portpath){
+    //export serial stream to txt
+    let date = new Date();
+    let serialOutput_Path = `../server/public/SerialOut/${portpath}_(${date.toISOString().slice(0, 10)}).txt`;
+    let writer = fs.createWriteStream(serialOutput_Path, {
+      flags: 'a'
+    });
+    this.writer[portpath] = writer;
+    
+  }
   //open serial port console log parsed serial data
   openSerialPort(devicePath, baudRate = 115200) {
     //number and string check
@@ -195,25 +209,19 @@ class SerialPortController {
       console.log('Error: ', err.message)
     })
 
+    this.openWriteStream(port.path)
+
     // create parser
     let Readline = serialport.parsers.Readline; // make instance of Readline parser
     let parser = new Readline(); // make a new parser to read ASCII lines
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
 
-    if (virtualDeviceMode) {
+        if (virtualDeviceMode) {
       this.startVirtualDevice(devicePath);
     }
   }
 
-  exportSerialFile(port, data) {
-    let date = new Date();
-    let serialOutput_Path = `../server/public/SerialOut/${port.path}_(${date.toISOString().slice(0, 10)}).txt`;
-    let writer = fs.createWriteStream(serialOutput_Path, {
-      flags: 'a'
-    });
-    writer.write(data);
-  }
   onPortOpened(port) {
     console.log('port open.', port.path);
     this.portStatusObj[port.path].isOpen = true;
@@ -224,8 +232,7 @@ class SerialPortController {
   onPortDataReceived(port, data) {
     let obj = {};
     obj["serialData"] = { path: port.path, data: data };
-    //Export serial data
-    this.exportSerialFile(port, data)
+    this.writer[port.path].write(data)
     this.sendMessageCallback(obj);
   }
 
