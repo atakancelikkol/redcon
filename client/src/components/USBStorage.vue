@@ -43,17 +43,24 @@
         </b>
       </div>
       <b-card title="Browser" style="flex:1">
-        <div class="mt-3" style="width: 437px">
+        <div class="mt-3" style="display: flex;">
           <b-form-file
             id="browse"
-            v-model="file"
+            v-model="selectedFiles"
+            :state="Boolean(selectedFiles)"
             :disabled="!isUsbDeviceAvailable"
             ref="file-input"
+            multiple
             placeholder="Choose a file or drop it here..."
             drop-placeholder="Drop file here..."
           ></b-form-file>
+          <b-button variant="outline-primary" style="margin-left: 10px" @click="onUploadClicked" >Upload</b-button>
         </div>
-        <div>{{fileDirectory}}</div>
+        <b-progress v-if="progressValue != -1" :value="progressValue" :max="100" show-progress animated style="margin-top: 10px"></b-progress>
+        <b-alert v-model="showUploadError" variant="danger" dismissible style="margin-top: 10px">{{errorString == '' ? 'Error occurred during upload!' : errorString}}</b-alert>
+        <b-breadcrumb style="margin-top: 10px">
+          <b-breadcrumb-item active>{{fileDirectory}}</b-breadcrumb-item>
+        </b-breadcrumb>
         <div>
           <b-table striped hover :items="fileList" :fields="['name', 'operations']">
             <template v-slot:cell(name)="data">
@@ -64,6 +71,12 @@
               <span v-else>{{ data.item.name }}</span>
             </template>
             <template v-slot:cell(operations)="data">
+              <b-button
+                v-if="!data.item.isDirectory"
+                variant="outline-primary"
+                @click="onDownloadFileClicked(data.item)"
+                style="margin-right: 10px;"
+              >Download</b-button>
               <b-button
                 v-if="!data.item.isDirectory"
                 variant="outline-danger"
@@ -84,8 +97,11 @@ export default {
   name: "USBStorage",
   data() {
     return {
-      file: null,
-      currentDirectory: "."
+      selectedFiles: null,
+      currentDirectory: ".",
+      progressValue: -1,
+      showUploadError: false,
+      errorString: '',
     };
   },
   computed: {
@@ -197,6 +213,79 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    onUploadClicked() {
+      if(this.isUsbDeviceAvailable == false) {
+        return;
+      }
+
+      if(this.selectedFiles.length == 0) {
+        return;
+      }
+
+      this.showUploadError = false;
+      this.errorString = '';
+
+      let formData = new FormData();
+      this.selectedFiles.forEach(file => {
+        formData.append('uploads', file, file.name);
+      });
+      formData.append('currentDirectory', this.currentDirectory);
+
+      // create xhr request
+      const oReq = new XMLHttpRequest();
+      oReq.addEventListener("load", () => {
+        if(oReq.status != 200) {
+          this.showUploadError = true;
+          this.errorString = oReq.responseText;
+        } else {
+          this.showUploadError = false;
+          this.errorString = '';
+        }
+      });
+      oReq.upload.addEventListener("progress", (evt) => {
+        if (evt.lengthComputable) {
+          let percentComplete = evt.loaded / evt.total;
+          percentComplete = parseInt(percentComplete * 100);
+          this.progressValue = percentComplete;
+        } else {
+          this.progressValue = 50;
+        }
+      });
+      oReq.upload.addEventListener("load", () => {
+        this.progressValue = -1;
+      });
+      oReq.upload.addEventListener("error", (err) => {
+        console.log(err)
+        this.showUploadError = true;
+        this.progressValue = -1;
+      });
+      oReq.upload.addEventListener("abort", (err) => {
+        console.log(err)
+        this.showUploadError = true;
+        this.progressValue = -1;
+      });
+
+      
+      let uri = this.getEndPoint() + "/uploadFileToUsbDevice";
+      oReq.open("POST", uri);
+      oReq.send(formData);
+    },
+    getEndPoint() {
+      let loc = window.location;
+      let uri = loc.protocol + '//';
+      if (process.env.NODE_ENV == 'production') {
+        uri += "//" + loc.host;
+      } else {
+        uri += "//localhost:3000";
+      }
+
+      return uri;
+    },
+    onDownloadFileClicked(item) {
+      let path = this.currentDirectory;
+      let fileName = item.name;
+      window.location = this.getEndPoint() + '/getFileFromUsbDevice?path=' + encodeURIComponent(path) + '&fileName=' + encodeURIComponent(fileName);
     }
   },
   watch: {

@@ -5,6 +5,7 @@ const drivelist = require('drivelist');
 const { execSync } = require('child_process');
 const nodePath = require('path');
 const fs = require('fs');
+const formidable = require('formidable');
 
 const USB_RELAY_PIN_ARRAY = [29, 31, 33, 35];
 // const USB_RELAY_Vcc = 37;  Not sure whether should plug Vcc pin of the relay to the GPIO or not
@@ -191,6 +192,60 @@ class USBController {
     let obj = {};
     this.appendData(obj);
     this.sendMessageCallback(obj);
+  }
+
+  uploadFileToUsbDevice(req, res) {
+    let form = new formidable.IncomingForm();
+    form.multiples = true;
+    form.maxFileSize = 4 * 1024 * 1024 * 1024; // max file size, 4gb
+    // parse the incoming request containing the form data
+    form.parse(req, (err, fields, files) => {
+      if(err) {
+        console.log("error occurred during file upload!", err);
+        res.status(500).send(err.toString());
+        return;
+      }
+
+      let dir = nodePath.join(this.usbState.mountedPath, fields.currentDirectory);
+      let fileCount = 1;
+      let currentFileCounter = 0;
+      const copyHandler = (file) => {
+        fs.copyFile(file.path, nodePath.join(dir, file.name), (err) => {
+          if(err) {
+            console.log("error occured during file copy!", err)
+            res.status(500).send(err.toString());
+            return;
+          }
+
+          this.listUsbDeviceFiles(fields.currentDirectory);
+
+          currentFileCounter++;
+          if(currentFileCounter == fileCount) {
+            res.send('done');
+          }
+        });
+      }
+
+      if(Array.isArray(files.uploads)) {
+        fileCount = files.uploads.length;
+        files.uploads.forEach(copyHandler);
+      } else {
+        fileCount = 1;
+        copyHandler(files.uploads);
+      }
+    });
+  }
+
+  getFileFromUsbDevice(req, res) {
+    let path = req.query.path;
+    let fileName = req.query.fileName;
+
+    if(!path || !fileName) {
+      res.status(400).send("invalid parameters");
+    }
+
+    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    res.download(dir, fileName);
   }
 }
 

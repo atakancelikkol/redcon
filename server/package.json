@@ -10,9 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "clone-deep": "^4.0.1",
+    "compression": "^1.7.4",
     "drivelist": "^8.0.10",
     "express": "^4.17.1",
+    "formidable": "^1.2.2",
     "fs": "0.0.1-security",
     "http": "0.0.0",
     "path": "^0.12.7",
