@@ -96,6 +96,7 @@ class USBController {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
           let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
+          this.usbState.mountedPath = mountPath;
           this.usbState.isAvailable = true;
           this.sendCurrentState();
         } else if (process.platform == 'linux') {
