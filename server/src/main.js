@@ -14,7 +14,7 @@ dataHandlers.push(new PortConfigController({sendMessageCallback}));
 dataHandlers.push(new UtilityDataHandler({sendMessageCallback}));
 
 // create connection manager
-const appServer = new AppServer({dataHandlers});
+const appServer = new AppServer({ dataHandlers });
 appServer.init();
 
 // upload handler
@@ -29,3 +29,10 @@ dataHandlers.forEach((handler) => {
 function sendMessageCallback(obj) {
   appServer.sendToAllClients(obj);
 }
+
+process.on('SIGINT', function () {
+  dataHandlers.forEach((handler) => {
+    handler.onExit();
+  });
+  process.exit();
+});

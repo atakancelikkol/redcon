@@ -2,6 +2,7 @@ const serialport = require('serialport');
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
 const KeyMapping = require('./util/KeyMapping');
+const fs = require('fs');
 
 if (virtualDeviceMode) {
   const SerialPort = require('@serialport/stream')
@@ -38,9 +39,21 @@ class SerialPortController {
     this.portInstances = {};
 
     this.virtualDeviceInterval = undefined;
+
+    this.serialFiles = [];
+
+    this.writerInstances = {};
   }
 
   init() { }
+
+  readOutputFiles() {
+    let serialOutput_Path = `../server/public/SerialOut/`;
+    let files = fs.readdirSync(serialOutput_Path);
+    files = files.filter(item => item !== '.gitkeep');
+    this.serialFiles = files
+    this.updatePortStatus();
+  }
 
   startVirtualDevice(devicePath) {
     if (this.virtualDeviceInterval) {
@@ -65,6 +78,7 @@ class SerialPortController {
     return {
       ports: { ...this.ports },
       portStatus: { ...this.portStatusObj },
+      serialFiles: { ...this.serialFiles },
     }
   }
 
@@ -99,11 +113,11 @@ class SerialPortController {
 
   //list currently active serial ports
   async listPorts() {
+    this.readOutputFiles()
     this.ports = [];
     let ports = await serialport.list();
     this.ports = ports;
     let statusList = Object.keys(this.portStatusObj);
-
     // delete removed port items from portStatusObj
     statusList.forEach(port => {
       let devicePort = this.ports.find(item => item.path == port)
@@ -118,7 +132,6 @@ class SerialPortController {
         this.portStatusObj[item.path] = { isOpen: false };
       }
     })
-
     this.updatePortStatus();
   }
 
@@ -128,7 +141,7 @@ class SerialPortController {
       console.log("invalid parameters", serialCmd)
       return
     }
-    console.log("Sending to device(", devicePath, ") :", serialCmd)
+    //console.log("Sending to device(", devicePath, ") :", serialCmd)
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.write(serialCmd);
@@ -138,7 +151,7 @@ class SerialPortController {
   }
 
   writeKeySerialPort(devicePath, keyCode, charCode, ctrlKey, shiftKey) {
-   // console.log("send key to device", keyCode, ctrlKey, shiftKey);
+    // console.log("send key to device", keyCode, ctrlKey, shiftKey);
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
 
@@ -161,10 +174,21 @@ class SerialPortController {
 
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
-      port.close(this.onPortClosed.bind(this, port));
+      port.close();
     } else {
       console.log("port close error! can not find port with the specified path.", devicePath);
     }
+  }
+
+  openWriteStream(portpath) {
+    //export serial stream to txt
+    let date = new Date();
+    let serialOutputPath = `../server/public/SerialOut/${portpath}_(${date.toISOString().slice(0, 10)}).txt`;
+    let writer = fs.createWriteStream(serialOutputPath, {
+      flags: 'a'
+    });
+    this.writerInstances[portpath] = writer;
+
   }
 
   //open serial port console log parsed serial data
@@ -176,7 +200,7 @@ class SerialPortController {
     }
 
     const port = new serialport(devicePath, { baudRate });
-    this.portInstances[port.path] = port;
+
     port.on('open', this.onPortOpened.bind(this, port));
     port.on('close', this.onPortClosed.bind(this, port));
     port.on('error', function (err) {
@@ -197,12 +221,18 @@ class SerialPortController {
   onPortOpened(port) {
     console.log('port open.', port.path);
     this.portStatusObj[port.path].isOpen = true;
+    this.portInstances[port.path] = port;
+    this.openWriteStream(port.path)
     this.updatePortStatus();
   }
 
   onPortDataReceived(port, data) {
     let obj = {};
     obj["serialData"] = { path: port.path, data: data };
+    const writer = this.writerInstances[port.path];
+    if (writer !== undefined) {
+      writer.write(data);
+    }
     this.sendMessageCallback(obj);
   }
 
@@ -210,10 +240,17 @@ class SerialPortController {
     console.log('port closed.', port.path);
     this.portStatusObj[port.path].isOpen = false;
     this.updatePortStatus();
-
+    const writer = this.writerInstances[port.path];
+    if (writer !== undefined) {
+      writer.close();
+    }
     if (virtualDeviceMode) {
       this.stopVirtualDevice();
     }
+  }
+  
+  onExit(){
+    
   }
 }
 

@@ -10,6 +10,7 @@ iptables -F -t nat
 #iptables -t nat -A POSTROUTING -o $ECU_Eth_Adapter -j MASQUERADE
 
 ip route add $eth0_destination dev $RedPine_Local_Eth_Adapt
+set -e
 iptables -t nat -A POSTROUTING ! -d $eth0_destination -o $ECU_Eth_Adapter -j SNAT --to-source $ECU_Ip
 
 for ((i=2 ; i<=${#config[@]} ; i=i+3)) ; do
@@ -18,5 +19,5 @@ for ((i=2 ; i<=${#config[@]} ; i=i+3)) ; do
 	iptables -A FORWARD -p tcp -d ${config[$i-1]} --dport ${config[$i]} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
 done
-
+echo "Done"
 exit 0
