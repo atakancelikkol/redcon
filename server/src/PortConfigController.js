@@ -20,7 +20,14 @@ class PortConfigController {
     // No initial data to send
   }
 
-  handleMessage(obj) {
+  handleMessage(obj, client) {
+
+    //Authorization check
+    if (client.isAuthenticated == false) {
+      console.log("Authentication required")
+      return
+    }
+
     /*
     obj["portconfig"] = {
         action: "readConfigFile",
@@ -92,7 +99,7 @@ class PortConfigController {
       console.log("Port forwarding script can be used only in linux operating system.");
       this.readAndSendConfigFile();
     } else {
-        exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
+      exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
         this.shellOutput = stdout;
         this.shellError = stderr;
@@ -101,8 +108,8 @@ class PortConfigController {
     }
   }
 
-  onExit(){
-    
+  onExit() {
+
   }
 }
 

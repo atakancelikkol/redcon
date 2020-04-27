@@ -93,7 +93,16 @@ class SerialPortController {
     this.sendMessageCallback(obj);
   }
 
-  handleMessage(obj) {
+
+
+  handleMessage(obj, client) {
+
+    //Authorization check
+    if (client.isAuthenticated == false) {
+      console.log("Authentication required")
+      return
+    }
+
     // { serial: { action: "openDevice", path, baudRate } };
     if (obj["serial"]) {
       let action = obj["serial"].action;
@@ -248,9 +257,9 @@ class SerialPortController {
       this.stopVirtualDevice();
     }
   }
-  
-  onExit(){
-    
+
+  onExit() {
+
   }
 }
 

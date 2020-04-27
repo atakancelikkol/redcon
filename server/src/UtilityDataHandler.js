@@ -1,36 +1,34 @@
 const execSync = require('child_process').execSync;
 
 class UtilityDataHandler {
-  constructor({sendMessageCallback})
-  {
+  constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
   }
 
-  init()
-  {
+  init() {
     console.log("initializing UtilityDataHandler");
   }
 
-  appendData(obj)
-  {
+  appendData(obj) {
   }
 
-  handleMessage(obj)
-  {
+  handleMessage(obj, client) {
+
+    //Authorization check
+    if(client.isAuthenticated==false){
+      console.log("Authentication required")
+      return
+    }
     // { utility: { action: 'reboot' } };
-    if (obj["utility"])
-    {
-      if(obj["utility"].action == "reboot")
-      {
+    if (obj["utility"]) {
+      if (obj["utility"].action == "reboot") {
         this.executeRebootCommand();
       }
     }
   }
 
-  executeRebootCommand()
-  {
-    if(process.platform == "win32")
-    {
+  executeRebootCommand() {
+    if (process.platform == "win32") {
       console.log("do not execute reboot command on win32")
       return;
     }
@@ -38,8 +36,8 @@ class UtilityDataHandler {
     execSync("reboot");
   }
 
-  onExit(){
-    
+  onExit() {
+
   }
 }
 

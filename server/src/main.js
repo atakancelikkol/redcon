@@ -4,13 +4,16 @@ const AppServer = require('./AppServer');
 const SerialPortController = require('./SerialPortController');
 const PortConfigController = require('./PortConfigController');
 const UtilityDataHandler = require('./UtilityDataHandler');
+const Authenticator = require('./Authenticator');
 
 dataHandlers = [];
-dataHandlers.push(new GPIOController({ sendMessageCallback }));
-dataHandlers.push(new USBController({ sendMessageCallback }));
-dataHandlers.push(new SerialPortController({ sendMessageCallback }));
-dataHandlers.push(new PortConfigController({ sendMessageCallback }));
-dataHandlers.push(new UtilityDataHandler({ sendMessageCallback }));
+dataHandlers.push(new Authenticator({sendMessageCallback}));
+dataHandlers.push(new GPIOController({sendMessageCallback}));
+dataHandlers.push(new USBController({sendMessageCallback}));
+dataHandlers.push(new SerialPortController({sendMessageCallback}));
+dataHandlers.push(new PortConfigController({sendMessageCallback}));
+dataHandlers.push(new UtilityDataHandler({sendMessageCallback}));
+
 
 // create connection manager
 const appServer = new AppServer({ dataHandlers });
