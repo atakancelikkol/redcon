@@ -2,7 +2,7 @@
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
@@ -94,8 +94,7 @@ class USBController {
         let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
-          let USBName = exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
-          this.usbState.mountedPath = mountPath;
+          let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
           this.sendCurrentState();
