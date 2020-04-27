@@ -65,16 +65,17 @@ class USBController {
     let self = this;
     let tryCount = 0;
 
-    setTimeout(async function detectUsbInsertionInTimeIntervals() {
-      await self.detectUsbDevice();
-      tryCount++;
-      if (self.usbState.isAvailable == lastState) {
-        if (tryCount < maxTryCount) {
-          setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+    setTimeout(function detectUsbInsertionInTimeIntervals() {
+      self.detectUsbDevice().then(() => {
+        tryCount++;
+        if (self.usbState.isAvailable == lastState) {
+          if (tryCount < maxTryCount) {
+            setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+          }
+          else console.log('detectUsbDevice try count has been exceeded');
         }
-        else console.log('detectUsbDevice try count has been exceeded');
-      }
-    }, 0);
+      });
+    }, 1);
   }
 
   async detectUsbDevice() {
