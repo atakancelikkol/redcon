@@ -2,7 +2,7 @@
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
 const nodePath = require('path');
 var usbDetect = require('usb-detection');
 
@@ -17,25 +17,26 @@ class USBController {
       isAvailable: true,
       pluggedDevice: 'rpi', // or 'none', 'ecu'
       poweredOn: true,
-      mountedPath: [],
-      usbName: [],
-      device: [],
+      mountedPath: '',
+      usbName: '',
+      device: '',
     };
     this.timeToCheckSafety = 0;
   }
 
-  async init() {
+  init() {
     console.log("initializing USBController");
     usbDetect.startMonitoring();
     usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
-    await this.detectUsbDevice();
-    if (this.usbState.isAvailable == false){
-      this.usbState.pluggedDevice = 'none';
-      this.poweredOn = false;
-      this.sendCurrentState();
-    }
+    this.detectUsbDevice().then(() => {
+      if (this.usbState.isAvailable == false) {
+        this.usbState.pluggedDevice = 'none';
+        this.poweredOn = false;
+        this.sendCurrentState();
+      }
+    });
   }
 
   getCopyState() {
@@ -62,14 +63,14 @@ class USBController {
   detectDriveChanges() {
     let lastState = this.usbState.isAvailable;
     let self = this;
-    let TryCount = 0;
-    
+    let tryCount = 0;
+
     setTimeout(async function detectUsbInsertionInTimeIntervals() {
       await self.detectUsbDevice();
-      TryCount++;
+      tryCount++;
       if (self.usbState.isAvailable == lastState) {
-        if (TryCount < maxTryCount){
-        setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+        if (tryCount < maxTryCount) {
+          setTimeout(detectUsbInsertionInTimeIntervals, 1000);
         }
         else console.log('detectUsbDevice try count has been exceeded');
       }
@@ -81,18 +82,18 @@ class USBController {
     let driveList = await drivelist.list();
     var index;
     for (index = 0; index < driveList.length; index++) {
-      if (driveList[index].isUSB && this.usbState.poweredOn && (driveList[index].mountpoints[0] != "undefined")) {
+      if (driveList[index].isUSB && (driveList[index].mountpoints[0] != "undefined")) {
         let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
-          let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
+          let USBName = exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
           this.usbState.isAvailable = true;
           this.sendCurrentState();
         } else if (process.platform == 'linux') {
           let USBName = nodePath.basename(mountPath);
-          this.usbState.device = driveList[index].device;
+          this.usbState.device = driveList[index].device; // For safe eject, device = '/dev/sda' ...
           this.usbState.mountedPath = mountPath;
           this.usbState.usbName = USBName;
           this.usbState.isAvailable = true;
@@ -100,9 +101,9 @@ class USBController {
         }
         break;
       } else if (index == driveList.length - 1) {
-        this.usbState.mountedPath = [];
-        this.usbState.usbName = [];
-        this.usbState.device = [];
+        this.usbState.mountedPath = '';
+        this.usbState.usbName = '';
+        this.usbState.device = '';
         this.usbState.isAvailable = false;
         this.sendCurrentState();
       }
@@ -136,8 +137,7 @@ class USBController {
       //could not find right cmd on windows to eject usb drive for now
     }
     else if (process.platform == 'linux') {
-      execSync(`sudo eject ${this.usbState.device}`);
-      this.usbState.poweredOn = false;
+      exec(`sudo eject ${this.usbState.device}`);
     }
   }
 
@@ -154,18 +154,12 @@ class USBController {
   }
 
   pinPlugSequence(deviceString) {
-    if (deviceString == 'none') {
-      rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
-      rpio.msleep(toggleHoldTime); // It should be between 10ms and 290ms
+    rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
+    setTimeout(function () {
       rpio.close(USB_KVM_PIN);
-      // this.usbState.poweredOn has already assigned to false in fnc ejectUSBDriveSafely line 119
-    }
-    else if (deviceString == 'rpi') {
-      rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
-      rpio.msleep(toggleHoldTime); // It should be between 10ms and 290ms
-      rpio.close(USB_KVM_PIN);
-      this.usbState.poweredOn = true;
-    }
+    }, toggleHoldTime); // It should be between 10ms and 290ms
+    this.usbState.poweredOn = !(this.usbState.poweredOn);
+
     this.usbState.pluggedDevice = deviceString;
   }
 
@@ -176,10 +170,7 @@ class USBController {
   }
 
   onExit() {
-    process.on('SIGINT', function () {
-      usbDetect.stopMonitoring();
-      process.exit();
-    });
+    usbDetect.stopMonitoring();
   }
 }
 
