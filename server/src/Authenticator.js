@@ -3,10 +3,8 @@ class Authenticator {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
 
-    this.username = "";
-    this.password = "";
-
-
+    this.users = {};
+    this.authentication={};
   }
 
   init() { 
@@ -18,7 +16,7 @@ class Authenticator {
   }
   
   appendData(obj) {
-    obj["auth"] = { username: "asd", password: "asd" };
+    obj["auth"] = { username: this.users, authentication: this.authentication};
   }
   updatePortStatus() {
     let obj = {};
@@ -30,18 +28,23 @@ class Authenticator {
    
     if (obj["auth"]) {
       let action = obj["auth"].action;
-      console.log( obj["auth"].action)
       if (action == "checkUser") {
-        console.log("user", obj["auth"].username, obj["auth"].password)
+        console.log("login user:", obj["auth"].username, obj["auth"].password)
         client.isAuthenticated=(this.checkUser(obj["auth"].username, obj["auth"].password))
-      } else if(action == "logoutUser") {
-        console.log ("logout", obj["auth"].username)
+        } else if(action == "logoutUser") {
+        console.log ("logout:", obj["auth"].username)
         client.isAuthenticated=false
-      }
+        this.authentication=false
+        this.users=null
+        this.updatePortStatus()
+        }
     }
   }
   checkUser(user, pass){
-    //accept every user
+  //accept every user
+    this.users=user
+    this.updatePortStatus()
+    this.authentication=true
     return true
   }
 
