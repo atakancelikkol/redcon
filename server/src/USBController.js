@@ -2,8 +2,10 @@
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 const nodePath = require('path');
+const fs = require('fs');
+const formidable = require('formidable');
 var usbDetect = require('usb-detection');
 
 const USB_KVM_PIN = [33];
@@ -20,6 +22,8 @@ class USBController {
       mountedPath: '',
       usbName: '',
       device: '',
+      currentDirectory: '.',
+      currentFiles: [],
     };
     this.timeToCheckSafety = 0;
   }
@@ -58,9 +62,12 @@ class USBController {
       //var obj = { usb: {action, device} };
       if (obj.usb.action == 'changeDirection') {
         this.changeUsbDeviceDirection(obj.usb.device);
-      }
-      else if (obj.usb.action == 'detectUsbDevice') {
+      } else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
+      } else if (obj.usb.action == 'listFiles') {
+        this.listUsbDeviceFiles(obj.usb.path);
+      } else if(obj.usb.action == "deleteFile") {
+        this.deleteUsbDeviceFile(obj.usb.path, obj.usb.fileName);
       }
     }
   }
@@ -92,9 +99,9 @@ class USBController {
         let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
-          let USBName = exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
-          this.usbState.mountedPath = mountPath;
+          let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
           this.usbState.usbName = USBName.toString().split('\n')[1].trim();
+          this.usbState.mountedPath = mountPath;
           this.usbState.isAvailable = true;
           this.sendCurrentState();
         } else if (process.platform == 'linux') {
@@ -114,6 +121,52 @@ class USBController {
         this.sendCurrentState();
       }
     }
+  }
+
+  listUsbDeviceFiles(path) {
+    //console.log("list files",path,"\n",this.usbState);
+    let dir = nodePath.join(this.usbState.mountedPath, path);
+    let parentDir = nodePath.join(path, '..');
+    fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+      //handling error
+      if (err) {
+        return console.log('Unable to scan directory: ' + err);
+      } else {
+        let filesList = [];
+        if(parentDir != '..') {
+          filesList.push({name: parentDir, isDirectory: true, fullPath: true});
+        }
+
+        files.forEach(file => {
+          filesList.push({
+            name: file.name,
+            isDirectory: file.isDirectory(),
+          });
+        });
+
+        filesList.sort((a,b) => {
+          if (a.isDirectory && b.isDirectory) return 0;
+          if (!a.isDirectory && b.isDirectory) return 1;
+          return -1;
+        });
+
+        this.usbState.currentDirectory = dir;
+        this.usbState.currentFiles = filesList;
+
+        this.sendCurrentState();
+      }
+    });
+  }
+
+  deleteUsbDeviceFile(path, fileName) {
+    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    fs.unlink(dir, (err) => {
+      if(err) {
+        console.log("could not remove file! ", dir, err);
+      }
+
+      this.listUsbDeviceFiles(path);
+    })
   }
 
   async changeUsbDeviceDirection(deviceString) {
@@ -175,6 +228,60 @@ class USBController {
     this.sendMessageCallback(obj);
   }
 
+  uploadFileToUsbDevice(req, res) {
+    let form = new formidable.IncomingForm();
+    form.multiples = true;
+    form.maxFileSize = 4 * 1024 * 1024 * 1024; // max file size, 4gb
+    // parse the incoming request containing the form data
+    form.parse(req, (err, fields, files) => {
+      if(err) {
+        console.log("error occurred during file upload!", err);
+        res.status(500).send(err.toString());
+        return;
+      }
+
+      let dir = nodePath.join(this.usbState.mountedPath, fields.currentDirectory);
+      let fileCount = 1;
+      let currentFileCounter = 0;
+      const copyHandler = (file) => {
+        fs.copyFile(file.path, nodePath.join(dir, file.name), (err) => {
+          if(err) {
+            console.log("error occured during file copy!", err)
+            res.status(500).send(err.toString());
+            return;
+          }
+
+          this.listUsbDeviceFiles(fields.currentDirectory);
+
+          currentFileCounter++;
+          if(currentFileCounter == fileCount) {
+            res.send('done');
+          }
+        });
+      }
+
+      if(Array.isArray(files.uploads)) {
+        fileCount = files.uploads.length;
+        files.uploads.forEach(copyHandler);
+      } else {
+        fileCount = 1;
+        copyHandler(files.uploads);
+      }
+    });
+  }
+
+  getFileFromUsbDevice(req, res) {
+    let path = req.query.path;
+    let fileName = req.query.fileName;
+
+    if(!path || !fileName) {
+      res.status(400).send("invalid parameters");
+    }
+
+    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    res.download(dir, fileName);
+  }
+  
   onExit() {
     usbDetect.stopMonitoring();
   }

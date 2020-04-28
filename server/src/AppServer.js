@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const express = require('express');
 const WebSocketServer = require('ws').Server;
+const bodyParser = require('body-parser');
+const compression = require('compression');
 
 class AppServer {
   constructor({ dataHandlers }) {
@@ -21,6 +23,13 @@ class AppServer {
   init() {
     console.log("initializing AppServer...");
     this.app = express();
+
+    // start web server
+    this.app.use(bodyParser.json({limit: "500mb"}));
+    this.app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
+    this.app.use(bodyParser.raw({limit: "500mb"}));
+    this.app.use(compression());
+
     this.httpServer = http.createServer(this.app);
 
     // create http server
@@ -37,6 +46,10 @@ class AppServer {
     this.webSocketServer = new WebSocketServer({ server: this.httpServer });
     this.webSocketServer.on('connection', this.onConnectionHandler.bind(this));
 
+  }
+
+  getApp() {
+    return this.app;
   }
 
   onConnectionHandler(connection, req) {
