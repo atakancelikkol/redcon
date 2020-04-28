@@ -8,7 +8,9 @@ const fs = require('fs');
 const formidable = require('formidable');
 var usbDetect = require('usb-detection');
 
-const USB_KVM_PIN = [33];
+const USB_RPI_PIN = 29;
+const USB_ECU_PIN = 31;
+const USB_TOGGLE_PIN = 33;
 const toggleHoldTime = 150; //ms
 const maxTryCount = 30;
 
@@ -34,6 +36,8 @@ class USBController {
     usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
+    rpio.open(USB_RPI_PIN, rpio.INPUT);
+    rpio.open(USB_ECU_PIN, rpio.INPUT);
     this.detectUsbDevice().then(() => {
       if (this.usbState.isAvailable == false) {
         this.usbState.pluggedDevice = 'none';
@@ -90,7 +94,7 @@ class USBController {
     let driveList = await drivelist.list();
     var index;
     for (index = 0; index < driveList.length; index++) {
-      if (driveList[index].isUSB && (driveList[index].mountpoints[0] != "undefined")) {
+      if (driveList[index].isUSB && (typeof driveList[index].mountpoints[0] != "undefined")) {
         let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         if (process.platform == 'win32') {
           mountPath = mountPath.slice(0, -1); //Output= D: for windows
@@ -208,9 +212,9 @@ class USBController {
   }
 
   pinPlugSequence(deviceString) {
-    rpio.open(USB_KVM_PIN, rpio.OUTPUT, rpio.LOW);
+    rpio.open(USB_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
     setTimeout(function () {
-      rpio.close(USB_KVM_PIN);
+      rpio.close(USB_TOGGLE_PIN);
     }, toggleHoldTime); // It should be between 10ms and 290ms
     this.usbState.poweredOn = !(this.usbState.poweredOn);
 
