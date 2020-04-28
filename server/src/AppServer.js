@@ -68,7 +68,7 @@ class AppServer {
   }
 
   onMessageHandler(client, message) {
-    console.log(client.isAuthenticated)
+    console.log("client isAuthenticated",client.isAuthenticated)
     let obj = JSON.parse(message);
     this.dataHandlers.forEach((handler) => {
       if(!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated)) {

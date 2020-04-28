@@ -41,6 +41,9 @@ const store = new Vuex.Store({
     checkUser({ commit }, { user, pass }) { // eslint-disable-line
       webSocketConnector.sendCheckUserMessage({ user, pass });
     },
+    logoutUser({ commit }, { user }) { // eslint-disable-line
+      webSocketConnector.sendLogoutUserMessage({user});
+    },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
     },

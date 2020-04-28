@@ -30,19 +30,19 @@ class Authenticator {
    
     if (obj["auth"]) {
       let action = obj["auth"].action;
+      console.log( obj["auth"].action)
       if (action == "checkUser") {
-        console.log(obj["auth"])
-        console.log(obj["auth"].username, obj["auth"].password)
-        console.log(client.isAuthenticated)
+        console.log("user", obj["auth"].username, obj["auth"].password)
         client.isAuthenticated=(this.checkUser(obj["auth"].username, obj["auth"].password))
-        console.log(client.isAuthenticated)
+      } else if(action == "logoutUser") {
+        console.log ("logout", obj["auth"].username)
+        client.isAuthenticated=false
       }
     }
   }
   checkUser(user, pass){
     //accept every user
     return true
-    
   }
 
 }
