@@ -14,6 +14,10 @@ class GPIOController {
     this.history = [];
   }
 
+  isAuthRequired(){
+    return true
+  }
+
   init() {
     console.log("initializing GPIOController");
     let gpioPorts = Object.keys(this.gpioState);
@@ -39,12 +43,8 @@ class GPIOController {
     obj["gpio"] = this.getCopyState();
   }
 
-  handleMessage(obj, client) {
-    //Authorization check
-    if (client.isAuthenticated == false) {
-      console.log("Authentication required")
-      return
-    }
+  handleMessage(obj) {
+    
     if (obj["gpio"]) {
       let gpioPort = obj["gpio"].port;
       let state = obj["gpio"].state ? rpio.HIGH : rpio.LOW;

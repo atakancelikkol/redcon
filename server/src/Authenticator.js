@@ -13,6 +13,9 @@ class Authenticator {
      
   }
   
+  isAuthRequired(){
+    return false
+  }
   
   appendData(obj) {
     obj["auth"] = { username: "asd", password: "asd" };

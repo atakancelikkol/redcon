@@ -58,10 +58,11 @@ class AppServer {
     console.log(client.isAuthenticated)
     let obj = JSON.parse(message);
     this.dataHandlers.forEach((handler) => {
-      handler.handleMessage(obj, client);
+      if(!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated)) {
+        handler.handleMessage(obj, client);
+      }
     });
   }
-
 
   onCloseHandler(client, connection) {
     console.log("connection closed! id: ", client.id);

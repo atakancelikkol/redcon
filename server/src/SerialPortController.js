@@ -45,6 +45,10 @@ class SerialPortController {
     this.writerInstances = {};
   }
 
+  isAuthRequired(){
+    return true
+  }
+
   init() { }
 
   readOutputFiles() {
@@ -96,12 +100,6 @@ class SerialPortController {
 
 
   handleMessage(obj, client) {
-
-    //Authorization check
-    if (client.isAuthenticated == false) {
-      console.log("Authentication required")
-      return
-    }
 
     // { serial: { action: "openDevice", path, baudRate } };
     if (obj["serial"]) {

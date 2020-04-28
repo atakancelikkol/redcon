@@ -12,6 +12,10 @@ class PortConfigController {
     this.shellError = '';
   }
 
+  isAuthRequired(){
+    return true
+  }
+
   init() {
 
   }
@@ -21,12 +25,6 @@ class PortConfigController {
   }
 
   handleMessage(obj, client) {
-
-    //Authorization check
-    if (client.isAuthenticated == false) {
-      console.log("Authentication required")
-      return
-    }
 
     /*
     obj["portconfig"] = {

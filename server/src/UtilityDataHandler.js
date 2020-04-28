@@ -5,6 +5,10 @@ class UtilityDataHandler {
     this.sendMessageCallback = sendMessageCallback;
   }
 
+  isAuthRequired(){
+    return true
+  }
+
   init() {
     console.log("initializing UtilityDataHandler");
   }
@@ -14,11 +18,6 @@ class UtilityDataHandler {
 
   handleMessage(obj, client) {
 
-    //Authorization check
-    if(client.isAuthenticated==false){
-      console.log("Authentication required")
-      return
-    }
     // { utility: { action: 'reboot' } };
     if (obj["utility"]) {
       if (obj["utility"].action == "reboot") {
