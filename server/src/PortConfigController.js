@@ -13,7 +13,7 @@ class PortConfigController {
   }
 
   init() {
-
+    this.applyConfigFile();
   }
 
   appendData(obj) {
