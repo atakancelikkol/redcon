@@ -6,21 +6,21 @@ const { exec, execSync } = require('child_process');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
-var usbDetect = require('usb-detection');
+const usbDetect = require('usb-detection');
+const GPIOPins = require('./GPIOPins');
 
-const USB_RPI_PIN = 29;
-const USB_ECU_PIN = 31;
-const USB_TOGGLE_PIN = 33;
-const toggleHoldTime = 150; //ms
-const maxTryCount = 30;
+const TOGGLE_HOLD_TIME = 150; //ms
+const MAX_TRY_COUNT = 30;
+const LED_CHECK_TIME_INTERVAL = 1000; //ms
+const MIN_TOGGLE_INTERVAL = 1000; // ms
 
 class USBController {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
     this.usbState = {
-      isAvailable: true,
-      pluggedDevice: 'rpi', // or 'none', 'ecu'
-      poweredOn: true,
+      isAvailable: false,
+      kvmLedStateECU: false,
+      kvmLedStateRPI: false,
       mountedPath: '',
       usbName: '',
       device: '',
@@ -28,6 +28,9 @@ class USBController {
       currentFiles: [],
     };
     this.timeToCheckSafety = 0;
+
+    this.toggleTimeoutHandle = undefined;
+    this.ledReadIntervalHandle = undefined;
   }
 
   init() {
@@ -36,15 +39,31 @@ class USBController {
     usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
-    rpio.open(USB_RPI_PIN, rpio.INPUT);
-    rpio.open(USB_ECU_PIN, rpio.INPUT);
-    this.detectUsbDevice().then(() => {
-      if (this.usbState.isAvailable == false) {
-        this.usbState.pluggedDevice = 'none';
-        this.poweredOn = false;
-        this.sendCurrentState();
-      }
-    });
+
+    // open led gpio port to read
+    rpio.open(GPIOPins.KVM_LED_RPI, rpio.INPUT);
+    rpio.open(GPIOPins.KVM_LED_ECU, rpio.INPUT);
+
+    this.detectUsbDevice();
+
+    this.ledReadIntervalHandle = setInterval(this.checkKVMLedState.bind(this), LED_CHECK_TIME_INTERVAL);
+  }
+
+  checkKVMLedState() {
+    // read led states
+    const rpiLed = rpio.read(GPIOPins.KVM_LED_RPI);
+    const ecuLed = rpio.read(GPIOPins.KVM_LED_ECU);
+    
+    if(this.usbState.kvmLedStateRPI == rpiLed && this.usbState.kvmLedStateECU == ecuLed) {
+      // state is not changed
+      return;
+    }
+
+    this.usbState.kvmLedStateRPI = rpiLed;
+    this.usbState.kvmLedStateECU = ecuLed;
+
+    // state changed, update clients!
+    this.sendCurrentState();
   }
 
   getCopyState() {
@@ -59,8 +78,8 @@ class USBController {
   handleMessage(obj) {
     if (typeof obj.usb != "undefined") {
       //var obj = { usb: {action, device} };
-      if (obj.usb.action == 'changeDirection') {
-        this.changeUsbDeviceDirection(obj.usb.device);
+      if (obj.usb.action == 'toggleDevice') {
+        this.toggleUsbDevice();
       } else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
       } else if (obj.usb.action == 'listFiles') {
@@ -73,57 +92,93 @@ class USBController {
 
   detectDriveChanges() {
     let lastState = this.usbState.isAvailable;
-    let self = this;
     let tryCount = 0;
 
-    setTimeout(function detectUsbInsertionInTimeIntervals() {
-      self.detectUsbDevice().then(() => {
+    const detectUsbInsertionInTimeIntervals = () => {
+      this.detectUsbDevice().then(() => {
         tryCount++;
-        if (self.usbState.isAvailable == lastState) {
-          if (tryCount < maxTryCount) {
+        if (this.usbState.isAvailable == lastState) {
+          if (tryCount < MAX_TRY_COUNT) {
             setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+          } else {
+            console.log('detectUsbDevice try count has been exceeded');
           }
-          else console.log('detectUsbDevice try count has been exceeded');
         }
       });
-    }, 1);
+    }
+
+    detectUsbInsertionInTimeIntervals();
   }
 
   async detectUsbDevice() {
     // To get list of connected Drives
     let driveList = await drivelist.list();
-    var index;
-    for (index = 0; index < driveList.length; index++) {
-      if (driveList[index].isUSB && (typeof driveList[index].mountpoints[0] != "undefined")) {
+    let isDriveFound = false;
+    for (let index = 0; index < driveList.length; index++) {
+      if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] != "undefined")) {
         let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
+        let device = driveList[index].device;
         if (process.platform == 'win32') {
-          mountPath = mountPath.slice(0, -1); //Output= D: for windows
-          let USBName = execSync(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`);
-          this.usbState.usbName = USBName.toString().split('\n')[1].trim();
-          this.usbState.mountedPath = mountPath;
-          this.usbState.isAvailable = true;
-          this.sendCurrentState();
+          await this.extractUsbStateWin32(mountPath);
+          isDriveFound = true;
         } else if (process.platform == 'linux') {
-          let USBName = nodePath.basename(mountPath);
-          this.usbState.device = driveList[index].device; // For safe eject, device = '/dev/sda' ...
-          this.usbState.mountedPath = mountPath;
-          this.usbState.usbName = USBName;
-          this.usbState.isAvailable = true;
-          this.sendCurrentState();
+          this.extractUsbStateLinux(mountPath, device);
+          isDriveFound = true;
         }
         break;
-      } else if (index == driveList.length - 1) {
-        this.usbState.mountedPath = '';
-        this.usbState.usbName = '';
-        this.usbState.device = '';
-        this.usbState.isAvailable = false;
-        this.sendCurrentState();
       }
     }
+
+    if(!isDriveFound) {
+      this.usbState.mountedPath = '';
+      this.usbState.usbName = '';
+      this.usbState.device = '';
+      this.usbState.isAvailable = false;
+    }
+
+    this.sendCurrentState();
+  }
+
+  extractUsbStateWin32(mountPath) {
+    return new Promise((resolve, reject) => {
+      mountPath = mountPath.slice(0, -1); //Output= D: for windows
+      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (error, stdout, stderr) => {
+        let usbName = stdout;
+        if(!usbName) {
+          reject();
+        }
+
+        const splittedUsbName = usbName.toString().split('\n');
+        if(splittedUsbName.length < 2) {
+          reject();
+        }
+
+        this.usbState.device = '';
+        this.usbState.usbName = splittedUsbName[1].trim();
+        this.usbState.mountedPath = mountPath;
+        this.usbState.isAvailable = true;
+        resolve();
+      });
+    });
+  }
+
+  extractUsbStateLinux(mountPath, device) {
+    let USBName = nodePath.basename(mountPath);
+    this.usbState.device = device; // For safe eject, device = '/dev/sda' ...
+    this.usbState.mountedPath = mountPath;
+    this.usbState.usbName = USBName;
+    this.usbState.isAvailable = true;
   }
 
   listUsbDeviceFiles(path) {
-    //console.log("list files",path,"\n",this.usbState);
+    if(this.usbState.mountedPath == '') {
+      // send empty file list
+      this.usbState.currentDirectory = path;
+      this.usbState.currentFiles = [];
+      this.sendCurrentState();
+      return;
+    }
+
     let dir = nodePath.join(this.usbState.mountedPath, path);
     let parentDir = nodePath.join(path, '..');
     fs.readdir(dir, { withFileTypes: true }, (err, files) => {
@@ -168,42 +223,40 @@ class USBController {
     })
   }
 
-  async changeUsbDeviceDirection(deviceString) {
-    if (deviceString != 'rpi' && deviceString != 'none' && deviceString != 'ecu') {
-      console.log("USBController: invalid device name")
-    }
-
-    if (this.usbState.pluggedDevice == deviceString) {
+  toggleUsbDevice() {
+    if(!this.isSafeToToggleUsbDevice()) {
       return;
     }
 
-    let safety = this.isSafeToChangeUsbDeviceDirection();
-    if (safety) {
-      if (this.usbState.pluggedDevice == 'rpi') {
-        this.ejectUSBDriveSafely();
-      }
-      this.pinPlugSequence(deviceString);
-      this.sendCurrentState(); // Send current state now since after change dir. there is no detect event
-    } else {
-      console.log("Pressing the button repeatedly Alert!");
-      return;
-    }
+    this.ejectUSBDriveSafely().then(() => {
+      this.pinToggleSequence();  
+    });
   }
 
   ejectUSBDriveSafely() {
-    if (process.platform == 'win32') {
-      //could not find right cmd on windows to eject usb drive for now
-    }
-    else if (process.platform == 'linux') {
-      exec(`sudo eject ${this.usbState.device}`);
-    }
+    return new Promise((resolve) => {
+      if(!this.usbState.isAvailable) {
+        resolve();
+      }
+  
+      if (process.platform == 'win32') {
+        //could not find right cmd on windows to eject usb drive for now
+        resolve();
+      }
+      else if (process.platform == 'linux') {
+        exec(`sudo eject ${this.usbState.device}`, () => {
+          console.log("ejected usb drive");
+          resolve();
+        });
+      }
+    });
   }
 
-  isSafeToChangeUsbDeviceDirection() {
+  isSafeToToggleUsbDevice() {
     if (this.timeToCheckSafety == 0) {
       this.timeToCheckSafety = new Date().valueOf();
       return true;
-    } else if ((new Date().valueOf() - this.timeToCheckSafety) > 1000) { // Safety Margin is increased due to design
+    } else if ((new Date().valueOf() - this.timeToCheckSafety) > MIN_TOGGLE_INTERVAL) { // Safety Margin is increased due to design
       this.timeToCheckSafety = new Date().valueOf();
       return true;
     } else {
@@ -211,14 +264,16 @@ class USBController {
     }
   }
 
-  pinPlugSequence(deviceString) {
-    rpio.open(USB_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
-    setTimeout(function () {
-      rpio.close(USB_TOGGLE_PIN);
-    }, toggleHoldTime); // It should be between 10ms and 290ms
-    this.usbState.poweredOn = !(this.usbState.poweredOn);
+  pinToggleSequence() {
+    if(this.toggleTimeoutHandle) {
+      return;
+    }
 
-    this.usbState.pluggedDevice = deviceString;
+    rpio.open(GPIOPins.KVM_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
+    this.toggleTimeoutHandle = setTimeout(() => {
+      rpio.close(GPIOPins.KVM_TOGGLE_PIN);
+      this.toggleTimeoutHandle = undefined;
+    }, TOGGLE_HOLD_TIME); // It should be between 10ms and 290ms
   }
 
   sendCurrentState() {
@@ -283,6 +338,10 @@ class USBController {
   
   onExit() {
     usbDetect.stopMonitoring();
+
+    if(this.ledReadIntervalHandle) {
+      clearInterval(this.ledReadIntervalHandle);
+    }
   }
 }
 

@@ -1,14 +1,12 @@
 const rpio = require('rpio');
-const cloneDeep = require('clone-deep');
-
-const POWER_RELAY_PIN = 3;
+const GPIOPins = require('./GPIOPins');
 
 class GPIOController {
   constructor({sendMessageCallback}) {
     this.sendMessageCallback = sendMessageCallback;
     this.gpioState = {};
-    this.gpioState[3] = rpio.HIGH;
-    this.gpioState[5] = rpio.HIGH;
+    this.gpioState[GPIOPins.RELAY_POWER_PIN] = rpio.HIGH;
+    this.gpioState[GPIOPins.RELAY_CONTACT_PIN] = rpio.HIGH;
     this.startTime = 0;
     this.endTime = 0;
     this.history = [];
@@ -58,10 +56,10 @@ class GPIOController {
     rpio.write(gpioPort, state);
 
     //
-    if (gpioPort == POWER_RELAY_PIN && state == rpio.LOW) {
+    if (gpioPort == GPIOPins.RELAY_POWER_PIN && state == rpio.LOW) {
       this.startTime = new Date();
     }
-    if (gpioPort == POWER_RELAY_PIN && state == rpio.HIGH) {
+    if (gpioPort == GPIOPins.RELAY_POWER_PIN && state == rpio.HIGH) {
       this.endTime = new Date();
     }
 
