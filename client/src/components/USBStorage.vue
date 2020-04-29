@@ -22,7 +22,7 @@
           :variant="rpiLedState ? 'success': 'light'"
           style="margin-left: 10px;"
         >
-          {{ rpiLedState ? 'Plugged to ECU' : 'Not plugged to ECU' }}
+          {{ rpiLedState ? 'Plugged to RPI' : 'Not plugged to RPI' }}
         </b-button>
         
       </div>
