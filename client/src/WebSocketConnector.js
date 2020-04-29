@@ -113,6 +113,11 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
+  sendGetFileInfoUSBDeviceMessage({ path, fileName }) {
+    var obj = { usb: { action: "getFileInfo", path, fileName } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
   sendRebootDeviceMessage() {
     let obj = { utility: { action: "reboot"} };
     this.connectionSocket.send(JSON.stringify(obj));

@@ -35,6 +35,10 @@ const store = new Vuex.Store({
     deleteFileUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
       webSocketConnector.sendDeleteFileUSBDeviceMessage({ path, fileName });
     },
+    getFileInfoUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
+      commit('CLEAR_USB_FILE_INFO');
+      webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, fileName });
+    },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
     },
@@ -82,6 +86,9 @@ const store = new Vuex.Store({
     },
     UPDATE_CONNECTION_STATUS(state, status) {
       state.isConnected = status;
+    },
+    CLEAR_USB_FILE_INFO(state) {
+      state.receivedData.usb.currentFileInfo = undefined;
     },
   },
 });

@@ -72,10 +72,16 @@
             </template>
             <template v-slot:cell(operations)="data">
               <b-button
-                v-if="!data.item.isDirectory"
+                
                 variant="outline-primary"
-                @click="onDownloadFileClicked(data.item)"
+                @click="onInfoButtonClicked(data.item)"
                 style="margin-right: 10px;"
+              >Info</b-button>
+              <b-button
+                v-if="!data.item.isDirectory"
+                variant="primary"
+                @click="onDownloadFileClicked(data.item)"
+                style="margin-right: 20px;"
               >Download</b-button>
               <b-button
                 v-if="!data.item.isDirectory"
@@ -87,6 +93,20 @@
         </div>
       </b-card>
     </b-card>
+
+    <b-modal id="file-info-modal" title="File Info" :okOnly="true">
+      <div v-if="fileInfo == undefined" style="text-align: center">
+        <b-spinner variant="primary" label="Spinning"></b-spinner>
+        <br>
+        <br>
+        Loading...
+      </div>
+      <div v-else>
+        <div v-for="(item, index) in Object.keys(fileInfo)" :key="index">
+          <b>{{ item }}:</b> {{ fileInfo[item] }}
+        </div>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -132,10 +152,10 @@ export default {
       return this.receivedData.usb.isAvailable;
     },
     ecuLedState() {
-      return this.receivedData.usb.kvmLedStateECU;
+      return this.receivedData.usb && this.receivedData.usb.kvmLedStateECU;
     },
     rpiLedState() {
-      return this.receivedData.usb.kvmLedStateRPI;
+      return this.receivedData.usb && this.receivedData.usb.kvmLedStateRPI;
     },
     fileList() {
       if (!this.receivedData.usb) {
@@ -150,6 +170,9 @@ export default {
       }
 
       return this.receivedData.usb.currentDirectory;
+    },
+    fileInfo() {
+      return this.receivedData.usb ? this.receivedData.usb.currentFileInfo : undefined;
     }
   },
   methods: {
@@ -157,7 +180,8 @@ export default {
       "toggleUSBPort",
       "detectUSBDevice",
       "listFilesUSBDevice",
-      "deleteFileUSBDevice"
+      "deleteFileUSBDevice",
+      "getFileInfoUSBDevice",
     ]),
     onToggleButtonClicked() {
       this.toggleUSBPort();
@@ -213,6 +237,14 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    onInfoButtonClicked(item) {
+      this.getFileInfoUSBDevice({
+              path: this.currentDirectory,
+              fileName: item.name
+            });
+
+      this.$bvModal.show('file-info-modal');
     },
     onUploadClicked() {
       if(this.isUsbDeviceAvailable == false) {

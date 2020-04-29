@@ -7,6 +7,7 @@ const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const usbDetect = require('usb-detection');
+const md5File = require('md5-file')
 const GPIOPins = require('./GPIOPins');
 
 const TOGGLE_HOLD_TIME = 150; //ms
@@ -26,6 +27,7 @@ class USBController {
       device: '',
       currentDirectory: '.',
       currentFiles: [],
+      currentFileInfo: {},
     };
     this.timeToCheckSafety = 0;
 
@@ -86,6 +88,8 @@ class USBController {
         this.listUsbDeviceFiles(obj.usb.path);
       } else if(obj.usb.action == "deleteFile") {
         this.deleteUsbDeviceFile(obj.usb.path, obj.usb.fileName);
+      } else if(obj.usb.action == "getFileInfo") {
+        this.getFileInfo(obj.usb.path, obj.usb.fileName);
       }
     }
   }
@@ -209,6 +213,34 @@ class USBController {
 
         this.sendCurrentState();
       }
+    });
+  }
+
+  getFileInfo(path, fileName) {
+    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    fs.stat(dir, async (err, stats) => {
+      let fileInfo = {
+        path: dir,
+        name: fileName,
+        createDate: new Date(stats.birthtime).toLocaleString(),
+        modifyDate: new Date(stats.mtime).toLocaleString(),
+        size: undefined,
+        md5: undefined,
+      }
+
+      if(stats.isFile()) {
+        fileInfo.md5 = await md5File(dir);
+        const fileSizeInMB = (stats.size/1024/1024).toFixed(2);
+        if(fileSizeInMB == 0) {
+          fileInfo.size = (stats.size/1024).toFixed(2) + " KB";
+        } else {
+          fileInfo.size = (stats.size/1024/1024).toFixed(2) + " MB";
+        }
+      }
+
+      // send file info
+      this.usbState.currentFileInfo = fileInfo;
+      this.sendCurrentState();
     });
   }
 
