@@ -10,8 +10,8 @@ const usbDetect = require('usb-detection');
 const md5File = require('md5-file')
 const GPIOPins = require('./GPIOPins');
 
-const TOGGLE_HOLD_TIME = 150; //ms
-const MAX_TRY_COUNT = 30;
+const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
+const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
 const LED_CHECK_TIME_INTERVAL = 1000; //ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
@@ -102,7 +102,7 @@ class USBController {
       this.detectUsbDevice().then(() => {
         tryCount++;
         if (this.usbState.isAvailable == lastState) {
-          if (tryCount < MAX_TRY_COUNT) {
+          if (tryCount < MAX_TRY_COUNT_DRIVE) {
             setTimeout(detectUsbInsertionInTimeIntervals, 1000);
           } else {
             console.log('detectUsbDevice try count has been exceeded');
@@ -246,13 +246,18 @@ class USBController {
 
   deleteUsbDeviceFile(path, fileName) {
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    fs.unlink(dir, (err) => {
-      if(err) {
-        console.log("could not remove file! ", dir, err);
-      }
+    if (fs.lstatSync(dir).isDirectory()) {
+      // TODO: Delete Folder
+    }
+    else {
+      fs.unlink(dir, (err) => {
+        if(err) {
+          console.log("could not remove file! ", dir, err);
+        }
 
-      this.listUsbDeviceFiles(path);
-    })
+        this.listUsbDeviceFiles(path);
+      })
+    }
   }
 
   toggleUsbDevice() {
@@ -300,12 +305,30 @@ class USBController {
     if(this.toggleTimeoutHandle) {
       return;
     }
-
+    let lastLedStateEcu = this.usbState.kvmLedStateECU;
+    let lastLedStateRpi = this.usbState.kvmLedStateRPI;
+    let tryCount = 0;
     rpio.open(GPIOPins.KVM_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
-    this.toggleTimeoutHandle = setTimeout(() => {
-      rpio.close(GPIOPins.KVM_TOGGLE_PIN);
-      this.toggleTimeoutHandle = undefined;
-    }, TOGGLE_HOLD_TIME); // It should be between 10ms and 290ms
+
+    const detectLedChangeInTimeIntervals = () => {
+      this.checkKVMLedState();
+      tryCount++;
+      console.log(tryCount);
+      if ((lastLedStateEcu != this.usbState.kvmLedStateECU) && (lastLedStateRpi != this.usbState.kvmLedStateRPI)) {
+        console.log('Led Change has been detected and pin toggled accordingly');
+        rpio.close(GPIOPins.KVM_TOGGLE_PIN);
+        this.toggleTimeoutHandle = undefined;
+      }
+      else {
+        if (tryCount < MAX_TRY_COUNT_LED) {
+          this.toggleTimeoutHandle = setTimeout(detectLedChangeInTimeIntervals, 5);
+        }
+        else {
+          console.log('detectLedChange try count has been exceeded');
+        }
+      }
+    }
+    detectLedChangeInTimeIntervals();
   }
 
   sendCurrentState() {
