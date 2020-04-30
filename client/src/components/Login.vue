@@ -1,14 +1,23 @@
 <template>
-  <div class="login">
-    <h1>Login</h1>
-    <div class="form">
-      <label for="username">Username</label>
-      <input v-model="username" type="text" name="surname" class="input" />
-      <label for="password">Password</label>
-      <input @keydown="onEnterKey" v-model="pass" type="password" class="input" />
-      <button @click="login" class="btn">Login</button>
-      <b-alert :show="authStatus == 'login-error'" variant="danger">Error ocurred on login</b-alert>
-    </div>
+  <div class="login-container">
+    <b-card title="Login" style="flex:1">
+      <div>
+        <b-form>
+          <label for="username" style="margin-top:7px" >Username</label>
+          <b-input v-model="username" type="text" id="text-password" style="max-width: 300px;"></b-input>
+        </b-form>
+      </div>      
+      <div>
+        <b-form>
+          <label for="password" style="margin-top:15px" >Password</label>
+          <b-input @keydown="onEnterKey" v-model="pass" type="password" id="text-password" style="max-width: 300px;" ></b-input>
+        </b-form>
+      </div>
+      <div>
+        <button @click="login" class="btn btn-primary" style="margin-top:10px" >Login</button>
+        <b-alert :show="authStatus == 'login-error'" variant="danger">Error ocurred on login</b-alert>
+      </div>
+    </b-card>
   </div>
 </template>
 
@@ -27,8 +36,8 @@ export default {
   computed: {
     ...mapState(["user", "authStatus"]),
   },
-  methods: { 
-    ...mapActions(["loginUser","logout"]),
+  methods: {
+    ...mapActions(["loginUser", "logout"]),
     login() {
       this.loginUser({username: this.username, password: this.pass});
     },
@@ -40,30 +49,10 @@ export default {
   },
   watch: {
     user() {
-      if(this.user != null) {
-        this.$router.push({path: '/'});
+      if (this.user != null) {
+        this.$router.push({ path: "/" });
       }
-    },
-  },
+    }
+  }
 };
 </script>
-<style scoped>
-.form {
-  display: flex;
-  flex-direction: column;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.input {
-  border: 1px solid green;
-  padding: 10px;
-  margin-bottom: 20px;
-}
-
-.btn {
-  background-color: green;
-  color: white;
-  padding: 10px;
-}
-</style>
