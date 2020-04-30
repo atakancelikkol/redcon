@@ -1,38 +1,38 @@
 <template>
   <div class="usb-storage-container">
     <b-card title="USB Storage" style="flex:1; display:flex">
-      <b-button
-        variant="outline-primary"
-        @click="onButtonClicked"
-        class="button_class"
-        style="width: 459px"
-      >Detect USB Devices</b-button>
-      <div
-        @click="onSwitchClicked($event)"
-        style="display:flex; flex-direction: row; margin-top:10px"
-      >
-        <div size="lg" style="margin-top: 5px">
-          <b>NONE</b>
-        </div>
-        <b-form-checkbox
-          :checked="receivedData.usb && receivedData.usb.pluggedDevice == 'rpi'"
-          name="check-button"
-          size="default"
-          switch
-          style="margin-left: 7px;margin-top:6px"
+      <div style="display:flex; flex-direction: row; margin-top:10px">
+        <b-button
+          variant="outline-primary"
+          @click="onButtonClicked"
+        >Detect USB Devices</b-button>
+
+        <b-button
+          :variant="ecuLedState ? 'success': 'light'"
+          style="margin-left: 40px;"
         >
-          <div style="margin-top: 1px">
-            <b>RPi</b>
-          </div>
-        </b-form-checkbox>
+          {{ ecuLedState ? 'Plugged to ECU' : 'Not plugged to ECU' }}
+        </b-button>
+        <b-button
+          variant="primary"
+          @click="onToggleButtonClicked"
+          style="margin-left: 10px;"
+        >Toggle USB Device</b-button>
+        <b-button
+          :variant="rpiLedState ? 'success': 'light'"
+          style="margin-left: 10px;"
+        >
+          {{ rpiLedState ? 'Plugged to RPI' : 'Not plugged to RPI' }}
+        </b-button>
+        
       </div>
-      <div class="divclass1">
+      <div class="usb-storage-container__info">
         <b>
           <u>Availability:</u>
           {{usbStatus.availability}}
         </b>
       </div>
-      <div class="divclass1">
+      <div class="usb-storage-container__info">
         <b>
           <u>Mounted Path:</u>
           {{usbStatus.mountedpath}}
@@ -72,10 +72,16 @@
             </template>
             <template v-slot:cell(operations)="data">
               <b-button
-                v-if="!data.item.isDirectory"
+                
                 variant="outline-primary"
-                @click="onDownloadFileClicked(data.item)"
+                @click="onInfoButtonClicked(data.item)"
                 style="margin-right: 10px;"
+              >Info</b-button>
+              <b-button
+                v-if="!data.item.isDirectory"
+                variant="primary"
+                @click="onDownloadFileClicked(data.item)"
+                style="margin-right: 20px;"
               >Download</b-button>
               <b-button
                 v-if="!data.item.isDirectory"
@@ -87,6 +93,20 @@
         </div>
       </b-card>
     </b-card>
+
+    <b-modal id="file-info-modal" title="File Info" :okOnly="true">
+      <div v-if="fileInfo == undefined" style="text-align: center">
+        <b-spinner variant="primary" label="Spinning"></b-spinner>
+        <br>
+        <br>
+        Loading...
+      </div>
+      <div v-else>
+        <div v-for="(item, index) in Object.keys(fileInfo)" :key="index">
+          <b>{{ item }}:</b> {{ fileInfo[item] }}
+        </div>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -103,6 +123,9 @@ export default {
       showUploadError: false,
       errorString: '',
     };
+  },
+  mounted() {
+    this.listFilesUSBDevice({ path: this.currentDirectory });
   },
   computed: {
     ...mapState(["receivedData"]),
@@ -128,6 +151,12 @@ export default {
 
       return this.receivedData.usb.isAvailable;
     },
+    ecuLedState() {
+      return this.receivedData.usb && this.receivedData.usb.kvmLedStateECU;
+    },
+    rpiLedState() {
+      return this.receivedData.usb && this.receivedData.usb.kvmLedStateRPI;
+    },
     fileList() {
       if (!this.receivedData.usb) {
         return [];
@@ -141,32 +170,24 @@ export default {
       }
 
       return this.receivedData.usb.currentDirectory;
+    },
+    fileInfo() {
+      return this.receivedData.usb ? this.receivedData.usb.currentFileInfo : undefined;
     }
   },
   methods: {
     ...mapActions([
-      "changeUSBPort",
+      "toggleUSBPort",
       "detectUSBDevice",
       "listFilesUSBDevice",
-      "deleteFileUSBDevice"
+      "deleteFileUSBDevice",
+      "getFileInfoUSBDevice",
     ]),
-    onSwitchClicked(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const currentDevice = this.receivedData.usb.pluggedDevice;
-      let targetDevice = currentDevice == "none" ? "rpi" : "none";
-
-      this.changeUSBPort({ device: targetDevice });
-      return false;
+    onToggleButtonClicked() {
+      this.toggleUSBPort();
     },
     onButtonClicked() {
-      const currentDevice = this.receivedData.usb.pluggedDevice;
-      this.detectUSBDevice({ device: currentDevice });
-      return false;
-    },
-    uploadFile() {
-      // Upload method
+      this.detectUSBDevice();
     },
     clearFiles() {
       this.$refs["file-input"].reset();
@@ -213,6 +234,14 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    onInfoButtonClicked(item) {
+      this.getFileInfoUSBDevice({
+              path: this.currentDirectory,
+              fileName: item.name
+            });
+
+      this.$bvModal.show('file-info-modal');
     },
     onUploadClicked() {
       if(this.isUsbDeviceAvailable == false) {
@@ -289,10 +318,8 @@ export default {
     }
   },
   watch: {
-    isUsbDeviceAvailable(val) {
-      if (val) {
-        this.listFilesUSBDevice({ path: this.currentDirectory });
-      }
+    isUsbDeviceAvailable() {
+      this.listFilesUSBDevice({ path: this.currentDirectory });
     }
   }
 };
@@ -309,7 +336,7 @@ export default {
   display: flex;
   flex-direction: column;
 }
-.divclass1 {
+.usb-storage-container__info {
   margin-top: 18px;
 }
 </style>

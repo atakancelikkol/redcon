@@ -27,17 +27,21 @@ const store = new Vuex.Store({
     changeGPIOPort({ commit }, { gpioPort, value }) { // eslint-disable-line
       webSocketConnector.sendGPIOUpdateMessage({ gpioPort, value });
     },
-    changeUSBPort({ commit }, { device }) { // eslint-disable-line
-      webSocketConnector.sendUSBUpdateMessage({ device });
+    toggleUSBPort({ commit }) { // eslint-disable-line
+      webSocketConnector.sendToggleUSBDeviceMessage();
     },
-    detectUSBDevice({ commit }, { device }) { // eslint-disable-line
-      webSocketConnector.sendUSBDetectMessage({ device });
+    detectUSBDevice({ commit }) { // eslint-disable-line
+      webSocketConnector.sendDetectUSBDeviceMessage();
     },
     listFilesUSBDevice({ commit }, { path }) { // eslint-disable-line
       webSocketConnector.sendListFilesUSBDeviceMessage({ path });
     },
     deleteFileUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
       webSocketConnector.sendDeleteFileUSBDeviceMessage({ path, fileName });
+    },
+    getFileInfoUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
+      commit('CLEAR_USB_FILE_INFO');
+      webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, fileName });
     },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
@@ -95,6 +99,9 @@ const store = new Vuex.Store({
     },
     UPDATE_CONNECTION_STATUS(state, status) {
       state.isConnected = status;
+    },
+    CLEAR_USB_FILE_INFO(state) {
+      state.receivedData.usb.currentFileInfo = undefined;
     },
     SET_AUTH_DATA(state, authData) {
       state.user = authData.user;
