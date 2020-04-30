@@ -8,8 +8,6 @@ const fs = require('fs');
 const formidable = require('formidable');
 const usbDetect = require('usb-detection');
 const md5File = require('md5-file');
-const rimraf = require('rimraf');
-const mkdirp = require('mkdirp');
 const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
@@ -97,8 +95,6 @@ class USBController {
         this.deleteUsbDeviceFile(obj.usb.path, obj.usb.fileName);
       } else if(obj.usb.action == "getFileInfo") {
         this.getFileInfo(obj.usb.path, obj.usb.fileName);
-      } else if(obj.usb.action == "createFolder") {
-        this.createUsbDeviceFolder(obj.usb.path, obj.usb.fileName);
       }
     }
   }
@@ -253,31 +249,14 @@ class USBController {
     });
   }
 
-  createUsbDeviceFolder(path,folderName){
-    let dir = nodePath.join(this.usbState.mountedPath, path, folderName);
-    mkdirp(dir).then(() => {
-      this.listUsbDeviceFiles(path);  
-    });
-  }
-
   deleteUsbDeviceFile(path, fileName) {
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    if (fs.lstatSync(dir).isDirectory()) { // if it's a folder 
-      rimraf(dir, (err) => {
-        if (err) {
-          console.log("could not remove folder! ", dir, err);
-        }
-        this.listUsbDeviceFiles(path);
-      })
-    }
-    else {
-      fs.unlink(dir, (err) => {
-        if(err) {
-          console.log("could not remove file! ", dir, err);
-        }
-        this.listUsbDeviceFiles(path);
-      })
-    }
+    fs.unlink(dir, (err) => {
+      if(err) {
+        console.log("could not remove file! ", dir, err);
+      }
+      this.listUsbDeviceFiles(path);
+    })
   }
 
   toggleUsbDevice() {
