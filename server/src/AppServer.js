@@ -7,11 +7,10 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 
 class AppServer {
-  constructor({dataHandlers}) {
+  constructor({ dataHandlers }) {
     this.dataHandlers = dataHandlers;
     this.port = 3000;
-    if(process.argv[2] === "production")
-    {
+    if (process.argv[2] === "production") {
       // change the port to 80 as this is running in production mode
       this.port = 80;
     }
@@ -56,21 +55,32 @@ class AppServer {
   onConnectionHandler(connection, req) {
     // request handler
     const id = uuidv4();
+    const isAuthenticated = false
     console.log("New connection request received! id: ", id);
-    const client = { id, connection };
+    const client = {
+      id,
+      connection,
+      isAuthenticated,
+      send: (obj) => {
+        connection.send(JSON.stringify(obj))
+      }
+    };
     this.clients.push(client);
 
     // send initial message to the client
     this.sendInitialMessage(client);
 
     connection.on('message', this.onMessageHandler.bind(this, client));
-    connection.on('close', this.onCloseHandler.bind(this, client));  
+    connection.on('close', this.onCloseHandler.bind(this, client));
   }
 
   onMessageHandler(client, message) {
+    console.log("client isAuthenticated",client.isAuthenticated)
     let obj = JSON.parse(message);
     this.dataHandlers.forEach((handler) => {
-      handler.handleMessage(obj);
+      if(!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated)) {
+        handler.handleMessage(obj, client);
+      }
     });
   }
 
@@ -90,13 +100,15 @@ class AppServer {
     this.dataHandlers.forEach((handler) => {
       handler.appendData(obj);
     });
-  
+
     client.connection.send(JSON.stringify(obj));
   }
 
   sendToAllClients(obj) {
     this.clients.forEach((client) => {
-      client.connection.send(JSON.stringify(obj));
+      if (client.isAuthenticated == true) {
+        client.connection.send(JSON.stringify(obj));
+      }
     });
   }
 }

@@ -45,6 +45,10 @@ class SerialPortController {
     this.writerInstances = {};
   }
 
+  isAuthRequired(){
+    return true
+  }
+
   init() { }
 
   readOutputFiles() {
@@ -93,7 +97,10 @@ class SerialPortController {
     this.sendMessageCallback(obj);
   }
 
-  handleMessage(obj) {
+
+
+  handleMessage(obj, client) {
+
     // { serial: { action: "openDevice", path, baudRate } };
     if (obj["serial"]) {
       let action = obj["serial"].action;
@@ -248,9 +255,9 @@ class SerialPortController {
       this.stopVirtualDevice();
     }
   }
-  
-  onExit(){
-    
+
+  onExit() {
+
   }
 }
 

@@ -4,7 +4,7 @@ const cloneDeep = require('clone-deep');
 const POWER_RELAY_PIN = 3;
 
 class GPIOController {
-  constructor({sendMessageCallback}) {
+  constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
     this.gpioState = {};
     this.gpioState[3] = rpio.HIGH;
@@ -12,6 +12,10 @@ class GPIOController {
     this.startTime = 0;
     this.endTime = 0;
     this.history = [];
+  }
+
+  isAuthRequired(){
+    return true
   }
 
   init() {
@@ -27,7 +31,7 @@ class GPIOController {
 
   getCopyState() {
     return {
-      state: {...this.gpioState},
+      state: { ...this.gpioState },
       startTime: this.startTime,
       endTime: this.endTime,
       history: [...this.history],
@@ -40,7 +44,8 @@ class GPIOController {
   }
 
   handleMessage(obj) {
-    if(obj["gpio"]) {
+    
+    if (obj["gpio"]) {
       let gpioPort = obj["gpio"].port;
       let state = obj["gpio"].state ? rpio.HIGH : rpio.LOW;
       this.setGPIOPort(gpioPort, state);
@@ -67,14 +72,14 @@ class GPIOController {
 
     this.history.unshift({ port: gpioPort, state, date: new Date() });
     this.history = this.history.slice(0, 10);
-  
+
     let obj = {};
     this.appendData(obj);
     this.sendMessageCallback(obj);
   }
 
-  onExit(){
-    
+  onExit() {
+
   }
 }
 

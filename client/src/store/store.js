@@ -10,12 +10,16 @@ const store = new Vuex.Store({
     receivedData: {},
     serialData: {},
     isConnected: true, // dont show a warning at the beginning
+    user: null,
+    authStatus: '',
   },
   actions: {
     onDataReceived({ commit/*, state, getters*/ }, data) {
       // handle exceptional cases before
       if(data.serialData) {
         commit('APPEND_SERIAL_DATA', data.serialData);
+      } if(data.auth) {
+        commit('SET_AUTH_DATA', data.auth);
       } else {
         commit('APPEND_PARTIAL_DATA', data);
       }
@@ -37,6 +41,12 @@ const store = new Vuex.Store({
     },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
+    },
+    loginUser({ commit }, { username, password }) { // eslint-disable-line
+      webSocketConnector.sendLoginUserMessage({ username, password });
+    },
+    logoutUser({ commit }, { user }) { // eslint-disable-line
+      webSocketConnector.sendLogoutUserMessage({user});
     },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
@@ -85,6 +95,10 @@ const store = new Vuex.Store({
     },
     UPDATE_CONNECTION_STATUS(state, status) {
       state.isConnected = status;
+    },
+    SET_AUTH_DATA(state, authData) {
+      state.user = authData.user;
+      state.authStatus = authData.authStatus;
     },
   },
 });

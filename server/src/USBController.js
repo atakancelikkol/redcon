@@ -28,6 +28,10 @@ class USBController {
     this.timeToCheckSafety = 0;
   }
 
+  isAuthRequired(){
+    return true
+  }
+
   init() {
     console.log("initializing USBController");
     usbDetect.startMonitoring();
@@ -52,7 +56,8 @@ class USBController {
     obj["usb"] = this.getCopyState();
   }
 
-  handleMessage(obj) {
+  handleMessage(obj, client) {
+    
     if (typeof obj.usb != "undefined") {
       //var obj = { usb: {action, device} };
       if (obj.usb.action == 'changeDirection') {

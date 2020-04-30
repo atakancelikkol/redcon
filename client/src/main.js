@@ -23,3 +23,19 @@ new Vue({
   store,
   render: h => h(App),
 }).$mount('#app');
+
+if(!store.state.user && router.currentRoute.path != '/login' ) {
+  router.push({path: '/login'});
+}
+  
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((route) => route.meta.auth)) {
+    if (!store.state.user) {
+      next('/login');
+    } else {
+      next();
+    }
+  } else {
+    next()
+  } 
+}); 
