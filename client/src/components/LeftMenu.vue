@@ -17,7 +17,7 @@
       <b-list-group-item>
         <router-link to="/usb-storage">USB Storage</router-link>
       </b-list-group-item>
-            <b-list-group-item>
+      <b-list-group-item>
         <router-link to="/utility">Utility</router-link>
       </b-list-group-item>
     </b-list-group>
@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  name: "LeftMenu",
+  name: "LeftMenu"
 };
 </script>
 
