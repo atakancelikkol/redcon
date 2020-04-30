@@ -93,12 +93,12 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendUSBToggleMessage() {
+  sendToggleUSBDeviceMessage() {
     var obj = { usb: { action: "toggleDevice"} };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendUSBDetectMessage() {
+  sendDetectUSBDeviceMessage() {
     var obj = { usb: { action: "detectUsbDevice" } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
@@ -115,6 +115,11 @@ export default class WebSocketConnector {
 
   sendGetFileInfoUSBDeviceMessage({ path, fileName }) {
     var obj = { usb: { action: "getFileInfo", path, fileName } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendCreateFolderUSBDeviceMessage({ path, folderName }) {
+    var obj = { usb: { action: "getFileInfo", path, folderName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 

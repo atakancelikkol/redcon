@@ -24,10 +24,10 @@ const store = new Vuex.Store({
       webSocketConnector.sendGPIOUpdateMessage({ gpioPort, value });
     },
     toggleUSBPort({ commit }) { // eslint-disable-line
-      webSocketConnector.sendUSBToggleMessage();
+      webSocketConnector.sendToggleUSBDeviceMessage();
     },
     detectUSBDevice({ commit }) { // eslint-disable-line
-      webSocketConnector.sendUSBDetectMessage();
+      webSocketConnector.sendDetectUSBDeviceMessage();
     },
     listFilesUSBDevice({ commit }, { path }) { // eslint-disable-line
       webSocketConnector.sendListFilesUSBDeviceMessage({ path });
@@ -38,6 +38,9 @@ const store = new Vuex.Store({
     getFileInfoUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
       commit('CLEAR_USB_FILE_INFO');
       webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, fileName });
+    },
+    createFolderUSBDevice({ commit }, { path, folderName }) { // eslint-disable-line
+      webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, folderName });
     },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
