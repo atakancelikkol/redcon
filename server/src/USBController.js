@@ -7,7 +7,8 @@ const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const usbDetect = require('usb-detection');
-const md5File = require('md5-file')
+const md5File = require('md5-file');
+const rimraf = require('rimraf');
 const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
@@ -245,19 +246,27 @@ class USBController {
   }
 
   deleteUsbDeviceFile(path, fileName) {
+    console.log(path);
+    console.log(fileName);
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    if (fs.lstatSync(dir).isDirectory()) {
-      // TODO: Delete Folder
-    }
+    if (fs.lstatSync(dir).isDirectory()){
+      rimraf(dir,(err) => {
+      if(err) {
+        console.log("could not remove folder! ", dir, err);
+      }
+      this.listUsbDeviceFiles(path);
+    })
+      }
     else {
-      fs.unlink(dir, (err) => {
-        if(err) {
-          console.log("could not remove file! ", dir, err);
-        }
-
-        this.listUsbDeviceFiles(path);
-      })
-    }
+    fs.unlink(dir, (err) => {
+      if(err) {
+        console.log("could not remove file! ", dir, err);
+      }
+      this.listUsbDeviceFiles(path);
+      
+    })
+  }
+    
   }
 
   toggleUsbDevice() {
@@ -275,16 +284,17 @@ class USBController {
       if(!this.usbState.isAvailable) {
         resolve();
       }
-  
-      if (process.platform == 'win32') {
-        //could not find right cmd on windows to eject usb drive for now
-        resolve();
-      }
-      else if (process.platform == 'linux') {
-        exec(`sudo eject ${this.usbState.device}`, () => {
-          console.log("ejected usb drive");
+      else {
+        if (process.platform == 'win32') {
+          //could not find right cmd on windows to eject usb drive for now
           resolve();
-        });
+        }
+        else if (process.platform == 'linux') {
+          exec(`sudo eject ${this.usbState.device}`, () => {
+            console.log("ejected usb drive");
+            resolve();
+          });
+        }
       }
     });
   }
