@@ -16,7 +16,7 @@ class Authenticator {
   }
   
   appendData(obj) {
-    obj["auth"] = { username: this.users, authentication: this.authentication};
+    obj["auth"] = { username: this.users, password: this.pass};
   }
   updatePortStatus() {
     let obj = {};
@@ -31,13 +31,13 @@ class Authenticator {
       if (action == "checkUser") {
         console.log("login user:", obj["auth"].username, obj["auth"].password)
         client.isAuthenticated=(this.checkUser(obj["auth"].username, obj["auth"].password))
-        } else if(action == "logoutUser") {
+      } /*else if(action == "logoutUser") {
         console.log ("logout:", obj["auth"].username)
         client.isAuthenticated=false
         this.authentication=false
         this.users=null
         this.updatePortStatus()
-        }
+        } */
     }
   }
   checkUser(user, pass){

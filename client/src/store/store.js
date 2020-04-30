@@ -10,6 +10,8 @@ const store = new Vuex.Store({
     receivedData: {},
     serialData: {},
     isConnected: true, // dont show a warning at the beginning
+    user: null,
+    pass: null,
   },
   actions: {
     onDataReceived({ commit/*, state, getters*/ }, data) {
@@ -39,6 +41,7 @@ const store = new Vuex.Store({
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
     },
     checkUser({ commit }, { user, pass }) { // eslint-disable-line
+      console.log("deneme");
       webSocketConnector.sendCheckUserMessage({ user, pass });
     },
     logoutUser({ commit }, { user }) { // eslint-disable-line
