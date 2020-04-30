@@ -5,7 +5,7 @@
       <label for="username">Username</label>
       <input v-model="username" type="text" name="surname" class="input" />
       <label for="password">Password</label>
-      <input v-model="pass" type="password" class="input" />
+      <input @keydown="onEnterKey" v-model="pass" type="password" class="input" />
       <button @click="login" class="btn">Login</button>
       <b-alert :show="authStatus == 'login-error'" variant="danger">Error ocurred on login</b-alert>
     </div>
@@ -31,6 +31,11 @@ export default {
     ...mapActions(["loginUser","logout"]),
     login() {
       this.loginUser({username: this.username, password: this.pass});
+    },
+    onEnterKey(evt){
+      if(evt.keyCode == 13 ) {
+        this.loginUser({username: this.username, password: this.pass});
+      }
     }
   },
   watch: {
