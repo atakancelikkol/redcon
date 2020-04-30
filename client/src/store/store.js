@@ -10,12 +10,16 @@ const store = new Vuex.Store({
     receivedData: {},
     serialData: {},
     isConnected: true, // dont show a warning at the beginning
+    user: null,
+    authStatus: '',
   },
   actions: {
     onDataReceived({ commit/*, state, getters*/ }, data) {
       // handle exceptional cases before
       if(data.serialData) {
         commit('APPEND_SERIAL_DATA', data.serialData);
+      } if(data.auth) {
+        commit('SET_AUTH_DATA', data.auth);
       } else {
         commit('APPEND_PARTIAL_DATA', data);
       }
@@ -45,6 +49,12 @@ const store = new Vuex.Store({
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
     },
+    loginUser({ commit }, { username, password }) { // eslint-disable-line
+      webSocketConnector.sendLoginUserMessage({ username, password });
+    },
+    logoutUser({ commit }, { user }) { // eslint-disable-line
+      webSocketConnector.sendLogoutUserMessage({user});
+    },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
     },
@@ -68,7 +78,10 @@ const store = new Vuex.Store({
     },    
     updateConnectionStatus({ commit }, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
-    }
+    },
+    rebootDevice({ commit },) { // eslint-disable-line
+      webSocketConnector.sendRebootDeviceMessage();
+    } 
   },
   mutations: {
     APPEND_PARTIAL_DATA(state, data) {
@@ -92,6 +105,10 @@ const store = new Vuex.Store({
     },
     CLEAR_USB_FILE_INFO(state) {
       state.receivedData.usb.currentFileInfo = undefined;
+    },
+    SET_AUTH_DATA(state, authData) {
+      state.user = authData.user;
+      state.authStatus = authData.authStatus;
     },
   },
 });
