@@ -88,8 +88,8 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
   
-  sendCheckUserMessage({user, pass}) {
-    var obj = { auth: { action: "checkUser", username: user, password: pass } };
+  sendLoginUserMessage({username, password}) {
+    var obj = { auth: { action: "loginUser", username, password } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
   sendLogoutUserMessage({user}) {

@@ -3,36 +3,43 @@
     <h1>Login</h1>
     <div class="form">
       <label for="username">Username</label>
-      <input v-model="user" type="text" name="surname" class="input" />
+      <input v-model="username" type="text" name="surname" class="input" />
       <label for="password">Password</label>
       <input v-model="pass" type="password" class="input" />
       <button @click="login" class="btn">Login</button>
+      <b-alert :show="authStatus == 'login-error'" variant="danger">Error ocurred on login</b-alert>
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
-import store from "../store/store";
+import { mapActions, mapState } from "vuex";
+
 export default {
   name: "Login",
   data() {
     return {
-      user: "",
-      pass: ""
+      username: "",
+      pass: "",
+      displayErrorMessage: false,
     };
   },
-
+  computed: {
+    ...mapState(["user", "authStatus"]),
+  },
   methods: { 
-    ...mapActions(["checkUser","logout"]),
+    ...mapActions(["loginUser","logout"]),
     login() {
-      store.state.user = this.user;
-      store.state.password = this.pass;
-      this.$router.push("/");
-      console.log("login as", this.user, this.pass);
-      this.checkUser( store.state.user, store.state.password );
+      this.loginUser({username: this.username, password: this.pass});
     }
-  }
+  },
+  watch: {
+    user() {
+      if(this.user != null) {
+        this.$router.push({path: '/'});
+      }
+    },
+  },
 };
 </script>
 <style scoped>

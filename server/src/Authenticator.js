@@ -2,50 +2,54 @@
 class Authenticator {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
-
-    this.users = {};
-    this.authentication={};
   }
 
-  init() { 
-     
+  init() {
+
   }
-  
-  isAuthRequired(){
-    return false
+
+  isAuthRequired() {
+    return false;
   }
-  
+
   appendData(obj) {
-    obj["auth"] = { username: this.users, password: this.pass};
-  }
-  updatePortStatus() {
-    let obj = {};
-    this.appendData(obj);
-    this.sendMessageCallback(obj);
+
   }
 
   handleMessage(obj, client) {
-   
     if (obj["auth"]) {
       let action = obj["auth"].action;
-      if (action == "checkUser") {
-        console.log("login user:", obj["auth"].username, obj["auth"].password)
-        client.isAuthenticated=(this.checkUser(obj["auth"].username, obj["auth"].password))
-      } /*else if(action == "logoutUser") {
-        console.log ("logout:", obj["auth"].username)
-        client.isAuthenticated=false
-        this.authentication=false
-        this.users=null
-        this.updatePortStatus()
-        } */
+      if (action == "loginUser") {
+        this.loginUser(client, obj["auth"].username, obj["auth"].password);
+      } else if(action == "logoutUser") {
+        this.logoutUser(client, 'logged-out');
+      } 
     }
   }
-  checkUser(user, pass){
-  //accept every user
-    this.users=user
-    this.updatePortStatus()
-    this.authentication=true
-    return true
+
+  loginUser(client, username, password) {
+    //accept every user
+    const isAuthenticated = true
+    if(isAuthenticated) {
+      const userObject = {username: "username", id: "id", email: "email"};
+      client.isAuthenticated = true;
+      this.sendUserToClient(client, userObject, 'success');
+    } else {
+      this.logoutUser(client, 'login-error');
+    }
+  }
+
+  logoutUser(client, status) {
+    client.isAuthenticated = false;
+    this.sendUserToClient(client, null, status);
+  }
+
+  sendUserToClient(client, user, authStatus) {
+    client.send({"auth": {user, authStatus}});
+  }
+
+  onExit() {
+
   }
 
 }

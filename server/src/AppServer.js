@@ -57,7 +57,14 @@ class AppServer {
     const id = uuidv4();
     const isAuthenticated = false
     console.log("New connection request received! id: ", id);
-    const client = { id, connection, isAuthenticated };
+    const client = {
+      id,
+      connection,
+      isAuthenticated,
+      send: (obj) => {
+        connection.send(JSON.stringify(obj))
+      }
+    };
     this.clients.push(client);
 
     // send initial message to the client

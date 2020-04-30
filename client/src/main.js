@@ -24,8 +24,9 @@ new Vue({
   render: h => h(App),
 }).$mount('#app');
 
-if(!store.state.user)
+if(!store.state.user) {
   router.push({path: '/login'});
+}
   
 router.beforeEach((to, from, next) => {
   if (to.matched.some((route) => route.meta.auth)) {
@@ -38,17 +39,3 @@ router.beforeEach((to, from, next) => {
     next()
   } 
 }); 
-/*router.push({path: '/port-mapping'});
-console.log("router.push")
-
-/*
-router.beforeEach((to, from, next) => {
-  const authRequired = to.matched.some((routes) => routes.meta.auth)
-  const authed = store.state.user
-  if (authRequired && !authed) {
-    next('/login')
-  } else {
-    next()
-  }
-})
-*/
