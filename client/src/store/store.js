@@ -71,7 +71,10 @@ const store = new Vuex.Store({
     },    
     updateConnectionStatus({ commit }, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
-    }
+    },
+    rebootDevice({ commit },) { // eslint-disable-line
+      webSocketConnector.sendRebootDeviceMessage();
+    } 
   },
   mutations: {
     APPEND_PARTIAL_DATA(state, data) {

@@ -4,6 +4,7 @@ import PortMapping from './components/PortMapping'
 import SerialConsole from './components/SerialConsole'
 import USBStorage from './components/USBStorage'
 import Login from './components/Login'
+import Utility from './components/Utility'
 
 const routes = [
   { path: '/', component: Home, meta: {auth: true}  },
@@ -11,7 +12,8 @@ const routes = [
   { path: '/port-mapping', component: PortMapping, meta: {auth: true} },
   { path: '/serial-console', component: SerialConsole, meta: {auth: true} },
   { path: '/usb-storage', component: USBStorage, meta: {auth: true} },
+  { path: '/utility', component: Utility, meta: {auth: true} },
   { path: '/login', component: Login },
-];
+ ];
 
 export default routes;
