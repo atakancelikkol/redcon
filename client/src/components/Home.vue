@@ -7,24 +7,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 export default {
   name: "Home",
-  data() {
-      return {
-        user: "",
-        pass: ""
-      }
-  },
-  methods: {
-    ...mapActions(["logoutUser"]),
-
-    logout() {
-      console.log("logout as" ,this.user);
-      this.logoutUser({ user: this.user});
-    }
-  }
-}
+};
 </script>
 
 <style>

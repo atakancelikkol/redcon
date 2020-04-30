@@ -94,7 +94,6 @@ const store = new Vuex.Store({
       state.isConnected = status;
     },
     SET_AUTH_DATA(state, authData) {
-      console.log("USER:", authData.user)
       state.user = authData.user;
       state.authStatus = authData.authStatus;
     },

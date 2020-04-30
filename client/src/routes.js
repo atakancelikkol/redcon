@@ -11,7 +11,7 @@ const routes = [
   { path: '/port-mapping', component: PortMapping, meta: {auth: true} },
   { path: '/serial-console', component: SerialConsole, meta: {auth: true} },
   { path: '/usb-storage', component: USBStorage, meta: {auth: true} },
-  { path: '/login', name: 'login', component: Login },
+  { path: '/login', component: Login },
 ];
 
 export default routes;
