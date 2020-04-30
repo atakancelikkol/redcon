@@ -93,7 +93,7 @@ class USBController {
       } else if(obj.usb.action == "getFileInfo") {
         this.getFileInfo(obj.usb.path, obj.usb.fileName);
       } else if(obj.usb.action == "createFolder") {
-        this.getFileInfo(obj.usb.path, obj.usb.fileName);
+        this.createUsbDeviceFolder(obj.usb.path, obj.usb.fileName);
       }
     }
   }

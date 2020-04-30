@@ -119,7 +119,7 @@ export default class WebSocketConnector {
   }
 
   sendCreateFolderUSBDeviceMessage({ path, folderName }) {
-    var obj = { usb: { action: "getFileInfo", path, folderName } };
+    var obj = { usb: { action: "createFolder", path, folderName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 

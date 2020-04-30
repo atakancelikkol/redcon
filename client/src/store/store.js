@@ -40,7 +40,7 @@ const store = new Vuex.Store({
       webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, fileName });
     },
     createFolderUSBDevice({ commit }, { path, folderName }) { // eslint-disable-line
-      webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, folderName });
+      webSocketConnector.sendCreateFolderUSBDeviceMessage({ path, folderName });
     },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
