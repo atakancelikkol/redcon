@@ -4,7 +4,7 @@
       <div>
         <b-form>
           <label for="username" style="margin-top:7px" >Username</label>
-          <b-input v-model="username" type="text" id="text-password" style="max-width: 300px;"></b-input>
+          <b-input v-model="username" type="text" id="text-username" style="max-width: 300px;"></b-input>
         </b-form>
       </div>      
       <div>

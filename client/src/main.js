@@ -24,7 +24,7 @@ new Vue({
   render: h => h(App),
 }).$mount('#app');
 
-if(!store.state.user) {
+if(!store.state.user && router.currentRoute.path != '/login' ) {
   router.push({path: '/login'});
 }
   
