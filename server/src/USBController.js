@@ -246,27 +246,23 @@ class USBController {
   }
 
   deleteUsbDeviceFile(path, fileName) {
-    console.log(path);
-    console.log(fileName);
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    if (fs.lstatSync(dir).isDirectory()){
-      rimraf(dir,(err) => {
-      if(err) {
-        console.log("could not remove folder! ", dir, err);
-      }
-      this.listUsbDeviceFiles(path);
-    })
-      }
+    if (fs.lstatSync(dir).isDirectory()) {
+      rimraf(dir, (err) => {
+        if (err) {
+          console.log("could not remove folder! ", dir, err);
+        }
+        this.listUsbDeviceFiles(path);
+      })
+    }
     else {
-    fs.unlink(dir, (err) => {
-      if(err) {
-        console.log("could not remove file! ", dir, err);
-      }
-      this.listUsbDeviceFiles(path);
-      
-    })
-  }
-    
+      fs.unlink(dir, (err) => {
+        if(err) {
+          console.log("could not remove file! ", dir, err);
+        }
+        this.listUsbDeviceFiles(path);
+      })
+    }
   }
 
   toggleUsbDevice() {
