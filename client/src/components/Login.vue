@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import store from '../store/store';
 import { mapActions, mapState } from "vuex";
 
 export default {
@@ -39,6 +40,7 @@ export default {
   methods: {
     ...mapActions(["loginUser", "logout"]),
     login() {
+      localStorage.token
       this.loginUser({username: this.username, password: this.pass});
     },
     onEnterKey(evt){
@@ -50,6 +52,8 @@ export default {
   watch: {
     user() {
       if (this.user != null) {
+        localStorage.token = store.state.token;
+        console.log("token:",localStorage.token)
         this.$router.push({ path: "/" });
       }
     }
