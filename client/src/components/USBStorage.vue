@@ -56,6 +56,13 @@
           ></b-form-file>
           <b-button variant="outline-primary" style="margin-left: 10px" @click="onUploadClicked" >Upload</b-button>
         </div>
+        <div class="mt-3" style="display: flex;">
+          <b-form-input 
+          v-model="text"
+          placeholder="Enter folder name to be created"
+          ></b-form-input>
+          <b-button variant="outline-primary" style="margin-left: 10px" @click="onCreateFolderClicked(text)" >Create Folder</b-button>
+        </div>
         <b-progress v-if="progressValue != -1" :value="progressValue" :max="100" show-progress animated style="margin-top: 10px"></b-progress>
         <b-alert v-model="showUploadError" variant="danger" dismissible style="margin-top: 10px">{{errorString == '' ? 'Error occurred during upload!' : errorString}}</b-alert>
         <b-breadcrumb style="margin-top: 10px">
@@ -84,7 +91,6 @@
                 style="margin-right: 20px;"
               >Download</b-button>
               <b-button
-                v-if="!data.item.isDirectory"
                 variant="outline-danger"
                 @click="onDeleteFileClicked(data.item)"
               >Delete</b-button>
@@ -182,6 +188,7 @@ export default {
       "listFilesUSBDevice",
       "deleteFileUSBDevice",
       "getFileInfoUSBDevice",
+      "createFolderUSBDevice",
     ]),
     onToggleButtonClicked() {
       this.toggleUSBPort();
@@ -209,6 +216,12 @@ export default {
       } else {
         return item.name;
       }
+    },
+    onCreateFolderClicked(text) {    
+      this.createFolderUSBDevice({
+        path: this.currentDirectory,
+        folderName: text
+      });
     },
     onDeleteFileClicked(item) {
       this.$bvModal
