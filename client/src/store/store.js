@@ -12,6 +12,7 @@ const store = new Vuex.Store({
     isConnected: true, // dont show a warning at the beginning
     user: null,
     authStatus: '',
+    token: '',
   },
   actions: {
     onDataReceived({ commit/*, state, getters*/ }, data) {
@@ -106,6 +107,7 @@ const store = new Vuex.Store({
     SET_AUTH_DATA(state, authData) {
       state.user = authData.user;
       state.authStatus = authData.authStatus;
+      state.token = authData.token;
     },
   },
 });

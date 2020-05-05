@@ -34,7 +34,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["user", "authStatus"]),
+    ...mapState(["user", "authStatus", "token"]),
   },
   methods: {
     ...mapActions(["loginUser", "logout"]),

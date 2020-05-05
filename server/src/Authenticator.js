@@ -3,6 +3,7 @@ var jwt = require('jsonwebtoken');
 class Authenticator {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
+    this.users = [];
   }
 
   init() {
@@ -21,29 +22,40 @@ class Authenticator {
     if (obj["auth"]) {
       let action = obj["auth"].action;
       if (action == "loginUser") {
-        this.loginUser(client, obj["auth"].username, obj["auth"].password);
-      } else if(action == "logoutUser") {
+        this.loginUser(client, obj["auth"].username, obj["auth"].password, obj["auth"].receivedToken);
+      } else if (action == "logoutUser") {
         this.logoutUser(client, 'logged-out');
-      } 
+      }
     }
   }
 
-  loginUser(client, username, password) {
-    //accept every user
-    const isAuthenticated = true
-    if(isAuthenticated) {
-      const userObject = {username: username, id: "id", email: "email"};
-      client.isAuthenticated = true;
-      if(userObject){
-        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn :"2h" })
-        console.log(token)
-        const decodedToken = jwt.verify(token, 'secret_key');
-        console.log(decodedToken)
-        console.log(decodedToken['userObject'].username)
-      }
-      this.sendUserToClient(client, userObject, 'success');
+  loginUser(client, username, password, receivedToken) {
+    if (receivedToken) {
+      const decodedToken = jwt.verify(token, 'secret_key');
+      console.log(decodedToken)
+      const user = decodedToken.username;
+      this.users.forEach(item => {
+        if (this.users[item] == user) {
+          client.isAuthenticated = true;
+          this.sendUserToClient(client, user, 'success');
+        } else {
+          console.log("Invalid Username")
+        }
+      })
     } else {
-      this.logoutUser(client, 'login-error');
+      const isAuthenticated = true
+      if (isAuthenticated) {
+        const userObject = { username: username, id: 'id' };
+        client.isAuthenticated = true;
+        if (userObject) {
+          this.users.push(username);
+          const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "2h" })
+          console.log(token)
+          this.sendUserToClient(client, userObject, 'success', token);
+      }
+      } else {
+        this.logoutUser(client, 'login-error');
+      }
     }
   }
 
@@ -52,8 +64,8 @@ class Authenticator {
     this.sendUserToClient(client, null, status);
   }
 
-  sendUserToClient(client, user, authStatus) {
-    client.send({"auth": {user, authStatus}});
+  sendUserToClient(client, user, authStatus, token) {
+    client.send({ "auth": { user, authStatus, token } });
   }
 
   onExit() {
