@@ -1,3 +1,4 @@
+var jwt = require('jsonwebtoken');
 
 class Authenticator {
   constructor({ sendMessageCallback }) {
@@ -31,8 +32,15 @@ class Authenticator {
     //accept every user
     const isAuthenticated = true
     if(isAuthenticated) {
-      const userObject = {username: "username", id: "id", email: "email"};
+      const userObject = {username: username, id: "id", email: "email"};
       client.isAuthenticated = true;
+      if(userObject){
+        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn :"2h" })
+        console.log(token)
+        const decodedToken = jwt.verify(token, 'secret_key');
+        console.log(decodedToken)
+        console.log(decodedToken['userObject'].username)
+      }
       this.sendUserToClient(client, userObject, 'success');
     } else {
       this.logoutUser(client, 'login-error');
