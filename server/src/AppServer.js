@@ -57,10 +57,13 @@ class AppServer {
     const id = uuidv4();
     const isAuthenticated = false
     console.log("New connection request received! id: ", id);
+    const ip = req.connection.remoteAddress;
+    console.log("Remote address:",ip)
     const client = {
       id,
       connection,
       isAuthenticated,
+      ip,
       send: (obj) => {
         connection.send(JSON.stringify(obj))
       }

@@ -43,8 +43,13 @@ class Authenticator {
           }
         }
         else {
-          client.isAuthenticated = true
-          this.sendUserToClient(client, 'success', receivedToken);
+          if (client.ip == result.userObject.ip) {
+            console.log("Token ip verified with client ip.")
+            client.isAuthenticated = true
+            this.sendUserToClient(client, 'success', receivedToken);
+          } else {
+            console.log("Token ip is invalid!")
+          }
         }
       })
     }
@@ -53,10 +58,10 @@ class Authenticator {
   loginUser(client, username, password) {
     const isAuthenticated = true
     if (isAuthenticated) {
-      const userObject = { username: username, id: 'id' };
+      const userObject = { username: username, id: 'id', ip: client.ip };
       client.isAuthenticated = true;
       if (userObject) {
-        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "120" })
+        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "1h" })
         console.log("token generated", token)
         this.sendUserToClient(client, userObject, 'success', token);
       }
