@@ -29,6 +29,7 @@ class USBController {
       currentDirectory: '.',
       currentFiles: [],
       currentFileInfo: {},
+      usbErrorString: '',
     };
     this.timeToCheckSafety = 0;
 
@@ -196,6 +197,8 @@ class USBController {
     fs.readdir(dir, { withFileTypes: true }, (err, files) => {
       //handling error
       if (err) {
+        this.usbState.usbErrorString = err.message;
+        this.sendCurrentState();
         return console.log('Unable to scan directory: ' + err);
       } else {
         let filesList = [];
@@ -226,37 +229,49 @@ class USBController {
 
   getFileInfo(path, fileName) {
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    this.usbState.usbErrorString = "";
     fs.stat(dir, async (err, stats) => {
-      let fileInfo = {
-        path: dir,
-        name: fileName,
-        createDate: new Date(stats.birthtime).toLocaleString(),
-        modifyDate: new Date(stats.mtime).toLocaleString(),
-        size: undefined,
-        md5: undefined,
+      if (err) {
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
+        return console.log(err);
       }
-
-      if(stats.isFile()) {
-        fileInfo.md5 = await md5File(dir);
-        const fileSizeInMB = (stats.size/1024/1024).toFixed(2);
-        if(fileSizeInMB == 0) {
-          fileInfo.size = (stats.size/1024).toFixed(2) + " KB";
-        } else {
-          fileInfo.size = (stats.size/1024/1024).toFixed(2) + " MB";
+      else {
+        let fileInfo = {
+          path: dir,
+          name: fileName,
+          createDate: new Date(stats.birthtime).toLocaleString(),
+          modifyDate: new Date(stats.mtime).toLocaleString(),
+          size: undefined,
+          md5: undefined,
         }
-      }
 
-      // send file info
-      this.usbState.currentFileInfo = fileInfo;
-      this.sendCurrentState();
+        if(stats.isFile()) {
+          fileInfo.md5 = await md5File(dir);
+          const fileSizeInMB = (stats.size/1024/1024).toFixed(2);
+          if(fileSizeInMB == 0) {
+            fileInfo.size = (stats.size/1024).toFixed(2) + " KB";
+          } else {
+            fileInfo.size = (stats.size/1024/1024).toFixed(2) + " MB";
+          }
+        }
+
+        // send file info
+        this.usbState.currentFileInfo = fileInfo;
+        this.sendCurrentState();
+      }
     });
   }
 
   createUsbDeviceFolder(path,folderName){
     let dir = nodePath.join(this.usbState.mountedPath, path, folderName);
+    this.usbState.usbErrorString = "";
     fs.mkdir(dir, { recursive: true }, (err) => {
       if (err) {
-        throw err;
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
+        return console.log(err);
+        
       }
       this.listUsbDeviceFiles(path);
     });
@@ -264,13 +279,18 @@ class USBController {
 
   deleteUsbDeviceFile(path, fileName) {
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    this.usbState.usbErrorString = "";
     fs.lstat(dir, (err,stats) => {
       if(err) {
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
         return console.log(err); //Hanlde error
       }
       if (stats.isDirectory()) { // if it's a folder 
         rimraf(dir, (err) => {
           if (err) {
+            this.usbState.usbErrorString = err.message;
+            this.listUsbDeviceFiles(path);
             console.log("could not remove folder! ", dir, err);
           }
           this.listUsbDeviceFiles(path);
@@ -279,9 +299,11 @@ class USBController {
       else {
         fs.unlink(dir, (err) => {
           if(err) {
+            this.usbState.usbErrorString = err.message;
+            this.listUsbDeviceFiles(path);
             console.log("could not remove file! ", dir, err);
           }
-        this.listUsbDeviceFiles(path);
+          this.listUsbDeviceFiles(path);
         })
       }
     });
