@@ -43,10 +43,10 @@ class Authenticator {
           }
         }
         else {
-          if (client.ip == result.userObject.ip) {
+          if (result && result.userObject && client.ip == result.userObject.ip) {
             console.log("Token ip verified with client ip.")
             client.isAuthenticated = true
-            this.sendUserToClient(client, 'success', receivedToken);
+            this.sendUserToClient(client, result.userObject, 'success', receivedToken);
           } else {
             console.log("Token ip is invalid!")
           }
