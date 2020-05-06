@@ -10,7 +10,7 @@ https://google.github.io/styleguide/jsguide.html
 - Variable names should be defined as myVariableName.
 - Constants parameters and values should be defined like MY_CONSTANT.
 - the "var" keyword is not allowed to use.
-- use the "const" keyword for every variable. If a variable needs to be altered, it should be defined with "let" keyword.
+- use the "const" keyword for every variable. If a variable needs to be altered, it should be defined with the "let" keyword.
 - Avoid global variables.
 - Arrays should be defined like this. const myArray = [1, 2, 3, 4]
 - Objects should be defined like this. const myObject = {}

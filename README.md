@@ -49,4 +49,4 @@ git push --set-upstream origin feature/redcon-<issue number>
 4. Open a merge request to the development branch. After review it will be merged to the development by the reviewer.
 
 # Coding Standarts
-Please check [coding standards document](docs/CodingStandards.md)
+Please check [the coding standards document](docs/CodingStandards.md).
