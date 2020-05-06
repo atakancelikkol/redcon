@@ -52,8 +52,9 @@ export default {
   watch: {
     user() {
       if (this.user != null) {
+        if(store.state.token){
         localStorage.token = store.state.token;
-        console.log("token:",localStorage.token)
+        }
         this.$router.push({ path: "/" });
       }
     }

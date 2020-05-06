@@ -35,10 +35,14 @@ export default class WebSocketConnector {
   onOpen(/*event*/) {
     this.store.dispatch('updateConnectionStatus', true);
     console.log("websocket connection is opened!") // eslint-disable-line
-    console.log("Stored token:",localStorage.token)
-    
+    console.log("Stored token client:",localStorage.token)
+    this.sendStoredToken()
   }
 
+  sendStoredToken() {
+    let obj = { auth: { action: "checkStoredToken", storedToken: localStorage.token  } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
   onMessage(event) {
     let obj = JSON.parse(event.data);
     console.log("received data", obj) // eslint-disable-line
