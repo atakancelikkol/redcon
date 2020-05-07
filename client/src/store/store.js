@@ -44,6 +44,9 @@ const store = new Vuex.Store({
       commit('CLEAR_USB_FILE_INFO');
       webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, fileName });
     },
+    createFolderUSBDevice({ commit }, { path, folderName }) { // eslint-disable-line
+      webSocketConnector.sendCreateFolderUSBDeviceMessage({ path, folderName });
+    },
     openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
       webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
     },
