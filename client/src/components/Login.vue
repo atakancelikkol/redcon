@@ -40,13 +40,7 @@ export default {
   },
   computed: {
     ...mapState(["user", "authStatus", "token", "receivedData"]),
-    Member() {
-      if(!this.receivedData.member) {
-        return [];
-      }
 
-      return Object.keys(this.receivedData.member.state);
-    },
     eventItems() {
       if(!this.receivedData.member) {
         return [];

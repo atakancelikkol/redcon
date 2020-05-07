@@ -107,9 +107,9 @@ class AppServer {
     client.connection.send(JSON.stringify(obj));
   }
 
-  sendToAllClients(obj) {
+  sendToAllClients(handler, obj) {
     this.clients.forEach((client) => {
-      if (client.isAuthenticated == true) {
+      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated)) {
         client.connection.send(JSON.stringify(obj));
       }
     });
