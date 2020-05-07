@@ -31,7 +31,6 @@ class Authenticator {
   }
 
   checkStoredToken(client, receivedToken) {
-    console.log("received token:", receivedToken)
     if (receivedToken) {
       jwt.verify(receivedToken, "secret_key", (err, result) => {
         if (err) {
@@ -62,7 +61,6 @@ class Authenticator {
       client.isAuthenticated = true;
       if (userObject) {
         const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "1h" })
-        console.log("token generated", token)
         this.sendUserToClient(client, userObject, 'success', token);
       }
     } else {

@@ -58,7 +58,7 @@ class AppServer {
     const isAuthenticated = false
     console.log("New connection request received! id: ", id);
     const ip = req.connection.remoteAddress;
-    console.log("Remote address:",ip)
+    console.log("Remote client address:",ip)
     const client = {
       id,
       connection,
