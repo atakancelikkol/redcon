@@ -14,6 +14,7 @@ const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
+const MAX_TRY_COUNT_DELETE_FOLDER = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const LED_CHECK_TIME_INTERVAL = 1000; //ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
@@ -247,14 +248,11 @@ class USBController {
 
       if (stats.isFile()) {
         fileInfo.md5 = await md5File(dir);
-        console.log(stats.size);
         const fileSizeInMB = (stats.size / 1024 / 1024).toFixed(2);
-        console.log(fileSizeInMB);
         if (fileSizeInMB == 0) {
           fileInfo.size = (stats.size / 1024).toFixed(2) + " KB";
         } else {
           fileInfo.size = (stats.size / 1024 / 1024).toFixed(2) + " MB";
-          console.log(fileInfo.size)
         }
       }
       else if (stats.isDirectory()) {
@@ -316,23 +314,17 @@ class USBController {
   deleteUsbDeviceFile(path, fileName) {
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
     this.usbState.usbErrorString = "";
-    fs.lstat(dir, (err, stats) => {
+    fs.lstat(dir,(err, stats) => {
       if (err) {
         this.usbState.usbErrorString = err.message;
         this.listUsbDeviceFiles(path);
         return console.log(err); //Hanlde error
       }
       if (stats.isDirectory()) { // if it's a folder 
-        rimraf(dir, (err) => {
-          if (err) {
-            this.usbState.usbErrorString = err.message;
-            this.listUsbDeviceFiles(path);
-            console.log("could not remove folder! ", dir, err);
-          }
-          this.listUsbDeviceFiles(path);
-        })
+        this.deleteUsbDeviceFolder(dir,path);
+        this.listUsbDeviceFiles(path);
       }
-      else {
+      else if (stats.isFile()) { // if it's a file
         fs.unlink(dir, (err) => {
           if (err) {
             this.usbState.usbErrorString = err.message;
@@ -344,6 +336,57 @@ class USBController {
       }
     });
   }
+
+  deleteUsbDeviceFolder(dir,path) {
+    rimraf(dir, async (err) => {
+      if (err) {
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
+        console.log("could not remove folder! ", dir, err);
+      }
+      await syncUsbDevice();
+      //this.detectDeleteFolderChanges(path);
+    })
+  }
+
+  syncUsbDevice() {
+    return new Promise((resolve) => {
+      if (!this.usbState.isAvailable || this.usbState.device === '') {
+        resolve();
+      }
+      else {
+        if (process.platform == 'win32') {
+          //could not find right cmd on windows to sync usb drive for now
+          resolve();
+        }
+        else if (process.platform == 'linux') {
+          exec(`sync ${this.usbState.device}`, () => {
+            console.log("synchronized usb drive");
+            resolve();
+          });
+        }
+      }
+    });
+  }
+
+  /*detectDeleteFolderChanges(path) {
+    let lastFileNumber = this.usbState.currentFiles.length;
+    let tryCount = 1; // Tried first in the above
+    const detectDeleteFolderInTimeIntervals = () => {
+      this.listUsbDeviceFiles(path);
+      console.log(tryCount);
+      tryCount++;
+      if (this.usbState.currentFiles.length == lastFileNumber) {
+        if (tryCount < MAX_TRY_COUNT_DELETE_FOLDER) {
+          setTimeout(detectDeleteFolderInTimeIntervals, 1000);
+        } 
+        else {
+          console.log('listUsbDeviceFiles in DetectDeleteFolderChanges try count has been exceeded');
+        }
+      }   
+    }
+    detectDeleteFolderInTimeIntervals();
+  }*/
 
   toggleUsbDevice() {
     if (!this.isSafeToToggleUsbDevice()) {
