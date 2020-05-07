@@ -14,7 +14,6 @@ const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
-const MAX_TRY_COUNT_DELETE_FOLDER = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const LED_CHECK_TIME_INTERVAL = 1000; //ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
@@ -127,6 +126,7 @@ class USBController {
 
   async detectUsbDevice() {
     // To get list of connected Drives
+    this.usbState.usbErrorString = '';
     let driveList = await drivelist.list();
     let isDriveFound = false;
     for (let index = 0; index < driveList.length; index++) {
@@ -328,7 +328,6 @@ class USBController {
         fs.unlink(dir, (err) => {
           if (err) {
             this.usbState.usbErrorString = err.message;
-            this.listUsbDeviceFiles(path);
             console.log("could not remove file! ", dir, err);
           }
           this.listUsbDeviceFiles(path);
@@ -344,23 +343,26 @@ class USBController {
         this.listUsbDeviceFiles(path);
         console.log("could not remove folder! ", dir, err);
       }
-      await syncUsbDevice();
-      //this.detectDeleteFolderChanges(path);
+      await this.syncUsbDevice();
+      this.listUsbDeviceFiles(path);
     })
   }
 
   syncUsbDevice() {
     return new Promise((resolve) => {
-      if (!this.usbState.isAvailable || this.usbState.device === '') {
+      if (!this.usbState.isAvailable) {
         resolve();
       }
       else {
         if (process.platform == 'win32') {
-          //could not find right cmd on windows to sync usb drive for now
-          resolve();
+          console.log('buradayim')
+          exec(`sync -r ${this.usbState.mountedPath}`, (error, stdout, stderr) => {
+            console.log('Synchronized');
+            resolve();
+          });
         }
         else if (process.platform == 'linux') {
-          exec(`sync ${this.usbState.device}`, () => {
+          exec(`sync ${this.usbState.mountedPath}`, () => {
             console.log("synchronized usb drive");
             resolve();
           });
@@ -368,25 +370,6 @@ class USBController {
       }
     });
   }
-
-  /*detectDeleteFolderChanges(path) {
-    let lastFileNumber = this.usbState.currentFiles.length;
-    let tryCount = 1; // Tried first in the above
-    const detectDeleteFolderInTimeIntervals = () => {
-      this.listUsbDeviceFiles(path);
-      console.log(tryCount);
-      tryCount++;
-      if (this.usbState.currentFiles.length == lastFileNumber) {
-        if (tryCount < MAX_TRY_COUNT_DELETE_FOLDER) {
-          setTimeout(detectDeleteFolderInTimeIntervals, 1000);
-        } 
-        else {
-          console.log('listUsbDeviceFiles in DetectDeleteFolderChanges try count has been exceeded');
-        }
-      }   
-    }
-    detectDeleteFolderInTimeIntervals();
-  }*/
 
   toggleUsbDevice() {
     if (!this.isSafeToToggleUsbDevice()) {
@@ -405,8 +388,10 @@ class USBController {
       }
       else {
         if (process.platform == 'win32') {
-          //could not find right cmd on windows to eject usb drive for now
-          resolve();
+          exec(`sync -e ${this.usbState.mountedPath}`, (error, stdout, stderr) => {
+            console.log('ejected usb drive from windows');
+            resolve();
+          });
         }
         else if (process.platform == 'linux') {
           exec(`sudo eject ${this.usbState.device}`, () => {
