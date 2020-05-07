@@ -1,7 +1,6 @@
 
 
-
-export default class Localstorage {
+class StorageHelper {
   constructor() {
   }
 
@@ -21,3 +20,6 @@ export default class Localstorage {
     localStorage.clear();
   }
 }
+
+const instance = new StorageHelper();
+export default instance

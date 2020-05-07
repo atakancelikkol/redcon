@@ -1,8 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import Localstorage from "./Helpers/Localstorage";
+import StorageHelper from "./helpers/StorageHelper";
 
-let storage = null
-storage = new Localstorage();
 
 export default class WebSocketConnector {
   constructor({ store }) {
@@ -43,7 +41,7 @@ export default class WebSocketConnector {
   }
 
   sendStoredToken() {
-    let token = storage.getItem("token")
+    let token = StorageHelper.getItem("token")
     if (token != null) {
       let obj = { auth: { action: "checkStoredToken", storedToken: token } };
       this.connectionSocket.send(JSON.stringify(obj));

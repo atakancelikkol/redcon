@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex';
 import WebSocketConnector from '../WebSocketConnector'
-import Localstorage from "../Helpers/Localstorage";
+import StorageHelper from "../helpers/StorageHelper";
 
-let storage = null
+
 let webSocketConnector = null
 Vue.use(Vuex);
 
@@ -17,12 +17,15 @@ const store = new Vuex.Store({
     token: '',
   },
   actions: {
-    onDataReceived({ commit/*, state, getters*/ }, data) {
+    onDataReceived({ commit, state/*, getters*/ }, data) {
       // handle exceptional cases before
       if(data.serialData) {
         commit('APPEND_SERIAL_DATA', data.serialData);
       } if(data.auth) {
         commit('SET_AUTH_DATA', data.auth);
+        if(state.token){
+          StorageHelper.setItem("token", state.token);
+        }
       } else {
         commit('APPEND_PARTIAL_DATA', data);
       }
@@ -56,7 +59,7 @@ const store = new Vuex.Store({
       webSocketConnector.sendLoginUserMessage({ username, password });
     },
     logoutUser({ commit }, { user }) { // eslint-disable-line
-      storage.removeItem('token');
+      StorageHelper.removeItem('token');
       webSocketConnector.sendLogoutUserMessage({user});
     },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
@@ -114,10 +117,6 @@ const store = new Vuex.Store({
       state.user = authData.user;
       state.authStatus = authData.authStatus;
       state.token = authData.token;
-      //????
-      if(state.token){
-      storage.setItem("token", state.token);
-      }
     },
   },
 });
@@ -125,6 +124,6 @@ const store = new Vuex.Store({
 webSocketConnector = new WebSocketConnector({ store });
 webSocketConnector.init();
 
-storage = new Localstorage();
+
 
 export default store;
