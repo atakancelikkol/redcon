@@ -232,6 +232,7 @@ export default {
     },
     onCreateFolderClicked() {
       this.$bvModal.show("create-folder-modal");
+      this.createdFolderName='';
     },
     onCreateFolderModalOKClicked() {
         this.createFolderUSBDevice({

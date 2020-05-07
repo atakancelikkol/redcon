@@ -200,30 +200,29 @@ class USBController {
         this.usbState.usbErrorString = err.message;
         this.sendCurrentState();
         return console.log('Unable to scan directory: ' + err);
-      } else {
-        let filesList = [];
-        if(parentDir != '..') {
-          filesList.push({name: parentDir, isDirectory: true, fullPath: true});
-        }
-
-        files.forEach(file => {
-          filesList.push({
-            name: file.name,
-            isDirectory: file.isDirectory(),
-          });
-        });
-
-        filesList.sort((a,b) => {
-          if (a.isDirectory && b.isDirectory) return 0;
-          if (!a.isDirectory && b.isDirectory) return 1;
-          return -1;
-        });
-
-        this.usbState.currentDirectory = dir;
-        this.usbState.currentFiles = filesList;
-
-        this.sendCurrentState();
+      } 
+      let filesList = [];
+      if(parentDir != '..') {
+        filesList.push({name: parentDir, isDirectory: true, fullPath: true});
       }
+
+      files.forEach(file => {
+        filesList.push({
+          name: file.name,
+          isDirectory: file.isDirectory(),
+        });
+      });
+
+      filesList.sort((a,b) => {
+        if (a.isDirectory && b.isDirectory) return 0;
+        if (!a.isDirectory && b.isDirectory) return 1;
+        return -1;
+      });
+
+      this.usbState.currentDirectory = dir;
+      this.usbState.currentFiles = filesList;
+
+      this.sendCurrentState();
     });
   }
 
@@ -236,30 +235,27 @@ class USBController {
         this.listUsbDeviceFiles(path);
         return console.log(err);
       }
-      else {
-        let fileInfo = {
-          path: dir,
-          name: fileName,
-          createDate: new Date(stats.birthtime).toLocaleString(),
-          modifyDate: new Date(stats.mtime).toLocaleString(),
-          size: undefined,
-          md5: undefined,
-        }
-
-        if(stats.isFile()) {
-          fileInfo.md5 = await md5File(dir);
-          const fileSizeInMB = (stats.size/1024/1024).toFixed(2);
-          if(fileSizeInMB == 0) {
-            fileInfo.size = (stats.size/1024).toFixed(2) + " KB";
-          } else {
-            fileInfo.size = (stats.size/1024/1024).toFixed(2) + " MB";
-          }
-        }
-
-        // send file info
-        this.usbState.currentFileInfo = fileInfo;
-        this.sendCurrentState();
+      let fileInfo = {
+        path: dir,
+        name: fileName,
+        createDate: new Date(stats.birthtime).toLocaleString(),
+        modifyDate: new Date(stats.mtime).toLocaleString(),
+        size: undefined,
+        md5: undefined,
       }
+
+      if(stats.isFile()) {
+        fileInfo.md5 = await md5File(dir);
+        const fileSizeInMB = (stats.size/1024/1024).toFixed(2);
+        if(fileSizeInMB == 0) {
+          fileInfo.size = (stats.size/1024).toFixed(2) + " KB";
+        } else {
+          fileInfo.size = (stats.size/1024/1024).toFixed(2) + " MB";
+        }
+      }
+      // send file info
+      this.usbState.currentFileInfo = fileInfo;
+      this.sendCurrentState();
     });
   }
 
