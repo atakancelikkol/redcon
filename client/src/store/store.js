@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex';
 import WebSocketConnector from '../WebSocketConnector'
+import Localstorage from "../Helpers/Localstorage";
 
+let storage = null
 let webSocketConnector = null
 Vue.use(Vuex);
 
@@ -54,6 +56,7 @@ const store = new Vuex.Store({
       webSocketConnector.sendLoginUserMessage({ username, password });
     },
     logoutUser({ commit }, { user }) { // eslint-disable-line
+      storage.removeItem('token');
       webSocketConnector.sendLogoutUserMessage({user});
     },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
@@ -111,11 +114,17 @@ const store = new Vuex.Store({
       state.user = authData.user;
       state.authStatus = authData.authStatus;
       state.token = authData.token;
+      //????
+      if(state.token){
+      storage.setItem("token", state.token);
+      }
     },
   },
 });
 
 webSocketConnector = new WebSocketConnector({ store });
 webSocketConnector.init();
+
+storage = new Localstorage();
 
 export default store;

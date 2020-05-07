@@ -1,4 +1,8 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import Localstorage from "./Helpers/Localstorage";
+
+let storage = null
+storage = new Localstorage();
 
 export default class WebSocketConnector {
   constructor({ store }) {
@@ -39,8 +43,12 @@ export default class WebSocketConnector {
   }
 
   sendStoredToken() {
-    let obj = { auth: { action: "checkStoredToken", storedToken: localStorage.token  } };
-    this.connectionSocket.send(JSON.stringify(obj));
+    let token = storage.getItem("token")
+    console.log("uauaysaduasudasğdasd:", token)
+    if (token != null) {
+      let obj = { auth: { action: "checkStoredToken", storedToken: token } };
+      this.connectionSocket.send(JSON.stringify(obj));
+    }
   }
   onMessage(event) {
     let obj = JSON.parse(event.data);
@@ -64,15 +72,15 @@ export default class WebSocketConnector {
   }
 
   sendSetPortMappingConfigurationMessage({ configContents }) {
-    let obj = { portconfig: {action: "setConfigFile", configContents} };
+    let obj = { portconfig: { action: "setConfigFile", configContents } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendResetPortMappingConfigurationMessage() {
-    let obj = { portconfig: {action: "resetConfigFile"} };
+    let obj = { portconfig: { action: "resetConfigFile" } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
-  
+
   sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
     var obj = { serial: { action: "openDevice", path: devicePath, baudRate } };
     this.connectionSocket.send(JSON.stringify(obj));
@@ -92,13 +100,13 @@ export default class WebSocketConnector {
     var obj = { serial: { action: "writeKeyDevice", path: devicePath, keyCode, charCode, ctrlKey, shiftKey } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
-  
-  sendLoginUserMessage({username, password}) {
+
+  sendLoginUserMessage({ username, password }) {
     var obj = { auth: { action: "loginUser", username, password } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
-  sendLogoutUserMessage({user}) {
-    var obj = { auth: { action: "logoutUser", username: user} };
+  sendLogoutUserMessage({ user }) {
+    var obj = { auth: { action: "logoutUser", username: user } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
   sendlistSerialDevicesMessage() {
@@ -107,7 +115,7 @@ export default class WebSocketConnector {
   }
 
   sendToggleUSBDeviceMessage() {
-    var obj = { usb: { action: "toggleDevice"} };
+    var obj = { usb: { action: "toggleDevice" } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
@@ -137,7 +145,7 @@ export default class WebSocketConnector {
   }
 
   sendRebootDeviceMessage() {
-    let obj = { utility: { action: "reboot"} };
+    let obj = { utility: { action: "reboot" } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
