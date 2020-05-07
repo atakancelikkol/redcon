@@ -41,6 +41,7 @@ export default {
       this.logoutUser({username: this.username,});
       localStorage.token=null
       this.$router.push({ path: "/login" });
+      this.$router.go(0);
     },
   },
 };

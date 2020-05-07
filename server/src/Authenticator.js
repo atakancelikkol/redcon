@@ -3,6 +3,9 @@ var jwt = require('jsonwebtoken');
 class Authenticator {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
+    this.startTime = 0;
+    this.user = '';
+    this.history = [];
   }
 
   init() {
@@ -14,7 +17,8 @@ class Authenticator {
   }
 
   appendData(obj) {
-
+    obj["member"] = this.getCopyState();
+    console.log(obj["member"])
   }
 
   handleMessage(obj, client) {
@@ -55,13 +59,33 @@ class Authenticator {
     }
   }
 
+  getCopyState() {
+    return {
+      startTime: this.startTime,
+      username: this.user,
+      history: [...this.history],
+    }
+  }
+
+  setMember(){
+    this.startTime = new Date().toTimeString();
+    this.history.unshift({ username: this.user, date: new Date() });
+    this.history = this.history.slice(0, 10);
+   
+    let obj = {};
+    this.appendData(obj);
+    this.sendMessageCallback(obj);
+  }
+
   loginUser(client, username, password) {
     const isAuthenticated = true
     if (isAuthenticated) {
+      this.user=username;
+      this.setMember();
       const userObject = { username: username, id: 'id', ip: client.ip };
       client.isAuthenticated = true;
       if (userObject) {
-        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "1h" })
+        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "120" })
         console.log("token generated", token)
         this.sendUserToClient(client, userObject, 'success', token);
       }

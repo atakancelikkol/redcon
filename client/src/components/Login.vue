@@ -14,16 +14,19 @@
         </b-form>
       </div>
       <div>
-        <button @click="login" class="btn btn-primary" style="margin-top:10px" >Login</button>
+        <button @click="login" class="btn btn-primary" style="margin-top:13px" >Login</button>
         <b-alert :show="authStatus == 'login-error'" variant="danger">Error ocurred on login</b-alert>
       </div>
+      <b-table striped hover :items="eventItems" :fields="eventFields" style = "margin-top: 17px" class="login-container__table"></b-table>
     </b-card>
   </div>
 </template>
 
 <script>
 import store from '../store/store';
+
 import { mapActions, mapState } from "vuex";
+const cloneDeep = require('clone-deep');
 
 export default {
   name: "Login",
@@ -32,10 +35,31 @@ export default {
       username: "",
       pass: "",
       displayErrorMessage: false,
+      eventFields: ['username', 'date'],
     };
   },
   computed: {
-    ...mapState(["user", "authStatus", "token"]),
+    ...mapState(["user", "authStatus", "token", "receivedData"]),
+    Member() {
+      if(!this.receivedData.member) {
+        return [];
+      }
+
+      return Object.keys(this.receivedData.member.state);
+    },
+    eventItems() {
+      if(!this.receivedData.member) {
+        return [];
+      }
+
+      let history = cloneDeep(this.receivedData.member.history);
+      history.forEach(item => {
+        item.username;
+        item.date = new Date(item.date).toTimeString();
+      });
+      console.log(history)
+      return history;
+    }    
   },
   methods: {
     ...mapActions(["loginUser", "logout"]),
