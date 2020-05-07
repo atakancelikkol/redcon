@@ -44,7 +44,6 @@ export default class WebSocketConnector {
 
   sendStoredToken() {
     let token = storage.getItem("token")
-    console.log("uauaysaduasudasğdasd:", token)
     if (token != null) {
       let obj = { auth: { action: "checkStoredToken", storedToken: token } };
       this.connectionSocket.send(JSON.stringify(obj));
