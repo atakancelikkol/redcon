@@ -2,12 +2,13 @@
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
-const { exec, execSync } = require('child_process');
+const { exec } = require('child_process');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
 const usbDetect = require('usb-detection');
 const md5File = require('md5-file');
+const rimraf = require('rimraf');
 const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
@@ -28,6 +29,7 @@ class USBController {
       currentDirectory: '.',
       currentFiles: [],
       currentFileInfo: {},
+      usbErrorString: '',
     };
     this.timeToCheckSafety = 0;
 
@@ -95,6 +97,8 @@ class USBController {
         this.deleteUsbDeviceFile(obj.usb.path, obj.usb.fileName);
       } else if(obj.usb.action == "getFileInfo") {
         this.getFileInfo(obj.usb.path, obj.usb.fileName);
+      } else if(obj.usb.action == "createFolder") {
+        this.createUsbDeviceFolder(obj.usb.path, obj.usb.folderName);
       }
     }
   }
@@ -193,37 +197,44 @@ class USBController {
     fs.readdir(dir, { withFileTypes: true }, (err, files) => {
       //handling error
       if (err) {
-        return console.log('Unable to scan directory: ' + err);
-      } else {
-        let filesList = [];
-        if(parentDir != '..') {
-          filesList.push({name: parentDir, isDirectory: true, fullPath: true});
-        }
-
-        files.forEach(file => {
-          filesList.push({
-            name: file.name,
-            isDirectory: file.isDirectory(),
-          });
-        });
-
-        filesList.sort((a,b) => {
-          if (a.isDirectory && b.isDirectory) return 0;
-          if (!a.isDirectory && b.isDirectory) return 1;
-          return -1;
-        });
-
-        this.usbState.currentDirectory = dir;
-        this.usbState.currentFiles = filesList;
-
+        this.usbState.usbErrorString = err.message;
         this.sendCurrentState();
+        return console.log('Unable to scan directory: ' + err);
+      } 
+      let filesList = [];
+      if(parentDir != '..') {
+        filesList.push({name: parentDir, isDirectory: true, fullPath: true});
       }
+
+      files.forEach(file => {
+        filesList.push({
+          name: file.name,
+          isDirectory: file.isDirectory(),
+        });
+      });
+
+      filesList.sort((a,b) => {
+        if (a.isDirectory && b.isDirectory) return 0;
+        if (!a.isDirectory && b.isDirectory) return 1;
+        return -1;
+      });
+
+      this.usbState.currentDirectory = dir;
+      this.usbState.currentFiles = filesList;
+
+      this.sendCurrentState();
     });
   }
 
   getFileInfo(path, fileName) {
     let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    this.usbState.usbErrorString = "";
     fs.stat(dir, async (err, stats) => {
+      if (err) {
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
+        return console.log(err);
+      }
       let fileInfo = {
         path: dir,
         name: fileName,
@@ -242,21 +253,56 @@ class USBController {
           fileInfo.size = (stats.size/1024/1024).toFixed(2) + " MB";
         }
       }
-
       // send file info
       this.usbState.currentFileInfo = fileInfo;
       this.sendCurrentState();
     });
   }
 
-  deleteUsbDeviceFile(path, fileName) {
-    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    fs.unlink(dir, (err) => {
-      if(err) {
-        console.log("could not remove file! ", dir, err);
+  createUsbDeviceFolder(path,folderName){
+    let dir = nodePath.join(this.usbState.mountedPath, path, folderName);
+    this.usbState.usbErrorString = "";
+    fs.mkdir(dir, { recursive: true }, (err) => {
+      if (err) {
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
+        return console.log(err);
+        
       }
       this.listUsbDeviceFiles(path);
-    })
+    });
+  }
+
+  deleteUsbDeviceFile(path, fileName) {
+    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    this.usbState.usbErrorString = "";
+    fs.lstat(dir, (err,stats) => {
+      if(err) {
+        this.usbState.usbErrorString = err.message;
+        this.listUsbDeviceFiles(path);
+        return console.log(err); //Hanlde error
+      }
+      if (stats.isDirectory()) { // if it's a folder 
+        rimraf(dir, (err) => {
+          if (err) {
+            this.usbState.usbErrorString = err.message;
+            this.listUsbDeviceFiles(path);
+            console.log("could not remove folder! ", dir, err);
+          }
+          this.listUsbDeviceFiles(path);
+        })
+      }
+      else {
+        fs.unlink(dir, (err) => {
+          if(err) {
+            this.usbState.usbErrorString = err.message;
+            this.listUsbDeviceFiles(path);
+            console.log("could not remove file! ", dir, err);
+          }
+          this.listUsbDeviceFiles(path);
+        })
+      }
+    });
   }
 
   toggleUsbDevice() {
