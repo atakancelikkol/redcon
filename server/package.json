@@ -14,7 +14,6 @@
     "compression": "^1.7.4",
     "drivelist": "^8.0.10",
     "express": "^4.17.1",
-    "express-jwt": "^5.3.3",
     "formidable": "^1.2.2",
     "fs": "0.0.1-security",
     "http": "0.0.0",

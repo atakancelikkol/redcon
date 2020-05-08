@@ -19,11 +19,11 @@ const store = new Vuex.Store({
   actions: {
     onDataReceived({ commit, state/*, getters*/ }, data) {
       // handle exceptional cases before
-      if(data.serialData) {
+      if (data.serialData) {
         commit('APPEND_SERIAL_DATA', data.serialData);
-      } if(data.auth) {
+      } if (data.auth) {
         commit('SET_AUTH_DATA', data.auth);
-        if(state.token){
+        if (state.token) {
           StorageHelper.setItem("token", state.token);
         }
       } else {
@@ -60,16 +60,16 @@ const store = new Vuex.Store({
     },
     logoutUser({ commit }, { user }) { // eslint-disable-line
       StorageHelper.removeItem('token');
-      webSocketConnector.sendLogoutUserMessage({user});
+      webSocketConnector.sendLogoutUserMessage({ user });
     },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
     },
     writeSerialDevice({ commit }, { devicePath, serialCmd }) { // eslint-disable-line
-      webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd  });
+      webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd });
     },
     writeKeySerialDevice({ commit }, { devicePath, keyCode, charCode, ctrlKey, shiftKey }) { // eslint-disable-line
-      webSocketConnector.sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey  });
+      webSocketConnector.sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey });
     },
     listSerialDevices() {
       webSocketConnector.sendlistSerialDevicesMessage();
@@ -80,15 +80,15 @@ const store = new Vuex.Store({
     setPortMappingConfiguration({ commit }, { configContents }) { // eslint-disable-line
       webSocketConnector.sendSetPortMappingConfigurationMessage({ configContents });
     },
-    resetPortMappingConfiguration({ commit },) { // eslint-disable-line
+    resetPortMappingConfiguration({ commit }, ) { // eslint-disable-line
       webSocketConnector.sendResetPortMappingConfigurationMessage();
-    },    
+    },
     updateConnectionStatus({ commit }, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     },
-    rebootDevice({ commit },) { // eslint-disable-line
+    rebootDevice({ commit }, ) { // eslint-disable-line
       webSocketConnector.sendRebootDeviceMessage();
-    } 
+    }
   },
   mutations: {
     APPEND_PARTIAL_DATA(state, data) {
@@ -102,7 +102,7 @@ const store = new Vuex.Store({
       let currentData = state.serialData[serialData.path];
       let newData = currentData + serialData.data;
       const maxSize = 20000;
-      if(newData.length > maxSize) {
+      if (newData.length > maxSize) {
         newData = newData.substr(newData.length - maxSize);
       }
       Vue.set(state.serialData, serialData.path, newData);
