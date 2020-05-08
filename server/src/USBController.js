@@ -473,7 +473,7 @@ class USBController {
   sendCurrentState() {
     let obj = {};
     this.appendData(obj);
-    this.sendMessageCallback(obj);
+    this.sendMessageCallback(this, obj);
   }
 
   uploadFileToUsbDevice(req, res) {

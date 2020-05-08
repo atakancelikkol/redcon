@@ -47,6 +47,7 @@ export default class WebSocketConnector {
       this.connectionSocket.send(JSON.stringify(obj));
     }
   }
+
   onMessage(event) {
     let obj = JSON.parse(event.data);
     console.log("received data", obj) // eslint-disable-line
@@ -106,6 +107,7 @@ export default class WebSocketConnector {
     var obj = { auth: { action: "logoutUser", username: user } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
+  
   sendlistSerialDevicesMessage() {
     var obj = { serial: { action: "listDevices" } };
     this.connectionSocket.send(JSON.stringify(obj));

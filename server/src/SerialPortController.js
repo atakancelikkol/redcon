@@ -94,7 +94,7 @@ class SerialPortController {
   updatePortStatus() {
     let obj = {};
     this.appendData(obj);
-    this.sendMessageCallback(obj);
+    this.sendMessageCallback(this, obj);
   }
 
 
@@ -240,7 +240,7 @@ class SerialPortController {
     if (writer !== undefined) {
       writer.write(data);
     }
-    this.sendMessageCallback(obj);
+    this.sendMessageCallback(this, obj);
   }
 
   onPortClosed(port) {
