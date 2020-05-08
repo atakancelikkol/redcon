@@ -18,10 +18,21 @@ class Authenticator {
 
   appendData(obj) {
     obj["member"] = this.getCopyState();
-    console.log(obj["member"])
+  }
+
+  getCopyState() {
+    return {
+      startTime: this.startTime,
+      username: this.user,
+      history: [...this.history],
+    }
   }
 
   handleMessage(obj, client) {
+    if (obj && this.user) {
+      this.setActivityTime();
+    }
+
     if (obj["auth"]) {
       let action = obj["auth"].action;
       if (action == "loginUser") {
@@ -59,19 +70,22 @@ class Authenticator {
     }
   }
 
-  getCopyState() {
-    return {
-      startTime: this.startTime,
-      username: this.user,
-      history: [...this.history],
+  setActivityTime() {
+    for (var i in this.history) {
+      if (this.history[i].username == this.user)
+        this.history[i].activityDate = new Date().toTimeString();
     }
+
+    let obj = {};
+    this.appendData(obj);
+    this.sendMessageCallback(this, obj);
   }
 
-  setMember(){
+  setStartTime() {
     this.startTime = new Date().toTimeString();
-    this.history.unshift({ username: this.user, date: new Date() });
+    this.history.unshift({ username: this.user, date: this.startTime, activityDate: this.startTime });
     this.history = this.history.slice(0, 10);
-   
+
     let obj = {};
     this.appendData(obj);
     this.sendMessageCallback(this, obj);
@@ -80,12 +94,12 @@ class Authenticator {
   loginUser(client, username, password) {
     const isAuthenticated = true
     if (isAuthenticated) {
-      this.user=username;
-      this.setMember();
+      this.user = username;
+      this.setStartTime();
       const userObject = { username: username, id: 'id', ip: client.ip };
       client.isAuthenticated = true;
       if (userObject) {
-        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "120" })
+        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "1h" })
         console.log("token generated", token)
         this.sendUserToClient(client, userObject, 'success', token);
       }
@@ -95,6 +109,7 @@ class Authenticator {
   }
 
   logoutUser(client, status) {
+    this.setActivityTime();
     client.isAuthenticated = false;
     this.sendUserToClient(client, null, status);
   }

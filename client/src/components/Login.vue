@@ -35,7 +35,7 @@ export default {
       username: "",
       pass: "",
       displayErrorMessage: false,
-      eventFields: ['username', 'date'],
+      eventFields: ['username', 'date', 'activityDate'],
     };
   },
   computed: {
@@ -49,7 +49,8 @@ export default {
       let history = cloneDeep(this.receivedData.member.history);
       history.forEach(item => {
         item.username;
-        item.date = new Date(item.date).toTimeString();
+        item.date
+        item.activityDate
       });
       console.log(history)
       return history;
