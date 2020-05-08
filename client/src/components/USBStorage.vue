@@ -61,7 +61,7 @@
         <b-alert :show="usbError !=undefined && usbError!=''" variant="danger" style="margin-top: 10px">{{usbError}}</b-alert>
         <div class="mt-3" style="display:flex">
           <b-breadcrumb class="mt-3" style="flex:1">
-            <b-breadcrumb-item active>{{fileDirectory}}</b-breadcrumb-item>
+            <b-breadcrumb-item active>{{getDirectory}}</b-breadcrumb-item>
           </b-breadcrumb>
           <b-button
             variant="outline-primary"
@@ -70,12 +70,12 @@
           >Create a Folder</b-button>
         </div>
         <div class="mt-3">
-          <b-table striped hover :items="fileList" :fields="['name', 'operations']">
+          <b-table striped hover :items="itemList" :fields="['name', 'operations']">
             <template v-slot:cell(name)="data">
               <b-link
                 v-if="data.item.isDirectory"
                 @click="selectDirectory(data.item.name, data.item.fullPath)"
-              >{{ getVisibleFileName(data.item) }}</b-link>
+              >{{ getVisibleItemName(data.item) }}</b-link>
               <span v-else>{{ data.item.name }}</span>
             </template>
             <template v-slot:cell(operations)="data">
@@ -93,7 +93,7 @@
               >Download</b-button>
               <b-button
                 variant="outline-danger"
-                @click="onDeleteFileClicked(data.item)"
+                @click="onDeleteItemClicked(data.item)"
               >Delete</b-button>
             </template>
           </b-table>
@@ -101,16 +101,16 @@
       </b-card>
     </b-card>
 
-    <b-modal id="file-info-modal" title="File Info" :okOnly="true">
-      <div v-if="fileInfo == undefined" style="text-align: center">
+    <b-modal id="item-info-modal" title="Item Info" :okOnly="true">
+      <div v-if="itemInfo == undefined" style="text-align: center">
         <b-spinner variant="primary" label="Spinning"></b-spinner>
         <br>
         <br>
         Loading...
       </div>
       <div v-else>
-        <div v-for="(item, index) in Object.keys(fileInfo)" :key="index">
-          <b>{{ item }}:</b> {{ fileInfo[item] }}
+        <div v-for="(item, index) in Object.keys(itemInfo)" :key="index">
+          <b>{{ item }}:</b> {{ itemInfo[item] }}
         </div>
       </div>
     </b-modal>
@@ -141,7 +141,7 @@ export default {
     };
   },
   mounted() {
-    this.listFilesUSBDevice({ path: this.currentDirectory });
+    this.listItemsUSBDevice({ path: this.currentDirectory });
   },
   computed: {
     ...mapState(["receivedData"]),
@@ -173,22 +173,22 @@ export default {
     rpiLedState() {
       return this.receivedData.usb && this.receivedData.usb.kvmLedStateRPI;
     },
-    fileList() {
+    itemList() {
       if (!this.receivedData.usb) {
         return [];
       }
 
-      return this.receivedData.usb.currentFiles;
+      return this.receivedData.usb.currentItems;
     },
-    fileDirectory() {
+    getDirectory() {
       if (!this.receivedData.usb) {
         return "";
       }
 
       return this.receivedData.usb.currentDirectory;
     },
-    fileInfo() {
-      return this.receivedData.usb ? this.receivedData.usb.currentFileInfo : undefined;
+    itemInfo() {
+      return this.receivedData.usb ? this.receivedData.usb.currentItemInfo : undefined;
     },
     usbError(){
       if (!this.receivedData.usb) {
@@ -201,9 +201,9 @@ export default {
     ...mapActions([
       "toggleUSBPort",
       "detectUSBDevice",
-      "listFilesUSBDevice",
-      "deleteFileUSBDevice",
-      "getFileInfoUSBDevice",
+      "listItemsUSBDevice",
+      "deleteItemUSBDevice",
+      "getItemInfoUSBDevice",
       "createFolderUSBDevice",
     ]),
     onToggleButtonClicked() {
@@ -212,6 +212,9 @@ export default {
     onButtonClicked() {
       this.detectUSBDevice();
     },
+    clearFiles() {
+        this.$refs['file-input'].reset()
+    },
     selectDirectory(dir, fullPath) {
       if (fullPath) {
         this.currentDirectory = dir;
@@ -219,9 +222,9 @@ export default {
         this.currentDirectory += "/" + dir;
       }
 
-      this.listFilesUSBDevice({ path: this.currentDirectory });
+      this.listItemsUSBDevice({ path: this.currentDirectory });
     },
-    getVisibleFileName(item) {
+    getVisibleItemName(item) {
       if (item.name == ".") {
         return "[ROOT]";
       } else if (item.fullPath) {
@@ -240,7 +243,7 @@ export default {
           folderName: this.createdFolderName
         });
     },
-    onDeleteFileClicked(item) {
+    onDeleteItemClicked(item) {
       this.$bvModal
         .msgBoxConfirm(`Please confirm that you want to delete "${item.name}".`, {
           title: "Please Confirm",
@@ -255,9 +258,9 @@ export default {
         })
         .then(value => {
           if (value == true) {
-            this.deleteFileUSBDevice({
+            this.deleteItemUSBDevice({
               path: this.currentDirectory,
-              fileName: item.name
+              itemName: item.name
             });
           }
         })
@@ -266,12 +269,12 @@ export default {
         });
     },
     onInfoButtonClicked(item) {
-      this.getFileInfoUSBDevice({
+      this.getItemInfoUSBDevice({
               path: this.currentDirectory,
-              fileName: item.name
+              itemName: item.name
             });
 
-      this.$bvModal.show('file-info-modal');
+      this.$bvModal.show('item-info-modal');
     },
     onUploadClicked() {
       if(this.isUsbDeviceAvailable == false) {
@@ -329,6 +332,7 @@ export default {
       let uri = this.getEndPoint() + "/uploadFileToUsbDevice";
       oReq.open("POST", uri);
       oReq.send(formData);
+      this.clearFiles();
     },
     getEndPoint() {
       let loc = window.location;
@@ -344,12 +348,13 @@ export default {
     onDownloadFileClicked(item) {
       let path = this.currentDirectory;
       let fileName = item.name;
-      window.location = this.getEndPoint() + '/getFileFromUsbDevice?path=' + encodeURIComponent(path) + '&fileName=' + encodeURIComponent(fileName);
+      let filePath = this.getEndPoint() + '/getFileFromUsbDevice?path=' + encodeURIComponent(path) + '&fileName=' + encodeURIComponent(fileName);
+      window.open(filePath,"_blank");
     }
   },
   watch: {
     isUsbDeviceAvailable() {
-      this.listFilesUSBDevice({ path: this.currentDirectory });
+      this.listItemsUSBDevice({ path: this.currentDirectory });
     }
   }
 };

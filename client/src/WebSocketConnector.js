@@ -121,18 +121,18 @@ export default class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendListFilesUSBDeviceMessage({ path }) {
-    var obj = { usb: { action: "listFiles", path } };
+  sendListItemsUSBDeviceMessage({ path }) {
+    var obj = { usb: { action: "listItems", path } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendDeleteFileUSBDeviceMessage({ path, fileName }) {
-    var obj = { usb: { action: "deleteFile", path, fileName } };
+  sendDeleteItemUSBDeviceMessage({ path, itemName }) {
+    var obj = { usb: { action: "deleteItem", path, itemName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendGetFileInfoUSBDeviceMessage({ path, fileName }) {
-    var obj = { usb: { action: "getFileInfo", path, fileName } };
+  sendGetItemInfoUSBDeviceMessage({ path, itemName }) {
+    var obj = { usb: { action: "getItemInfo", path, itemName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
