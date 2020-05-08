@@ -212,6 +212,9 @@ export default {
     onButtonClicked() {
       this.detectUSBDevice();
     },
+    clearFiles() {
+        this.$refs['file-input'].reset()
+    },
     selectDirectory(dir, fullPath) {
       if (fullPath) {
         this.currentDirectory = dir;
@@ -329,6 +332,7 @@ export default {
       let uri = this.getEndPoint() + "/uploadFileToUsbDevice";
       oReq.open("POST", uri);
       oReq.send(formData);
+      this.clearFiles();
     },
     getEndPoint() {
       let loc = window.location;

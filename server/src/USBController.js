@@ -332,6 +332,7 @@ class USBController {
         return console.log(err);
 
       }
+      this.syncUsbDevice();
       this.listUsbDeviceItems(path);
     });
   }
@@ -360,6 +361,7 @@ class USBController {
         this.usbState.usbErrorString = err.message + "Cant deleteUsbDeviceFile";
         console.log("could not remove file! ", dir, err);
       }
+      this.syncUsbDevice();
       this.listUsbDeviceItems(path);
     })
   }
