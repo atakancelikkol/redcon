@@ -1,10 +1,9 @@
-var jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+const ServerConfig = require('./ServerConfig');
 
 class Authenticator {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
-    this.startTime = 0;
-    this.user = '';
     this.history = [];
   }
 
@@ -17,20 +16,18 @@ class Authenticator {
   }
 
   appendData(obj) {
-    obj["member"] = this.getCopyState();
+    obj["authHistory"] = this.getCopyState();
   }
 
   getCopyState() {
     return {
-      startTime: this.startTime,
-      username: this.user,
       history: [...this.history],
     }
   }
 
   handleMessage(obj, client) {
-    if (obj && this.user) {
-      this.setActivityTime();
+    if (obj && client.userObject) {
+      this.logUserActivity(client, 'interaction');
     }
 
     if (obj["auth"]) {
@@ -47,7 +44,7 @@ class Authenticator {
 
   checkStoredToken(client, receivedToken) {
     if (receivedToken) {
-      jwt.verify(receivedToken, "secret_key", (err, result) => {
+      jwt.verify(receivedToken, ServerConfig.TokenSecret, (err, result) => {
         if (err) {
           return;
         }
@@ -55,29 +52,33 @@ class Authenticator {
         if (result && result.userObject && client.ip == result.userObject.ip) {
           //console.log("Token ip verified with client ip.")
           client.isAuthenticated = true
+          client.userObject = result.userObject;
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
         } else {
           //console.log("Token ip is invalid!")
-        }      
+        }
       })
     }
   }
 
-  setActivityTime() {
-    for (var i in this.history) {
-      if (this.history[i].username == this.user)
-        this.history[i].activityDate = new Date().toTimeString();
+  logUserActivity(client, activityType) {
+    const insertHistoryItem = (client) => {
+      const currentDate = new Date().toTimeString(); // to locale time
+      const historyObject = { username: client.userObject.username, date: currentDate, activityDate: currentDate };
+      this.history.unshift(historyObject);
+      this.history = this.history.slice(0, 10);
     }
 
-    let obj = {};
-    this.appendData(obj);
-    this.sendMessageCallback(this, obj);
-  }
-
-  setStartTime() {
-    this.startTime = new Date().toTimeString();
-    this.history.unshift({ username: this.user, date: this.startTime, activityDate: this.startTime });
-    this.history = this.history.slice(0, 10);
+    if (activityType === 'login') {
+      insertHistoryItem(client);
+    } else if (activityType === 'interaction') {
+      const historyItem = this.history.find(h => h.username == client.userObject.username);
+      if (historyItem) {
+        historyItem.activityDate = new Date().toTimeString(); // to locale time
+      } else {
+        insertHistoryItem(client);
+      }
+    }
 
     let obj = {};
     this.appendData(obj);
@@ -85,24 +86,22 @@ class Authenticator {
   }
 
   loginUser(client, username, password) {
-    const isAuthenticated = true
+    const isAuthenticated = true;
     if (isAuthenticated) {
-      this.user = username;
-      this.setStartTime();
-      const userObject = { username: username, id: 'id', ip: client.ip };
       client.isAuthenticated = true;
-      if (userObject) {
-        const token = jwt.sign({ userObject }, 'secret_key', { expiresIn: "1h" })
-        this.sendUserToClient(client, userObject, 'success', token);
-      }
+      client.userObject = { username: username, id: 'id', ip: client.ip };
+      const token = jwt.sign({ userObject: client.userObject }, 'secret_key', { expiresIn: "1h" })
+      this.sendUserToClient(client, client.userObject, 'success', token);
+      this.logUserActivity(client, 'login');
     } else {
       this.logoutUser(client, 'login-error');
     }
   }
 
   logoutUser(client, status) {
-    this.setActivityTime();
+    this.logUserActivity(client, 'interaction');
     client.isAuthenticated = false;
+    client.userObject = null;
     this.sendUserToClient(client, null, status);
   }
 

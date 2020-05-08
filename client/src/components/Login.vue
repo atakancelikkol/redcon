@@ -24,7 +24,6 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-const cloneDeep = require('clone-deep');
 
 export default {
   name: "Login",
@@ -33,23 +32,27 @@ export default {
       username: "",
       pass: "",
       displayErrorMessage: false,
-      eventFields: ['username', 'date', 'activityDate'],
+      eventFields: [
+        {key: 'username',label: 'User Name'},
+        {key: 'date',label: 'Login Date'},
+        {key: 'activityDate',label: 'Last Activity Date'},
+      ],
     };
   },
   computed: {
     ...mapState(["user", "authStatus", "token", "receivedData"]),
     eventItems() {
-      if(!this.receivedData.member) {
+      if(!this.receivedData.authHistory) {
         return [];
       }
 
-      let history = cloneDeep(this.receivedData.member.history);
-      history.forEach(item => {
+      let history = this.receivedData.authHistory.history;
+      /*history.forEach(item => {
         item.username;
-        item.date
+        item.date,
         item.activityDate
       });
-      console.log(history)
+      console.log(history)*/
       return history;
     }    
   },

@@ -64,6 +64,7 @@ class AppServer {
       connection,
       isAuthenticated,
       ip,
+      userObject: null,
       send: (obj) => {
         connection.send(JSON.stringify(obj))
       }
