@@ -158,7 +158,7 @@ class USBController {
     return new Promise((resolve, reject) => {
       mountPath = mountPath.slice(0, -1); //Output= D: for windows
       exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout, stderr) => {
-        if (err){ // Hanlde error
+        if (err) { // Hanlde error
           this.usbState.usbErrorString = err.message + " Cant extractUsbStateWin32";
           reject();
         }
@@ -379,19 +379,27 @@ class USBController {
   }
 
   syncUsbDevice() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!this.usbState.isAvailable) {
         resolve();
       }
       else {
         if (process.platform == 'win32') {
-          exec(`sync -r ${this.usbState.mountedPath}`, (error, stdout, stderr) => {
+          exec(`sync -r ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+            if (err) { // Hanlde error
+              this.usbState.usbErrorString = err.message + " Cant syncUsbDeviceWin32";
+              reject();
+            }
             console.log('synchronized usb drive');
             resolve();
           });
         }
         else if (process.platform == 'linux') {
-          exec(`sync ${this.usbState.mountedPath}`, () => {
+          exec(`sync ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+            if (err) { // Hanlde error
+              this.usbState.usbErrorString = err.message + " Cant syncUsbDeviceLinux";
+              reject();
+            }
             console.log("synchronized usb drive");
             resolve();
           });
@@ -411,19 +419,27 @@ class USBController {
   }
 
   ejectUSBDriveSafely() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!this.usbState.isAvailable) {
         resolve();
       }
       else {
         if (process.platform == 'win32') {
-          exec(`sync -e ${this.usbState.mountedPath}`, (error, stdout, stderr) => {
+          exec(`sync -e ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+            if (err) { // Hanlde error
+              this.usbState.usbErrorString = err.message + " Cant ejectUSBDriveSafelyWin32";
+              reject();
+            }
             console.log('ejected usb drive from windows');
             resolve();
           });
         }
         else if (process.platform == 'linux') {
-          exec(`sudo eject ${this.usbState.device}`, () => {
+          exec(`sudo eject ${this.usbState.device}`, (err, stdout, stderr) => {
+            if (err) { // Hanlde error
+              this.usbState.usbErrorString = err.message + " Cant ejectUSBDriveSafelyLinux";
+              reject();
+            }
             console.log("ejected usb drive");
             resolve();
           });
