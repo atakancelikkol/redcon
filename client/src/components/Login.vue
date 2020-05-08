@@ -23,8 +23,6 @@
 </template>
 
 <script>
-import store from '../store/store';
-
 import { mapActions, mapState } from "vuex";
 const cloneDeep = require('clone-deep');
 
@@ -40,7 +38,6 @@ export default {
   },
   computed: {
     ...mapState(["user", "authStatus", "token", "receivedData"]),
-
     eventItems() {
       if(!this.receivedData.member) {
         return [];
@@ -59,7 +56,6 @@ export default {
   methods: {
     ...mapActions(["loginUser", "logout"]),
     login() {
-      localStorage.token
       this.loginUser({username: this.username, password: this.pass});
     },
     onEnterKey(evt){
@@ -71,9 +67,6 @@ export default {
   watch: {
     user() {
       if (this.user != null) {
-        if(store.state.token){
-        localStorage.token = store.state.token;
-        }
         this.$router.push({ path: "/" });
       }
     }

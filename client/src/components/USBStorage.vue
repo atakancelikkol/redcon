@@ -58,10 +58,18 @@
         </div>
         <b-progress v-if="progressValue != -1" :value="progressValue" :max="100" show-progress animated style="margin-top: 10px"></b-progress>
         <b-alert v-model="showUploadError" variant="danger" dismissible style="margin-top: 10px">{{errorString == '' ? 'Error occurred during upload!' : errorString}}</b-alert>
-        <b-breadcrumb style="margin-top: 10px">
-          <b-breadcrumb-item active>{{fileDirectory}}</b-breadcrumb-item>
-        </b-breadcrumb>
-        <div>
+        <b-alert :show="usbError !=undefined && usbError!=''" variant="danger" style="margin-top: 10px">{{usbError}}</b-alert>
+        <div class="mt-3" style="display:flex">
+          <b-breadcrumb class="mt-3" style="flex:1">
+            <b-breadcrumb-item active>{{fileDirectory}}</b-breadcrumb-item>
+          </b-breadcrumb>
+          <b-button
+            variant="outline-primary"
+            style="margin-left: 10px; max-height:50px;margin-top: 15px"
+            @click="onCreateFolderClicked"
+          >Create a Folder</b-button>
+        </div>
+        <div class="mt-3">
           <b-table striped hover :items="fileList" :fields="['name', 'operations']">
             <template v-slot:cell(name)="data">
               <b-link
@@ -75,7 +83,7 @@
                 
                 variant="outline-primary"
                 @click="onInfoButtonClicked(data.item)"
-                style="margin-right: 10px;"
+                style="margin-right: 20px;"
               >Info</b-button>
               <b-button
                 v-if="!data.item.isDirectory"
@@ -84,7 +92,6 @@
                 style="margin-right: 20px;"
               >Download</b-button>
               <b-button
-                v-if="!data.item.isDirectory"
                 variant="outline-danger"
                 @click="onDeleteFileClicked(data.item)"
               >Delete</b-button>
@@ -107,6 +114,14 @@
         </div>
       </div>
     </b-modal>
+    <b-modal
+      id="create-folder-modal"
+      ref="modal"
+      title="Folder Name"
+      @ok="onCreateFolderModalOKClicked"
+    >
+      <b-form-input id="name-input" v-model="createdFolderName"></b-form-input>
+    </b-modal>
   </div>
 </template>
 
@@ -122,6 +137,7 @@ export default {
       progressValue: -1,
       showUploadError: false,
       errorString: '',
+      createdFolderName: "",
     };
   },
   mounted() {
@@ -173,6 +189,12 @@ export default {
     },
     fileInfo() {
       return this.receivedData.usb ? this.receivedData.usb.currentFileInfo : undefined;
+    },
+    usbError(){
+      if (!this.receivedData.usb) {
+        return '';
+      }
+      return this.receivedData.usb.usbErrorString;
     }
   },
   methods: {
@@ -182,15 +204,13 @@ export default {
       "listFilesUSBDevice",
       "deleteFileUSBDevice",
       "getFileInfoUSBDevice",
+      "createFolderUSBDevice",
     ]),
     onToggleButtonClicked() {
       this.toggleUSBPort();
     },
     onButtonClicked() {
       this.detectUSBDevice();
-    },
-    clearFiles() {
-      this.$refs["file-input"].reset();
     },
     selectDirectory(dir, fullPath) {
       if (fullPath) {
@@ -209,6 +229,16 @@ export default {
       } else {
         return item.name;
       }
+    },
+    onCreateFolderClicked() {
+      this.$bvModal.show("create-folder-modal");
+      this.createdFolderName='';
+    },
+    onCreateFolderModalOKClicked() {
+        this.createFolderUSBDevice({
+          path: this.currentDirectory,
+          folderName: this.createdFolderName
+        });
     },
     onDeleteFileClicked(item) {
       this.$bvModal
