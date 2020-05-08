@@ -33,15 +33,15 @@ const store = new Vuex.Store({
     detectUSBDevice({ commit }) { // eslint-disable-line
       webSocketConnector.sendDetectUSBDeviceMessage();
     },
-    listFilesUSBDevice({ commit }, { path }) { // eslint-disable-line
-      webSocketConnector.sendListFilesUSBDeviceMessage({ path });
+    listItemsUSBDevice({ commit }, { path }) { // eslint-disable-line
+      webSocketConnector.sendListItemsUSBDeviceMessage({ path });
     },
-    deleteFileUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
-      webSocketConnector.sendDeleteFileUSBDeviceMessage({ path, fileName });
+    deleteItemUSBDevice({ commit }, { path, itemName }) { // eslint-disable-line
+      webSocketConnector.sendDeleteItemUSBDeviceMessage({ path, itemName });
     },
-    getFileInfoUSBDevice({ commit }, { path, fileName }) { // eslint-disable-line
-      commit('CLEAR_USB_FILE_INFO');
-      webSocketConnector.sendGetFileInfoUSBDeviceMessage({ path, fileName });
+    getItemInfoUSBDevice({ commit }, { path, itemName }) { // eslint-disable-line
+      commit('CLEAR_USB_ITEM_INFO');
+      webSocketConnector.sendGetItemInfoUSBDeviceMessage({ path, itemName });
     },
     createFolderUSBDevice({ commit }, { path, folderName }) { // eslint-disable-line
       webSocketConnector.sendCreateFolderUSBDeviceMessage({ path, folderName });
@@ -103,8 +103,8 @@ const store = new Vuex.Store({
     UPDATE_CONNECTION_STATUS(state, status) {
       state.isConnected = status;
     },
-    CLEAR_USB_FILE_INFO(state) {
-      state.receivedData.usb.currentFileInfo = undefined;
+    CLEAR_USB_ITEM_INFO(state) {
+      state.receivedData.usb.currentItemInfo = undefined;
     },
     SET_AUTH_DATA(state, authData) {
       state.user = authData.user;
