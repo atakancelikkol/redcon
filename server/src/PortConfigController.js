@@ -70,7 +70,7 @@ class PortConfigController {
         shellError: this.shellError,
       },
     };
-    this.sendMessageCallback(configResponse);
+    this.sendMessageCallback(this, configResponse);
   }
 
   setConfigFile(configContents) {

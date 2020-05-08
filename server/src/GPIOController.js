@@ -72,7 +72,7 @@ class GPIOController {
 
     const obj = {};
     this.appendData(obj);
-    this.sendMessageCallback(obj);
+    this.sendMessageCallback(this, obj);
   }
 
   onExit() {

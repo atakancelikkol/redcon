@@ -9,11 +9,12 @@ const formidable = require('formidable');
 const usbDetect = require('usb-detection');
 const md5File = require('md5-file');
 const rimraf = require('rimraf');
+const getSize = require('get-folder-size');
 const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
-const LED_CHECK_TIME_INTERVAL = 1000; // ms
+const LED_CHECK_TIME_INTERVAL = 1000; //ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
 class USBController {
@@ -27,8 +28,8 @@ class USBController {
       usbName: '',
       device: '',
       currentDirectory: '.',
-      currentFiles: [],
-      currentFileInfo: {},
+      currentItems: [],
+      currentItemInfo: {},
       usbErrorString: '',
     };
     this.timeToCheckSafety = 0;
@@ -38,11 +39,11 @@ class USBController {
   }
 
   isAuthRequired() {
-    return true;
+    return true
   }
 
   init() {
-    console.log('initializing USBController');
+    console.log("initializing USBController");
     usbDetect.startMonitoring();
     usbDetect.on('change', () => {
       this.detectDriveChanges();
@@ -62,7 +63,7 @@ class USBController {
     const rpiLed = rpio.read(GPIOPins.KVM_LED_RPI);
     const ecuLed = rpio.read(GPIOPins.KVM_LED_ECU);
 
-    if (this.usbState.kvmLedStateRPI === rpiLed && this.usbState.kvmLedStateECU === ecuLed) {
+    if (this.usbState.kvmLedStateRPI == rpiLed && this.usbState.kvmLedStateECU == ecuLed) {
       // state is not changed
       return;
     }
@@ -80,36 +81,37 @@ class USBController {
 
   appendData(obj) {
     // this function returns the initial state
-    obj.usb = this.getCopyState();
+    obj["usb"] = this.getCopyState();
   }
 
-  handleMessage(obj) {
-    if (typeof obj.usb !== 'undefined') {
-      // var obj = { usb: {action, device} };
-      if (obj.usb.action === 'toggleDevice') {
+  handleMessage(obj, client) {
+
+    if (typeof obj.usb != "undefined") {
+      //var obj = { usb: {action, device} };
+      if (obj.usb.action == 'toggleDevice') {
         this.toggleUsbDevice();
-      } else if (obj.usb.action === 'detectUsbDevice') {
+      } else if (obj.usb.action == 'detectUsbDevice') {
         this.detectUsbDevice();
-      } else if (obj.usb.action === 'listFiles') {
-        this.listUsbDeviceFiles(obj.usb.path);
-      } else if (obj.usb.action === 'deleteFile') {
-        this.deleteUsbDeviceFile(obj.usb.path, obj.usb.fileName);
-      } else if (obj.usb.action === 'getFileInfo') {
-        this.getFileInfo(obj.usb.path, obj.usb.fileName);
-      } else if (obj.usb.action === 'createFolder') {
+      } else if (obj.usb.action == 'listItems') {
+        this.listUsbDeviceItems(obj.usb.path);
+      } else if (obj.usb.action == "deleteItem") {
+        this.deleteUsbDeviceItem(obj.usb.path, obj.usb.itemName);
+      } else if (obj.usb.action == "getItemInfo") {
+        this.getItemInfo(obj.usb.path, obj.usb.itemName);
+      } else if (obj.usb.action == "createFolder") {
         this.createUsbDeviceFolder(obj.usb.path, obj.usb.folderName);
       }
     }
   }
 
   detectDriveChanges() {
-    const lastState = this.usbState.isAvailable;
+    let lastState = this.usbState.isAvailable;
     let tryCount = 0;
 
     const detectUsbInsertionInTimeIntervals = () => {
       this.detectUsbDevice().then(() => {
         tryCount++;
-        if (this.usbState.isAvailable === lastState) {
+        if (this.usbState.isAvailable == lastState) {
           if (tryCount < MAX_TRY_COUNT_DRIVE) {
             setTimeout(detectUsbInsertionInTimeIntervals, 1000);
           } else {
@@ -117,23 +119,24 @@ class USBController {
           }
         }
       });
-    };
+    }
 
     detectUsbInsertionInTimeIntervals();
   }
 
   async detectUsbDevice() {
     // To get list of connected Drives
-    const driveList = await drivelist.list();
+    this.usbState.usbErrorString = '';
+    let driveList = await drivelist.list();
     let isDriveFound = false;
     for (let index = 0; index < driveList.length; index++) {
-      if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
-        const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
-        const { device } = driveList[index];
-        if (process.platform === 'win32') {
+      if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] != "undefined")) {
+        let mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
+        let device = driveList[index].device;
+        if (process.platform == 'win32') {
           await this.extractUsbStateWin32(mountPath);
           isDriveFound = true;
-        } else if (process.platform === 'linux') {
+        } else if (process.platform == 'linux') {
           this.extractUsbStateLinux(mountPath, device);
           isDriveFound = true;
         }
@@ -153,9 +156,13 @@ class USBController {
 
   extractUsbStateWin32(mountPath) {
     return new Promise((resolve, reject) => {
-      mountPath = mountPath.slice(0, -1); // Output= D: for windows
-      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (error, stdout, stderr) => {
-        const usbName = stdout;
+      mountPath = mountPath.slice(0, -1); //Output= D: for windows
+      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout, stderr) => {
+        if (err) { // Handle error
+          this.usbState.usbErrorString = err.message + " Cant extractUsbStateWin32";
+          reject();
+        }
+        let usbName = stdout;
         if (!usbName) {
           reject();
         }
@@ -175,129 +182,210 @@ class USBController {
   }
 
   extractUsbStateLinux(mountPath, device) {
-    const USBName = nodePath.basename(mountPath);
+    let USBName = nodePath.basename(mountPath);
     this.usbState.device = device; // For safe eject, device = '/dev/sda' ...
     this.usbState.mountedPath = mountPath;
     this.usbState.usbName = USBName;
     this.usbState.isAvailable = true;
   }
 
-  listUsbDeviceFiles(path) {
-    if (this.usbState.mountedPath === '') {
-      // send empty file list
+  listUsbDeviceItems(path) {
+    if (this.usbState.mountedPath == '') {
+      // send empty item list
       this.usbState.currentDirectory = path;
-      this.usbState.currentFiles = [];
+      this.usbState.currentItems = [];
       this.sendCurrentState();
       return;
     }
 
-    const dir = nodePath.join(this.usbState.mountedPath, path);
-    const parentDir = nodePath.join(path, '..');
-    fs.readdir(dir, { withFileTypes: true }, (err, files) => {
-      // handling error
-      if (err) {
-        this.usbState.usbErrorString = err.message;
+    let dir = nodePath.join(this.usbState.mountedPath, path);
+    let parentDir = nodePath.join(path, '..');
+    fs.readdir(dir, { withFileTypes: true }, (err, items) => {
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + ' Cant listUsbDeviceItems';
         this.sendCurrentState();
         return console.log('Unable to scan directory: ' + err);
       }
-      const filesList = [];
-      if (parentDir !== '..') {
-        filesList.push({ name: parentDir, isDirectory: true, fullPath: true });
+      let itemsList = [];
+      if (parentDir != '..') {
+        itemsList.push({ name: parentDir, isDirectory: true, fullPath: true });
       }
 
-      files.forEach((file) => {
-        filesList.push({
-          name: file.name,
-          isDirectory: file.isDirectory(),
+      items.forEach(item => {
+        itemsList.push({
+          name: item.name,
+          isDirectory: item.isDirectory(),
         });
       });
 
-      filesList.sort((a, b) => {
+      itemsList.sort((a, b) => {
         if (a.isDirectory && b.isDirectory) return 0;
         if (!a.isDirectory && b.isDirectory) return 1;
         return -1;
       });
 
       this.usbState.currentDirectory = dir;
-      this.usbState.currentFiles = filesList;
+      this.usbState.currentItems = itemsList;
 
       this.sendCurrentState();
     });
   }
 
-  getFileInfo(path, fileName) {
-    const dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    this.usbState.usbErrorString = '';
-    fs.stat(dir, async (err, stats) => {
-      if (err) {
-        this.usbState.usbErrorString = err.message;
-        this.listUsbDeviceFiles(path);
+  getItemInfo(path, itemName) {
+    let dir = nodePath.join(this.usbState.mountedPath, path, itemName);
+    this.usbState.usbErrorString = "";
+    fs.stat(dir, (err, stats) => {
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + ' Cant getFileStatus';
+        this.listUsbDeviceItems(path);
         return console.log(err);
       }
-      const fileInfo = {
+      let itemInfo = {
         path: dir,
-        name: fileName,
+        name: itemName,
         createDate: new Date(stats.birthtime).toLocaleString(),
         modifyDate: new Date(stats.mtime).toLocaleString(),
         size: undefined,
         md5: undefined,
-      };
+      }
 
       if (stats.isFile()) {
-        fileInfo.md5 = await md5File(dir);
-        const fileSizeInMB = (stats.size / 1024 / 1024).toFixed(2);
-        if (fileSizeInMB === 0) {
-          fileInfo.size = (stats.size / 1024).toFixed(2) + ' KB';
-        } else {
-          fileInfo.size = (stats.size / 1024 / 1024).toFixed(2) + ' MB';
-        }
+        this.getFileInfo(stats, dir, itemInfo);
       }
-      // send file info
-      this.usbState.currentFileInfo = fileInfo;
+      else if (stats.isDirectory()) {
+        this.getFolderInfo(stats, dir, itemInfo);
+      }
+
+    });
+  }
+
+  convertItemSizeToString(sizeInBytes) {
+    let sizeString = '';
+    const fileSizeInGB = (sizeInBytes / 1024 / 1024 / 1024).toFixed(2);
+    if (fileSizeInGB < 1) {
+      const fileSizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
+      if (fileSizeInMB < 1) {
+        const fileSizeInKB = (sizeInBytes / 1024).toFixed(2);
+        if (fileSizeInKB < 1) {
+          sizeString = sizeInBytes + " Bytes";
+        } else {
+          sizeString = fileSizeInKB + " KB";
+        }
+      } else {
+        sizeString = fileSizeInMB + " MB";
+      }
+    } else {
+      sizeString = fileSizeInGB + " GB";
+    }
+
+    return sizeString;
+  }
+
+  async getFileInfo(stats, dir, itemInfo) {
+    itemInfo.md5 = await md5File(dir);
+    itemInfo.size = this.convertItemSizeToString(stats.size);
+
+    // send item info
+    this.usbState.currentItemInfo = itemInfo;
+    this.sendCurrentState();
+  }
+
+  getFolderInfo(stats, dir, itemInfo) {
+    getSize(dir, (err, size) => {
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + " Cant getFolderInfo-getSize";
+        this.listUsbDeviceItems(path);
+        return console.log(err);
+      }
+
+      itemInfo.size = this.convertItemSizeToString(size);
+      this.usbState.currentItemInfo = itemInfo;
       this.sendCurrentState();
     });
   }
 
   createUsbDeviceFolder(path, folderName) {
-    const dir = nodePath.join(this.usbState.mountedPath, path, folderName);
-    this.usbState.usbErrorString = '';
+    let dir = nodePath.join(this.usbState.mountedPath, path, folderName);
+    this.usbState.usbErrorString = "";
     fs.mkdir(dir, { recursive: true }, (err) => {
-      if (err) {
-        this.usbState.usbErrorString = err.message;
-        this.listUsbDeviceFiles(path);
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + " Cant createUsbDeviceFolder";
+        this.listUsbDeviceItems(path);
         return console.log(err);
+
       }
-      this.listUsbDeviceFiles(path);
+      this.syncUsbDevice();
+      this.listUsbDeviceItems(path);
     });
   }
 
-  deleteUsbDeviceFile(path, fileName) {
-    const dir = nodePath.join(this.usbState.mountedPath, path, fileName);
-    this.usbState.usbErrorString = '';
-    fs.lstat(dir, (er, stats) => {
-      if (er) {
-        this.usbState.usbErrorString = er.message;
-        this.listUsbDeviceFiles(path);
-        return console.log(er); // Handle error
+  deleteUsbDeviceItem(path, itemName) {
+    let dir = nodePath.join(this.usbState.mountedPath, path, itemName);
+    this.usbState.usbErrorString = "";
+    fs.lstat(dir, (err, stats) => {
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + " Cant getFileStatus";
+        this.listUsbDeviceItems(path);
+        return console.log(err);
       }
-      if (stats.isDirectory()) { // if it's a folder
-        rimraf(dir, (err) => {
-          if (err) {
-            this.usbState.usbErrorString = err.message;
-            this.listUsbDeviceFiles(path);
-            console.log('could not remove folder! ', dir, err);
-          }
-          this.listUsbDeviceFiles(path);
-        });
-      } else {
-        fs.unlink(dir, (err) => {
-          if (err) {
-            this.usbState.usbErrorString = err.message;
-            this.listUsbDeviceFiles(path);
-            console.log('could not remove file! ', dir, err);
-          }
-          this.listUsbDeviceFiles(path);
-        });
+      if (stats.isFile()) { // if it's a file 
+        this.deleteUsbDeviceFile(dir, path);
+      }
+      else if (stats.isDirectory()) { // if it's a folder
+        this.deleteUsbDeviceFolder(dir, path);
+      }
+    });
+  }
+
+  deleteUsbDeviceFile(dir, path) {
+    fs.unlink(dir, (err) => {
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + "Cant deleteUsbDeviceFile";
+        console.log("could not remove file! ", dir, err);
+      }
+      this.syncUsbDevice();
+      this.listUsbDeviceItems(path);
+    })
+  }
+
+  deleteUsbDeviceFolder(dir, path) {
+    rimraf(dir, async (err) => {
+      if (err) { // Handle error
+        this.usbState.usbErrorString = err.message + " Cant deleteUsbDeviceFolder";
+        this.listUsbDeviceItems(path);
+        console.log("could not remove folder! ", dir, err);
+      }
+      await this.syncUsbDevice();
+      this.listUsbDeviceItems(path);
+    })
+  }
+
+  syncUsbDevice() {
+    return new Promise((resolve, reject) => {
+      if (!this.usbState.isAvailable) {
+        resolve();
+      }
+      else {
+        if (process.platform == 'win32') {
+          exec(`.\\bin\\win32\\sync -r ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+            if (err) { // Handle error
+              this.usbState.usbErrorString = err.message + " Cant syncUsbDeviceWin32";
+              reject();
+            }
+            console.log('synchronized usb drive');
+            resolve();
+          });
+        }
+        else if (process.platform == 'linux') {
+          exec(`sync ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+            if (err) { // Handle error
+              this.usbState.usbErrorString = err.message + " Cant syncUsbDeviceLinux";
+              reject();
+            }
+            console.log("synchronized usb drive");
+            resolve();
+          });
+        }
       }
     });
   }
@@ -313,94 +401,112 @@ class USBController {
   }
 
   ejectUSBDriveSafely() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!this.usbState.isAvailable) {
         resolve();
-      } else if (process.platform === 'win32') {
-        // could not find right cmd on windows to eject usb drive for now
-        resolve();
-      } else if (process.platform === 'linux') {
-        exec(`sudo eject ${this.usbState.device}`, () => {
-          console.log('ejected usb drive');
-          resolve();
-        });
+      }
+      else {
+        if (process.platform == 'win32') {
+          exec(`sync -e ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+            if (err) { // Handle error
+              this.usbState.usbErrorString = err.message + " Cant ejectUSBDriveSafelyWin32";
+              reject();
+            }
+            console.log('ejected usb drive from windows');
+            resolve();
+          });
+        }
+        else if (process.platform == 'linux') {
+          exec(`sudo eject ${this.usbState.device}`, (err, stdout, stderr) => {
+            if (err) { // Handle error
+              this.usbState.usbErrorString = err.message + " Cant ejectUSBDriveSafelyLinux";
+              reject();
+            }
+            console.log("ejected usb drive");
+            resolve();
+          });
+        }
       }
     });
   }
 
   isSafeToToggleUsbDevice() {
-    if (this.timeToCheckSafety === 0) {
+    if (this.timeToCheckSafety == 0) {
       this.timeToCheckSafety = new Date().valueOf();
       return true;
-    }
-    if ((new Date().valueOf() - this.timeToCheckSafety) > MIN_TOGGLE_INTERVAL) { // Safety Margin is increased due to design
+    } else if ((new Date().valueOf() - this.timeToCheckSafety) > MIN_TOGGLE_INTERVAL) { // Safety Margin is increased due to design
       this.timeToCheckSafety = new Date().valueOf();
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
   pinToggleSequence() {
     if (this.toggleTimeoutHandle) {
       return;
     }
-    const lastLedStateEcu = this.usbState.kvmLedStateECU;
-    const lastLedStateRpi = this.usbState.kvmLedStateRPI;
+    let lastLedStateEcu = this.usbState.kvmLedStateECU;
+    let lastLedStateRpi = this.usbState.kvmLedStateRPI;
     let tryCount = 0;
     rpio.open(GPIOPins.KVM_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
 
     const detectLedChangeInTimeIntervals = () => {
       this.checkKVMLedState();
       tryCount++;
-      if ((lastLedStateEcu !== this.usbState.kvmLedStateECU) && (lastLedStateRpi !== this.usbState.kvmLedStateRPI)) {
+      if ((lastLedStateEcu != this.usbState.kvmLedStateECU) && (lastLedStateRpi != this.usbState.kvmLedStateRPI)) {
         rpio.close(GPIOPins.KVM_TOGGLE_PIN);
         this.toggleTimeoutHandle = undefined;
-      } else if (tryCount < MAX_TRY_COUNT_LED) {
-        this.toggleTimeoutHandle = setTimeout(detectLedChangeInTimeIntervals, 5);
-      } else {
-        console.log('detectLedChange try count has been exceeded');
       }
-    };
+      else {
+        if (tryCount < MAX_TRY_COUNT_LED) {
+          this.toggleTimeoutHandle = setTimeout(detectLedChangeInTimeIntervals, 5);
+        }
+        else {
+          console.log('detectLedChange try count has been exceeded');
+        }
+      }
+    }
     detectLedChangeInTimeIntervals();
   }
 
   sendCurrentState() {
-    const obj = {};
+    let obj = {};
     this.appendData(obj);
-    this.sendMessageCallback(obj);
+    this.sendMessageCallback(this, obj);
   }
 
   uploadFileToUsbDevice(req, res) {
-    const form = new formidable.IncomingForm();
+    let form = new formidable.IncomingForm();
     form.multiples = true;
     form.maxFileSize = 4 * 1024 * 1024 * 1024; // max file size, 4gb
     // parse the incoming request containing the form data
     form.parse(req, (err, fields, files) => {
-      if (err) {
-        console.log('error occurred during file upload!', err);
+      if (err) { // Handle error
+        console.log("error occurred during file upload!", err);
         res.status(500).send(err.toString());
         return;
       }
 
-      const dir = nodePath.join(this.usbState.mountedPath, fields.currentDirectory);
+      let dir = nodePath.join(this.usbState.mountedPath, fields.currentDirectory);
       let fileCount = 1;
       let currentFileCounter = 0;
       const copyHandler = (file) => {
-        fs.copyFile(file.path, nodePath.join(dir, file.name), (er) => {
-          if (er) {
-            console.log('error occured during file copy!', er);
-            res.status(500).send(er.toString());
+        fs.copyFile(file.path, nodePath.join(dir, file.name), (err) => {
+          if (err) { // Handle error
+            console.log("error occured during file copy!", err)
+            res.status(500).send(err.toString());
             return;
           }
-
-          this.listUsbDeviceFiles(fields.currentDirectory);
+          this.syncUsbDevice();
+          this.listUsbDeviceItems(fields.currentDirectory);
 
           currentFileCounter++;
-          if (currentFileCounter === fileCount) {
+          if (currentFileCounter == fileCount) {
             res.send('done');
           }
         });
-      };
+      }
 
       if (Array.isArray(files.uploads)) {
         fileCount = files.uploads.length;
@@ -413,14 +519,14 @@ class USBController {
   }
 
   getFileFromUsbDevice(req, res) {
-    const { path } = req.query;
-    const { fileName } = req.query;
+    let path = req.query.path;
+    let fileName = req.query.fileName;
 
     if (!path || !fileName) {
-      res.status(400).send('invalid parameters');
+      res.status(400).send("invalid parameters");
     }
 
-    const dir = nodePath.join(this.usbState.mountedPath, path, fileName);
+    let dir = nodePath.join(this.usbState.mountedPath, path, fileName);
     res.download(dir, fileName);
   }
 

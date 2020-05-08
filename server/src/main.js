@@ -28,8 +28,8 @@ dataHandlers.forEach((handler) => {
   handler.init();
 });
 
-function sendMessageCallback(obj) {
-  appServer.sendToAllClients(obj);
+function sendMessageCallback(handler, obj) {
+  appServer.sendToAllClients(handler, obj);
 }
 
 process.on('SIGINT', function () {
