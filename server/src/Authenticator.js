@@ -63,7 +63,7 @@ class Authenticator {
 
   logUserActivity(client, activityType) {
     const insertHistoryItem = (client) => {
-      const currentDate = new Date().toTimeString(); // to locale time
+      const currentDate = new Date();
       const historyObject = { username: client.userObject.username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
@@ -74,7 +74,7 @@ class Authenticator {
     } else if (activityType === 'interaction') {
       const historyItem = this.history.find(h => h.username == client.userObject.username);
       if (historyItem) {
-        historyItem.activityDate = new Date().toTimeString(); // to locale time
+        historyItem.activityDate = new Date();
       } else {
         insertHistoryItem(client);
       }

@@ -24,6 +24,11 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+const cloneDeep = require('clone-deep');
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+
+TimeAgo.addLocale(en);
 
 export default {
   name: "Login",
@@ -33,9 +38,9 @@ export default {
       pass: "",
       displayErrorMessage: false,
       eventFields: [
-        {key: 'username',label: 'User Name'},
-        {key: 'date',label: 'Login Date'},
-        {key: 'activityDate',label: 'Last Activity Date'},
+        {key: 'username', label: 'User Name'},
+        {key: 'date', label: 'Login Date'},
+        {key: 'activityDate', label: 'Last Activity Date'},
       ],
     };
   },
@@ -46,13 +51,15 @@ export default {
         return [];
       }
 
-      let history = this.receivedData.authHistory.history;
-      /*history.forEach(item => {
-        item.username;
-        item.date,
-        item.activityDate
+      let history = cloneDeep(this.receivedData.authHistory.history);
+      const timeAgo = new TimeAgo('en-US');
+      history.forEach(item => {
+        const itemDate = new Date(item.date);
+        const itemActivityDate = new Date(item.activityDate);
+        item.date = itemDate.toLocaleString() + " (" +  timeAgo.format(itemDate) + ")";
+        item.date = `${itemDate.toLocaleString()} ( ${timeAgo.format(itemDate)} )`;
+        item.activityDate = `${itemActivityDate.toLocaleString()} ( ${timeAgo.format(itemActivityDate)} )`;
       });
-      console.log(history)*/
       return history;
     }    
   },
@@ -62,7 +69,7 @@ export default {
       this.loginUser({username: this.username, password: this.pass});
     },
     onEnterKey(evt){
-      if(evt.keyCode == 13 ) {
+      if(evt.keyCode == 13) {
         this.loginUser({username: this.username, password: this.pass});
       }
     }
