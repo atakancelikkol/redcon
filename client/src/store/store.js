@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex';
 import WebSocketConnector from '../WebSocketConnector'
+import StorageHelper from "../helpers/StorageHelper";
+
 
 let webSocketConnector = null
 Vue.use(Vuex);
@@ -12,14 +14,18 @@ const store = new Vuex.Store({
     isConnected: true, // dont show a warning at the beginning
     user: null,
     authStatus: '',
+    token: '',
   },
   actions: {
-    onDataReceived({ commit/*, state, getters*/ }, data) {
+    onDataReceived({ commit, state/*, getters*/ }, data) {
       // handle exceptional cases before
-      if(data.serialData) {
+      if (data.serialData) {
         commit('APPEND_SERIAL_DATA', data.serialData);
-      } if(data.auth) {
+      } if (data.auth) {
         commit('SET_AUTH_DATA', data.auth);
+        if (state.token) {
+          StorageHelper.setItem("token", state.token);
+        }
       } else {
         commit('APPEND_PARTIAL_DATA', data);
       }
@@ -53,16 +59,17 @@ const store = new Vuex.Store({
       webSocketConnector.sendLoginUserMessage({ username, password });
     },
     logoutUser({ commit }, { user }) { // eslint-disable-line
-      webSocketConnector.sendLogoutUserMessage({user});
+      StorageHelper.removeItem('token');
+      webSocketConnector.sendLogoutUserMessage({ user });
     },
     closeSerialDevice({ commit }, { devicePath }) { // eslint-disable-line
       webSocketConnector.sendCloseSerialDeviceMessage({ devicePath });
     },
     writeSerialDevice({ commit }, { devicePath, serialCmd }) { // eslint-disable-line
-      webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd  });
+      webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd });
     },
     writeKeySerialDevice({ commit }, { devicePath, keyCode, charCode, ctrlKey, shiftKey }) { // eslint-disable-line
-      webSocketConnector.sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey  });
+      webSocketConnector.sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey });
     },
     listSerialDevices() {
       webSocketConnector.sendlistSerialDevicesMessage();
@@ -73,15 +80,15 @@ const store = new Vuex.Store({
     setPortMappingConfiguration({ commit }, { configContents }) { // eslint-disable-line
       webSocketConnector.sendSetPortMappingConfigurationMessage({ configContents });
     },
-    resetPortMappingConfiguration({ commit },) { // eslint-disable-line
+    resetPortMappingConfiguration({ commit }, ) { // eslint-disable-line
       webSocketConnector.sendResetPortMappingConfigurationMessage();
-    },    
+    },
     updateConnectionStatus({ commit }, status) {
       commit('UPDATE_CONNECTION_STATUS', status)
     },
-    rebootDevice({ commit },) { // eslint-disable-line
+    rebootDevice({ commit }, ) { // eslint-disable-line
       webSocketConnector.sendRebootDeviceMessage();
-    } 
+    }
   },
   mutations: {
     APPEND_PARTIAL_DATA(state, data) {
@@ -95,7 +102,7 @@ const store = new Vuex.Store({
       let currentData = state.serialData[serialData.path];
       let newData = currentData + serialData.data;
       const maxSize = 20000;
-      if(newData.length > maxSize) {
+      if (newData.length > maxSize) {
         newData = newData.substr(newData.length - maxSize);
       }
       Vue.set(state.serialData, serialData.path, newData);
@@ -109,11 +116,14 @@ const store = new Vuex.Store({
     SET_AUTH_DATA(state, authData) {
       state.user = authData.user;
       state.authStatus = authData.authStatus;
+      state.token = authData.token;
     },
   },
 });
 
 webSocketConnector = new WebSocketConnector({ store });
 webSocketConnector.init();
+
+
 
 export default store;
