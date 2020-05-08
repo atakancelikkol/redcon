@@ -17,12 +17,13 @@
     "formidable": "^1.2.2",
     "fs": "0.0.1-security",
     "http": "0.0.0",
+    "jsonwebtoken": "^8.5.1",
     "md5-file": "^5.0.0",
     "path": "^0.12.7",
     "rimraf": "^3.0.2",
     "rpio": "^2.1.1",
     "serialport": "^8.0.7",
-    "usb-detection": "^4.7.0",
+    "usb-detection": "^4.9.0",
     "uuid": "^7.0.2",
     "ws": "^7.2.3"
   }
