@@ -90,7 +90,7 @@ class Authenticator {
     if (isAuthenticated) {
       client.isAuthenticated = true;
       client.userObject = { username: username, id: 'id', ip: client.ip };
-      const token = jwt.sign({ userObject: client.userObject }, 'secret_key', { expiresIn: "1h" })
+      const token = jwt.sign({ userObject: client.userObject }, ServerConfig.TokenSecret, { expiresIn: "1h" })
       this.sendUserToClient(client, client.userObject, 'success', token);
       this.logUserActivity(client, 'login');
     } else {
