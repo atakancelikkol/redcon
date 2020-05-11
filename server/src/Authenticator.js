@@ -16,13 +16,13 @@ class Authenticator {
   }
 
   appendData(obj) {
-    obj["authHistory"] = this.getCopyState();
+    obj.authHistory = this.getCopyState();
   }
 
   getCopyState() {
     return {
       history: [...this.history],
-    }
+    };
   }
 
   handleMessage(obj, client) {
@@ -30,14 +30,14 @@ class Authenticator {
       this.logUserActivity(client, 'interaction');
     }
 
-    if (obj["auth"]) {
-      let action = obj["auth"].action;
-      if (action == "loginUser") {
-        this.loginUser(client, obj["auth"].username, obj["auth"].password, obj["auth"].receivedToken);
-      } else if (action == "logoutUser") {
+    if (obj.auth) {
+      const { action } = obj.auth;
+      if (action === 'loginUser') {
+        this.loginUser(client, obj.auth.username, obj.auth.password, obj.auth.receivedToken);
+      } else if (action === 'logoutUser') {
         this.logoutUser(client, 'logged-out');
-      } else if (action == "checkStoredToken") {
-        this.checkStoredToken(client, obj["auth"].storedToken);
+      } else if (action === 'checkStoredToken') {
+        this.checkStoredToken(client, obj.auth.storedToken);
       }
     }
   }
@@ -49,15 +49,15 @@ class Authenticator {
           return;
         }
 
-        if (result && result.userObject && client.ip == result.userObject.ip) {
-          //console.log("Token ip verified with client ip.")
-          client.isAuthenticated = true
+        if (result && result.userObject && client.ip === result.userObject.ip) {
+          // console.log("Token ip verified with client ip.")
+          client.isAuthenticated = true;
           client.userObject = result.userObject;
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
         } else {
-          //console.log("Token ip is invalid!")
+          // console.log("Token ip is invalid!")
         }
-      })
+      });
     }
   }
 
@@ -67,12 +67,12 @@ class Authenticator {
       const historyObject = { username: client.userObject.username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
-    }
+    };
 
     if (activityType === 'login') {
       insertHistoryItem(client);
     } else if (activityType === 'interaction') {
-      const historyItem = this.history.find(h => h.username == client.userObject.username);
+      const historyItem = this.history.find((h) => h.username === client.userObject.username);
       if (historyItem) {
         historyItem.activityDate = new Date();
       } else {
@@ -80,7 +80,7 @@ class Authenticator {
       }
     }
 
-    let obj = {};
+    const obj = {};
     this.appendData(obj);
     this.sendMessageCallback(this, obj);
   }
@@ -90,7 +90,7 @@ class Authenticator {
     if (isAuthenticated) {
       client.isAuthenticated = true;
       client.userObject = { username: username, id: 'id', ip: client.ip };
-      const token = jwt.sign({ userObject: client.userObject }, ServerConfig.TokenSecret, { expiresIn: "24h" })
+      const token = jwt.sign({ userObject: client.userObject }, ServerConfig.TokenSecret, { expiresIn: '24h' });
       this.sendUserToClient(client, client.userObject, 'success', token);
       this.logUserActivity(client, 'login');
     } else {
@@ -106,13 +106,12 @@ class Authenticator {
   }
 
   sendUserToClient(client, user, authStatus, token) {
-    client.send({ "auth": { user, authStatus, token } });
+    client.send({ auth: { user, authStatus, token } });
   }
 
   onExit() {
 
   }
-
 }
 
 module.exports = Authenticator;

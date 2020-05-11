@@ -5,11 +5,16 @@
   "main": "index.js",
   "scripts": {
     "serve": "node src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint src/*",
+    "fix": "npx eslint --fix src/*"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@serialport/binding-mock": "^9.0.0",
+    "@serialport/stream": "^9.0.0",
+    "body-parser": "^1.19.0",
     "clone-deep": "^4.0.1",
     "compression": "^1.7.4",
     "drivelist": "^8.0.10",
@@ -27,5 +32,11 @@
     "usb-detection": "^4.9.0",
     "uuid": "^7.0.2",
     "ws": "^7.2.3"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-vue": "^6.2.2"
   }
 }
