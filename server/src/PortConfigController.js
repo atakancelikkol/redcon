@@ -85,7 +85,7 @@ class PortConfigController {
 
   resetConfigFile() {
     fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
-      fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (err) => {
+      fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (er) => {
         this.applyConfigFile();
       });
     });

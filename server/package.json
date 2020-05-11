@@ -7,11 +7,13 @@
     "serve": "node src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint src/*",
-    "fix": "npx eslint --fix --fix-type problem src/*"
+    "fix": "npx eslint --fix src/*"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@serialport/binding-mock": "^9.0.0",
+    "@serialport/stream": "^9.0.0",
     "body-parser": "^1.19.0",
     "clone-deep": "^4.0.1",
     "compression": "^1.7.4",

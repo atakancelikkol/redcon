@@ -21,13 +21,17 @@
     "rules": {
         "linebreak-style": "off",
         "no-console": "off",
-        "prefer-arrow-callback": "off",
-        "max-len": "warn",
-        "no-param-reassign": "warn",
-        "no-unused-vars": "warn",
-        "prefer-template": "warn",
-        "no-undef": "warn",
-        "no-use-before-define": "warn",
-        "class-methods-use-this": "warn"
+
+        "class-methods-use-this": "warn", // non-fixable
+        "global-require": "warn", // non-fixable
+        "max-len": "warn", // non-fixable
+        "no-param-reassign": "warn", // non-fixable
+        "no-restricted-globals": "warn", // non-fixable
+        "no-undef": "warn", // non-fixable
+        "no-unused-vars": "warn", // non-fixable
+        "no-use-before-define": "warn", // non-fixable
+        "object-shorthand": "warn", // fixable -> non-fixable??
+        "prefer-arrow-callback": "warn", // fixable -> non-fixable
+        "prefer-template": "warn" // fixable -> non-fixable
     }
 }
