@@ -11,11 +11,11 @@ class ClientConnection {
     this.connection.send(JSON.stringify(obj))
   }
 
-  getAuthenticated(){
+  isAuthenticated(){
     return this.authenticated
   }
 
-  setAuthenticated(authentication){
+  setAuthentication(authentication){
     this.authenticated=authentication;
   }
 

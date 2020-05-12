@@ -73,10 +73,10 @@ class AppServer {
   }
 
   onMessageHandler(client, message) {
-    console.log('client isAuthenticated', client.getAuthenticated());
+    console.log('client isAuthenticated', client.isAuthenticated());
     const obj = JSON.parse(message);
     this.dataHandlers.forEach((handler) => {
-      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.getAuthenticated())) {
+      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
         handler.handleMessage(obj, client);
       }
     });
@@ -104,7 +104,7 @@ class AppServer {
 
   sendToAllClients(handler, obj) {
     this.clients.forEach((client) => {
-      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.getAuthenticated())) {
+      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
         client.connection.send(JSON.stringify(obj));
       }
     });
