@@ -26,7 +26,7 @@ class Authenticator {
   }
 
   handleMessage(obj, client) {
-    if (obj && client.userObject) {
+    if (obj && client.getUserObject()) {
       this.logUserActivity(client, 'interaction');
     }
 
@@ -49,10 +49,10 @@ class Authenticator {
           return;
         }
 
-        if (result && result.userObject && client.ip === result.userObject.ip) {
+        if (result && result.userObject && client.getIp() === result.userObject.ip) {
           // console.log("Token ip verified with client ip.")
-          client.isAuthenticated = true;
-          client.userObject = result.userObject;
+          client.setAuthenticated(true);
+          client.setUserObject(result.userObject);
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
         } else {
           // console.log("Token ip is invalid!")
@@ -64,7 +64,7 @@ class Authenticator {
   logUserActivity(client, activityType) {
     const insertHistoryItem = (client) => {
       const currentDate = new Date();
-      const historyObject = { username: client.userObject.username, date: currentDate, activityDate: currentDate };
+      const historyObject = { username: client.getUserObject().username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
     };
@@ -72,7 +72,7 @@ class Authenticator {
     if (activityType === 'login') {
       insertHistoryItem(client);
     } else if (activityType === 'interaction') {
-      const historyItem = this.history.find((h) => h.username === client.userObject.username);
+      const historyItem = this.history.find((h) => h.username === client.getUserObject().username);
       if (historyItem) {
         historyItem.activityDate = new Date();
       } else {
@@ -88,10 +88,10 @@ class Authenticator {
   loginUser(client, username, password) {
     const isAuthenticated = true;
     if (isAuthenticated) {
-      client.isAuthenticated = true;
-      client.userObject = { username: username, id: 'id', ip: client.ip };
-      const token = jwt.sign({ userObject: client.userObject }, ServerConfig.TokenSecret, { expiresIn: '24h' });
-      this.sendUserToClient(client, client.userObject, 'success', token);
+      client.setAuthenticated(true);
+      client.setUserObject({ username: username, id: 'id', ip: client.getIp() });
+      const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
+      this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');
     } else {
       this.logoutUser(client, 'login-error');
@@ -100,8 +100,8 @@ class Authenticator {
 
   logoutUser(client, status) {
     this.logUserActivity(client, 'interaction');
-    client.isAuthenticated = false;
-    client.userObject = null;
+    client.setAuthenticated(false);
+    client.setUserObject(null);
     this.sendUserToClient(client, null, status);
   }
 
