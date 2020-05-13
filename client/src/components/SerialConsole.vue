@@ -99,12 +99,12 @@ export default {
 
     listSerialConsoleFiles(){
       if (
-        this.receivedData.serial.serialFiles == undefined
+        this.receivedData.serial == undefined
       ) {
         return [];
       }
 
-      let filelist =this.receivedData.serial.serialFiles
+      let filelist = this.receivedData.serial.serialFiles
 
       return filelist;
 

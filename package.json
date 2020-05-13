@@ -1,0 +1,32 @@
+{
+  "name": "redcon",
+  "version": "1.0.0",
+  "description": "REDCON is a utility that makes it easier to connect and debug ECU boards. This project is designed to run on a raspberry pi device. This device is used for isolating ECU board from the network and controlling it remotely. A typical setup is shown in the diagram given below.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "husky": "^4.2.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepush-hook": "cd client && npm run prepush && cd ../server && npm run prepush"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/redcon-remote/redcon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/redcon-remote/redcon/issues"
+  },
+  "homepage": "https://gitlab.com/redcon-remote/redcon#readme",
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run prepush-hook"
+    }
+  }
+}

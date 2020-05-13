@@ -35,7 +35,7 @@ const CTRL_KEY_MAP = {
 
 // TODO implement SHIFT_KEY_MAP
 class KeyMapping {
-  static ConvertKey(keyCode, charCode, ctrlKey, shiftKey) {
+  static ConvertKey(keyCode, charCode, ctrlKey/* , shiftKey */) {
     let dataToSend = charCode;
     if (dataToSend === -1) {
       dataToSend = keyCode;

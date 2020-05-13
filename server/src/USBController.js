@@ -81,10 +81,10 @@ class USBController {
 
   appendData(obj) {
     // this function returns the initial state
-    obj.usb = this.getCopyState();
+    obj.usb = this.getCopyState(); // eslint-disable-line
   }
 
-  handleMessage(obj, client) {
+  handleMessage(obj/* , client */) {
     if (typeof obj.usb !== 'undefined') {
       // var obj = { usb: {action, device} };
       if (obj.usb.action === 'toggleDevice') {
@@ -109,7 +109,7 @@ class USBController {
 
     const detectUsbInsertionInTimeIntervals = () => {
       this.detectUsbDevice().then(() => {
-        tryCount++;
+        tryCount += 1;
         if (this.usbState.isAvailable === lastState) {
           if (tryCount < MAX_TRY_COUNT_DRIVE) {
             setTimeout(detectUsbInsertionInTimeIntervals, 1000);
@@ -128,12 +128,12 @@ class USBController {
     this.usbState.usbErrorString = '';
     const driveList = await drivelist.list();
     let isDriveFound = false;
-    for (let index = 0; index < driveList.length; index++) {
+    for (let index = 0; index < driveList.length; index += 1) {
       if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
         const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         const { device } = driveList[index];
         if (process.platform === 'win32') {
-          await this.extractUsbStateWin32(mountPath);
+          await this.extractUsbStateWin32(mountPath); // eslint-disable-line
           isDriveFound = true;
         } else if (process.platform === 'linux') {
           this.extractUsbStateLinux(mountPath, device);
@@ -155,10 +155,11 @@ class USBController {
 
   extractUsbStateWin32(mountPath) {
     return new Promise((resolve, reject) => {
-      mountPath = mountPath.slice(0, -1); // Output= D: for windows
-      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout, stderr) => {
+      /* Output= D: for windows */
+      mountPath = mountPath.slice(0, -1); // eslint-disable-line
+      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout/* , stderr */) => {
         if (err) { // Handle error
-          this.usbState.usbErrorString = err.message + 'Cant extractUsbStateWin32';
+          this.usbState.usbErrorString = `${err.message}Cant extractUsbStateWin32`;
           reject();
         }
         const usbName = stdout;
@@ -201,9 +202,10 @@ class USBController {
     const parentDir = nodePath.join(path, '..');
     fs.readdir(dir, { withFileTypes: true }, (err, items) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant listUsbDeviceItems';
+        this.usbState.usbErrorString = `${err.message} Cant listUsbDeviceItems`;
         this.sendCurrentState();
-        return console.log('Unable to scan directory: ' + err);
+        console.log(`Unable to scan directory: ${err}`);
+        return;
       }
       const itemsList = [];
       if (parentDir !== '..') {
@@ -235,10 +237,12 @@ class USBController {
     this.usbState.usbErrorString = '';
     fs.stat(dir, (err, stats) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant getFileStatus';
+        this.usbState.usbErrorString = `${err.message} Cant getFileStatus`;
         this.listUsbDeviceItems(path);
-        return console.log(err);
+        console.log(err);
+        return;
       }
+
       const itemInfo = {
         path: dir,
         name: itemName,
@@ -256,7 +260,7 @@ class USBController {
     });
   }
 
-  convertItemSizeToString(sizeInBytes) {
+  convertItemSizeToString(sizeInBytes) { // eslint-disable-line
     let sizeString = '';
     const fileSizeInGB = (sizeInBytes / 1024 / 1024 / 1024).toFixed(2);
     if (fileSizeInGB < 1) {
@@ -264,23 +268,23 @@ class USBController {
       if (fileSizeInMB < 1) {
         const fileSizeInKB = (sizeInBytes / 1024).toFixed(2);
         if (fileSizeInKB < 1) {
-          sizeString = sizeInBytes + ' Bytes';
+          sizeString = `${sizeInBytes} Bytes`;
         } else {
-          sizeString = fileSizeInKB + ' KB';
+          sizeString = `${fileSizeInKB} KB`;
         }
       } else {
-        sizeString = fileSizeInMB + ' MB';
+        sizeString = `${fileSizeInMB} MB`;
       }
     } else {
-      sizeString = fileSizeInGB + ' GB';
+      sizeString = `${fileSizeInGB} GB`;
     }
 
     return sizeString;
   }
 
   async getFileInfo(stats, dir, itemInfo) {
-    itemInfo.md5 = await md5File(dir);
-    itemInfo.size = this.convertItemSizeToString(stats.size);
+    itemInfo.md5 = await md5File(dir); // eslint-disable-line
+    itemInfo.size = this.convertItemSizeToString(stats.size); // eslint-disable-line
 
     // send item info
     this.usbState.currentItemInfo = itemInfo;
@@ -290,12 +294,11 @@ class USBController {
   getFolderInfo(stats, dir, itemInfo) {
     getSize(dir, (err, size) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant getFolderInfo-getSize';
-        this.listUsbDeviceItems(path);
-        return console.log(err);
+        this.usbState.usbErrorString = `${err.message} Cant getFolderInfo-getSize`;
+        size = 0; // eslint-disable-line
       }
 
-      itemInfo.size = this.convertItemSizeToString(size);
+      itemInfo.size = this.convertItemSizeToString(size); // eslint-disable-line
       this.usbState.currentItemInfo = itemInfo;
       this.sendCurrentState();
     });
@@ -306,9 +309,10 @@ class USBController {
     this.usbState.usbErrorString = '';
     fs.mkdir(dir, { recursive: true }, (err) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant createUsbDeviceFolder';
+        this.usbState.usbErrorString = `${err.message} Cant createUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
-        return console.log(err);
+        console.log(err);
+        return;
       }
       this.syncUsbDevice();
       this.listUsbDeviceItems(path);
@@ -320,9 +324,10 @@ class USBController {
     this.usbState.usbErrorString = '';
     fs.lstat(dir, (err, stats) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant getFileStatus';
+        this.usbState.usbErrorString = `${err.message} Cant getFileStatus`;
         this.listUsbDeviceItems(path);
-        return console.log(err);
+        console.log(err);
+        return;
       }
       if (stats.isFile()) { // if it's a file
         this.deleteUsbDeviceFile(dir, path);
@@ -335,7 +340,7 @@ class USBController {
   deleteUsbDeviceFile(dir, path) {
     fs.unlink(dir, (err) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant deleteUsbDeviceFile';
+        this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
         console.log('could not remove file! ', dir, err);
       }
       this.syncUsbDevice();
@@ -346,7 +351,7 @@ class USBController {
   deleteUsbDeviceFolder(dir, path) {
     rimraf(dir, async (err) => {
       if (err) { // Handle error
-        this.usbState.usbErrorString = err.message + ' Cant deleteUsbDeviceFolder';
+        this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
         console.log('could not remove folder! ', dir, err);
       }
@@ -360,18 +365,18 @@ class USBController {
       if (!this.usbState.isAvailable) {
         resolve();
       } else if (process.platform === 'win32') {
-        exec(`.\\bin\\win32\\sync -r ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+        exec(`.\\bin\\win32\\sync -r ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
           if (err) { // Handle error
-            this.usbState.usbErrorString = err.message + ' Cant syncUsbDeviceWin32';
+            this.usbState.usbErrorString = `${err.message} Cant syncUsbDeviceWin32`;
             reject();
           }
           console.log('synchronized usb drive');
           resolve();
         });
       } else if (process.platform === 'linux') {
-        exec(`sync ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+        exec(`sync ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
           if (err) { // Handle error
-            this.usbState.usbErrorString = err.message + ' Cant syncUsbDeviceLinux';
+            this.usbState.usbErrorString = `${err.message} Cant syncUsbDeviceLinux`;
             reject();
           }
           console.log('synchronized usb drive');
@@ -396,18 +401,18 @@ class USBController {
       if (!this.usbState.isAvailable) {
         resolve();
       } else if (process.platform === 'win32') {
-        exec(`sync -e ${this.usbState.mountedPath}`, (err, stdout, stderr) => {
+        exec(`sync -e ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
           if (err) { // Handle error
-            this.usbState.usbErrorString = err.message + ' Cant ejectUSBDriveSafelyWin32';
+            this.usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`;
             reject();
           }
           console.log('ejected usb drive from windows');
           resolve();
         });
       } else if (process.platform === 'linux') {
-        exec(`sudo eject ${this.usbState.device}`, (err, stdout, stderr) => {
+        exec(`sudo eject ${this.usbState.device}`, (err/* , stdout, stderr */) => {
           if (err) { // Handle error
-            this.usbState.usbErrorString = err.message + ' Cant ejectUSBDriveSafelyLinux';
+            this.usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
             reject();
           }
           console.log('ejected usb drive');
@@ -440,7 +445,7 @@ class USBController {
 
     const detectLedChangeInTimeIntervals = () => {
       this.checkKVMLedState();
-      tryCount++;
+      tryCount += 1;
       if ((lastLedStateEcu !== this.usbState.kvmLedStateECU) && (lastLedStateRpi !== this.usbState.kvmLedStateRPI)) {
         rpio.close(GPIOPins.KVM_TOGGLE_PIN);
         this.toggleTimeoutHandle = undefined;
@@ -484,7 +489,7 @@ class USBController {
           this.syncUsbDevice();
           this.listUsbDeviceItems(fields.currentDirectory);
 
-          currentFileCounter++;
+          currentFileCounter += 1;
           if (currentFileCounter === fileCount) {
             res.send('done');
           }

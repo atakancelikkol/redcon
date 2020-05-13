@@ -1,4 +1,6 @@
-const serialport = require('serialport');
+const SerialPort = require('serialport');
+const SerialPortStream = require('@serialport/stream');
+const MockBinding = require('@serialport/binding-mock');
 
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
@@ -6,10 +8,8 @@ const fs = require('fs');
 const KeyMapping = require('./util/KeyMapping');
 
 if (virtualDeviceMode) {
-  const SerialPort = require('@serialport/stream');
-  const MockBinding = require('@serialport/binding-mock');
-  SerialPort.Binding = MockBinding;
   MockBinding.createPort(mockDevicePath, { echo: true, record: true });
+  SerialPortStream.Binding = MockBinding;
 }
 
 class SerialPortController {
@@ -50,7 +50,9 @@ class SerialPortController {
     return true;
   }
 
-  init() { }
+  init() {
+
+  }
 
   readOutputFiles() {
     const serialOutputPath = '../server/public/SerialOut/';
@@ -67,7 +69,7 @@ class SerialPortController {
 
     this.virtualDeviceInterval = setInterval(() => {
       const date = new Date();
-      const data = date + ' virtual device \n\r';
+      const data = `${date} virtual device \n\r`;
       this.portInstances[devicePath].emit('data', data);
     }, 500);
   }
@@ -89,7 +91,7 @@ class SerialPortController {
 
   appendData(obj) {
     // this function returns the initial state
-    obj.serial = this.getCopyState();
+    obj.serial = this.getCopyState(); // eslint-disable-line
   }
 
   updatePortStatus() {
@@ -121,7 +123,7 @@ class SerialPortController {
   async listPorts() {
     this.readOutputFiles();
     this.ports = [];
-    const ports = await serialport.list();
+    const ports = await SerialPort.list();
     this.ports = ports;
     const statusList = Object.keys(this.portStatusObj);
     // delete removed port items from portStatusObj
@@ -204,16 +206,16 @@ class SerialPortController {
       return;
     }
 
-    const port = new serialport(devicePath, { baudRate });
+    const port = new SerialPort(devicePath, { baudRate });
 
     port.on('open', this.onPortOpened.bind(this, port));
     port.on('close', this.onPortClosed.bind(this, port));
-    port.on('error', function (err) {
+    port.on('error', (err) => {
       console.log('Error: ', err.message);
     });
 
     // create parser
-    const { Readline } = serialport.parsers; // make instance of Readline parser
+    const { Readline } = SerialPort.parsers; // make instance of Readline parser
     const parser = new Readline(); // make a new parser to read ASCII lines
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
@@ -233,7 +235,7 @@ class SerialPortController {
 
   onPortDataReceived(port, data) {
     const obj = {};
-    obj.serialData = { path: port.path, data: data };
+    obj.serialData = { path: port.path, data };
     const writer = this.writerInstances[port.path];
     if (writer !== undefined) {
       writer.write(data);

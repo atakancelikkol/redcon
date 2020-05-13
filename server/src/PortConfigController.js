@@ -20,11 +20,11 @@ class PortConfigController {
     this.applyConfigFile();
   }
 
-  appendData(obj) {
+  appendData(/* obj */) {
     // No initial data to send
   }
 
-  handleMessage(obj, client) {
+  handleMessage(obj/* , client */) {
     /*
     obj["portconfig"] = {
         action: "readConfigFile",
@@ -78,14 +78,14 @@ class PortConfigController {
       console.log('Invalid parameters', configContents);
       return;
     }
-    fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (err) => {
+    fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (/* err */) => {
       this.applyConfigFile();
     });
   }
 
   resetConfigFile() {
     fs.readFile(CONFIG_FILE_PATH, 'utf-8', (err, data) => {
-      fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (er) => {
+      fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, data, 'utf8', (/* er */) => {
         this.applyConfigFile();
       });
     });
