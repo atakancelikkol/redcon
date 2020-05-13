@@ -62,7 +62,7 @@ class Authenticator {
   }
 
   logUserActivity(client, activityType) {
-    const insertHistoryItem = (cli) => {
+    const insertHistoryItem = () => {
       const currentDate = new Date();
       const historyObject = { username: client.getUserObject().username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
@@ -85,11 +85,11 @@ class Authenticator {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username/* , password */) {
+  loginUser(client, user/* , password */) {
     const isAuthenticated = true;
     if (isAuthenticated) {
       client.setAuthentication(true);
-      client.setUserObject({ username: username, id: 'id', ip: client.getIp() });
+      client.setUserObject({ username: user, id: 'id', ip: client.getIp() });
       const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
       this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');

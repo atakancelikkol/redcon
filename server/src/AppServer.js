@@ -56,11 +56,11 @@ class AppServer {
     const client = new ClientConnection({
       id: uuidv4(),
       ip: req.connection.remoteAddress,
-      connection: connection,
-      isAuthenticated: false
+      connect: connection,
+      isAuthenticated: false,
     });
     console.log('New connection request received! id: ', client.getId());
-    console.log('Remote client address:', client.getIp())
+    console.log('Remote client address:', client.getIp());
 
     this.clients.push(client);
 

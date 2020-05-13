@@ -1,38 +1,40 @@
 class ClientConnection {
-  constructor({ id, ip, connection, isAuthenticated}) {
+  constructor({
+    id, ip, connect, isAuthenticated,
+  }) {
     this.id = id;
     this.ip = ip;
-    this.connection = connection;
+    this.connection = connect;
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
-
-  }
-  send(obj){
-    this.connection.send(JSON.stringify(obj))
   }
 
-  isAuthenticated(){
-    return this.authenticated
+  send(obj) {
+    this.connection.send(JSON.stringify(obj));
   }
 
-  setAuthentication(authentication){
-    this.authenticated=authentication;
+  isAuthenticated() {
+    return this.authenticated;
   }
 
-  getId(){
-    return this.id
+  setAuthentication(authentication) {
+    this.authenticated = authentication;
   }
 
-  getIp(){
-    return this.ip
+  getId() {
+    return this.id;
   }
 
-  getUserObject(){
-    return this.userObject
+  getIp() {
+    return this.ip;
   }
 
-  setUserObject(userInf){
-    this.userObject=userInf;
+  getUserObject() {
+    return this.userObject;
+  }
+
+  setUserObject(userInf) {
+    this.userObject = userInf;
   }
 }
 
