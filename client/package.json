@@ -10,7 +10,7 @@
     "prepush": "vue-cli-service lint"
   },
   "dependencies": {
-    "babel-core": "^6.26.3",
+    "babel-core": "^7.0.0-0",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.9.0",
     "clone-deep": "^4.0.1",
