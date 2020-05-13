@@ -23,7 +23,6 @@ describe("GPIOController", () => {
   describe("getCopyState", () => {
     it("", () => {
       let gpioController = new GPIOController({});
-      console.log(gpioController);
       gpioController.gpioState[3] = rpio.LOW;
       gpioController.gpioState[5] = rpio.HIGH;
       gpioController.startTime = new Date();
