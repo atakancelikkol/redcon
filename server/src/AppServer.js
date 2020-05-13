@@ -56,7 +56,7 @@ class AppServer {
     const client = new ClientConnection({
       id: uuidv4(),
       ip: req.connection.remoteAddress,
-      connect: connection,
+      connection,
       isAuthenticated: false,
     });
     console.log('New connection request received! id: ', client.getId());

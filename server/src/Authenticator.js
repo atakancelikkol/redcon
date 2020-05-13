@@ -85,11 +85,11 @@ class Authenticator {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, user/* , password */) {
+  loginUser(client, username/* , password */) {
     const isAuthenticated = true;
     if (isAuthenticated) {
       client.setAuthentication(true);
-      client.setUserObject({ username: user, id: 'id', ip: client.getIp() });
+      client.setUserObject({ username, id: 'id', ip: client.getIp() });
       const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
       this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');

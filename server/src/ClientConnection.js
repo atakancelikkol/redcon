@@ -1,10 +1,10 @@
 class ClientConnection {
   constructor({
-    id, ip, connect, isAuthenticated,
+    id, ip, connection, isAuthenticated,
   }) {
     this.id = id;
     this.ip = ip;
-    this.connection = connect;
+    this.connection = connection;
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
   }
