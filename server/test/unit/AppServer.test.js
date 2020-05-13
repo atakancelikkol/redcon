@@ -6,6 +6,7 @@ const SerialPortController = require('../../src/SerialPortController');
 const USBController = require('../../src/USBController');
 const UtilityDataHandler = require('../../src/UtilityDataHandler');
 
+const dataHandlers = [];
 dataHandlers.push(new Authenticator({ sendMessageCallback }));
 dataHandlers.push(new GPIOController({ sendMessageCallback }));
 const usbController = new USBController({ sendMessageCallback });
@@ -24,14 +25,16 @@ jest.mock('../../src/UtilityDataHandler');
 
 const appServer = new AppServer({ dataHandlers });
 
+function sendMessageCallback () {
 
-/*
-describe("AppServer", () => {
-  test("should return false", () => {
-    expect(authenticator.isAuthRequired()).toBe(false);
+}
+
+describe("AppServer Constructor", () => {
+  test("appServer instance's port should return 3000 in development", () => {
+    expect(appServer.port).toBe(3000);
   });
-  
-
+});
+/*
   it('should return the product', async () => {
     const expectedProduct = {
       id: 1,
@@ -48,5 +51,5 @@ describe("AppServer", () => {
   });
 
 
-});
+
 */
