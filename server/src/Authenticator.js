@@ -16,7 +16,7 @@ class Authenticator {
   }
 
   appendData(obj) {
-    obj.authHistory = this.getCopyState();
+    obj.authHistory = this.getCopyState(); // eslint-disable-line
   }
 
   getCopyState() {
@@ -51,8 +51,8 @@ class Authenticator {
 
         if (result && result.userObject && client.ip === result.userObject.ip) {
           // console.log("Token ip verified with client ip.")
-          client.isAuthenticated = true;
-          client.userObject = result.userObject;
+          client.isAuthenticated = true; // eslint-disable-line
+          client.userObject = result.userObject; // eslint-disable-line
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
         } else {
           // console.log("Token ip is invalid!")
@@ -62,9 +62,9 @@ class Authenticator {
   }
 
   logUserActivity(client, activityType) {
-    const insertHistoryItem = (client) => {
+    const insertHistoryItem = (cli) => {
       const currentDate = new Date();
-      const historyObject = { username: client.userObject.username, date: currentDate, activityDate: currentDate };
+      const historyObject = { username: cli.userObject.username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
     };
@@ -85,11 +85,11 @@ class Authenticator {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username, password) {
+  loginUser(client, username/* , password */) {
     const isAuthenticated = true;
     if (isAuthenticated) {
-      client.isAuthenticated = true;
-      client.userObject = { username: username, id: 'id', ip: client.ip };
+      client.isAuthenticated = true; // eslint-disable-line
+      client.userObject = { username, id: 'id', ip: client.ip }; // eslint-disable-line
       const token = jwt.sign({ userObject: client.userObject }, ServerConfig.TokenSecret, { expiresIn: '24h' });
       this.sendUserToClient(client, client.userObject, 'success', token);
       this.logUserActivity(client, 'login');
@@ -100,8 +100,8 @@ class Authenticator {
 
   logoutUser(client, status) {
     this.logUserActivity(client, 'interaction');
-    client.isAuthenticated = false;
-    client.userObject = null;
+    client.isAuthenticated = false; // eslint-disable-line
+    client.userObject = null; // eslint-disable-line
     this.sendUserToClient(client, null, status);
   }
 

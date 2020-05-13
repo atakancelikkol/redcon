@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "jest"
+    "test": "jest",
+    "prepush": "vue-cli-service lint"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
