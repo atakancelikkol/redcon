@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "serve": "node src/main.js",
-    "test": "jest",
+    "test": "npx jest",
+    "coverage": "npx jest --coverage",
     "lint": "npx eslint src/*",
     "fix": "npx eslint --fix src/*"
   },
