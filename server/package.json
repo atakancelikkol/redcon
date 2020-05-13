@@ -6,8 +6,9 @@
   "scripts": {
     "serve": "node src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint src/*",
-    "fix": "npx eslint --fix src/*"
+    "lint": "npx eslint src/**",
+    "fix": "npx eslint --fix src/**",
+    "prepush": "npx eslint src/**"
   },
   "author": "",
   "license": "ISC",
