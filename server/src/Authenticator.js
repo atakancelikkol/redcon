@@ -16,7 +16,7 @@ class Authenticator {
   }
 
   appendData(obj) {
-    obj.authHistory = this.getCopyState();
+    obj.authHistory = this.getCopyState(); // eslint-disable-line
   }
 
   getCopyState() {
@@ -62,7 +62,7 @@ class Authenticator {
   }
 
   logUserActivity(client, activityType) {
-    const insertHistoryItem = (client) => {
+    const insertHistoryItem = (cli) => {
       const currentDate = new Date();
       const historyObject = { username: client.getUserObject().username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
@@ -85,7 +85,7 @@ class Authenticator {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username, password) {
+  loginUser(client, username/* , password */) {
     const isAuthenticated = true;
     if (isAuthenticated) {
       client.setAuthentication(true);

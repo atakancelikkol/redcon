@@ -20,7 +20,7 @@ class GPIOController {
     console.log('initializing GPIOController');
     const gpioPorts = Object.keys(this.gpioState);
     gpioPorts.forEach((portNum) => {
-      if (isNaN(portNum) === false) {
+      if (Number.isNaN(portNum) === false) {
         // open all ports regarding default value
         rpio.open(portNum, rpio.OUTPUT, this.gpioState[portNum]);
       }
@@ -38,7 +38,7 @@ class GPIOController {
 
   appendData(obj) {
     // this function returns the initial state
-    obj.gpio = this.getCopyState();
+    obj.gpio = this.getCopyState(); // eslint-disable-line
   }
 
   handleMessage(obj) {

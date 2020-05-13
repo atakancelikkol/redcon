@@ -1,4 +1,3 @@
-
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const express = require('express');
@@ -73,7 +72,6 @@ class AppServer {
   }
 
   onMessageHandler(client, message) {
-    console.log('client isAuthenticated', client.isAuthenticated());
     const obj = JSON.parse(message);
     this.dataHandlers.forEach((handler) => {
       if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
@@ -82,8 +80,8 @@ class AppServer {
     });
   }
 
-  onCloseHandler(client, connection) {
-    console.log('connection closed! id: ', client.getId());
+  onCloseHandler(client/* , connection */) {
+    console.log('connection closed! id: ', client.id);
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
