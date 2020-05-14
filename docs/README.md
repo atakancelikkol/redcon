@@ -65,6 +65,9 @@ sudo systemctl enable redcon-server.service
 ## How to run development version
 For development, client and server should be run separately.
 ```
+# if you didnt install the dependencies, call npm install at <project_loc> first 
+npm install
+
 # frontend will start at port 8080
 cd client
 # if you didnt install the dependencies, call npm install first
