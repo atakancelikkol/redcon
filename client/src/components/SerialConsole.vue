@@ -22,7 +22,7 @@
  
           <div class="mt-2" style="display:flex">
             <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
-            <b-button style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
+            <b-button id='button-write' style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
           </div>
  
         </div>
