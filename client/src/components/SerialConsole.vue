@@ -15,20 +15,20 @@
                 :options="serialDeviceRate"
                 style="max-width: 100px; margin-right: 30px"
               ></b-form-select>
-            <b-button @click="openSelectedDevice">Open Selected Device</b-button>
-            <b-button style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
+            <b-button ref='buttonOpen' @click="openSelectedDevice">Open Selected Device</b-button>
+            <b-button ref='buttonClose' style="margin-left: 5px" @click="closeSelectedDevice" variant="danger">Close Selected Device</b-button>
           </div>
            <b-form-textarea ref="dataArea" rows="20" style="margin-top: 10px;" :value="currentSerialData" @keydown="onKeyDown"></b-form-textarea>
  
           <div class="mt-2" style="display:flex">
-            <b-form-input v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
-            <b-button id='button-write' style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
+            <b-form-input ref='serialSend' v-model="serialmsg" placeholder="Serial Send" @keydown="onEnterKey" ></b-form-input>
+            <b-button ref='buttonWrite' style="margin-left: 10px" @click="writeSelectedDevice">Send</b-button>
           </div>
  
         </div>
         <div style="margin-left: 20px; max-width: 200px; display: flex; flex-direction: column">
           <b-form-select v-model="selectedLogFile" :options="listSerialConsoleFiles" :select-size="24"></b-form-select>
-          <b-button style="margin-top: 8px;" @click="openLogfile">Download Selected</b-button>
+          <b-button ref='buttonOpenlog' style="margin-top: 8px;" @click="openLogfile">Download Selected</b-button>
         </div>
       </div>
     </b-card>
