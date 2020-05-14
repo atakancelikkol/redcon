@@ -1,7 +1,7 @@
 import Vuex from "vuex"
-import { shallowMount, createLocalVue, mount } from "@vue/test-utils"
+import { shallowMount, createLocalVue, mount, createWrapper } from "@vue/test-utils"
 import ComponentWithVuex from '../../src/components/SerialConsole.vue'
-import BootstrapVue, { BButton } from 'bootstrap-vue'
+import {BootstrapVue, BButton} from 'bootstrap-vue'
 import sinon from 'sinon'
 import store from '../helpers/StoreHelper.js'
 
@@ -42,6 +42,35 @@ describe("ComponentWithVuex", () => {
     const button = wrapper.findComponent(BButton)
     button.trigger('click')
     expect(openSelectedDeviceSpy.called).toBe(true)
-
+    wrapper.destroy();
   })
+
+  
+
+  it("click event for writeSelectedDevice", () => {
+    const writeSelectedDeviceSpy = sinon.spy();
+    const wrapper = mount(ComponentWithVuex, {
+      store,
+      localVue,
+      attachToDocument: true,
+      methods: {
+        writeSelectedDevice: writeSelectedDeviceSpy,
+      },
+    })
+
+    const defaultData = ComponentWithVuex.data()
+        
+    //click event, finding button with id
+    const writeElement = document.getElementById('button-write');
+    expect(writeElement).toBeDefined();
+    const writeWrapper = createWrapper(writeElement);
+    writeWrapper.trigger('click');
+    //const button = wrapper.find('#button-write')
+    //button.trigger('click')
+    //expect(openSelectedDeviceSpy.called).toBe(true)
+    expect(writeSelectedDeviceSpy.called).toBe(true)
+    expect(defaultData.serialmsg).toBe("")
+  })
+
+
 })
