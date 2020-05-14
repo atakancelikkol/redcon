@@ -6,10 +6,10 @@
   "scripts": {
     "serve": "node src/main.js",
     "test": "npx jest",
-    "coverage": "npx jest --coverage",
+    "coverage": "jest --coverage",
     "lint": "npx eslint src/**",
     "fix": "npx eslint --fix src/**",
-    "prepush": "npx eslint src/**"
+    "prepush": "npx eslint src/** && jest --coverage"
   },
   "author": "",
   "license": "ISC",
