@@ -14,3 +14,13 @@ npm run lint
 ```
 npm run fix
 ```
+
+### Run unit tests
+```
+npm run test
+```
+
+### Run unit tests and Get code coverage
+```
+npm run coverage
+```
