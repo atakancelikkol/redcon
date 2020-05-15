@@ -4,11 +4,7 @@ stages:
   - test
 
 server:
-  stage:
-    - test
-  cache:
-    paths:
-      - server/node_modules/
+  stage: test
   tags:
     - linux
   script:
@@ -17,11 +13,7 @@ server:
     - npm coverage
 
 client:
-  stage:
-    - test
-  cache:
-    paths:
-      - client/node_modules/
+  stage: test
   tags:
     - linux
   script:
