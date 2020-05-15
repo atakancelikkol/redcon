@@ -1,17 +1,13 @@
 import { shallowMount, createLocalVue, mount, createWrapper } from "@vue/test-utils"
 import Vuex from "vuex"
 import componentWithVuex from '../../src/components/SerialConsole.vue'
-import { BootstrapVue, BButton } from 'bootstrap-vue'
+import { BootstrapVue  } from 'bootstrap-vue'
 import actions from '../helpers/ActionsHelper.js'
 import state from '../helpers/StateHelper.js'
-
-//import sinon from 'sinon'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(BootstrapVue);
-
-
 
 describe("componentWithVuex", () => {
   let store
@@ -21,7 +17,7 @@ describe("componentWithVuex", () => {
     })
   })
 
-  it('default baundRate', () => {
+  it('default values', () => {
 
     const defaultData = componentWithVuex.data()
     expect(defaultData.baudRate).toBe(115200)
@@ -89,20 +85,29 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
-    //button click event
     const button = wrapper.findComponent({ ref: 'buttonOpenlog' })
     button.trigger('click')
     expect(mockedOpen).toHaveBeenCalled()
+    const tmp = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    button.trigger('click')
+    expect(mockedOpen).toHaveBeenCalled()
+    process.env.NODE_ENV = tmp
     window.open = originalOpen;
     wrapper.destroy();
   })
 
-  it("event for listSerialConsoleFiles", () => {
+  it("listSerialConsoleFiles", () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue
     })
     expect(wrapper.vm.listSerialConsoleFiles).toMatchObject(state.receivedData.serial.serialFiles)
+    
+    const tmpReceivedData = state.receivedData
+    state.receivedData = []
+    expect(wrapper.vm.listSerialConsoleFiles).toMatchObject([])
+    state.receivedData = tmpReceivedData
     wrapper.destroy();
   })
 
@@ -111,7 +116,6 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
-    //onEnterKey event
     const form = wrapper.findComponent({ ref: 'serialSend' })
     form.trigger('keydown.enter')
     expect(actions.writeSerialDevice).toHaveBeenCalled()
@@ -123,26 +127,22 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
-    //keydown event
     const form = wrapper.findComponent({ ref: 'dataArea' })
     form.trigger('keydown.enter')
     expect(actions.writeKeySerialDevice).toHaveBeenCalled()
     wrapper.destroy();
   })
-
-  it("watcher serialDeviceList", () => {
-    let spy
+  
+  it("updateInitialSelection", () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue
     })
-    spy = jest.spyOn(wrapper.vm, 'updateInitialSelection')
-    wrapper.vm.$nextTick(() => {
-      expect(spy).toBeCalled();
-      done();
-    });
+    //there must be no currentSerialDevice
+    wrapper.vm.updateInitialSelection()
+    expect(wrapper.vm.currentSerialDevice).toBe(null)
     wrapper.destroy();
-    spy.mockClear()
   })
+
 
 })
