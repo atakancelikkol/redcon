@@ -26,7 +26,7 @@ class Authenticator {
   }
 
   handleMessage(obj, client) {
-    if (obj && client.userObject) {
+    if (obj && client.getUserObject()) {
       this.logUserActivity(client, 'interaction');
     }
 
@@ -49,10 +49,10 @@ class Authenticator {
           return;
         }
 
-        if (result && result.userObject && client.ip === result.userObject.ip) {
+        if (result && result.userObject && client.getIp() === result.userObject.ip) {
           // console.log("Token ip verified with client ip.")
-          client.isAuthenticated = true; // eslint-disable-line
-          client.userObject = result.userObject; // eslint-disable-line
+          client.setAuthentication(true);
+          client.setUserObject(result.userObject);
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
         } else {
           // console.log("Token ip is invalid!")
@@ -62,9 +62,9 @@ class Authenticator {
   }
 
   logUserActivity(client, activityType) {
-    const insertHistoryItem = (cli) => {
+    const insertHistoryItem = (historyClient) => {
       const currentDate = new Date();
-      const historyObject = { username: cli.userObject.username, date: currentDate, activityDate: currentDate };
+      const historyObject = { username: historyClient.getUserObject().username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
     };
@@ -72,7 +72,7 @@ class Authenticator {
     if (activityType === 'login') {
       insertHistoryItem(client);
     } else if (activityType === 'interaction') {
-      const historyItem = this.history.find((h) => h.username === client.userObject.username);
+      const historyItem = this.history.find((h) => h.username === client.getUserObject().username);
       if (historyItem) {
         historyItem.activityDate = new Date();
       } else {
@@ -88,10 +88,10 @@ class Authenticator {
   loginUser(client, username/* , password */) {
     const isAuthenticated = true;
     if (isAuthenticated) {
-      client.isAuthenticated = true; // eslint-disable-line
-      client.userObject = { username, id: 'id', ip: client.ip }; // eslint-disable-line
-      const token = jwt.sign({ userObject: client.userObject }, ServerConfig.TokenSecret, { expiresIn: '24h' });
-      this.sendUserToClient(client, client.userObject, 'success', token);
+      client.setAuthentication(true);
+      client.setUserObject({ username, id: 'id', ip: client.getIp() });
+      const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
+      this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');
     } else {
       this.logoutUser(client, 'login-error');
@@ -100,8 +100,8 @@ class Authenticator {
 
   logoutUser(client, status) {
     this.logUserActivity(client, 'interaction');
-    client.isAuthenticated = false; // eslint-disable-line
-    client.userObject = null; // eslint-disable-line
+    client.setAuthentication(false);
+    client.setUserObject(null);
     this.sendUserToClient(client, null, status);
   }
 

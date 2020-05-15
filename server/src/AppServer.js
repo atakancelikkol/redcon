@@ -1,10 +1,10 @@
-
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const express = require('express');
 const WebSocketServer = require('ws').Server;
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const ClientConnection = require('./ClientConnection');
 
 class AppServer {
   constructor({ dataHandlers }) {
@@ -53,21 +53,15 @@ class AppServer {
 
   onConnectionHandler(connection, req) {
     // request handler
-    const id = uuidv4();
-    const isAuthenticated = false;
-    console.log('New connection request received! id: ', id);
-    const ip = req.connection.remoteAddress;
-    console.log('Remote client address:', ip);
-    const client = {
-      id,
+    const client = new ClientConnection({
+      id: uuidv4(),
+      ip: req.connection.remoteAddress,
       connection,
-      isAuthenticated,
-      ip,
-      userObject: null,
-      send: (obj) => {
-        connection.send(JSON.stringify(obj));
-      },
-    };
+      isAuthenticated: false,
+    });
+    console.log('New connection request received! id: ', client.getId());
+    console.log('Remote client address:', client.getIp());
+
     this.clients.push(client);
 
     // send initial message to the client
@@ -80,7 +74,7 @@ class AppServer {
   onMessageHandler(client, message) {
     const obj = JSON.parse(message);
     this.dataHandlers.forEach((handler) => {
-      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated)) {
+      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
         handler.handleMessage(obj, client);
       }
     });
@@ -92,7 +86,7 @@ class AppServer {
     if (index !== -1) {
       this.clients.splice(index, 1);
     } else {
-      console.log('Error on closing connection! id: ', client.id);
+      console.log('Error on closing connection! id: ', client.getId());
     }
   }
 
@@ -108,7 +102,7 @@ class AppServer {
 
   sendToAllClients(handler, obj) {
     this.clients.forEach((client) => {
-      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated)) {
+      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
         client.connection.send(JSON.stringify(obj));
       }
     });
