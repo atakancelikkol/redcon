@@ -93,7 +93,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init();
       gpioController.handleMessage({ gpio: { port: '3', state: false } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 0, '5': 1 });
     });
@@ -105,7 +105,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init();
       gpioController.handleMessage({ gpio: { port: '5', state: false } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 0 });
     });
@@ -117,7 +117,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init();
       gpioController.handleMessage({ gpio: { port: '3', state: true } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 1 });
     });
@@ -129,7 +129,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init();
       gpioController.handleMessage({ gpio: { port: '5', state: true } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 1 });
     });
@@ -144,7 +144,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init();
       gpioController.setGPIOPort('3', rpio.HIGH);
       expect(obj.gpio.state).toStrictEqual({ '3': 1, '5': 1 });
     });
@@ -157,7 +157,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init();
       gpioController.setGPIOPort('5', rpio.HIGH);
       expect(obj.gpio.state).toStrictEqual({ '3': 1, '5': 1 });
     });
@@ -170,7 +170,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init(); 
       gpioController.setGPIOPort('3', rpio.LOW);
       expect(obj.gpio.state).toStrictEqual({ '3': 0, '5': 1 });
     });
@@ -183,7 +183,7 @@ describe("GPIOController", () => {
           obj = o;
         }
       });
-      gpioController.init(); // Init
+      gpioController.init(); 
       gpioController.setGPIOPort('5', rpio.LOW);
       expect(obj.gpio.state).toStrictEqual({ '3': 1, '5': 0 });
     });

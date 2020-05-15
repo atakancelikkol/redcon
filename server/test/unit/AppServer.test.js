@@ -15,7 +15,7 @@ dataHandlers.push(new SerialPortController({ sendMessageCallback }));
 dataHandlers.push(new PortConfigController({ sendMessageCallback }));
 dataHandlers.push(new UtilityDataHandler({ sendMessageCallback }));
 
-// Handle mock dataHandlers of other components
+
 jest.mock('../../src/Authenticator');
 jest.mock('../../src/GPIOController');
 jest.mock('../../src/PortConfigController');
@@ -34,22 +34,4 @@ describe("AppServer Constructor", () => {
     expect(appServer.port).toBe(3000);
   });
 });
-/*
-  it('should return the product', async () => {
-    const expectedProduct = {
-      id: 1,
-      name: 'football',
-    };
-    const productManager = new ProductManager();
-    const mockGetById = jest.fn();
-    ProductsClient.prototype.getById = mockGetById;
-    mockGetById.mockReturnValue(Promise.resolve(expectedProduct));
 
-    const result = await productManager.getProductToManage(1);
-
-    expect(result.name).toBe('football'); // It passes!
-  });
-
-
-
-*/
