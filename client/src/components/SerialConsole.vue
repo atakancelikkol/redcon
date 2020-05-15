@@ -131,7 +131,6 @@ export default {
         addr = "//localhost:3000";
       }
       let filePath= addr+"/SerialOut/" + this.listSerialConsoleFiles[this.selectedLogFile[0]];
-      console.log("asdasdasdasdasd",this.selectedLogFile[0])
       window.open(filePath,"_blank")
     },
     closeSelectedDevice() {
