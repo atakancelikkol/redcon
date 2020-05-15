@@ -27,7 +27,7 @@
  
         </div>
         <div style="margin-left: 20px; max-width: 200px; display: flex; flex-direction: column">
-          <b-form-select v-model="selectedLogFile" :options="listSerialConsoleFiles" :select-size="24"></b-form-select>
+          <b-form-select v-model="selectedLogFile" :options="Object.entries(listSerialConsoleFiles)" :select-size="24"></b-form-select>
           <b-button ref='buttonOpenlog' style="margin-top: 8px;" @click="openLogfile">Download Selected</b-button>
         </div>
       </div>
@@ -59,7 +59,8 @@ export default {
         
         ],
         serialmsg:'',
-        selectedLogFile: ''
+        selectedLogFile: '',
+        
     };
   },
   mounted() {
@@ -103,9 +104,7 @@ export default {
       ) {
         return [];
       }
-
       let filelist = this.receivedData.serial.serialFiles
-
       return filelist;
 
     },
@@ -131,7 +130,7 @@ export default {
       } else {
         addr = "//localhost:3000";
       }
-      let filePath= addr+"/SerialOut/" + this.listSerialConsoleFiles[this.selectedLogFile];
+      let filePath= addr+"/SerialOut/" + this.listSerialConsoleFiles[this.selectedLogFile[0]];
       window.open(filePath,"_blank")
     },
     closeSelectedDevice() {
