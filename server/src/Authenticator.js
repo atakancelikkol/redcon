@@ -62,9 +62,9 @@ class Authenticator {
   }
 
   logUserActivity(client, activityType) {
-    const insertHistoryItem = () => {
+    const insertHistoryItem = (historyClient) => {
       const currentDate = new Date();
-      const historyObject = { username: client.getUserObject().username, date: currentDate, activityDate: currentDate };
+      const historyObject = { username: historyClient.getUserObject().username, date: currentDate, activityDate: currentDate };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
     };
