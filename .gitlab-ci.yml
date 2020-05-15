@@ -1,0 +1,30 @@
+image: node:latest
+
+stages:
+  - test
+
+server:
+  stage:
+    - test
+  cache:
+    paths:
+      - server/node_modules/
+  tags:
+    - linux
+  script:
+    - cd ./server/
+    - npm install
+    - npm coverage
+
+client:
+  stage:
+    - test
+  cache:
+    paths:
+      - client/node_modules/
+  tags:
+    - linux
+  script:
+    - cd ./client/
+    - npm install
+    - npm coverage
