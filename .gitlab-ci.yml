@@ -1,4 +1,4 @@
-image: node:latest
+image: node:12.16.1
 
 stages:
   - test
@@ -10,6 +10,7 @@ server:
   script:
     - cd ./server/
     - npm ci
+    - npm run lint
     - npm run coverage
 
 client:
@@ -19,4 +20,5 @@ client:
   script:
     - cd ./client/
     - npm ci
+    - npm run lint
     - npm run coverage
