@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const ServerConfig = require('./ServerConfig');
-//test comment
+
 class Authenticator {
   constructor({ sendMessageCallback }) {
     this.sendMessageCallback = sendMessageCallback;
