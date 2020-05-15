@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "serve": "node src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx jest",
+    "coverage": "jest --coverage",
     "lint": "npx eslint src/**",
     "fix": "npx eslint --fix src/**",
-    "prepush": "npx eslint src/**"
+    "prepush": "npx eslint src/** && jest --coverage"
   },
   "author": "",
   "license": "ISC",
@@ -38,6 +39,7 @@
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-vue": "^6.2.2"
+    "eslint-plugin-vue": "^6.2.2",
+    "jest": "^26.0.1"
   }
 }

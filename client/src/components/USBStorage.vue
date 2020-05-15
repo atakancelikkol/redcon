@@ -80,7 +80,7 @@
             </template>
             <template v-slot:cell(operations)="data">
               <b-button
-                
+                v-if="!(data.item.fullPath)"
                 variant="outline-primary"
                 @click="onInfoButtonClicked(data.item)"
                 style="margin-right: 20px;"
@@ -92,6 +92,7 @@
                 style="margin-right: 20px;"
               >Download</b-button>
               <b-button
+                v-if="!(data.item.fullPath)"
                 variant="outline-danger"
                 @click="onDeleteItemClicked(data.item)"
               >Delete</b-button>

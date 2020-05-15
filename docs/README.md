@@ -65,6 +65,9 @@ sudo systemctl enable redcon-server.service
 ## How to run development version
 For development, client and server should be run separately.
 ```
+# if you didnt install the dependencies, call npm install at <project_loc> first 
+npm install
+
 # frontend will start at port 8080
 cd client
 # if you didnt install the dependencies, call npm install first
@@ -80,3 +83,48 @@ npm run serve
 cd ..
 ```
 Server should be accesible at http://localhost:8080
+
+## How to create unit-test scripts
+To create unit-test scripts on either client or server side follow the instructions. 
+```
+# To create unit-test scripts on the client -> go to the <project_loc>/client/test/unit/
+cd <project_loc>/client/test/unit/
+
+# Create unit-test script named as my_unit_test.test.js in the above directory
+
+# To create unit-test scripts on the server -> go to the <project_loc>/server/test/unit/
+cd <project_loc>/server/test/unit/
+
+# Create unit-test script named as my_unit_test.test.js in the above directory
+```
+
+## How to test units and get coverage reports
+For the unit-test, client and server should be tested separately.
+```
+# Go to the <project_loc>/client/ 
+cd <project_loc>/client/
+
+# Run unit-tests on the client at <project_loc>/client/
+npm run test
+
+# Go to the <project_loc>/server/ 
+cd <project_loc>/server/
+
+# Run unit-tests on the server at <project_loc>/server/
+npm run test
+```
+
+To test the units and getting the code coverage report for client and server, they should be tested and covered separately.
+```
+# Go to the <project_loc>/client/ 
+cd <project_loc>/client/
+
+# Run unit-tests and get coverage report on the client at <project_loc>/client/
+npm run coverage
+
+# Go to the <project_loc>/server/ 
+cd <project_loc>/server/
+
+# Run unit-tests on the server at <project_loc>/server/
+npm run coverage
+```
