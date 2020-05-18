@@ -9,11 +9,12 @@ describe('UtilityDataHandler', () => {
     expect(UtilityDataH.isAuthRequired()).toBe(true);
   });
 
-  test('init should print out console message', () => {
-    let UtilityDataH = new UtilityDataHandler({});
+  test('init does nothing but printing out console.log', () => {
   });
 
-  test('appendData does nothing');
+  test('appendData does nothing', () => {
+
+  });
 
   test('handleMessage should call executeRebootCommandif action is reboot', () => {
     let UtilityDataH = new UtilityDataHandler({
@@ -28,8 +29,10 @@ describe('UtilityDataHandler', () => {
     expect(mockExecuteRebootC).toHaveBeenCalled();
   });
 
-  test('executeRebootCommand', () => {
+  test('executeRebootCommand is going to be tested later', () => {
   });
 
-  test('onExit does nothing');
+  test('onExit does nothing', () => {
+
+  });
 });
