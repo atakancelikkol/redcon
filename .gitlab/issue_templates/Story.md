@@ -2,6 +2,8 @@
 
 *[Description of the story]*
 
+**Story Points:** ??
+
 **Definition of Done**
 
 * *[List of requirements that a user story must adhere]*
