@@ -12,4 +12,6 @@
 
 **Before Closing the Task**
 * Make sure related merge request is attached.
-* Add a comment how the task is completed.
+* Add a comment on how the task is completed.
+* At least two developers should review the merge request.
+* Merge request must be closed.
