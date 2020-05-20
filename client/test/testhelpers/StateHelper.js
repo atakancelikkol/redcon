@@ -1,7 +1,14 @@
 let state
 state = {
   //mapState
-  receivedData: { serial: { serialFiles: {}, ports: {}, portStatus: { isOpen: {} } } },
-  serialData: {}
+  receivedData: {
+    authHistory: {
+      history: []
+    }, 
+    serial: { ports: {}, portStatus: {}, serialFiles: {} }
+  },
+  serialData: {},
+  user: { username: 'testuser' },
+
 }
 export default state
