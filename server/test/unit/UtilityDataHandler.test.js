@@ -5,8 +5,8 @@ jest.mock('child_process');
 
 describe('UtilityDataHandler', () => {
   test('isAuthRequired should return true', () => {
-    let UtilityDataH = new UtilityDataHandler({});
-    expect(UtilityDataH.isAuthRequired()).toBe(true);
+    let utilityDataHandlerInstance = new UtilityDataHandler({});
+    expect(utilityDataHandlerInstance.isAuthRequired()).toBe(true);
   });
 
   test('init does nothing but printing out console.log', () => {
@@ -17,15 +17,15 @@ describe('UtilityDataHandler', () => {
   });
 
   test('handleMessage should call executeRebootCommandif action is reboot', () => {
-    let UtilityDataH = new UtilityDataHandler({
+    let utilityDataHandlerInstance = new UtilityDataHandler({
       sendMessageCallback: (h, o) => {
         handler = h;
         obj = o;
       }
     });
     let mockExecuteRebootC = jest.fn();
-    UtilityDataH.executeRebootCommand = mockExecuteRebootC;
-    UtilityDataH.handleMessage({ utility: { action: "reboot" } });
+    utilityDataHandlerInstance.executeRebootCommand = mockExecuteRebootC;
+    utilityDataHandlerInstance.handleMessage({ utility: { action: "reboot" } });
     expect(mockExecuteRebootC).toHaveBeenCalled();
   });
 
