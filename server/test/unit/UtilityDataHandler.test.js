@@ -1,10 +1,38 @@
 const UtilityDataHandler = require('../../src/UtilityDataHandler');
-const utilityDataHandler = new UtilityDataHandler({});
+const { execSync } = require('child_process');
 
+jest.mock('child_process');
 
-describe("UtilityDataHandler", () => {
-  test("should return true", () => {
-    expect(utilityDataHandler.isAuthRequired()).toBe(true);
+describe('UtilityDataHandler', () => {
+  test('isAuthRequired should return true', () => {
+    let utilityDataHandlerInstance = new UtilityDataHandler({});
+    expect(utilityDataHandlerInstance.isAuthRequired()).toBe(true);
   });
 
+  test('init does nothing but printing out console.log', () => {
+  });
+
+  test('appendData does nothing', () => {
+
+  });
+
+  test('handleMessage should call executeRebootCommandif action is reboot', () => {
+    let utilityDataHandlerInstance = new UtilityDataHandler({
+      sendMessageCallback: (h, o) => {
+        handler = h;
+        obj = o;
+      }
+    });
+    let mockExecuteRebootC = jest.fn();
+    utilityDataHandlerInstance.executeRebootCommand = mockExecuteRebootC;
+    utilityDataHandlerInstance.handleMessage({ utility: { action: "reboot" } });
+    expect(mockExecuteRebootC).toHaveBeenCalled();
+  });
+
+  test('executeRebootCommand is going to be tested later', () => {
+  });
+
+  test('onExit does nothing', () => {
+
+  });
 });
