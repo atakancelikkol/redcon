@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue, mount, createWrapper } from "@vue/test-utils"
 import Vuex from "vuex"
 import componentWithVuex from '../../../src/components/SerialConsole.vue'
-import { BootstrapVue  } from 'bootstrap-vue'
+import { BootstrapVue } from 'bootstrap-vue'
 import actions from '../../testhelpers/ActionsHelper.js'
 import state from '../../testhelpers/StateHelper.js'
 
@@ -97,20 +97,6 @@ describe("componentWithVuex", () => {
     wrapper.destroy();
   })
 
-  it("listSerialConsoleFiles", () => {
-    const wrapper = mount(componentWithVuex, {
-      store,
-      localVue
-    })
-    expect(wrapper.vm.listSerialConsoleFiles).toMatchObject(state.receivedData.serial.serialFiles)
-    
-    const tmpReceivedData = state.receivedData
-    state.receivedData = []
-    expect(wrapper.vm.listSerialConsoleFiles).toMatchObject([])
-    state.receivedData = tmpReceivedData
-    wrapper.destroy();
-  })
-
   it("keydown event for onEnterKey", () => {
     const wrapper = mount(componentWithVuex, {
       store,
@@ -132,16 +118,77 @@ describe("componentWithVuex", () => {
     expect(actions.writeKeySerialDevice).toHaveBeenCalled()
     wrapper.destroy();
   })
-  
-  it("updateInitialSelection", () => {
+
+  it('computed serialDeviceList return []', () => {
+
     const wrapper = mount(componentWithVuex, {
       store,
-      localVue
+      localVue,
     })
-    //there must be no currentSerialDevice
-    wrapper.vm.updateInitialSelection()
-    expect(wrapper.vm.currentSerialDevice).toBe(null)
+    expect(wrapper.vm.serialDeviceList).toMatchObject([])
     wrapper.destroy();
+  })
+
+  it('computed serialDeviceList', () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    let deviceListTest = [
+      {
+        "text": "testCom (Test Manuf) [closed]",
+        "value": "testCom",
+      },
+    ]
+    state.receivedData.serial = {
+      ports: [{ path: 'testCom', manufacturer: 'Test Manufacturer', }],
+      portStatus:
+      {
+        "testCom": { isOpen: false },
+      },
+      serialFiles: {}
+    }
+    expect(wrapper.vm.serialDeviceList).toMatchObject(deviceListTest)
+    wrapper.destroy();
+  })
+
+  it('computed listSerialConsoleFiles return []', () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    state.receivedData.serial = undefined
+    expect(wrapper.vm.listSerialConsoleFiles).toMatchObject([])
+    wrapper.destroy();
+  })
+
+  it('computed listSerialConsoleFiles', () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    state.receivedData.serial = { ports: {}, portStatus: {}, serialFiles: "Test.txt" }
+    expect(wrapper.vm.listSerialConsoleFiles).toBe("Test.txt")
+    wrapper.destroy();
+  })
+
+
+  it('method updateInitialSelection', () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    state.receivedData.serial = {
+      ports: [{ path: 'testCom', manufacturer: 'Test Manufacturer', }],
+      portStatus:
+      {
+        "testCom": { isOpen: false },
+      },
+      serialFiles: {}
+    }
+
+    wrapper.vm.updateInitialSelection()
+    expect(wrapper.vm.currentSerialDevice).toBe('testCom')
   })
 
 
