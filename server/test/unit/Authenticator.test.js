@@ -2,8 +2,6 @@ const Authenticator = require('../../src/Authenticator');
 const ServerConfig = require('../../src/ServerConfig');
 const jwt = require('jsonwebtoken');
 
-//jest.mock('jsonwebtoken');
-
 describe("Authenticator", () => {
   describe("isAuthRequired", () => {
     it("should return false", () => {
@@ -39,11 +37,11 @@ describe("Authenticator", () => {
 
   describe("handleMessage", () => {
     it("logUserActivity Function", () => {
-      const authenticator = new Authenticator({ });
+      const authenticator = new Authenticator({});
       const userObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }
       mockUserObject = { getUserObject: () => { return userObject; } };
       const mockLogUserActivity = jest.fn();
-      authenticator.logUserActivity=mockLogUserActivity;
+      authenticator.logUserActivity = mockLogUserActivity;
       const obj = { portconfig: { action: 'readConfigFile' } };
 
       authenticator.handleMessage(obj, mockUserObject)
@@ -55,7 +53,7 @@ describe("Authenticator", () => {
       const userObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }
       mockUserObject = { getUserObject: () => { return userObject; } };
       const mockLogUserActivity = jest.fn();
-      authenticator.logUserActivity=mockLogUserActivity;
+      authenticator.logUserActivity = mockLogUserActivity;
       const obj = { auth : { action: 'loginUser', username: 'user', password: 'pass' } };
 
       const mockLoginUser = jest.fn();
@@ -70,7 +68,7 @@ describe("Authenticator", () => {
       const userObject = { username: 'mert', id: 'id', ip: '::ffff:127.0.0.1' }
       mockUserObject = { getUserObject: () => { return userObject; } };
       const mockLogUserActivity = jest.fn();
-      authenticator.logUserActivity=mockLogUserActivity;
+      authenticator.logUserActivity = mockLogUserActivity;
       const obj = { auth : { action: 'logoutUser', username: 'user', password: 'pass' } };
 
       const mockLogoutUser = jest.fn();
@@ -85,7 +83,7 @@ describe("Authenticator", () => {
       const userObject = { username: 'mert', id: 'id', ip: '::ffff:127.0.0.1' }
       mockUserObject = { getUserObject: () => { return userObject; } };
       const mockLogUserActivity = jest.fn();
-      authenticator.logUserActivity=mockLogUserActivity;
+      authenticator.logUserActivity = mockLogUserActivity;
       const obj = { auth : { action: 'checkStoredToken', username: 'user', password: 'pass' } };
 
       const mockCheckStoredToken = jest.fn();
@@ -124,6 +122,7 @@ describe("Authenticator", () => {
       authenticator.logUserActivity = mockLogUserActivity;
       const mockJWT = jest.fn();
       jwt.sign = mockJWT;
+
       authenticator.loginUser(client, username)
       expect(mockSetAuthentication).toHaveBeenCalled();
       expect(mockSetUserObject).toHaveBeenCalled();
@@ -236,9 +235,8 @@ describe("Authenticator", () => {
       const userObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }
       mockUserObject =  { getUserObject: () => { return userObject.username; } };
       client = mockUserObject
-      
       const mockAppendData = jest.fn();
-      authenticator.appendData=mockAppendData;
+      authenticator.appendData = mockAppendData;
 
       authenticator.logUserActivity(client, activityType)
       expect(mockAppendData).toHaveBeenCalled();    
@@ -259,10 +257,9 @@ describe("Authenticator", () => {
         activityDate: '2020-05-19T19:27:12.973Z'
       }
       const mockFind = jest.fn(()=>{return history});
-      authenticator.history.find=mockFind;
-      
+      authenticator.history.find = mockFind;
       const mockAppendData = jest.fn();
-      authenticator.appendData=mockAppendData;
+      authenticator.appendData = mockAppendData;
 
       authenticator.logUserActivity(client, activityType)
       expect(mockAppendData).toHaveBeenCalled();    
@@ -278,7 +275,7 @@ describe("Authenticator", () => {
       const activityType = 'interaction';
   
       const mockAppendData = jest.fn();
-      authenticator.appendData=mockAppendData;
+      authenticator.appendData = mockAppendData;
 
       authenticator.logUserActivity(client, activityType)
       expect(mockAppendData).toHaveBeenCalled();    
