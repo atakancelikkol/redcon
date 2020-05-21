@@ -9,6 +9,61 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(BootstrapVue);
 
+
+describe("componentWithVuex else branchs", () => {
+  let store
+  beforeEach(() => {
+    store = new Vuex.Store({
+      actions, state
+    })
+  })
+  
+  it("keydown event for not enter onEnterKey", () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue
+    })
+    const form = wrapper.findComponent({ ref: 'serialSend' })
+    form.trigger('keydown.up')
+    expect(actions.writeSerialDevice).toHaveBeenCalledTimes(0)
+    wrapper.destroy();
+  })
+
+   it("keydown event for ignore ctrl-shift-alt, onKeyDown", () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue
+    })
+    const form = wrapper.findComponent({ ref: 'dataArea' })
+    form.trigger('keydown',{ 
+      keyCode: 16,
+    })
+    expect(actions.writeKeySerialDevice).toHaveBeenCalledTimes(0)
+    wrapper.destroy();
+  })  
+  
+  it('computed serialDeviceList return []', () => {
+
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    expect(wrapper.vm.serialDeviceList).toMatchObject([])
+    wrapper.destroy();
+  })
+
+  it('computed listSerialConsoleFiles return []', () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    state.receivedData.serial = undefined
+    expect(wrapper.vm.listSerialConsoleFiles).toMatchObject([])
+    wrapper.destroy();
+  })
+
+})
+
 describe("componentWithVuex", () => {
   let store
   beforeEach(() => {
@@ -45,7 +100,6 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
-    //button click event
     const button = wrapper.findComponent({ ref: 'buttonOpen' })
     button.trigger('click')
     expect(actions.openSerialDevice).toHaveBeenCalled()
@@ -57,7 +111,6 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
-    //button click event
     const button = wrapper.findComponent({ ref: 'buttonClose' })
     button.trigger('click')
     expect(actions.closeSerialDevice).toHaveBeenCalled()
@@ -69,7 +122,6 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
-    //button click event
     const button = wrapper.findComponent({ ref: 'buttonWrite' })
     button.trigger('click')
     expect(actions.writeSerialDevice).toHaveBeenCalled()
@@ -107,8 +159,8 @@ describe("componentWithVuex", () => {
     expect(actions.writeSerialDevice).toHaveBeenCalled()
     wrapper.destroy();
   })
-
-  it("keydown event for onKeyDown", () => {
+ 
+  it("keydown event for enter, onKeyDown", () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue
@@ -118,17 +170,7 @@ describe("componentWithVuex", () => {
     expect(actions.writeKeySerialDevice).toHaveBeenCalled()
     wrapper.destroy();
   })
-
-  it('computed serialDeviceList return []', () => {
-
-    const wrapper = mount(componentWithVuex, {
-      store,
-      localVue,
-    })
-    expect(wrapper.vm.serialDeviceList).toMatchObject([])
-    wrapper.destroy();
-  })
-
+  
   it('computed serialDeviceList', () => {
     const wrapper = mount(componentWithVuex, {
       store,
@@ -152,16 +194,6 @@ describe("componentWithVuex", () => {
     wrapper.destroy();
   })
 
-  it('computed listSerialConsoleFiles return []', () => {
-    const wrapper = mount(componentWithVuex, {
-      store,
-      localVue,
-    })
-    state.receivedData.serial = undefined
-    expect(wrapper.vm.listSerialConsoleFiles).toMatchObject([])
-    wrapper.destroy();
-  })
-
   it('computed listSerialConsoleFiles', () => {
     const wrapper = mount(componentWithVuex, {
       store,
@@ -171,7 +203,6 @@ describe("componentWithVuex", () => {
     expect(wrapper.vm.listSerialConsoleFiles).toBe("Test.txt")
     wrapper.destroy();
   })
-
 
   it('method updateInitialSelection', () => {
     const wrapper = mount(componentWithVuex, {
@@ -186,10 +217,8 @@ describe("componentWithVuex", () => {
       },
       serialFiles: {}
     }
-
     wrapper.vm.updateInitialSelection()
     expect(wrapper.vm.currentSerialDevice).toBe('testCom')
   })
-
 
 })

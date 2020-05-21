@@ -122,7 +122,6 @@ export default {
     },
     openLogfile(){
 
-      //console.log(process.env.NODE_ENV);
       let loc = window.location;
       let addr;
       if (process.env.NODE_ENV == 'production') {
@@ -139,7 +138,6 @@ export default {
       });
     },
     writeSelectedDevice() {
-      //console.log("write to serial device is clicked", this.currentSerialDevice, this.serialmsg);
       this.serialmsg+=String.fromCharCode(13)
       this.writeSerialDevice({
         devicePath: this.currentSerialDevice,
@@ -189,7 +187,6 @@ export default {
         charCode = evt.key.charCodeAt(0);
       }
 
-      //console.log(evt.keyCode, evt.ctrlKey, evt.shiftKey,evt);
       this.writeKeySerialDevice({
         devicePath: this.currentSerialDevice,
         keyCode: keyCode,

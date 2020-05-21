@@ -5,16 +5,9 @@ import { BootstrapVue } from 'bootstrap-vue'
 import actions from '../../testhelpers/ActionsHelper.js'
 import state from '../../testhelpers/StateHelper.js'
 
-const cloneDeep = require('clone-deep');
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
-
 const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(BootstrapVue);
-//localVue.use(VueRouter)
-//const router = new VueRouter()
-
 
 describe("componentWithVuex", () => {
   let store
@@ -36,6 +29,16 @@ describe("componentWithVuex", () => {
       { key: 'activityDate', label: 'Last Activity Date' },
 
     ])
+  })
+  it('onEnterkey return', () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue,
+    })
+    const form = wrapper.findComponent({ ref: 'passForm' })
+    form.trigger('keydown.up')
+    expect(actions.loginUser).toHaveBeenCalledTimes(0)
+    wrapper.destroy();
   })
 
   it('login button', () => {
@@ -59,13 +62,16 @@ describe("componentWithVuex", () => {
     expect(actions.loginUser).toHaveBeenCalled()
     wrapper.destroy();
   })
-
+  
   it('computed eventItems return []', () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue,
     })
+    let tmp = state.receivedData.authHistory
+    state.receivedData.authHistory = undefined
     expect(wrapper.vm.eventItems).toMatchObject([])
+    state.receivedData.authHistory = tmp
     wrapper.destroy();
   })
 
