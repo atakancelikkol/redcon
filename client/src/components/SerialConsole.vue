@@ -146,8 +146,7 @@ export default {
       this.serialmsg=null
     },
     updateInitialSelection() {
-      if(this.currentSerialDevice == null &&
-         this.receivedData.serial &&
+      if(this.receivedData.serial &&
          this.receivedData.serial.ports)
       {
         let portKeys = Object.keys(this.receivedData.serial.ports);
@@ -186,7 +185,7 @@ export default {
       if(evt.key && evt.key.length == 1) {
         charCode = evt.key.charCodeAt(0);
       }
-
+      
       this.writeKeySerialDevice({
         devicePath: this.currentSerialDevice,
         keyCode: keyCode,
