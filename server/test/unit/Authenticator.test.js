@@ -77,16 +77,17 @@ describe("Authenticator", () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }
+        userObject: { username: '', id: '', ip: '' }
       }
+      
+      userInf = { username: 'user', id: 'id', ip: client.ip}
       mockClient = {
         getUserObject: () => { return client.userObject; },
         setAuthentication: () => { client.authenticated = true; },
         getIp: () => { return client.ip; },
-        setUserObject: () => {},
+        setUserObject: (userInf) => {client.userObject = userInf; },
         send: () => {}
       };
-
       obj = { auth: { action: 'loginUser', username: 'user', password: 'pass' } };
 
       const currentDate = new Date();
@@ -95,6 +96,7 @@ describe("Authenticator", () => {
       ]
 
       authenticator.handleMessage(obj, mockClient)
+      expect(client.userObject).toStrictEqual(userInf);
       expect(authenticator.history[0].username).toBe(client.userObject.username);
       expect(obj.authHistory).toStrictEqual({ history: authenticator.history });
     });
