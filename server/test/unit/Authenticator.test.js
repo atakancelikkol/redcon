@@ -1,5 +1,6 @@
 const Authenticator = require('../../src/Authenticator');
 const jwt = require('jsonwebtoken');
+const ServerConfig = require('../../src/ServerConfig');
 
 describe("Authenticator", () => {
   describe("isAuthRequired", () => {
@@ -134,7 +135,7 @@ describe("Authenticator", () => {
       expect(authenticator.history[0].activityDate).not.toBe('Invalid Value')
     });
 
-    it("checkStoredToken Function when receivedToken is not expire", () => {
+    it("checkStoredToken Function when receivedToken exist", () => {
       const authenticator = new Authenticator({
         sendMessageCallback: (h, o) => {
           handler = h;
@@ -156,23 +157,61 @@ describe("Authenticator", () => {
         setUserObject: (o) => { client.userObject.username = o.username; client.id = 'id'; client.ip = '::ffff:127.0.0.1' },
         send: () => {}
       };
-      obj = {
-        auth: {
-          action: 'checkStoredToken',
-          storedToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyT2JqZWN0Ijp7InVzZXJuYW1lIjoidXNlciIsImlkIjoiaWQiLCJpcCI6Ijo6ZmZmZjoxMjcuMC4wLjEifSwiaWF0IjoxNTg5OTgwNDM0fQ.KgRc_djcmlc8aDozLNpUN4d3r6twiDoFxfqnI0kDhow'
-        }
-      }
       authenticator.result = {
         userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
         iat: 1590075984,
         exp: 1590079584
       }
-
+      const token = jwt.sign({ userObject: authenticator.result.userObject }, ServerConfig.TokenSecret, { expiresIn: '1m' });
+      obj = {
+        auth: {
+          action: 'checkStoredToken',
+          storedToken: token
+        }
+      }
       authenticator.handleMessage(obj, mockClient)
       expect(client.userObject).toStrictEqual(authenticator.result.userObject);
     });
 
     it("checkStoredToken Function when receivedToken is expired", () => {
+      const authenticator = new Authenticator({
+        sendMessageCallback: (h, o) => {
+          handler = h;
+          obj = o;
+        }
+      });
+
+      client = {
+        id: '0d1ad828-5a6f-45cb-ba3e-f3cbec980125',
+        ip: '::ffff:127.0.0.1',
+        connection: { WebSocket: {} },
+        authenticated: false,
+        userObject: { username: 'username', id: 'id', ip: '::ffff:127.0.0.1' }
+      }
+      mockClient = {
+        getUserObject: () => { return client.userObject; },
+        setAuthentication: () => { client.authenticated = true; },
+        getIp: () => { return client.ip; },
+        setUserObject: (o) => { client.userObject.username = o.username; client.id = 'id'; client.ip = '::ffff:127.0.0.1' },
+        send: () => {}
+      };
+      authenticator.result = {
+        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        iat: 1590075984,
+        exp: 1590079584
+      }
+      const token = jwt.sign({ userObject: authenticator.result.userObject }, ServerConfig.TokenSecret, { expiresIn: '100' });
+      obj = {
+        auth: {
+          action: 'checkStoredToken',
+          storedToken: token
+        }
+      }
+      authenticator.handleMessage(obj, mockClient)
+      expect(client.userObject).not.toStrictEqual(authenticator.result.userObject);
+    });
+
+    it("checkStoredToken Function when receivedToken is malformed", () => {
       const authenticator = new Authenticator({
         sendMessageCallback: (h, o) => {
           handler = h;
@@ -197,7 +236,7 @@ describe("Authenticator", () => {
       obj = {
         auth: {
           action: 'checkStoredToken',
-          storedToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyT2JqZWN0Ijp7InVzZXJuYW1lIjoidXNlciIsImlkIjoiaWQiLCJpcCI6Ijo6ZmZmZjoxMjcuMC4wLjEifSwiaWF0IjoxNTg5ODEyMzIxLCJleHAiOjE1ODk4OTg3MjF9.tL6LyyzWLWnfdDx_Ncgh-xa0udga2phTWRP6UGL5feU'
+          storedToken: 'Invalid Token'
         }
       }
       authenticator.result = {
