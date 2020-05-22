@@ -30,10 +30,6 @@ describe("store", () => {
       token : "test token"
   } 
 
-    store.dispatch('onDataReceived', authData);
-
-    console.log(store.state.user);
-
     /*store.dispatch('changeGPIOPort')
       .then(() => expect(webSocketConnector({ store })
       .toHaveBeenCalledTimes(1)

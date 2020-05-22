@@ -1,11 +1,10 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import StorageHelper from "./helpers/StorageHelper";
 
-
-export default class WebSocketConnector {
-  constructor({ store }) {
+class WebSocketConnector {
+  constructor() {
     this.connectionSocket = null;
-    this.store = store;
+    this.store = undefined;
   }
 
   init() {
@@ -14,6 +13,21 @@ export default class WebSocketConnector {
     this.connectionSocket.onopen = this.onOpen.bind(this);
     this.connectionSocket.onmessage = this.onMessage.bind(this);
     this.connectionSocket.onclose = this.onClose.bind(this);
+  }
+
+  getVuexPlugin() {
+    return store => {
+      // plugin callback
+      this.registerStore(store);
+    }
+  }
+
+  registerStore(store) {
+    if(this.store) {
+      throw "store is already registered!";
+    }
+
+    this.store = store;
   }
 
   getWebSocketURL() {
@@ -150,4 +164,6 @@ export default class WebSocketConnector {
 
 }
 
-
+const webSocketConnector = new WebSocketConnector();
+webSocketConnector.init();
+export default webSocketConnector;
