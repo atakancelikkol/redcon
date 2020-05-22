@@ -41,20 +41,21 @@ class Authenticator extends ControllerBase {
 
   checkStoredToken(client, receivedToken) {
     if (receivedToken) {
-      jwt.verify(receivedToken, ServerConfig.TokenSecret, (err, result) => {
-        if (err) {
-          return;
-        }
+      let result;
+      try {
+        result = jwt.verify(receivedToken, ServerConfig.TokenSecret);
+      } catch (ex) {
+        console.log(ex);
+      }
 
-        if (result && result.userObject && client.getIp() === result.userObject.ip) {
-          // console.log("Token ip verified with client ip.")
-          client.setAuthentication(true);
-          client.setUserObject(result.userObject);
-          this.sendUserToClient(client, result.userObject, 'success', receivedToken);
-        } else {
-          // console.log("Token ip is invalid!")
-        }
-      });
+      if (result && result.userObject && client.getIp() === result.userObject.ip) {
+        // console.log("Token ip verified with client ip.")
+        client.setAuthentication(true);
+        client.setUserObject(result.userObject);
+        this.sendUserToClient(client, result.userObject, 'success', receivedToken);
+      } else {
+        // console.log("Token ip is invalid!")
+      }
     }
   }
 
