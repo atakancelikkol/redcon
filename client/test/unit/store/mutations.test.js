@@ -3,7 +3,7 @@ import mutations from '../../../src/store/mutations';
 
 describe("store mutations", () => {
 
-  it("receiving auth data should call proper mutations", () => {
+  it("mutation should do proper assignments", () => {
     var state = {
       isConnected : false
     }
