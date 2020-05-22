@@ -1,19 +1,16 @@
 const rpio = require('rpio');
 const GPIOPins = require('./GPIOPins');
+const ControllerBase = require('./ControllerBase');
 
-class GPIOController {
-  constructor({ sendMessageCallback }) {
-    this.sendMessageCallback = sendMessageCallback;
+class GPIOController extends ControllerBase {
+  constructor() {
+    super('GPIOController');
     this.gpioState = {};
     this.gpioState[GPIOPins.RELAY_POWER_PIN] = rpio.HIGH;
     this.gpioState[GPIOPins.RELAY_CONTACT_PIN] = rpio.HIGH;
     this.startTime = 0;
     this.endTime = 0;
     this.history = [];
-  }
-
-  isAuthRequired() {
-    return true;
   }
 
   init() {
@@ -73,10 +70,6 @@ class GPIOController {
     const obj = {};
     this.appendData(obj);
     this.sendMessageCallback(this, obj);
-  }
-
-  onExit() {
-
   }
 }
 

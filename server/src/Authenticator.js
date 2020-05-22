@@ -1,14 +1,11 @@
 const jwt = require('jsonwebtoken');
 const ServerConfig = require('./ServerConfig');
+const ControllerBase = require('./ControllerBase');
 
-class Authenticator {
-  constructor({ sendMessageCallback }) {
-    this.sendMessageCallback = sendMessageCallback;
+class Authenticator extends ControllerBase {
+  constructor() {
+    super('Authenticator');
     this.history = [];
-  }
-
-  init() {
-
   }
 
   isAuthRequired() {
@@ -107,10 +104,6 @@ class Authenticator {
 
   sendUserToClient(client, user, authStatus, token) {
     client.send({ auth: { user, authStatus, token } });
-  }
-
-  onExit() {
-
   }
 }
 

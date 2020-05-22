@@ -5,6 +5,7 @@ const MockBinding = require('@serialport/binding-mock');
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
 const fs = require('fs');
+const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('./util/KeyMapping');
 
 if (virtualDeviceMode) {
@@ -12,9 +13,9 @@ if (virtualDeviceMode) {
   SerialPortStream.Binding = MockBinding;
 }
 
-class SerialPortController {
-  constructor({ sendMessageCallback }) {
-    this.sendMessageCallback = sendMessageCallback;
+class SerialPortController extends ControllerBase {
+  constructor() {
+    super('SerialPortController');
 
     /* [
       {
@@ -44,14 +45,6 @@ class SerialPortController {
     this.serialFiles = [];
 
     this.writerInstances = {};
-  }
-
-  isAuthRequired() {
-    return true;
-  }
-
-  init() {
-
   }
 
   readOutputFiles() {
@@ -254,10 +247,6 @@ class SerialPortController {
     if (virtualDeviceMode) {
       this.stopVirtualDevice();
     }
-  }
-
-  onExit() {
-
   }
 }
 
