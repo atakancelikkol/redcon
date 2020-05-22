@@ -14,7 +14,6 @@ class GPIOController extends ControllerBase {
   }
 
   init() {
-    console.log('initializing GPIOController');
     const gpioPorts = Object.keys(this.gpioState);
     gpioPorts.forEach((portNum) => {
       if (Number.isNaN(portNum) === false) {
