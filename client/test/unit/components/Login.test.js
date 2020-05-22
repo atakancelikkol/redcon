@@ -62,7 +62,7 @@ describe("componentWithVuex", () => {
     expect(actions.loginUser).toHaveBeenCalled()
     wrapper.destroy();
   })
-  
+
   it('computed eventItems return []', () => {
     const wrapper = mount(componentWithVuex, {
       store,
@@ -80,20 +80,44 @@ describe("componentWithVuex", () => {
       store,
       localVue,
     })
+    let newDate = new Date()
     let testHistory = [{
       username: "testUser",
-      date:   new Date().toLocaleString()+" ( just now )",
-      activityDate:  new Date().toLocaleString()+" ( just now )"
+      date: newDate.toLocaleString() + " ( just now )",
+      activityDate: newDate.toLocaleString() + " ( just now )"
     }]
 
-    state.receivedData.authHistory.history=[{
+    state.receivedData.authHistory.history = [{
       username: "testUser",
-      date: new Date(),
-      activityDate: new Date()
+      date: newDate,
+      activityDate: newDate
     }]
 
     expect(wrapper.vm.eventItems).toMatchObject(testHistory)
     wrapper.destroy();
   })
+
+  it('watch user() ', (done) => {
+    let routePath = ''
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath = param.path
+      }
+    }
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue
+    })
+    state.user = ({
+      username: 'testuser2',
+      id: 'id',
+      ip: '::1'
+    })
+    wrapper.vm.$nextTick(() => {
+      expect(routePath).toBe('/')
+      done()
+    })
+  })
+
 })
 
