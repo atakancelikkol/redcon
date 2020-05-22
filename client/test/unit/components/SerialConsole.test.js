@@ -122,9 +122,11 @@ describe("componentWithVuex", () => {
       store,
       localVue
     })
+    wrapper.vm.serialmsg='testmsg'
+    let testmsg=wrapper.vm.serialmsg+String.fromCharCode(13)
     const button = wrapper.findComponent({ ref: 'buttonWrite' })
     button.trigger('click')
-    expect(actions.writeSerialDevice).toHaveBeenCalled()
+    expect(actions.writeSerialDevice).toHaveBeenCalledWith(expect.anything(),{"devicePath": null, "serialCmd": testmsg })
     expect(wrapper.vm.serialmsg).toBe(null)
     wrapper.destroy();
   })
@@ -149,7 +151,7 @@ describe("componentWithVuex", () => {
     wrapper.destroy();
   })
 
-  it("keydown event for onEnterKey", () => {
+  it("keydown event for serialSend onEnterKey", () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue
@@ -159,8 +161,26 @@ describe("componentWithVuex", () => {
     expect(actions.writeSerialDevice).toHaveBeenCalled()
     wrapper.destroy();
   })
- 
-  it("keydown event for enter, onKeyDown", () => {
+
+  it("keydown event for printable characters, onKeyDown", () => {
+    const wrapper = mount(componentWithVuex, {
+      store,
+      localVue
+    })
+    const form = wrapper.findComponent({ ref: 'dataArea' })
+    form.trigger('keydown',  {
+      key: 'a'
+    
+         })
+    expect(actions.writeKeySerialDevice).toHaveBeenCalledWith(expect.anything(),
+      {"charCode": 97, "ctrlKey": false, "devicePath": null, "keyCode": 0, "shiftKey": false}
+      
+    )
+    wrapper.destroy();
+  })
+   
+
+  it("keydown event for dataArea enter, onKeyDown", () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue
@@ -170,7 +190,7 @@ describe("componentWithVuex", () => {
     expect(actions.writeKeySerialDevice).toHaveBeenCalled()
     wrapper.destroy();
   })
-  
+   
   it('computed serialDeviceList', () => {
     const wrapper = mount(componentWithVuex, {
       store,
@@ -219,6 +239,18 @@ describe("componentWithVuex", () => {
     }
     wrapper.vm.updateInitialSelection()
     expect(wrapper.vm.currentSerialDevice).toBe('testCom')
+
+    state.receivedData.serial = {
+      ports: [{ path: 'testCom', manufacturer: 'Test Manufacturer', },{ path: 'testCom2', manufacturer: 'Test Manufacturer2', }],
+      portStatus:
+      {
+        "testCom": { isOpen: false },
+        "testCom2": { isOpen: true },
+      },
+      serialFiles: {}
+    }
+    wrapper.vm.updateInitialSelection()
+    expect(wrapper.vm.currentSerialDevice).toBe('testCom2')
   })
 
 })
