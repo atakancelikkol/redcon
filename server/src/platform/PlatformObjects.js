@@ -4,7 +4,7 @@ class PlatformObjects {
   constructor(platformIndentifier = process.platform) {
     this.factory = PlatformFactory.createFactory(platformIndentifier);
     if (!this.factory) {
-      throw new Error('Can not create object factory for the platform! ' + platformIndentifier);
+      throw new Error(`Can not create object factory for the platform! ${platformIndentifier}`);
     }
 
     this.gpioUtility = this.factory.createGPIOUtility();
