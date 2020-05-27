@@ -81,7 +81,7 @@ class HttpServer {
   }
 
   onCloseHandler(client/* , connection */) {
-    console.log('connection closed! id: ', client.id);
+    console.log('connection closed! id: ', client.getId());
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
@@ -102,8 +102,11 @@ class HttpServer {
 
   sendToAllClients(controller, obj) {
     this.clients.forEach((client) => {
-      if (!controller.isAuthRequired() || (controller.isAuthRequired() && client.isAuthenticated())) {
+      if (!controller.isAuthRequired() || client.isAuthenticated()) {
         client.connection.send(JSON.stringify(obj));
+      }
+      else {
+        console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated`);
       }
     });
   }
