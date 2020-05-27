@@ -10,11 +10,11 @@
       <div>
         <b-form>
           <label for="password" style="margin-top:15px" >Password</label>
-          <b-input @keydown="onEnterKey" v-model="pass" type="password" id="text-password" style="max-width: 300px;" ></b-input>
+          <b-input ref='passForm' @keydown="onEnterKey" v-model="pass" type="password" id="text-password" style="max-width: 300px;" ></b-input>
         </b-form>
       </div>
       <div>
-        <button @click="login" class="btn btn-primary" style="margin-top:13px" >Login</button>
+        <button ref='login' @click="login" class="btn btn-primary" style="margin-top:13px" >Login</button>
         <b-alert :show="authStatus == 'login-error'" variant="danger">Error ocurred on login</b-alert>
       </div>
       <b-table striped hover :items="eventItems" :fields="eventFields" style = "margin-top: 17px" class="login-container__table"></b-table>
@@ -50,7 +50,7 @@ export default {
       if(!this.receivedData.authHistory) {
         return [];
       }
-
+  
       let history = cloneDeep(this.receivedData.authHistory.history);
       const timeAgo = new TimeAgo('en-US');
       history.forEach(item => {
@@ -64,7 +64,7 @@ export default {
     }    
   },
   methods: {
-    ...mapActions(["loginUser", "logout"]),
+    ...mapActions(["loginUser"]),
     login() {
       this.loginUser({username: this.username, password: this.pass});
     },

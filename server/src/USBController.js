@@ -10,6 +10,7 @@ const usbDetect = require('usb-detection');
 const md5File = require('md5-file');
 const rimraf = require('rimraf');
 const getSize = require('get-folder-size');
+const ControllerBase = require('./ControllerBase');
 const GPIOPins = require('./GPIOPins');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
@@ -17,9 +18,9 @@ const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
 const LED_CHECK_TIME_INTERVAL = 1000; // ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
-class USBController {
-  constructor({ sendMessageCallback }) {
-    this.sendMessageCallback = sendMessageCallback;
+class USBController extends ControllerBase {
+  constructor() {
+    super('USBController');
     this.usbState = {
       isAvailable: false,
       kvmLedStateECU: false,
@@ -36,10 +37,6 @@ class USBController {
 
     this.toggleTimeoutHandle = undefined;
     this.ledReadIntervalHandle = undefined;
-  }
-
-  isAuthRequired() {
-    return true;
   }
 
   init() {

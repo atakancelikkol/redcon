@@ -1,19 +1,9 @@
 const { execSync } = require('child_process');
+const ControllerBase = require('./ControllerBase');
 
-class UtilityDataHandler {
-  constructor({ sendMessageCallback }) {
-    this.sendMessageCallback = sendMessageCallback;
-  }
-
-  isAuthRequired() {
-    return true;
-  }
-
-  init() {
-    console.log('initializing UtilityDataHandler');
-  }
-
-  appendData() {
+class UtilityDataHandler extends ControllerBase {
+  constructor() {
+    super('UtilityDataHandler');
   }
 
   handleMessage(obj) {
@@ -32,10 +22,6 @@ class UtilityDataHandler {
     }
 
     execSync('reboot');
-  }
-
-  onExit() {
-
   }
 }
 

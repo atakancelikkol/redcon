@@ -16,7 +16,7 @@ class StorageHelper {
     localStorage.removeItem(itemTag);
   }
 
-  clearall() {
+  clear() {
     localStorage.clear();
   }
 }
