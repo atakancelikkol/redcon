@@ -74,8 +74,10 @@ class HttpServer {
   onMessageHandler(client, message) {
     const obj = JSON.parse(message);
     this.controllers.forEach((controller) => {
-      if (!controller.isAuthRequired() || (controller.isAuthRequired() && client.isAuthenticated())) {
+      if (!controller.isAuthRequired() || client.isAuthenticated()) {
         controller.handleMessage(obj, client);
+      } else {
+        console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated for onMessageHandler`);
       }
     });
   }
@@ -105,7 +107,7 @@ class HttpServer {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
         client.connection.send(JSON.stringify(obj));
       } else {
-        console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated`);
+        console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated for sendToAllClients`);
       }
     });
   }

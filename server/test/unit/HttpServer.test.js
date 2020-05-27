@@ -77,56 +77,6 @@ describe("HttpServer ", () => {
 
   describe("sendToAllClients", () => {
 
-    it('sendToAllClients isAuthReq:0 , isAuthed:0', () => {
-      const testObject = {
-        testMember : 'testString'
-      };
-
-      const mockController = {
-        isAuthRequired: () => { return false; }
-      };
-      const httpServer = new HttpServer({});
-      let sendObject;
-      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      const mockClient = {
-        connection: mockConnection,
-        isAuthenticated: () => { return true; },
-        id: 'sendToAllClientsId',
-        getId: () => { return mockClient.id; }
-      };
-      httpServer.clients.push(mockClient);
-      const obj = {
-        testMember : 'testString'
-      };
-      httpServer.sendToAllClients(mockController, obj);
-      expect(sendObject).toStrictEqual(JSON.stringify(testObject));
-    });
-
-    it('sendToAllClients isAuthReq:0 , isAuthed:1', () => {
-      const testObject = {
-        testMember : 'testString'
-      };
-
-      const mockController = {
-        isAuthRequired: () => { return false; }
-      };
-      const httpServer = new HttpServer({});
-      let sendObject;
-      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      const mockClient = {
-        connection: mockConnection,
-        isAuthenticated: () => { return true; },
-        id: 'sendToAllClientsId',
-        getId: () => { return mockClient.id; }
-      };
-      httpServer.clients.push(mockClient);
-      const obj = {
-        testMember : 'testString'
-      };
-      httpServer.sendToAllClients(mockController, obj);
-      expect(sendObject).toStrictEqual(JSON.stringify(testObject));
-    });
-
     it('sendToAllClients isAuthReq:1 , isAuthed:1', () => {
       const testObject = {
         testMember : 'testString'
@@ -152,7 +102,7 @@ describe("HttpServer ", () => {
       expect(sendObject).toStrictEqual(JSON.stringify(testObject));
     });
 
-    it('sendToAllClients isAuthReq:1 , isAuthed:0', () => {
+    it('sends to all clients when isAuthReq:1 , isAuthed:0', () => {
 
       const mockController = {
         isAuthRequired: () => { return true; }
@@ -173,14 +123,53 @@ describe("HttpServer ", () => {
       let log = console.log;
       console.log = jest.fn();
       httpServer.sendToAllClients(mockController, obj);
-      expect(console.log).toHaveBeenCalledWith(`Authentication is required for this controller feature and ${mockClient.getId()} is not Authenticated`);
+      expect(console.log).toHaveBeenCalledWith(`Authentication is required for this controller feature and ${mockClient.getId()} is not Authenticated for sendToAllClients`);
       console.log = log;
     });
-
   });
+  describe('onMessageHandler', () => {
+    it('handles the message when isAuthReq:1 , isAuthed:1', () => {
+      let mockObject = {
+        mockMember: 'mockValue'
+      };
+      let handleMessageHasBeenCalled = false;
+      const controller = {
+        isAuthRequired: () => { return true; },
+        handleMessage:() => {handleMessageHasBeenCalled = true;}
+      };
+      let controllers = [];
+      controllers.push(controller);
+      let mockClient = {
+        isAuthenticated: () => { return true; }
+      };
+      const httpServer = new HttpServer({controllers});
+      httpServer.onMessageHandler(mockClient,JSON.stringify(mockObject));
+      controller.handleMessage = jest.fn();
+      expect(handleMessageHasBeenCalled).toBe(true);
+    });
 
-
-
+    it('handles the message when isAuthReq:1 , isAuthed:0', () => {
+      let mockObject = {
+        mockMember: 'mockValue'
+      };
+      const controller = {
+        isAuthRequired: () => { return true; }
+      };
+      let controllers = [];
+      controllers.push(controller);
+      let mockClient = {
+        isAuthenticated: () => { return false; },
+        id: 'onMessageHandlerId',
+        getId: () => { return mockClient.id; }
+      };
+      let log = console.log;
+      console.log = jest.fn();
+      const httpServer = new HttpServer({controllers});
+      httpServer.onMessageHandler(mockClient,JSON.stringify(mockObject));
+      expect(console.log).toHaveBeenCalledWith(`Authentication is required for this controller feature and ${mockClient.getId()} is not Authenticated for onMessageHandler`);
+      console.log = log;
+    });
+  });
 });
 
 /*      appendData(obj) {
