@@ -21,7 +21,7 @@
         <router-link to="/utility">Utility</router-link>
       </b-list-group-item>
       <b-list-group-item v-if="this.user">
-        <b-link @click="logout">Logout</b-link>
+        <b-link ref='logout' @click="logout">Logout</b-link>
         <span>({{user.username}})</span>
       </b-list-group-item>
     </b-list-group>
