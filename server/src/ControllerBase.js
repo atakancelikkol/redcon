@@ -48,7 +48,7 @@ class ControllerBase {
 
   /**
    * appendData
-   * appendData is called by AppServer when a new client is connected.
+   * appendData is called by HttpServer when a new client is connected.
    * If the controller needs to send data to every new client, override this function.
    */
   appendData(/* obj */) {
@@ -57,7 +57,7 @@ class ControllerBase {
 
   /**
    * handleMessage
-   * This method is called by AppServer when a new data is sent by the client
+   * This method is called by HttpServer when new data is received from a client.
    */
   handleMessage(/* obj, client */) {
 
