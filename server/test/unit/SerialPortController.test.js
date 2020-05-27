@@ -6,7 +6,8 @@ describe("SerialPortController", () => {
     expect(serialPortController.virtualDeviceInterval).toBeUndefined();
   });
 
-  test("should return true", () => {
+  test("isAuthRequired should return true", () => {
+    const serialPortController = new SerialPortController({});
     expect(serialPortController.isAuthRequired()).toBe(true);
   });
 
@@ -15,11 +16,27 @@ describe("SerialPortController", () => {
   });
 
   test("readOutputFiles", () => {
-
+    let serialPortController = new SerialPortController({
+      sendMessageCallback: (h, o) => {
+        handler = h;
+        obj = o;
+      }
+    });
+    let mockUpdatePortStatus = jest.fn();
+    serialPortController.updatePortStatus = mockUpdatePortStatus;
+    serialPortController.readOutputFiles();
+    //this.serialFile test ekle!!!!
+    expect(mockUpdatePortStatus).toHaveBeenCalled();
   });
 
   test("startVirtualDevice", () => {
-
+    let serialPortController = new SerialPortController({
+      sendMessageCallback: (h, o) => {
+        handler = h;
+        obj = o;
+      }
+    });
+    
   });
 
   test("stopVirtualDevice", () => {
