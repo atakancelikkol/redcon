@@ -6,9 +6,9 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const ClientConnection = require('./ClientConnection');
 
-class AppServer {
-  constructor({ dataHandlers }) {
-    this.dataHandlers = dataHandlers;
+class HttpServer {
+  constructor({ controllers }) {
+    this.controllers = controllers;
     this.port = 3000;
     if (process.argv[2] === 'production') {
       // change the port to 80 as this is running in production mode
@@ -21,7 +21,7 @@ class AppServer {
   }
 
   init() {
-    console.log('initializing AppServer...');
+    console.log('initializing HttpServer...');
     this.app = express();
 
     // start web server
@@ -73,9 +73,9 @@ class AppServer {
 
   onMessageHandler(client, message) {
     const obj = JSON.parse(message);
-    this.dataHandlers.forEach((handler) => {
-      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
-        handler.handleMessage(obj, client);
+    this.controllers.forEach((controller) => {
+      if (!controller.isAuthRequired() || (controller.isAuthRequired() && client.isAuthenticated())) {
+        controller.handleMessage(obj, client);
       }
     });
   }
@@ -91,22 +91,22 @@ class AppServer {
   }
 
   sendInitialMessage(client) {
-    // collect data from data handlers
+    // collect data from data controllers
     const obj = {};
-    this.dataHandlers.forEach((handler) => {
-      handler.appendData(obj);
+    this.controllers.forEach((controller) => {
+      controller.appendData(obj);
     });
 
     client.connection.send(JSON.stringify(obj));
   }
 
-  sendToAllClients(handler, obj) {
+  sendToAllClients(controller, obj) {
     this.clients.forEach((client) => {
-      if (!handler.isAuthRequired() || (handler.isAuthRequired() && client.isAuthenticated())) {
+      if (!controller.isAuthRequired() || (controller.isAuthRequired() && client.isAuthenticated())) {
         client.connection.send(JSON.stringify(obj));
       }
     });
   }
 }
 
-module.exports = AppServer;
+module.exports = HttpServer;

@@ -1,27 +1,20 @@
 const fs = require('fs');
 const { exec } = require('child_process');
 const os = require('os');
+const ControllerBase = require('./ControllerBase');
 
 const CONFIG_FILE_PATH = '../scripts/port_forwarding/int.config';
 const CONFIG_CUSTOM_CONFIG_PATH = '../scripts/port_forwarding/custom.config';
 
-class PortConfigController {
-  constructor({ sendMessageCallback }) {
-    this.sendMessageCallback = sendMessageCallback;
+class PortConfigController extends ControllerBase {
+  constructor() {
+    super('PortConfigController');
     this.shellOutput = '';
     this.shellError = '';
   }
 
-  isAuthRequired() {
-    return true;
-  }
-
   init() {
     this.applyConfigFile();
-  }
-
-  appendData(/* obj */) {
-    // No initial data to send
   }
 
   handleMessage(obj/* , client */) {
@@ -103,10 +96,6 @@ class PortConfigController {
         this.readAndSendConfigFile();
       });
     }
-  }
-
-  onExit() {
-
   }
 }
 
