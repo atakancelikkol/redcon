@@ -104,8 +104,7 @@ class HttpServer {
     this.clients.forEach((client) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
         client.connection.send(JSON.stringify(obj));
-      }
-      else {
+      } else {
         console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated`);
       }
     });
