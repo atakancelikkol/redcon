@@ -5,7 +5,7 @@ class USBUtility {
   constructor() {
 
   }
-  extractUsbState(mountPath ) {
+  extractUsbState(mountPath) {
     return new Promise((resolve, reject) => {
       let platformUsbState
       /* Output= D: for windows */
@@ -13,8 +13,9 @@ class USBUtility {
       exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout/* , stderr */) => {
         if (err) { // Handle error
 
-          platformUsbState={
-            usbErrorString : `${err.message}Cant extractUsbStateWin32`}
+          platformUsbState = {
+            usbErrorString: `${err.message}Cant extractUsbStateWin32`
+          }
 
           reject(platformUsbState);
         }
@@ -45,7 +46,7 @@ class USBUtility {
 
   syncUsbDevice(usbState) {
     return new Promise((resolve, reject) => {
-      
+
       if (!usbState.isAvailable) {
         resolve();
       }
@@ -63,13 +64,13 @@ class USBUtility {
 
   ejectUSBDriveSafely(usbState) {
     return new Promise((resolve, reject) => {
-      
+
       if (!usbState.isAvailable) {
         resolve();
       }
       exec(`.\\.\\.\\bin\\win32\\sync -e ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
-          let usbErrorString =`${err.message} Cant ejectUSBDriveSafelyWin32`;
+          let usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`;
           reject(usbErrorString);
         }
         console.log('ejected usb drive from windows');

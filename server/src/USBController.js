@@ -334,7 +334,7 @@ class USBController extends ControllerBase {
       this.pinToggleSequence();
     });
   }
- 
+
   isSafeToToggleUsbDevice() {
     if (this.timeToCheckSafety === 0) {
       this.timeToCheckSafety = new Date().valueOf();
