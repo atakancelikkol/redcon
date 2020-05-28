@@ -76,8 +76,6 @@ class HttpServer {
     this.controllers.forEach((controller) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
         controller.handleMessage(obj, client);
-      } else {
-        console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated for onMessageHandler`);
       }
     });
   }
@@ -106,8 +104,6 @@ class HttpServer {
     this.clients.forEach((client) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
         client.connection.send(JSON.stringify(obj));
-      } else {
-        console.log(`Authentication is required for this controller feature and ${client.getId()} is not Authenticated for sendToAllClients`);
       }
     });
   }

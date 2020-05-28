@@ -1,24 +1,22 @@
 const HttpServer = require('../../src/HttpServer');
-jest.mock('../../src/Authenticator');
-const Authenticator = require('../../src/Authenticator');
-
 
 describe("HttpServer ", () => {
 
-  it("Constructor", () => {
-    let controllers = [];
-    let httpServer = new HttpServer({ controllers });
-    expect(httpServer.port).toBe(3000);
-    expect(httpServer.controllers).toBe(controllers);
-  });
+  describe("Constructor ", () => {
+    it("constructs in production mode", () => {
+      process.argv[2] = 'production';
+      let httpServer = new HttpServer({});
+      expect(httpServer.port).toBe(80);
+    });
 
-  it("getApp", () => {
-    let controllers = [];
-    controllers.push(new Authenticator({}));
-    let httpServer = new HttpServer({ controllers });
-    expect(httpServer.getApp()).toBe(httpServer.app);
+    it("constructs and tests empty controller", () => {
+      process.argv = process.argv.slice(0, 2);
+      let controllers = [];
+      let httpServer = new HttpServer({ controllers });
+      expect(httpServer.port).toBe(3000);
+      expect(httpServer.controllers).toBe(controllers);
+    });
   });
-
 
   describe("init ", () => {
     xit('should invoke express once', () => {
@@ -26,14 +24,83 @@ describe("HttpServer ", () => {
       httpServer.init();
       console.log(httpServer.getApp());
       expect(httpServer.getApp()).toStrictEqual(tempApp);
-    })
-    /*let mockExpressUse = jest.fn();
-    express.use = mockExpressUse;
-    httpServer.init();
-    expect(mockExpressUse).toHaveBeenCalled();*/
+    });
   });
+
+  describe("getApp ", () => {
+    it("gets app", () => {
+      let httpServer = new HttpServer({});
+      httpServer.app = "myTestApp";
+      expect(httpServer.getApp()).toBe("myTestApp");
+    });
+  });
+
+  describe("onConnectionHandler ", () => {
+    it("tests connection handling", () => {
+      let httpServer = new HttpServer({});
+      let secondParameterMessageEvent;
+      let secondParameterCloseEvent;
+      let mockConnection = {
+        on: (p1, p2) => {
+          if (p1 === 'message') {
+            secondParameterMessageEvent = p2;
+          } else if (p1 === 'close') {
+            secondParameterCloseEvent = p2;
+          }
+        }
+      };
+      mockConnection.on = jest.fn();
+      let mockReq = { connection: { remoteAddress: 'mockRemoteAdress' } };
+      let tempSendInitialMessage = httpServer.sendInitialMessage;
+      httpServer.sendInitialMessage = jest.fn();
+      httpServer.onConnectionHandler(mockConnection, mockReq);
+      expect(1).toBe(1);
+      httpServer.sendInitialMessage = tempSendInitialMessage;
+    });
+  });
+
+  describe('onMessageHandler', () => {
+    it('handles the message when isAuthReq:1 , isAuthed:1', () => {
+      let mockObject = {
+        mockMember: 'mockValue'
+      };
+      let handleMessageHasBeenCalled = false;
+      const controller = {
+        isAuthRequired: () => { return true; },
+        handleMessage: () => { handleMessageHasBeenCalled = true; }
+      };
+      let controllers = [];
+      controllers.push(controller);
+      let mockClient = {
+        isAuthenticated: () => { return true; }
+      };
+      const httpServer = new HttpServer({ controllers });
+      httpServer.onMessageHandler(mockClient, JSON.stringify(mockObject));
+      expect(handleMessageHasBeenCalled).toBe(true);
+    });
+
+    it('handles the message when isAuthReq:1 , isAuthed:0', () => {
+      let mockObject = {
+        mockMember: 'mockValue'
+      };
+      let handleMessageHasBeenCalled = false;
+      const controller = {
+        isAuthRequired: () => { return true; },
+        handleMessage: () => { handleMessageHasBeenCalled = true; }
+      };
+      let controllers = [];
+      controllers.push(controller);
+      let mockClient = {
+        isAuthenticated: () => { return false; }
+      };
+      const httpServer = new HttpServer({ controllers });
+      httpServer.onMessageHandler(mockClient, JSON.stringify(mockObject));
+      expect(handleMessageHasBeenCalled).toBe(false);
+    });
+  });
+
   describe("onCloseHandler", () => {
-    it('onCloseHandler if index !== -1', () => {
+    it('handles on Close if index !== -1', () => {
       let httpServer = new HttpServer({});
       const mockClient = {
         id: 'myConnectionClosingId',
@@ -42,9 +109,9 @@ describe("HttpServer ", () => {
       httpServer.clients.push(mockClient);
       httpServer.onCloseHandler(mockClient);
       expect(httpServer.clients.length).toBe(0);
-    })
+    });
 
-    it('onCloseHandler if index === -1', () => {
+    it('handles on Close if index === -1', () => {
       let httpServer = new HttpServer({});
       let mockClient = {
         id: 'myConnectionClosingId',
@@ -55,31 +122,33 @@ describe("HttpServer ", () => {
       httpServer.onCloseHandler(mockClient);
       expect(console.log).toHaveBeenCalledWith('Error on closing connection! id: ', mockClient.getId());
       console.log = log;
-    })
+    });
   });
 
-  it('sendInitialMessage', () => {
-    const testObject = { testMember: 'test' };
-    let controllers = [];
-    let mockController = {
-      appendData: (obj) => { obj.testMember = 'test'; }
-    };
-    controllers.push(mockController);
-    let httpServer = new HttpServer({ controllers });
-    let sendObject;
-    let mockConnection = { send: (objStr) => { sendObject = objStr; } };
-    mockClient = {
-      connection: mockConnection
-    };
-    httpServer.sendInitialMessage(mockClient);
-    expect(sendObject).toStrictEqual(JSON.stringify(testObject));
-  })
+  describe("sendInitialMessage", () => {
+    it('tests sending initial message', () => {
+      const testObject = { testMember: 'test' };
+      let controllers = [];
+      let mockController = {
+        appendData: (obj) => { obj.testMember = 'test'; }
+      };
+      controllers.push(mockController);
+      let httpServer = new HttpServer({ controllers });
+      let sendObject;
+      let mockConnection = { send: (objStr) => { sendObject = objStr; } };
+      mockClient = {
+        connection: mockConnection
+      };
+      httpServer.sendInitialMessage(mockClient);
+      expect(sendObject).toStrictEqual(JSON.stringify(testObject));
+    });
+  });
+
 
   describe("sendToAllClients", () => {
-
-    it('sendToAllClients isAuthReq:1 , isAuthed:1', () => {
+    it('sends to all clients when isAuthReq:1 , isAuthed:1', () => {
       const testObject = {
-        testMember : 'testString'
+        testMember: 'testString'
       };
 
       const mockController = {
@@ -96,14 +165,13 @@ describe("HttpServer ", () => {
       };
       httpServer.clients.push(mockClient);
       const obj = {
-        testMember : 'testString'
+        testMember: 'testString'
       };
       httpServer.sendToAllClients(mockController, obj);
       expect(sendObject).toStrictEqual(JSON.stringify(testObject));
     });
 
     it('sends to all clients when isAuthReq:1 , isAuthed:0', () => {
-
       const mockController = {
         isAuthRequired: () => { return true; }
       };
@@ -118,103 +186,10 @@ describe("HttpServer ", () => {
       };
       httpServer.clients.push(mockClient);
       const obj = {
-        testMember : 'testString'
+        testMember: 'testString'
       };
-      let log = console.log;
-      console.log = jest.fn();
       httpServer.sendToAllClients(mockController, obj);
-      expect(console.log).toHaveBeenCalledWith(`Authentication is required for this controller feature and ${mockClient.getId()} is not Authenticated for sendToAllClients`);
-      console.log = log;
-    });
-  });
-  describe('onMessageHandler', () => {
-    it('handles the message when isAuthReq:1 , isAuthed:1', () => {
-      let mockObject = {
-        mockMember: 'mockValue'
-      };
-      let handleMessageHasBeenCalled = false;
-      const controller = {
-        isAuthRequired: () => { return true; },
-        handleMessage:() => {handleMessageHasBeenCalled = true;}
-      };
-      let controllers = [];
-      controllers.push(controller);
-      let mockClient = {
-        isAuthenticated: () => { return true; }
-      };
-      const httpServer = new HttpServer({controllers});
-      httpServer.onMessageHandler(mockClient,JSON.stringify(mockObject));
-      controller.handleMessage = jest.fn();
-      expect(handleMessageHasBeenCalled).toBe(true);
-    });
-
-    it('handles the message when isAuthReq:1 , isAuthed:0', () => {
-      let mockObject = {
-        mockMember: 'mockValue'
-      };
-      const controller = {
-        isAuthRequired: () => { return true; }
-      };
-      let controllers = [];
-      controllers.push(controller);
-      let mockClient = {
-        isAuthenticated: () => { return false; },
-        id: 'onMessageHandlerId',
-        getId: () => { return mockClient.id; }
-      };
-      let log = console.log;
-      console.log = jest.fn();
-      const httpServer = new HttpServer({controllers});
-      httpServer.onMessageHandler(mockClient,JSON.stringify(mockObject));
-      expect(console.log).toHaveBeenCalledWith(`Authentication is required for this controller feature and ${mockClient.getId()} is not Authenticated for onMessageHandler`);
-      console.log = log;
+      expect(sendObject).toStrictEqual(undefined);
     });
   });
 });
-
-/*      appendData(obj) {
-          obj.authHistory = this.getCopyState(); // eslint-disable-line
-        }
-
-        getCopyState() {
-          return {
-            history: [...this.history],
-          };
-        }
-
-
-        const client = {
-        id: '9e02e9c9-0233-41dc-82a1-f48ec031ac16',
-        ip: '::ffff:127.0.0.1',
-        connection: { WebSocket: {} },
-        authenticated: true,
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }
-      };
-
-      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      console.log(mockConnection);
-      let clientConnection = new ClientConnection({ connection: mockConnection });
-      let sendObject;
-      const obj = {
-        authHistory: { history: [] },
-        gpio: { state: { '3': 1, '5': 1 }, startTime: 0, endTime: 0, history: [] },
-        usb: {
-          isAvailable: false,
-          kvmLedStateECU: 0,
-          kvmLedStateRPI: 0,
-          mountedPath: '',
-          usbName: '',
-          device: '',
-          currentDirectory: '.',
-          currentItems: [],
-          currentItemInfo: {},
-          usbErrorString: ''
-        },
-        serial: { ports: {}, portStatus: {}, serialFiles: {} }
-      };
-      const controllers = [];
-      controllers.push(new Authenticator({  }));
-      const httpServer = new HttpServer({ controllers });
-
-
-      */
