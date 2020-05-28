@@ -1,5 +1,7 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('../mock/MockGPIOUtility');
+const PosixUSBUtility = require('../posix/PosixUSBUtility');
+
 
 class PosixObjectFactory extends IObjectFactory {
   getPlatformString() {
@@ -18,8 +20,7 @@ class PosixObjectFactory extends IObjectFactory {
   }
 
   createUSBUtility() {
-    // TODO: this should return the class when implemented
-    return {};
+    return new PosixUSBUtility();
   }
 
   createPlatformUtility() {

@@ -96,6 +96,7 @@ class USBController extends ControllerBase {
         this.getItemInfo(obj.usb.path, obj.usb.itemName);
       } else if (obj.usb.action === 'createFolder') {
         this.createUsbDeviceFolder(obj.usb.path, obj.usb.folderName);
+
       }
     }
   }
@@ -119,7 +120,7 @@ class USBController extends ControllerBase {
 
     detectUsbInsertionInTimeIntervals();
   }
-
+  //platform
   async detectUsbDevice() {
     // To get list of connected Drives
     this.usbState.usbErrorString = '';
@@ -129,14 +130,13 @@ class USBController extends ControllerBase {
       if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
         const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         const { device } = driveList[index];
-        if (process.platform === 'win32') {
-          await this.extractUsbStateWin32(mountPath); // eslint-disable-line
-          isDriveFound = true;
-        } else if (process.platform === 'linux') {
-          this.extractUsbStateLinux(mountPath, device);
-          isDriveFound = true;
-        }
-        break;
+        let platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device)
+        this.usbState.usbErrorStrin = platformUsbState.usbErrorStrin
+        this.usbState.device = platformUsbState.device
+        this.usbState.usbName = platformUsbState.usbName
+        this.usbState.mountedPath = platformUsbState.mountedPath
+        this.usbState.isAvailable = platformUsbState.isAvailable
+        isDriveFound = true;
       }
     }
 
@@ -150,42 +150,6 @@ class USBController extends ControllerBase {
     this.sendCurrentState();
   }
 
-  extractUsbStateWin32(mountPath) {
-    return new Promise((resolve, reject) => {
-      /* Output= D: for windows */
-      mountPath = mountPath.slice(0, -1); // eslint-disable-line
-      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout/* , stderr */) => {
-        if (err) { // Handle error
-          this.usbState.usbErrorString = `${err.message}Cant extractUsbStateWin32`;
-          reject();
-        }
-        const usbName = stdout;
-        if (!usbName) {
-          reject();
-        }
-
-        const splittedUsbName = usbName.toString().split('\n');
-        if (splittedUsbName.length < 2) {
-          reject();
-        }
-
-        this.usbState.device = '';
-        this.usbState.usbName = splittedUsbName[1].trim();
-        this.usbState.mountedPath = mountPath;
-        this.usbState.isAvailable = true;
-        resolve();
-      });
-    });
-  }
-
-  extractUsbStateLinux(mountPath, device) {
-    const USBName = nodePath.basename(mountPath);
-    this.usbState.device = device; // For safe eject, device = '/dev/sda' ...
-    this.usbState.mountedPath = mountPath;
-    this.usbState.usbName = USBName;
-    this.usbState.isAvailable = true;
-  }
-
   listUsbDeviceItems(path) {
     if (this.usbState.mountedPath === '') {
       // send empty item list
@@ -195,8 +159,11 @@ class USBController extends ControllerBase {
       return;
     }
 
+
     const dir = nodePath.join(this.usbState.mountedPath, path);
+
     const parentDir = nodePath.join(path, '..');
+
     fs.readdir(dir, { withFileTypes: true }, (err, items) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant listUsbDeviceItems`;
@@ -303,6 +270,7 @@ class USBController extends ControllerBase {
 
   createUsbDeviceFolder(path, folderName) {
     const dir = nodePath.join(this.usbState.mountedPath, path, folderName);
+
     this.usbState.usbErrorString = '';
     fs.mkdir(dir, { recursive: true }, (err) => {
       if (err) { // Handle error
@@ -311,7 +279,7 @@ class USBController extends ControllerBase {
         console.log(err);
         return;
       }
-      this.syncUsbDevice();
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
       this.listUsbDeviceItems(path);
     });
   }
@@ -340,7 +308,7 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
         console.log('could not remove file! ', dir, err);
       }
-      this.syncUsbDevice();
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
       this.listUsbDeviceItems(path);
     });
   }
@@ -352,34 +320,8 @@ class USBController extends ControllerBase {
         this.listUsbDeviceItems(path);
         console.log('could not remove folder! ', dir, err);
       }
-      await this.syncUsbDevice();
+      await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
       this.listUsbDeviceItems(path);
-    });
-  }
-
-  syncUsbDevice() {
-    return new Promise((resolve, reject) => {
-      if (!this.usbState.isAvailable) {
-        resolve();
-      } else if (process.platform === 'win32') {
-        exec(`.\\bin\\win32\\sync -r ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant syncUsbDeviceWin32`;
-            reject();
-          }
-          console.log('synchronized usb drive');
-          resolve();
-        });
-      } else if (process.platform === 'linux') {
-        exec(`sync ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant syncUsbDeviceLinux`;
-            reject();
-          }
-          console.log('synchronized usb drive');
-          resolve();
-        });
-      }
     });
   }
 
@@ -388,37 +330,11 @@ class USBController extends ControllerBase {
       return;
     }
 
-    this.ejectUSBDriveSafely().then(() => {
+    this.platformObjects.getUSBUtility().ejectUSBDriveSafely(this.usbState).then(() => {
       this.pinToggleSequence();
     });
   }
-
-  ejectUSBDriveSafely() {
-    return new Promise((resolve, reject) => {
-      if (!this.usbState.isAvailable) {
-        resolve();
-      } else if (process.platform === 'win32') {
-        exec(`sync -e ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`;
-            reject();
-          }
-          console.log('ejected usb drive from windows');
-          resolve();
-        });
-      } else if (process.platform === 'linux') {
-        exec(`sudo eject ${this.usbState.device}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
-            reject();
-          }
-          console.log('ejected usb drive');
-          resolve();
-        });
-      }
-    });
-  }
-
+ 
   isSafeToToggleUsbDevice() {
     if (this.timeToCheckSafety === 0) {
       this.timeToCheckSafety = new Date().valueOf();
@@ -483,7 +399,7 @@ class USBController extends ControllerBase {
             res.status(500).send(er.toString());
             return;
           }
-          this.syncUsbDevice();
+          this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
           this.listUsbDeviceItems(fields.currentDirectory);
 
           currentFileCounter += 1;
