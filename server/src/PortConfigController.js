@@ -1,6 +1,4 @@
 const fs = require('fs');
-const { exec } = require('child_process');
-const os = require('os');
 const ControllerBase = require('./ControllerBase');
 
 const CONFIG_FILE_PATH = '../scripts/port_forwarding/int.config';
@@ -84,18 +82,13 @@ class PortConfigController extends ControllerBase {
     });
   }
 
-  applyConfigFile() {
-    if (os.platform() !== 'linux') {
-      console.log('Port forwarding script can be used only in linux operating system.');
-      this.readAndSendConfigFile();
-    } else {
-      exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
-        console.log(error, stdout, stderr);
-        this.shellOutput = stdout;
-        this.shellError = stderr;
-        this.readAndSendConfigFile();
-      });
+  async applyConfigFile() {
+    const platformPortConfig = await this.platformObjects.getNetworkUtility().run();
+    if (platformPortConfig) {
+      this.shellOutput = platformPortConfig.shellOutput;
+      this.shellError = platformPortConfig.shellError;
     }
+    this.readAndSendConfigFile();
   }
 }
 
