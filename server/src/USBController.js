@@ -57,7 +57,7 @@ class USBController extends ControllerBase {
     // read led states
     const rpiLed = this.platformObjects.getGPIOUtility().read(GPIOPins.KVM_LED_RPI);
     const ecuLed = this.platformObjects.getGPIOUtility().read(GPIOPins.KVM_LED_ECU);
-    
+
     if (this.usbState.kvmLedStateRPI === rpiLed && this.usbState.kvmLedStateECU === ecuLed) {
       // state is not changed
       return;
@@ -354,7 +354,7 @@ class USBController extends ControllerBase {
     let tryCount = 0;
 
     this.platformObjects.getGPIOUtility().openForOutput(GPIOPins.KVM_TOGGLE_PIN, 0);
-    
+
     const detectLedChangeInTimeIntervals = () => {
       this.checkKVMLedState();
       tryCount += 1;
