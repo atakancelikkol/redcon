@@ -17,7 +17,7 @@ class MockObjectFactory extends IObjectFactory {
 
   createUSBUtility() {
     // TODO: replace with mock object
-    return {};
+    return new MockUSBUtility();
   }
 
   createPlatformUtility() {
