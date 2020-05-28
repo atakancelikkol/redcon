@@ -1,6 +1,6 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('../mock/MockGPIOUtility');
-const Win32USBUtility = require('../win32/Win32USBUtility');
+const Win32USBUtility = require('./Win32USBUtility');
 
 class Win32ObjectFactory extends IObjectFactory {
   getPlatformString() {

@@ -2,7 +2,6 @@
 const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
-const { exec } = require('child_process');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
@@ -96,7 +95,6 @@ class USBController extends ControllerBase {
         this.getItemInfo(obj.usb.path, obj.usb.itemName);
       } else if (obj.usb.action === 'createFolder') {
         this.createUsbDeviceFolder(obj.usb.path, obj.usb.folderName);
-
       }
     }
   }
@@ -120,7 +118,8 @@ class USBController extends ControllerBase {
 
     detectUsbInsertionInTimeIntervals();
   }
-  //platform
+
+  // platform
   async detectUsbDevice() {
     // To get list of connected Drives
     this.usbState.usbErrorString = '';
@@ -130,12 +129,12 @@ class USBController extends ControllerBase {
       if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
         const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         const { device } = driveList[index];
-        let platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device)
-        this.usbState.usbErrorStrin = platformUsbState.usbErrorStrin
-        this.usbState.device = platformUsbState.device
-        this.usbState.usbName = platformUsbState.usbName
-        this.usbState.mountedPath = platformUsbState.mountedPath
-        this.usbState.isAvailable = platformUsbState.isAvailable
+        const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device); // eslint-disable-line
+        this.usbState.usbErrorStrin = platformUsbState.usbErrorStrin;
+        this.usbState.device = platformUsbState.device;
+        this.usbState.usbName = platformUsbState.usbName;
+        this.usbState.mountedPath = platformUsbState.mountedPath;
+        this.usbState.isAvailable = platformUsbState.isAvailable;
         isDriveFound = true;
       }
     }
@@ -279,7 +278,7 @@ class USBController extends ControllerBase {
         console.log(err);
         return;
       }
-      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
     });
   }
@@ -308,7 +307,7 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
         console.log('could not remove file! ', dir, err);
       }
-      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
     });
   }
@@ -320,7 +319,7 @@ class USBController extends ControllerBase {
         this.listUsbDeviceItems(path);
         console.log('could not remove folder! ', dir, err);
       }
-      await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
+      await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
     });
   }
@@ -399,7 +398,7 @@ class USBController extends ControllerBase {
             res.status(500).send(er.toString());
             return;
           }
-          this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState)
+          this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
           this.listUsbDeviceItems(fields.currentDirectory);
 
           currentFileCounter += 1;

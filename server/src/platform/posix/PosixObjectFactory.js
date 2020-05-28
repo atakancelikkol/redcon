@@ -1,6 +1,6 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('../mock/MockGPIOUtility');
-const PosixUSBUtility = require('../posix/PosixUSBUtility');
+const PosixUSBUtility = require('./PosixUSBUtility');
 
 
 class PosixObjectFactory extends IObjectFactory {
