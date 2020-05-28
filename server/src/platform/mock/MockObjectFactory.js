@@ -1,5 +1,6 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('./MockGPIOUtility');
+const MockUSBUtility = require('./MockUSBUtility');
 
 class MockObjectFactory extends IObjectFactory {
   getPlatformString() {

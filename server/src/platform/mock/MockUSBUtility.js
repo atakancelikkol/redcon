@@ -1,12 +1,11 @@
 const IUSBUtility = require('../interfaces/IUSBUtility');
 
 class MockUSBUtility extends IUSBUtility {
-
-  extractUsbState(/*mountPath, device*/) {
+  extractUsbState(/* mountPath, device */) {
     // console.log("MockUSBUtility extractUsbState: ", mountPath, device);
     const platformUsbState = {
 
-      device, // For safe eject, device = '/dev/sda' ...
+      device: '/dev/sda', // For safe eject, device = '/dev/sda' ...
       mountedPath: 'testPath',
       usbName: 'testName',
       isAvailable: true,
@@ -22,7 +21,6 @@ class MockUSBUtility extends IUSBUtility {
     // console.log("MockUSBUtility ejectUSBDriveSafely: ", usbState.isAvailable);
 
   }
-
 }
 
 module.exports = MockUSBUtility;

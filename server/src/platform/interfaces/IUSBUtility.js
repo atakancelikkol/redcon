@@ -1,10 +1,26 @@
 class IUSBUtility {
   /**
-   * open
-   * opens specified port
+   * extractUsbState
+   * extracts usb states
    */
-  open() {
-    throw new Error('open() not implemented');
+  extractUsbState() {
+    throw new Error('extractUsbState() not implemented');
+  }
+
+  /**
+   * syncUsbDevice
+   * syncs usb device
+   */
+  syncUsbDevice() {
+    throw new Error('syncUsbDevice() not implemented');
+  }
+
+  /**
+   * ejectUSBDriveSafely
+   * ejects usb drive
+   */
+  ejectUSBDriveSafely() {
+    throw new Error('ejectUSBDriveSafely() not implemented');
   }
 }
 
