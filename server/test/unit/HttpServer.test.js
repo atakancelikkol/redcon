@@ -6,12 +6,12 @@ describe("HttpServer ", () => {
   describe("Constructor ", () => {
     it("constructs in production mode", () => {
       process.argv[2] = 'production';
-      let httpServer = new HttpServer({});
+      let httpServer = new HttpServer({controllers: []});
       expect(httpServer.port).toBe(80);
+      process.argv = process.argv.slice(0, 2);
     });
 
     it("constructs and tests empty controller", () => {
-      process.argv = process.argv.slice(0, 2);
       let controllers = [];
       let httpServer = new HttpServer({ controllers });
       expect(httpServer.port).toBe(3000);
@@ -30,7 +30,7 @@ describe("HttpServer ", () => {
 
   describe("getApp ", () => {
     it("gets app", () => {
-      let httpServer = new HttpServer({});
+      let httpServer = new HttpServer({controllers: []});
       httpServer.app = "myTestApp";
       expect(httpServer.getApp()).toBe("myTestApp");
     });
@@ -38,7 +38,7 @@ describe("HttpServer ", () => {
 
   describe("onConnectionHandler ", () => {
     it("tests connection handling", () => {
-      let httpServer = new HttpServer({});
+      let httpServer = new HttpServer({controllers: []});
       let secondParameterMessageEvent;
       let secondParameterCloseEvent;
       let mockConnection = {
@@ -103,7 +103,7 @@ describe("HttpServer ", () => {
 
   describe("onCloseHandler", () => {
     it('handles on Close if index !== -1', () => {
-      let httpServer = new HttpServer({});
+      let httpServer = new HttpServer({controllers: []});
       const mockClient = {
         id: 'myConnectionClosingId',
         getId: () => { return mockClient.id; },
@@ -114,16 +114,14 @@ describe("HttpServer ", () => {
     });
 
     it('handles on Close if index === -1', () => {
-      let httpServer = new HttpServer({});
+      let httpServer = new HttpServer({controllers: []});
       let mockClient = {
         id: 'myConnectionClosingId',
         getId: () => { return mockClient.id; },
       }
-      let log = console.log;
-      console.log = jest.fn();
+      const getIdSpy = jest.spyOn(mockClient, 'getId');
       httpServer.onCloseHandler(mockClient);
-      expect(console.log).toHaveBeenCalledWith('Error on closing connection! id: ', mockClient.getId());
-      console.log = log;
+      expect(getIdSpy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -156,7 +154,7 @@ describe("HttpServer ", () => {
       const mockController = {
         isAuthRequired: () => { return true; }
       };
-      const httpServer = new HttpServer({});
+      const httpServer = new HttpServer({controllers: []});
       let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
       const mockClient = {
@@ -177,7 +175,7 @@ describe("HttpServer ", () => {
       const mockController = {
         isAuthRequired: () => { return true; }
       };
-      const httpServer = new HttpServer({});
+      const httpServer = new HttpServer({controllers: []});
       let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
       const mockClient = {
