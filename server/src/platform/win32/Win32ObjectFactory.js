@@ -1,5 +1,6 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('../mock/MockGPIOUtility');
+const Win32PlatformUtility = require('./Win32PlatformUtility');
 
 class Win32ObjectFactory extends IObjectFactory {
   getPlatformString() {
@@ -22,8 +23,7 @@ class Win32ObjectFactory extends IObjectFactory {
   }
 
   createPlatformUtility() {
-    // TODO: this should return the class when implemented
-    return {};
+    return new Win32PlatformUtility();
   }
 }
 
