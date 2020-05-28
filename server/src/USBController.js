@@ -1,5 +1,4 @@
 // Class for Controlling the USB Flash Storage
-const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
 const nodePath = require('path');
@@ -46,8 +45,8 @@ class USBController extends ControllerBase {
     });
 
     // open led gpio port to read
-    rpio.open(GPIOPins.KVM_LED_RPI, rpio.INPUT);
-    rpio.open(GPIOPins.KVM_LED_ECU, rpio.INPUT);
+    this.platformObjects.getGPIOUtility().openForInput(GPIOPins.KVM_LED_RPI);
+    this.platformObjects.getGPIOUtility().openForInput(GPIOPins.KVM_LED_ECU);
 
     this.detectUsbDevice();
 
@@ -56,9 +55,9 @@ class USBController extends ControllerBase {
 
   checkKVMLedState() {
     // read led states
-    const rpiLed = rpio.read(GPIOPins.KVM_LED_RPI);
-    const ecuLed = rpio.read(GPIOPins.KVM_LED_ECU);
-
+    const rpiLed = this.platformObjects.getGPIOUtility().read(GPIOPins.KVM_LED_RPI);
+    const ecuLed = this.platformObjects.getGPIOUtility().read(GPIOPins.KVM_LED_ECU);
+    
     if (this.usbState.kvmLedStateRPI === rpiLed && this.usbState.kvmLedStateECU === ecuLed) {
       // state is not changed
       return;
@@ -353,13 +352,14 @@ class USBController extends ControllerBase {
     const lastLedStateEcu = this.usbState.kvmLedStateECU;
     const lastLedStateRpi = this.usbState.kvmLedStateRPI;
     let tryCount = 0;
-    rpio.open(GPIOPins.KVM_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
 
+    this.platformObjects.getGPIOUtility().openForOutput(GPIOPins.KVM_TOGGLE_PIN, 0);
+    
     const detectLedChangeInTimeIntervals = () => {
       this.checkKVMLedState();
       tryCount += 1;
       if ((lastLedStateEcu !== this.usbState.kvmLedStateECU) && (lastLedStateRpi !== this.usbState.kvmLedStateRPI)) {
-        rpio.close(GPIOPins.KVM_TOGGLE_PIN);
+        this.platformObjects.getGPIOUtility().close(GPIOPins.KVM_TOGGLE_PIN);
         this.toggleTimeoutHandle = undefined;
       } else if (tryCount < MAX_TRY_COUNT_LED) {
         this.toggleTimeoutHandle = setTimeout(detectLedChangeInTimeIntervals, 5);
