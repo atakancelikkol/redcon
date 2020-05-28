@@ -1,4 +1,5 @@
 const HttpServer = require('../../src/HttpServer');
+const http = require('http');
 
 describe("HttpServer ", () => {
 
@@ -19,11 +20,11 @@ describe("HttpServer ", () => {
   });
 
   describe("init ", () => {
-    xit('should invoke express once', () => {
-      let httpServer = new HttpServer({});
+    it('should invoke express once', () => {
+      const createServerSpy = jest.spyOn(http, 'createServer');
+      let httpServer = new HttpServer({controllers: []});
       httpServer.init();
-      console.log(httpServer.getApp());
-      expect(httpServer.getApp()).toStrictEqual(tempApp);
+      expect(createServerSpy).toHaveBeenCalledWith(httpServer.getApp());
     });
   });
 
@@ -49,13 +50,14 @@ describe("HttpServer ", () => {
           }
         }
       };
-      mockConnection.on = jest.fn();
+      const onSpy = jest.spyOn(mockConnection, 'on');
       let mockReq = { connection: { remoteAddress: 'mockRemoteAdress' } };
-      let tempSendInitialMessage = httpServer.sendInitialMessage;
       httpServer.sendInitialMessage = jest.fn();
       httpServer.onConnectionHandler(mockConnection, mockReq);
-      expect(1).toBe(1);
-      httpServer.sendInitialMessage = tempSendInitialMessage;
+      expect(typeof secondParameterMessageEvent).toBe('function');
+      expect(typeof secondParameterCloseEvent).toBe('function');
+      expect(onSpy).toHaveBeenCalledTimes(2);
+      expect(httpServer.sendInitialMessage).toHaveBeenCalled();
     });
   });
 
