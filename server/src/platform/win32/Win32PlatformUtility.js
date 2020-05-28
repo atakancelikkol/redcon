@@ -3,7 +3,7 @@ const IPlatformUtility = require('../interfaces/IPlatformUtility');
 
 class Win32PlatformUtility extends IPlatformUtility {
   rebootSystem() {
-    execSync('shutdown /r');
+    execSync('shutdown /r /t 5');
   }
 }
 
