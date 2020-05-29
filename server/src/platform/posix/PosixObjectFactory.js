@@ -1,5 +1,9 @@
+const isRunningOnRpi = require('detect-rpi');
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('../mock/MockGPIOUtility');
+const PosixNetworkUtility = require('./PosixNetworkUtility');
+const RpiGPIOUtility = require('./RpiGPIOUtility');
+const PosixPlatformUtility = require('./PosixPlatformUtility');
 
 class PosixObjectFactory extends IObjectFactory {
   getPlatformString() {
@@ -7,14 +11,18 @@ class PosixObjectFactory extends IObjectFactory {
   }
 
   createGPIOUtility() {
-    // TODO: detect raspberry and if available, return RaspberryGPIOUtility class
-    // If not, return MockGPIOUtility
-    return new MockGPIOUtility();
+    let gpioUtility;
+    if (isRunningOnRpi()) {
+      gpioUtility = new RpiGPIOUtility();
+    } else {
+      gpioUtility = new MockGPIOUtility();
+    }
+
+    return gpioUtility;
   }
 
   createNetworkUtility() {
-    // TODO: this should return the class when implemented
-    return {};
+    return new PosixNetworkUtility();
   }
 
   createUSBUtility() {
@@ -23,8 +31,7 @@ class PosixObjectFactory extends IObjectFactory {
   }
 
   createPlatformUtility() {
-    // TODO: this should return the class when implemented
-    return {};
+    return new PosixPlatformUtility();
   }
 }
 

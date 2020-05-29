@@ -1,30 +1,36 @@
 const GPIOController = require('../../src/GPIOController');
-const rpio = require('rpio');
+const PlatformObjects = require('../../src/platform/PlatformObjects');
 
-jest.mock('rpio');
+const platformObjects = new PlatformObjects('mock');
 
 describe("GPIOController", () => {
   it("Constructing gpioState of gpioController Instance", () => {
     let gpioController = new GPIOController();
+    gpioController.registerPlatformObjects(platformObjects);
     expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 1 });
   });
 
   it("isAuthRequired should return true", () => {
     let gpioController = new GPIOController();
+    gpioController.registerPlatformObjects(platformObjects);
     expect(gpioController.isAuthRequired()).toBe(true);
   });
 
   it("init", () => {
     let gpioController = new GPIOController();
+    const gpioUtility = platformObjects.getGPIOUtility();
+    const openForOutputSpy = jest.spyOn(gpioUtility, 'openForOutput');
+    gpioController.registerPlatformObjects(platformObjects);
     gpioController.init();
-    expect(rpio.open).toHaveBeenCalledTimes(2);
+    expect(openForOutputSpy).toHaveBeenCalledTimes(2);
   });
 
   describe("getCopyState", () => {
     it("", () => {
       let gpioController = new GPIOController();
-      gpioController.gpioState[3] = rpio.LOW;
-      gpioController.gpioState[5] = rpio.HIGH;
+      gpioController.registerPlatformObjects(platformObjects);
+      gpioController.gpioState[3] = 0;
+      gpioController.gpioState[5] = 1;
       gpioController.startTime = new Date();
       gpioController.endTime = new Date()
       gpioController.history = [
@@ -53,8 +59,9 @@ describe("GPIOController", () => {
   describe("appendData", () => {
     it("Pin(3):HIGH Pin(5):HIGH, startTime&endTime = new Date(), history = bunch of object list", () => {
       let gpioController = new GPIOController();
-      gpioController.gpioState[3] = rpio.HIGH;
-      gpioController.gpioState[5] = rpio.LOW;
+      gpioController.registerPlatformObjects(platformObjects);
+      gpioController.gpioState[3] = 1;
+      gpioController.gpioState[5] = 0;
       gpioController.startTime = new Date();
       gpioController.endTime = new Date()
       gpioController.history = [
@@ -83,6 +90,7 @@ describe("GPIOController", () => {
   describe("handleMessage", () => {
     it("Parameters passing to handleMessage = {gpio: {port: '3',state: false}}", () => {
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
       gpioController.handleMessage({ gpio: { port: '3', state: false } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 0, '5': 1 });
@@ -90,6 +98,7 @@ describe("GPIOController", () => {
 
     it("Parameters passing to handleMessage = {gpio: {port: '5',state: false}}", () => {
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
       gpioController.handleMessage({ gpio: { port: '5', state: false } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 0 });
@@ -97,6 +106,7 @@ describe("GPIOController", () => {
 
     it("Parameters passing to handleMessage = {gpio: {port: '3',state: true}}", () => {
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
       gpioController.handleMessage({ gpio: { port: '3', state: true } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 1 });
@@ -104,6 +114,7 @@ describe("GPIOController", () => {
 
     it("Parameters passing to handleMessage = {gpio: {port: '5',state: true}}", () => {
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
       gpioController.handleMessage({ gpio: { port: '5', state: true } });
       expect(gpioController.gpioState).toStrictEqual({ '3': 1, '5': 1 });
@@ -111,51 +122,55 @@ describe("GPIOController", () => {
   });
 
   describe("setGPIOPort", () => {
-    it("Parameters passing to setGPIOPort = ('3', rpio.HIGH)", () => {
+    it("Parameters passing to setGPIOPort = ('3', 1)", () => {
       let handler, obj;
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
         handler = h;
         obj = o;
       });
       gpioController.init();
-      gpioController.setGPIOPort('3', rpio.HIGH);
+      gpioController.setGPIOPort('3', 1);
       expect(obj.gpio.state).toStrictEqual({ '3': 1, '5': 1 });
     });
 
-    it("Parameters passing to setGPIOPort = ('5', rpio.HIGH)", () => {
+    it("Parameters passing to setGPIOPort = ('5', 1)", () => {
       let handler, obj;
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
         handler = h;
         obj = o;
       });
       gpioController.init();
-      gpioController.setGPIOPort('5', rpio.HIGH);
+      gpioController.setGPIOPort('5', 1);
       expect(obj.gpio.state).toStrictEqual({ '3': 1, '5': 1 });
     });
 
-    it("Parameters passing to setGPIOPort = ('3', rpio.LOW)", () => {
+    it("Parameters passing to setGPIOPort = ('3', 0)", () => {
       let handler, obj;
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
         handler = h;
         obj = o;
       });
       gpioController.init(); 
-      gpioController.setGPIOPort('3', rpio.LOW);
+      gpioController.setGPIOPort('3', 0);
       expect(obj.gpio.state).toStrictEqual({ '3': 0, '5': 1 });
     });
 
-    it("Parameters passing to setGPIOPort = ('5', rpio.LOW)", () => {
+    it("Parameters passing to setGPIOPort = ('5', 0)", () => {
       let handler, obj;
       let gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
         handler = h;
         obj = o;
       });
       gpioController.init(); 
-      gpioController.setGPIOPort('5', rpio.LOW);
+      gpioController.setGPIOPort('5', 0);
       expect(obj.gpio.state).toStrictEqual({ '3': 1, '5': 0 });
     });
   });
