@@ -1,6 +1,6 @@
 const SerialPortController = require('../../src/SerialPortController');
 const SerialPort = require('serialport');
-//jest.mock('serialport');
+jest.mock('serialport');
 //const SerialPortStream = require('@serialport/stream');
 //const MockBinding = require('@serialport/binding-mock');
 
@@ -41,6 +41,8 @@ describe("SerialPortController", () => {
 
   test("startVirtualDevice", () => {
     let serialPortController = new SerialPortController();
+    const mockPort = { emit: jest.fn() };
+    serialPortController.portInstances["COM7"] = mockPort;
     // fail
     serialPortController.virtualDeviceInterval = true;
     serialPortController.startVirtualDevice("COM7");
@@ -49,26 +51,35 @@ describe("SerialPortController", () => {
     serialPortController.virtualDeviceInterval = false;
     serialPortController.startVirtualDevice("COM7");
     expect(setInterval).toHaveBeenCalled();
-    // setInterval!!
+    jest.advanceTimersByTime(700);
+    expect(mockPort.emit).toHaveBeenCalled();
   });
 
   test("stopVirtualDevice", () => {
-
+    let serialPortController = new SerialPortController();
+    // fail
+    serialPortController.virtualDeviceInterval = false;
+    serialPortController.stopVirtualDevice();
+    expect(clearInterval).not.toHaveBeenCalled();
+    // success
+    serialPortController.virtualDeviceInterval = true;
+    serialPortController.stopVirtualDevice();
+    expect(clearInterval).toHaveBeenCalled();
+    expect(serialPortController.virtualDeviceInterval).toBeUndefined();
   });
 
   test("getCopyState", () => {
     let serialPortController = new SerialPortController();
-    serialPortController.ports = [
-      {
-        path: 'COM7',
-      },
-      { path: 'COM1' }
-    ];
+    serialPortController.ports = {};
+    serialPortController.ports[0] = { path: 'COM7' };
+    serialPortController.ports[1] = { path: 'COM1' };
     serialPortController.portStatusObj = {
       "COM7": {isOpen: false},
       "COM1": {isOpen: false}
     };
-    serialPortController.serialFiles = ["testFile1", "testFile2"];
+    serialPortController.serialFiles = {};
+    serialPortController.serialFiles[0] = "testFile1";
+    serialPortController.serialFiles[1] = "testFile2";
     //
     expect(serialPortController.getCopyState()).toEqual({
       ports: serialPortController.ports,
@@ -145,8 +156,20 @@ describe("SerialPortController", () => {
     });
   });
 
-  test("listPorts", () => {
-//async
+  test("listPorts", async () => {
+    let serialPortController = new SerialPortController();
+    //
+    mockReadOutputFiles = jest.fn();
+    serialPortController.readOutputFiles = mockReadOutputFiles;
+    //
+    let mockPorts = {};
+    mockPorts[0] = { path: 'COM7' };
+    spySerialPortList = jest.spyOn(SerialPort, 'list').mockImplementation(() => mockPorts);
+    //
+    // this.portStatusObj[item.path] === undefined
+    serialPortController.portStatusObj = {};
+    await serialPortController.listPorts();
+    expect(serialPortController.portStatusObj.COM7).toEqual({ isOpen: false })
   });
 
   test("writeSerialPort", () => {
@@ -199,22 +222,26 @@ describe("SerialPortController", () => {
   });
 
   test("openWriteStream", () => {
-
+    let serialPortController = new SerialPortController();
+    const mockWriteStream = {};
+    const spyCreateWriteStream = jest.spyOn(fs, 'createWriteStream').mockImplementation(() => mockWriteStream);
+    //
+    serialPortController.openWriteStream('testPath');
+    expect(spyCreateWriteStream).toHaveBeenCalled();
+    expect(serialPortController.writerInstances).toEqual({'testPath': mockWriteStream});
   });
 
   test("openSerialPort", () => {
     let serialPortController = new SerialPortController();
-    //const mockPort = new SerialPort("devicePath");
-    const mockPortOn = jest.fn();
-    //mockPort.on = mockPortOn;
-// fail on if (typeof devicePath !== 'string')
-    //serialPortController.openSerialPort(5, 115200);
-// fail on if (typeof baudRate !== 'number')
-// success on if (this.portInstances[devicePath])
-    const mockOnPortOpened = jest.fn();
-    //serialPortController.onPortOpened.bind = mockOnPortOpened;
-    //serialPortController.openSerialPort('COM7', 115200);
-    //expect(mockPortOn).toHaveBeenCalledWith('open', mockOnPortOpened);
+    //
+    const spyConsoleLog = jest.spyOn(console, 'log');
+    //
+    const mockStartVirtualDevice = jest.fn();
+    serialPortController.startVirtualDevice = mockStartVirtualDevice;
+    //
+    serialPortController.openSerialPort('COM7', 115200);
+    expect(spyConsoleLog).not.toHaveBeenCalled();
+    expect(mockStartVirtualDevice).not.toHaveBeenCalled();
   });
 
   test("onPortOpened", () => {
@@ -237,24 +264,46 @@ describe("SerialPortController", () => {
 
   test("onPortDataReceived", () => {
     let serialPortController = new SerialPortController();
-
+    serialPortController.registerSendMessageCallback((h, o) => {
+      handler = h;
+      obj = o;
+    });
+    const port = {path: "COM7"};
+    const mockWriter = { write: jest.fn() };
+    // fail
+    serialPortController.writerInstances["COM1"] = mockWriter;
+    serialPortController.onPortDataReceived(port, "testData");
+    expect(mockWriter.write).not.toHaveBeenCalled();
+    // success
+    serialPortController.writerInstances["COM7"] = mockWriter;
+    serialPortController.onPortDataReceived(port, "testData");
+    expect(mockWriter.write).toHaveBeenCalled();
   });
 
   test("onPortClosed", () => {
     let serialPortController = new SerialPortController();
-    let mockPort = { path: "COM7" };
     serialPortController.portStatusObj = { "COM7": { isOpen: true } };
     //
     const mockUpdatePortStatus = jest.fn();
     serialPortController.updatePortStatus = mockUpdatePortStatus;
     //
+    const port = {path: "COM7"};
+    const mockWriter = { close: jest.fn() };
+    //
     const mockStopVirtualDevice = jest.fn();
     serialPortController.stopVirtualDevice = mockStopVirtualDevice;
-    //
-    serialPortController.onPortClosed(mockPort);
+    // fail: if (writer !== undefined)
+    serialPortController.writerInstances["COM1"] = mockWriter;
+    serialPortController.onPortClosed(port);
     expect(serialPortController.portStatusObj.COM7.isOpen).toBeFalsy();
-    expect(mockUpdatePortStatus).toHaveBeenCalled();
-    //writerInstances
+    expect(mockWriter.close).not.toHaveBeenCalled();
+    // success: if (writer !== undefined)
+    serialPortController.writerInstances["COM7"] = mockWriter;
+    serialPortController.onPortClosed(port);
+    expect(serialPortController.portStatusObj.COM7.isOpen).toBeFalsy();
+    expect(mockWriter.close).toHaveBeenCalled();
+    //
+    expect(mockUpdatePortStatus).toHaveBeenCalledTimes(2);
     expect(mockStopVirtualDevice).not.toHaveBeenCalled();
   });
 });
