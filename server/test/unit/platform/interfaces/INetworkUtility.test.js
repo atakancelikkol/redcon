@@ -4,7 +4,7 @@ describe("INetworkUtility interface test", () => {
   it("should throw error when calling methods directly", () => {
     const iNetworkUtility = new INetworkUtility();
     expect(()=>{
-      iNetworkUtility.run();
+      iNetworkUtility.applyPortConfiguration();
     }).toThrow(Error);
   });
 });

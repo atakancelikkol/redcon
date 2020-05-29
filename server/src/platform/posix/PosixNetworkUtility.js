@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const INetworkUtility = require('../interfaces/INetworkUtility');
 
 class PosixNetworkUtility extends INetworkUtility {
-  run() {
+  applyPortConfiguration() {
     return new Promise((resolve) => {
       const platformPortConfig = {
         shellOutput: '',

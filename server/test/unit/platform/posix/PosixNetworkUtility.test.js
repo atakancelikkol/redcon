@@ -12,7 +12,7 @@ jest.mock('child_process', () => ({
 describe("PosixNetworkUtility test", () => {
   it("exec should called once", done => {
     const posixNetworkUtility = new PosixNetworkUtility();
-    posixNetworkUtility.run().then((platformPortConfig)=>{
+    posixNetworkUtility.applyPortConfiguration().then((platformPortConfig)=>{
       expect(platformPortConfig).toStrictEqual({shellError: 'testStdError', shellOutput: 'testStdOut'});
       done();
     });

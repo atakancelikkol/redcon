@@ -1,10 +1,10 @@
 class INetworkUtility {
   /**
-   * run
+   * applyPortConfiguration
    * runs port forwarding script
    */
-  run() {
-    throw new Error('run() not implemented');
+  applyPortConfiguration() {
+    throw new Error('applyPortConfiguration() not implemented');
   }
 }
 

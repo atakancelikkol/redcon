@@ -83,7 +83,7 @@ class PortConfigController extends ControllerBase {
   }
 
   async applyConfigFile() {
-    const platformPortConfig = await this.platformObjects.getNetworkUtility().run();
+    const platformPortConfig = await this.platformObjects.getNetworkUtility().applyPortConfiguration();
     if (platformPortConfig) {
       this.shellOutput = platformPortConfig.shellOutput;
       this.shellError = platformPortConfig.shellError;
