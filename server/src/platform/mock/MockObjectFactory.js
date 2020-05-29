@@ -1,5 +1,6 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('./MockGPIOUtility');
+const MockUSBUtility = require('./MockUSBUtility');
 const MockNetworkUtility = require('./MockNetworkUtility');
 const MockPlatformUtility = require('./MockPlatformUtility');
 
@@ -18,7 +19,7 @@ class MockObjectFactory extends IObjectFactory {
 
   createUSBUtility() {
     // TODO: replace with mock object
-    return {};
+    return new MockUSBUtility();
   }
 
   createPlatformUtility() {

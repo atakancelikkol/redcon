@@ -1,8 +1,6 @@
 // Class for Controlling the USB Flash Storage
-const rpio = require('rpio');
 const cloneDeep = require('clone-deep');
 const drivelist = require('drivelist');
-const { exec } = require('child_process');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
@@ -47,8 +45,8 @@ class USBController extends ControllerBase {
     });
 
     // open led gpio port to read
-    rpio.open(GPIOPins.KVM_LED_RPI, rpio.INPUT);
-    rpio.open(GPIOPins.KVM_LED_ECU, rpio.INPUT);
+    this.platformObjects.getGPIOUtility().openForInput(GPIOPins.KVM_LED_RPI);
+    this.platformObjects.getGPIOUtility().openForInput(GPIOPins.KVM_LED_ECU);
 
     this.detectUsbDevice();
 
@@ -57,8 +55,8 @@ class USBController extends ControllerBase {
 
   checkKVMLedState() {
     // read led states
-    const rpiLed = rpio.read(GPIOPins.KVM_LED_RPI);
-    const ecuLed = rpio.read(GPIOPins.KVM_LED_ECU);
+    const rpiLed = this.platformObjects.getGPIOUtility().read(GPIOPins.KVM_LED_RPI);
+    const ecuLed = this.platformObjects.getGPIOUtility().read(GPIOPins.KVM_LED_ECU);
 
     if (this.usbState.kvmLedStateRPI === rpiLed && this.usbState.kvmLedStateECU === ecuLed) {
       // state is not changed
@@ -120,6 +118,7 @@ class USBController extends ControllerBase {
     detectUsbInsertionInTimeIntervals();
   }
 
+  // platform
   async detectUsbDevice() {
     // To get list of connected Drives
     this.usbState.usbErrorString = '';
@@ -129,14 +128,13 @@ class USBController extends ControllerBase {
       if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
         const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         const { device } = driveList[index];
-        if (process.platform === 'win32') {
-          await this.extractUsbStateWin32(mountPath); // eslint-disable-line
-          isDriveFound = true;
-        } else if (process.platform === 'linux') {
-          this.extractUsbStateLinux(mountPath, device);
-          isDriveFound = true;
-        }
-        break;
+        const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device); // eslint-disable-line
+        this.usbState.usbErrorStrin = platformUsbState.usbErrorStrin;
+        this.usbState.device = platformUsbState.device;
+        this.usbState.usbName = platformUsbState.usbName;
+        this.usbState.mountedPath = platformUsbState.mountedPath;
+        this.usbState.isAvailable = platformUsbState.isAvailable;
+        isDriveFound = true;
       }
     }
 
@@ -150,42 +148,6 @@ class USBController extends ControllerBase {
     this.sendCurrentState();
   }
 
-  extractUsbStateWin32(mountPath) {
-    return new Promise((resolve, reject) => {
-      /* Output= D: for windows */
-      mountPath = mountPath.slice(0, -1); // eslint-disable-line
-      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout/* , stderr */) => {
-        if (err) { // Handle error
-          this.usbState.usbErrorString = `${err.message}Cant extractUsbStateWin32`;
-          reject();
-        }
-        const usbName = stdout;
-        if (!usbName) {
-          reject();
-        }
-
-        const splittedUsbName = usbName.toString().split('\n');
-        if (splittedUsbName.length < 2) {
-          reject();
-        }
-
-        this.usbState.device = '';
-        this.usbState.usbName = splittedUsbName[1].trim();
-        this.usbState.mountedPath = mountPath;
-        this.usbState.isAvailable = true;
-        resolve();
-      });
-    });
-  }
-
-  extractUsbStateLinux(mountPath, device) {
-    const USBName = nodePath.basename(mountPath);
-    this.usbState.device = device; // For safe eject, device = '/dev/sda' ...
-    this.usbState.mountedPath = mountPath;
-    this.usbState.usbName = USBName;
-    this.usbState.isAvailable = true;
-  }
-
   listUsbDeviceItems(path) {
     if (this.usbState.mountedPath === '') {
       // send empty item list
@@ -195,8 +157,11 @@ class USBController extends ControllerBase {
       return;
     }
 
+
     const dir = nodePath.join(this.usbState.mountedPath, path);
+
     const parentDir = nodePath.join(path, '..');
+
     fs.readdir(dir, { withFileTypes: true }, (err, items) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant listUsbDeviceItems`;
@@ -303,6 +268,7 @@ class USBController extends ControllerBase {
 
   createUsbDeviceFolder(path, folderName) {
     const dir = nodePath.join(this.usbState.mountedPath, path, folderName);
+
     this.usbState.usbErrorString = '';
     fs.mkdir(dir, { recursive: true }, (err) => {
       if (err) { // Handle error
@@ -311,7 +277,7 @@ class USBController extends ControllerBase {
         console.log(err);
         return;
       }
-      this.syncUsbDevice();
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
     });
   }
@@ -340,7 +306,7 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
         console.log('could not remove file! ', dir, err);
       }
-      this.syncUsbDevice();
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
     });
   }
@@ -352,34 +318,8 @@ class USBController extends ControllerBase {
         this.listUsbDeviceItems(path);
         console.log('could not remove folder! ', dir, err);
       }
-      await this.syncUsbDevice();
+      await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
-    });
-  }
-
-  syncUsbDevice() {
-    return new Promise((resolve, reject) => {
-      if (!this.usbState.isAvailable) {
-        resolve();
-      } else if (process.platform === 'win32') {
-        exec(`.\\bin\\win32\\sync -r ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant syncUsbDeviceWin32`;
-            reject();
-          }
-          console.log('synchronized usb drive');
-          resolve();
-        });
-      } else if (process.platform === 'linux') {
-        exec(`sync ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant syncUsbDeviceLinux`;
-            reject();
-          }
-          console.log('synchronized usb drive');
-          resolve();
-        });
-      }
     });
   }
 
@@ -388,34 +328,8 @@ class USBController extends ControllerBase {
       return;
     }
 
-    this.ejectUSBDriveSafely().then(() => {
+    this.platformObjects.getUSBUtility().ejectUSBDriveSafely(this.usbState).then(() => {
       this.pinToggleSequence();
-    });
-  }
-
-  ejectUSBDriveSafely() {
-    return new Promise((resolve, reject) => {
-      if (!this.usbState.isAvailable) {
-        resolve();
-      } else if (process.platform === 'win32') {
-        exec(`sync -e ${this.usbState.mountedPath}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`;
-            reject();
-          }
-          console.log('ejected usb drive from windows');
-          resolve();
-        });
-      } else if (process.platform === 'linux') {
-        exec(`sudo eject ${this.usbState.device}`, (err/* , stdout, stderr */) => {
-          if (err) { // Handle error
-            this.usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
-            reject();
-          }
-          console.log('ejected usb drive');
-          resolve();
-        });
-      }
     });
   }
 
@@ -438,13 +352,14 @@ class USBController extends ControllerBase {
     const lastLedStateEcu = this.usbState.kvmLedStateECU;
     const lastLedStateRpi = this.usbState.kvmLedStateRPI;
     let tryCount = 0;
-    rpio.open(GPIOPins.KVM_TOGGLE_PIN, rpio.OUTPUT, rpio.LOW);
+
+    this.platformObjects.getGPIOUtility().openForOutput(GPIOPins.KVM_TOGGLE_PIN, 0);
 
     const detectLedChangeInTimeIntervals = () => {
       this.checkKVMLedState();
       tryCount += 1;
       if ((lastLedStateEcu !== this.usbState.kvmLedStateECU) && (lastLedStateRpi !== this.usbState.kvmLedStateRPI)) {
-        rpio.close(GPIOPins.KVM_TOGGLE_PIN);
+        this.platformObjects.getGPIOUtility().close(GPIOPins.KVM_TOGGLE_PIN);
         this.toggleTimeoutHandle = undefined;
       } else if (tryCount < MAX_TRY_COUNT_LED) {
         this.toggleTimeoutHandle = setTimeout(detectLedChangeInTimeIntervals, 5);
@@ -483,7 +398,7 @@ class USBController extends ControllerBase {
             res.status(500).send(er.toString());
             return;
           }
-          this.syncUsbDevice();
+          this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
           this.listUsbDeviceItems(fields.currentDirectory);
 
           currentFileCounter += 1;
