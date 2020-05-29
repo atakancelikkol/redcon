@@ -1,5 +1,6 @@
 const IObjectFactory = require('../interfaces/IObjectFactory');
 const MockGPIOUtility = require('./MockGPIOUtility');
+const MockPlatformUtility = require('./MockPlatformUtility');
 
 class MockObjectFactory extends IObjectFactory {
   getPlatformString() {
@@ -21,8 +22,7 @@ class MockObjectFactory extends IObjectFactory {
   }
 
   createPlatformUtility() {
-    // TODO: replace with mock object
-    return {};
+    return new MockPlatformUtility();
   }
 }
 

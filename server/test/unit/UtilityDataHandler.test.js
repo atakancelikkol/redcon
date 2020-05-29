@@ -1,38 +1,36 @@
 const UtilityDataHandler = require('../../src/UtilityDataHandler');
-const { execSync } = require('child_process');
-
-jest.mock('child_process');
+const PlatformObjects = require('../../src/platform/PlatformObjects');
+const platformObjects = new PlatformObjects('mock');
 
 describe('UtilityDataHandler', () => {
   test('isAuthRequired should return true', () => {
-    let utilityDataHandlerInstance = new UtilityDataHandler({});
+    let utilityDataHandlerInstance = new UtilityDataHandler();
+    utilityDataHandlerInstance.registerPlatformObjects(platformObjects);
     expect(utilityDataHandlerInstance.isAuthRequired()).toBe(true);
   });
 
-  test('init does nothing but printing out console.log', () => {
-  });
-
-  test('appendData does nothing', () => {
-
-  });
-
-  test('handleMessage should call executeRebootCommandif action is reboot', () => {
-    let utilityDataHandlerInstance = new UtilityDataHandler({
-      sendMessageCallback: (h, o) => {
-        handler = h;
-        obj = o;
-      }
-    });
-    let mockExecuteRebootC = jest.fn();
-    utilityDataHandlerInstance.executeRebootCommand = mockExecuteRebootC;
+  test('handleMessage should call executeRebootCommand if action is reboot', () => {
+    let utilityDataHandlerInstance = new UtilityDataHandler();
+    utilityDataHandlerInstance.registerPlatformObjects(platformObjects);
+    let mockExecuteRebootCommand = jest.fn();
+    utilityDataHandlerInstance.executeRebootCommand = mockExecuteRebootCommand;
     utilityDataHandlerInstance.handleMessage({ utility: { action: "reboot" } });
-    expect(mockExecuteRebootC).toHaveBeenCalled();
+    expect(mockExecuteRebootCommand).toHaveBeenCalled();
   });
 
-  test('executeRebootCommand is going to be tested later', () => {
-  });
+  test('executeRebootCommand should call platform reboot', () => {
+    let utilityDataHandlerInstance = new UtilityDataHandler();
+    utilityDataHandlerInstance.registerPlatformObjects(platformObjects);
+    const platformUtility = platformObjects.getPlatformUtility();
+    const rebootSystemSpy = jest.spyOn(platformUtility, 'rebootSystem');
 
-  test('onExit does nothing', () => {
+    utilityDataHandlerInstance.handleMessage({ utility: { action: "invalid command" } });
+    expect(rebootSystemSpy).not.toHaveBeenCalled();
 
+    utilityDataHandlerInstance.handleMessage({ invalid_module: { action: "invalid command" } });
+    expect(rebootSystemSpy).not.toHaveBeenCalled();
+
+    utilityDataHandlerInstance.handleMessage({ utility: { action: "reboot" } });
+    expect(rebootSystemSpy).toHaveBeenCalled();
   });
 });
