@@ -13,15 +13,18 @@ class USBUtility {
           };
 
           reject(platformUsbState);
+          return;
         }
         const usbName = stdout;
         if (!usbName) {
           reject();
+          return;
         }
 
         const splittedUsbName = usbName.toString().split('\n');
         if (splittedUsbName.length < 2) {
           reject();
+          return;
         }
 
 
@@ -42,11 +45,13 @@ class USBUtility {
     return new Promise((resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
+        return;
       }
       exec(`.\\.\\.\\bin\\win32\\sync -r ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant syncUsbDeviceWin32`;
           reject(usbErrorString);
+          return;
         }
         console.log('synchronized usb drive');
         resolve();
@@ -58,11 +63,13 @@ class USBUtility {
     return new Promise((resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
+        return;
       }
       exec(`.\\.\\.\\bin\\win32\\sync -e ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`;
           reject(usbErrorString);
+          return;
         }
         console.log('ejected usb drive from windows');
         resolve();

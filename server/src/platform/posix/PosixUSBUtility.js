@@ -19,11 +19,13 @@ class USBUtility {
     return new Promise((resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
+        return;
       }
       exec(`sync ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant syncUsbDeviceLinux`;
           reject(usbErrorString);
+          return;
         }
         console.log('synchronized usb drive');
         resolve();
@@ -35,11 +37,13 @@ class USBUtility {
     return new Promise((resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
+        return;
       }
       exec(`sudo eject ${usbState.device}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
           reject(usbErrorString);
+          return;
         }
         console.log('ejected usb drive');
         resolve();

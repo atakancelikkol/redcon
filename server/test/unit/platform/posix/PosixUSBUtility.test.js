@@ -1,16 +1,20 @@
 const PosixUSBUtility = require('../../../../src/platform/posix/PosixUSBUtility');
-const { exec } = require('child_process');
 
+let mockexecErrorParameter = true
+let mockexecStdOutParameter = 'a1\n a2\n a3'
 let execCommandString = '';
+
 jest.mock('child_process', () => ({
   exec: jest.fn((commandString, callback) => {
     execCommandString = commandString;
-    callback('error', 'testStdOut', 'testStdError');
+    const error = mockexecErrorParameter
+    const testStdOut = mockexecStdOutParameter
+    callback(error, testStdOut, 'testStdError');
   })
 }));
 
-
 describe("PosixUSBUtility test", () => {
+
   it("test methods for extractUsbState", () => {
     const posixUSBtility = new PosixUSBUtility();
     const mountPath = 'testPath'
@@ -20,42 +24,93 @@ describe("PosixUSBUtility test", () => {
 
   it("test methods for syncUsbDevice", () => {
     const posixUSBtility = new PosixUSBUtility();
+    mockexecErrorParameter = undefined
+    let usbState = {
+      isAvailable: false,
+      mountedPath: '',
+    }
+    posixUSBtility.syncUsbDevice(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
+  });
+
+  it("test methods for syncUsbDevice", () => {
+    const posixUSBtility = new PosixUSBUtility();
+    mockexecErrorParameter = undefined
     let usbState = {
       isAvailable: true,
       mountedPath: '',
     }
-
-    posixUSBtility.syncUsbDevice(usbState)
-    expect(exec).toHaveBeenCalled();
-
+    posixUSBtility.syncUsbDevice(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
   });
 
-  it("test methods for promise syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", () => {
     const posixUSBtility = new PosixUSBUtility();
+    mockexecErrorParameter = true
     let usbState = {
-      isAvailable: false,
+      isAvailable: true,
       mountedPath: '',
     }
-    return expect(posixUSBtility.syncUsbDevice(usbState)).resolves.toBe(undefined);
-  });
+    posixUSBtility.syncUsbDevice(usbState).then(() => {
+        throw new Error();
+      }, () => {
 
-  it("test methods for promise ejectUSBDriveSafely", () => {
-    const posixUSBtility = new PosixUSBUtility();
-    let usbState = {
-      isAvailable: false,
-      mountedPath: '',
-    }
-    return expect(posixUSBtility.ejectUSBDriveSafely(usbState)).resolves.toBe(undefined);
+        done()
+      }
+    );
   });
 
   it("test methods for ejectUSBDriveSafely", () => {
     const posixUSBtility = new PosixUSBUtility();
+    mockexecErrorParameter = undefined
+    let usbState = {
+      isAvailable: false,
+      mountedPath: '',
+    }
+    posixUSBtility.ejectUSBDriveSafely(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+    }
+    );
+  });
+
+  it("test methods for ejectUSBDriveSafely", () => {
+    const posixUSBtility = new PosixUSBUtility();
+    mockexecErrorParameter = undefined
     let usbState = {
       isAvailable: true,
       mountedPath: '',
     }
-    posixUSBtility.ejectUSBDriveSafely(usbState)
-    expect(exec).toHaveBeenCalled();
+    posixUSBtility.ejectUSBDriveSafely(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
+  });
+
+  it("test methods for ejectUSBDriveSafely", () => {
+    const posixUSBtility = new PosixUSBUtility();
+    mockexecErrorParameter = true
+    let usbState = {
+      isAvailable: true,
+      mountedPath: '',
+    }
+    posixUSBtility.ejectUSBDriveSafely(usbState).then(() => {
+        throw new Error();
+      }, () => {
+        done()
+      }
+    );
   });
 
 })

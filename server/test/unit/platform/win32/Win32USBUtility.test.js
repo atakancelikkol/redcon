@@ -1,12 +1,14 @@
 const Win32USBUtility = require('../../../../src/platform/win32/Win32USBUtility');
-const { exec } = require('child_process');
 
+let mockexecErrorParameter = true
+let mockexecStdOutParameter = 'a1\n a2\n a3'
 let execCommandString = '';
+
 jest.mock('child_process', () => ({
   exec: jest.fn((commandString, callback) => {
     execCommandString = commandString;
-    const error = true
-    const testStdOut = 'a1\n a2\n a3'
+    const error = mockexecErrorParameter
+    const testStdOut = mockexecStdOutParameter
     callback(error, testStdOut, 'testStdError');
   })
 }));
@@ -14,69 +16,167 @@ jest.mock('child_process', () => ({
 describe("Win32USBUtility test", () => {
 
   it('test methods for extractUsbState', done => {
-
+    mockexecErrorParameter = undefined
+    mockexecStdOutParameter = 'a1\n a2\n a3'
     const win32USBtility = new Win32USBUtility();
     const mountPath = 'testPath'
     const device = 'testDevice'
     win32USBtility.extractUsbState(mountPath).then((platformUsbState) => {
-      expect(platformUsbState).toStrictEqual({ "device": "", "isAvailable": true, "mountedPath": "testPat", "usbErrorString": "", "usbName": "a2" });
-      done();
-    },
-      () => {
+        expect(platformUsbState).toStrictEqual({ "device": "", "isAvailable": true, "mountedPath": "testPat", "usbErrorString": "", "usbName": "a2" });
         done();
+      }, () => {
+        throw new Error();
+      }
+    );
+  });
+
+  it('test methods for extractUsbState', done => {
+    mockexecErrorParameter = true
+    mockexecStdOutParameter = 'a1\n a2\n a3'
+    const win32USBtility = new Win32USBUtility();
+    const mountPath = 'testPath'
+    const device = 'testDevice'
+    win32USBtility.extractUsbState(mountPath).then(() => {
+        throw new Error();
+      }, () => {
+        done();
+      }
+    );
+  });
+
+  it('test methods for extractUsbState', done => {
+    mockexecErrorParameter = undefined
+    mockexecStdOutParameter = undefined
+    const win32USBtility = new Win32USBUtility();
+    const mountPath = 'testPath'
+    const device = 'testDevice'
+    win32USBtility.extractUsbState(mountPath).then(() => {
+        throw new Error();
+      }, () => {
+        done();
+      }
+    );
+  });
+
+  it('test methods for extractUsbState', done => {
+    mockexecErrorParameter = undefined
+    mockexecStdOutParameter = 'invalid'
+    const win32USBtility = new Win32USBUtility();
+    const mountPath = 'testPath'
+    const device = 'testDevice'
+    win32USBtility.extractUsbState(mountPath).then(() => {
+        throw new Error();
+      }, () => {
+        done()
+      }
+    );
+  });
+
+
+  it("test methods for ejectUSBDriveSafely", () => {
+    const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = undefined
+    let usbState = {
+      isAvailable: false,
+      mountedPath: '',
+    }
+    win32USBtility.ejectUSBDriveSafely(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
       }
     );
   });
 
   it("test methods for ejectUSBDriveSafely", () => {
     const win32USBtility = new Win32USBUtility();
-    let execCommandString = '';
-    jest.mock('child_process', () => ({
-      exec: jest.fn((commandString, callback) => {
-        execCommandString = commandString;
-        const error = { message: 'testerror' }
-
-        callback(error);
-      })
-    }));
-    let usbState = {
-      isAvailable: false,
-      mountedPath: '',
-    }
-    win32USBtility.ejectUSBDriveSafely(usbState).then((usbErrorString) => {
-      expect(usbErrorString).toStrictEqual();
-      done();
-    }
-    );
-
-  });
-
-  it("test methods for promise syncUsbDevice", () => {
-    const win32USBtility = new Win32USBUtility();
-    let usbState = {
-      isAvailable: false,
-      mountedPath: '',
-    }
-    return expect(win32USBtility.syncUsbDevice(usbState)).resolves.toBe(undefined);
-  });
-
-  it("test methods for ejectUSBDriveSafely", () => {
-    const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = undefined
     let usbState = {
       isAvailable: true,
       mountedPath: '',
     }
-    win32USBtility.ejectUSBDriveSafely(usbState)
-    expect(exec).toHaveBeenCalled();
+    win32USBtility.ejectUSBDriveSafely(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
   });
 
-  it("test methods for promise ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", () => {
     const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = true
+    let usbState = {
+      isAvailable: true,
+      mountedPath: '',
+    }
+    win32USBtility.ejectUSBDriveSafely(usbState).then(() => {
+        throw new Error();
+      }, () => {
+        done()
+      }
+    );
+
+  });
+
+  it("test methods for ejectUSBDriveSafely", () => {
+    const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = true
     let usbState = {
       isAvailable: false,
       mountedPath: '',
     }
-    return expect(win32USBtility.ejectUSBDriveSafely(usbState)).resolves.toBe(undefined);
+    win32USBtility.ejectUSBDriveSafely(usbState).then(() => {
+        throw new Error();
+      }, () => {
+        done()
+      }
+    );
+  });
+
+  it("test methods for syncUsbDevice", () => {
+    const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = undefined
+    let usbState = {
+      isAvailable: false,
+      mountedPath: '',
+    }
+    win32USBtility.syncUsbDevice(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
+  });
+
+  it("test methods for syncUsbDevice", () => {
+    const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = undefined
+    let usbState = {
+      isAvailable: true,
+      mountedPath: '',
+    }
+    win32USBtility.syncUsbDevice(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
+  });
+
+  it("test methods for syncUsbDevice", () => {
+    const win32USBtility = new Win32USBUtility();
+    mockexecErrorParameter = true
+    let usbState = {
+      isAvailable: true,
+      mountedPath: '',
+    }
+    win32USBtility.syncUsbDevice(usbState).then(() => {
+        done()
+      }, () => {
+        throw new Error();
+      }
+    );
   });
 
 })
