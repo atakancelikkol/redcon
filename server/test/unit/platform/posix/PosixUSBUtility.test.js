@@ -22,7 +22,7 @@ describe("PosixUSBUtility test", () => {
     expect(posixUSBtility.extractUsbState(mountPath, device)).toMatchObject({ "device": "testDevice", "isAvailable": true, "mountedPath": "testPath", "usbName": "testPath" });
   });
 
-  it("test methods for syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", done => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -37,7 +37,7 @@ describe("PosixUSBUtility test", () => {
     );
   });
 
-  it("test methods for syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", done => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -52,7 +52,7 @@ describe("PosixUSBUtility test", () => {
     );
   });
 
-  it("test methods for syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", done => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = true
     let usbState = {
@@ -68,7 +68,7 @@ describe("PosixUSBUtility test", () => {
     );
   });
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -83,7 +83,7 @@ describe("PosixUSBUtility test", () => {
     );
   });
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -98,7 +98,7 @@ describe("PosixUSBUtility test", () => {
     );
   });
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = true
     let usbState = {

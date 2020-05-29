@@ -73,7 +73,7 @@ describe("Win32USBUtility test", () => {
   });
 
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -88,7 +88,7 @@ describe("Win32USBUtility test", () => {
     );
   });
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -103,7 +103,7 @@ describe("Win32USBUtility test", () => {
     );
   });
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true
     let usbState = {
@@ -119,7 +119,7 @@ describe("Win32USBUtility test", () => {
 
   });
 
-  it("test methods for ejectUSBDriveSafely", () => {
+  it("test methods for ejectUSBDriveSafely", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true
     let usbState = {
@@ -127,14 +127,14 @@ describe("Win32USBUtility test", () => {
       mountedPath: '',
     }
     win32USBtility.ejectUSBDriveSafely(usbState).then(() => {
-        throw new Error();
+        done()  
       }, () => {
-        done()
+        throw new Error();
       }
     );
   });
 
-  it("test methods for syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -149,7 +149,7 @@ describe("Win32USBUtility test", () => {
     );
   });
 
-  it("test methods for syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined
     let usbState = {
@@ -164,7 +164,7 @@ describe("Win32USBUtility test", () => {
     );
   });
 
-  it("test methods for syncUsbDevice", () => {
+  it("test methods for syncUsbDevice", done => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true
     let usbState = {
@@ -172,9 +172,9 @@ describe("Win32USBUtility test", () => {
       mountedPath: '',
     }
     win32USBtility.syncUsbDevice(usbState).then(() => {
-        done()
-      }, () => {
         throw new Error();
+      }, () => {
+        done()
       }
     );
   });
