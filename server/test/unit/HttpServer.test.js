@@ -1,6 +1,9 @@
 const HttpServer = require('../../src/HttpServer');
 const http = require('http');
 
+const httpServerInstance = new HttpServer({controllers: []});
+afterAll(() => {httpServerInstance.httpServer.close();});
+
 describe("HttpServer ", () => {
 
   describe("Constructor ", () => {
@@ -22,10 +25,8 @@ describe("HttpServer ", () => {
   describe("init ", () => {
     it('should invoke express once', () => {
       const createServerSpy = jest.spyOn(http, 'createServer');
-      let httpServerInstance = new HttpServer({controllers: []});
       httpServerInstance.init();
       expect(createServerSpy).toHaveBeenCalledWith(httpServerInstance.getApp());
-      httpServerInstance.httpServer.close();
     });
   });
 
