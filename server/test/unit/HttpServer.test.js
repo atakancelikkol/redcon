@@ -22,9 +22,10 @@ describe("HttpServer ", () => {
   describe("init ", () => {
     it('should invoke express once', () => {
       const createServerSpy = jest.spyOn(http, 'createServer');
-      let httpServer = new HttpServer({controllers: []});
-      httpServer.init();
-      expect(createServerSpy).toHaveBeenCalledWith(httpServer.getApp());
+      let httpServerInstance = new HttpServer({controllers: []});
+      httpServerInstance.init();
+      expect(createServerSpy).toHaveBeenCalledWith(httpServerInstance.getApp());
+      httpServerInstance.httpServer.close();
     });
   });
 
