@@ -1,6 +1,6 @@
 const IUSBUtility = require('../../../../src/platform/interfaces/IUSBUtility');
 
-describe("IGPIOUtility interface test", () => {
+describe("IUSBUtility interface test", () => {
 
   it("should throw error when calling methods directly", () => {
     const iUSBUtility = new IUSBUtility();
