@@ -1,7 +1,14 @@
 const PosixUSBUtility = require('../../../../src/platform/posix/PosixUSBUtility');
 const { exec } = require('child_process');
 
-jest.mock("child_process")
+let execCommandString = '';
+jest.mock('child_process', () => ({
+  exec: jest.fn((commandString, callback) => {
+    execCommandString = commandString;
+    callback('error', 'testStdOut', 'testStdError');
+  })
+}));
+
 
 describe("PosixUSBUtility test", () => {
   it("test methods for extractUsbState", () => {
