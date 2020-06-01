@@ -1,4 +1,3 @@
-const { execSync } = require('child_process');
 const ControllerBase = require('./ControllerBase');
 
 class UtilityDataHandler extends ControllerBase {
@@ -16,12 +15,8 @@ class UtilityDataHandler extends ControllerBase {
   }
 
   executeRebootCommand() {
-    if (process.platform === 'win32') {
-      console.log('do not execute reboot command on win32');
-      return;
-    }
-
-    execSync('reboot');
+    const platformUtility = this.platformObjects.getPlatformUtility();
+    platformUtility.rebootSystem();
   }
 }
 
