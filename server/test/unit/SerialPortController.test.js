@@ -37,6 +37,7 @@ describe('SerialPortController', () => {
     //
     serialPortController.readOutputFiles();
     //
+    expect(spyReadDirSync).toHaveBeenCalled();
     expect(serialPortController.serialFiles).toEqual(mockFiles);
     expect(mockUpdatePortStatus).toHaveBeenCalled();
   });
