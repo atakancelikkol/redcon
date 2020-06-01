@@ -1,13 +1,14 @@
-const SerialPortController = require('../../src/SerialPortController');
+const fs = require('fs');
 const SerialPort = require('serialport');
+const SerialPortController = require('../../src/SerialPortController');
 
+jest.genMockFromModule('serialport');
 jest.mock('serialport');
 // const SerialPortStream = require('@serialport/stream');
 // const MockBinding = require('@serialport/binding-mock');
 
 // const virtualDeviceMode = false;
 // const mockDevicePath = '/dev/ROBOT';
-const fs = require('fs');
 // jest.mock('fs');
 // const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('../../src/util/KeyMapping');
@@ -113,7 +114,7 @@ describe('SerialPortController', () => {
     expect(mockSendMessageCallback).toHaveBeenCalled();
   });
 
-  describe('handleMessage for existing obj.serial', () => {
+  describe('handleMessage', () => {
     test('handleMessage openDevice', () => {
       const obj = { serial: { action: 'openDevice', path: '', baudRate: '' } };
       const serialPortController = new SerialPortController();
@@ -163,14 +164,26 @@ describe('SerialPortController', () => {
     mockReadOutputFiles = jest.fn();
     serialPortController.readOutputFiles = mockReadOutputFiles;
     //
-    const mockPorts = {};
+    const mockUpdatePortStatus = jest.fn();
+    serialPortController.updatePortStatus = mockUpdatePortStatus;
+    //
+    const mockPorts = [];
     mockPorts[0] = { path: 'COM7' };
     spySerialPortList = jest.spyOn(SerialPort, 'list').mockImplementation(() => mockPorts);
     //
-    // this.portStatusObj[item.path] === undefined
-    serialPortController.portStatusObj = {};
+    serialPortController.portStatusObj = { COM1: { isOpen: false } };
+    // if (devicePort === undefined)
     await serialPortController.listPorts();
+    expect(serialPortController.portStatusObj.COM1).toBeUndefined();
+    // this.portStatusObj[item.path] === undefined
     expect(serialPortController.portStatusObj.COM7).toEqual({ isOpen: false });
+    //
+    serialPortController.portStatusObj = { COM7: { isOpen: false } };
+    // if (devicePort !== undefined) &&
+    // this.portStatusObj[item.path] !== undefined
+    await serialPortController.listPorts();
+    expect(serialPortController.portStatusObj).toMatchObject({ COM7: { isOpen: false } });
+    expect(mockUpdatePortStatus).toHaveBeenCalledTimes(2);
   });
 
   test('writeSerialPort', () => {
@@ -240,8 +253,28 @@ describe('SerialPortController', () => {
     const mockStartVirtualDevice = jest.fn();
     serialPortController.startVirtualDevice = mockStartVirtualDevice;
     //
+    const mockSerialPortObj = {
+      on: jest.fn(),
+      pipe: jest.fn(),
+    };
+    SerialPort.mockImplementation(() => mockSerialPortObj);
+    //
+    const mockReadline = {
+      on: jest.fn(),
+    };
+    SerialPort.parsers.Readline.mockImplementation(() => mockReadline);
+    // fail
+    serialPortController.openSerialPort(115200, 115200);
+    expect(spyConsoleLog).toHaveBeenCalled();
+    spyConsoleLog.mockClear();
+    // success
     serialPortController.openSerialPort('COM7', 115200);
     expect(spyConsoleLog).not.toHaveBeenCalled();
+    expect(mockSerialPortObj.on).toHaveBeenCalledWith('open', expect.anything());
+    expect(mockSerialPortObj.on).toHaveBeenCalledWith('close', expect.anything());
+    expect(mockSerialPortObj.on).toHaveBeenCalledWith('error', expect.anything());
+    expect(mockSerialPortObj.pipe).toHaveBeenCalled();
+    expect(mockReadline.on).toHaveBeenCalledWith('data', expect.anything());
     expect(mockStartVirtualDevice).not.toHaveBeenCalled();
   });
 
