@@ -103,7 +103,6 @@ describe('SerialPortController', () => {
   test('updatePortStatus', () => {
     const serialPortController = new SerialPortController();
     //
-    const mockObj = {};
     const mockAppendData = jest.fn();
     const mockSendMessageCallback = jest.fn();
     serialPortController.appendData = mockAppendData;
