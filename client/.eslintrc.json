@@ -2,8 +2,7 @@
     "env": {
         "browser": true,
         "es6": true,
-        "node": true,
-        "browser": true
+        "node": true
     },
     "extends": [
         "airbnb-base",
