@@ -124,6 +124,7 @@ describe('SerialPortController', () => {
       serialPortController.handleMessage(obj);
       expect(mockOpenSerialPort).toHaveBeenCalled();
     });
+
     test('handleMessage listDevices', () => {
       const obj = { serial: { action: 'listDevices', path: '', baudRate: '' } };
       const serialPortController = new SerialPortController();
@@ -132,6 +133,7 @@ describe('SerialPortController', () => {
       serialPortController.handleMessage(obj);
       expect(mockListPorts).toHaveBeenCalled();
     });
+
     test('handleMessage closeDevice', () => {
       const obj = { serial: { action: 'closeDevice', path: '', baudRate: '' } };
       const serialPortController = new SerialPortController();
@@ -140,6 +142,7 @@ describe('SerialPortController', () => {
       serialPortController.handleMessage(obj);
       expect(mockCloseSerialPort).toHaveBeenCalled();
     });
+
     test('handleMessage writeDevice', () => {
       const obj = { serial: { action: 'writeDevice', path: '', baudRate: '' } };
       const serialPortController = new SerialPortController();
@@ -148,6 +151,7 @@ describe('SerialPortController', () => {
       serialPortController.handleMessage(obj);
       expect(mockWriteSerialPort).toHaveBeenCalled();
     });
+
     test('handleMessage writeKeyDevice', () => {
       const obj = { serial: { action: 'writeKeyDevice', path: '', baudRate: '' } };
       const serialPortController = new SerialPortController();

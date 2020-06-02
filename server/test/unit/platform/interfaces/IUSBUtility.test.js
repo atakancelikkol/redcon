@@ -1,19 +1,16 @@
 const IUSBUtility = require('../../../../src/platform/interfaces/IUSBUtility');
 
-describe("IUSBUtility interface test", () => {
-
-  it("should throw error when calling methods directly", () => {
+describe('IUSBUtility interface test', () => {
+  it('should throw error when calling methods directly', () => {
     const iUSBUtility = new IUSBUtility();
-    expect(()=>{
+    expect(() => {
       iUSBUtility.extractUsbState();
     }).toThrow(Error);
-    expect(()=>{
+    expect(() => {
       iUSBUtility.syncUsbDevice();
     }).toThrow(Error);
-    expect(()=>{
+    expect(() => {
       iUSBUtility.ejectUSBDriveSafely();
     }).toThrow(Error);
-
   });
-
 });
