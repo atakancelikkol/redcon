@@ -21,7 +21,7 @@ describe('PosixUSBUtility test', () => {
     expect(posixUSBtility.extractUsbState(mountPath, device)).toMatchObject({ device: 'testDevice', isAvailable: true, mountedPath: 'testPath', usbName: 'testPath', });
   });
 
-  it('test methods for syncUsbDevice', done => {
+  it('test methods for syncUsbDevice', () => new Promise((done) => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -33,7 +33,7 @@ describe('PosixUSBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
   it('test methods for syncUsbDevice', () => new Promise((done) => {
     const posixUSBtility = new PosixUSBUtility();
@@ -49,7 +49,7 @@ describe('PosixUSBUtility test', () => {
     });
   }));
 
-  it('test methods for syncUsbDevice', done => {
+  it('test methods for syncUsbDevice', () => new Promise((done) => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -61,9 +61,9 @@ describe('PosixUSBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -75,9 +75,9 @@ describe('PosixUSBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -89,9 +89,9 @@ describe('PosixUSBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const posixUSBtility = new PosixUSBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -103,5 +103,5 @@ describe('PosixUSBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 });

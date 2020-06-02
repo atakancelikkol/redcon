@@ -14,7 +14,7 @@ jest.mock('child_process', () => ({
 }));
 
 describe('Win32USBUtility test', () => {
-  it('test methods for extractUsbState', done => {
+  it('test methods for extractUsbState', () => new Promise((done) => {
     mockexecErrorParameter = undefined;
     mockexecStdOutParameter = 'a1\n a2\n a3';
     const win32USBtility = new Win32USBUtility();
@@ -28,9 +28,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
-  it('test methods for extractUsbState', done => {
+  it('test methods for extractUsbState', () => new Promise((done) => {
     mockexecErrorParameter = true;
     mockexecStdOutParameter = 'a1\n a2\n a3';
     const win32USBtility = new Win32USBUtility();
@@ -41,9 +41,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 
-  it('test methods for extractUsbState', done => {
+  it('test methods for extractUsbState', () => new Promise((done) => {
     mockexecErrorParameter = undefined;
     mockexecStdOutParameter = undefined;
     const win32USBtility = new Win32USBUtility();
@@ -54,9 +54,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 
-  it('test methods for extractUsbState', done => {
+  it('test methods for extractUsbState', () => new Promise((done) => {
     mockexecErrorParameter = undefined;
     mockexecStdOutParameter = 'invalid';
     const win32USBtility = new Win32USBUtility();
@@ -67,10 +67,10 @@ describe('Win32USBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -82,9 +82,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -96,9 +96,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -110,9 +110,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 
-  it('test methods for ejectUSBDriveSafely', done => {
+  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -124,9 +124,9 @@ describe('Win32USBUtility test', () => {
     }, () => {
       throw new Error();
     });
-  });
+  }));
 
-  it('test methods for syncUsbDevice', () => done => {
+  it('test methods for syncUsbDevice', () => (done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -140,7 +140,7 @@ describe('Win32USBUtility test', () => {
     });
   });
 
-  it('test methods for syncUsbDevice', () => done => {
+  it('test methods for syncUsbDevice', () => (done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -154,7 +154,7 @@ describe('Win32USBUtility test', () => {
     });
   });
 
-  it('test methods for syncUsbDevice', done => {
+  it('test methods for syncUsbDevice', () => new Promise((done) => {
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -166,5 +166,5 @@ describe('Win32USBUtility test', () => {
     }, () => {
       done();
     });
-  });
+  }));
 });
