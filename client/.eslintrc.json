@@ -1,0 +1,44 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true,
+        "browser": true
+    },
+    "extends": [
+        "airbnb-base",
+        "eslint:recommended",
+        "plugin:vue/recommended"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "vue"
+    ],
+    "rules": {
+
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "quotes": [
+        "error",
+        "single"
+    ],
+    "no-console": "off",
+    "max-len": "off",
+    "class-methods-use-this": "off", // non-fixable
+    "global-require": "warn", // non-fixable
+    "no-param-reassign": "off", // non-fixable
+    "no-restricted-globals": "warn", // non-fixable
+    "no-undef": "warn", // non-fixable
+    "no-unused-vars": "warn", // non-fixable
+    "no-use-before-define": "warn" // non-fixable
+    }
+}
