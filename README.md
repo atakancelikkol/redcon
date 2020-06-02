@@ -1,6 +1,6 @@
 # REDCON (remote ecu device contoller)
 
-REDCON is a utility that makes it easier to connect and debug ECU boards. This project is designed to run on a raspberry pi device. This device is used for isolating ECU board from the network and controlling it remotely. A typical setup is shown in the diagram given below.
+REDCON is a utility that makes it easier to connect and debug ECU boards. This project is designed to run on all operating systems. Raspberry pi is selected target device. This device is used for isolating ECU board from the network and controlling it remotely. A typical setup is shown in the diagram given below.
 
 ## REDCON Overview 
 ![alt text](docs/diagrams/redcon-overview.png "Overview" )
@@ -10,17 +10,17 @@ Configurable packet forwarding is used for directly accessing ECU boards. This i
 
 | Device Name | IP Address
 |-------------|-----------
-|Raspberry PI | 10.0.3.15
-|ECU1         | 192.168.0.1
-|ECU2         | 192.168.0.2
+|Raspberry PI | 10.x.x.x
+|ECU1         | 192.168.x.x
+|ECU2         | 192.168.x.x
 
 
 | IP       | PORT  | DESTINATION
 |----------|-------|------------------
-| 10.0.3.15| 3000  | 192.168.0.1:8000
-| 10.0.3.15| 3001  | 192.168.0.1:23
-| 10.0.3.15| 4000  | 192.168.0.2:8000
-| 10.0.3.15| 4001  | 192.168.0.2:23
+| 10.x.x.x | 3000  | 192.168.x.x:8000
+| 10.x.x.x | 3001  | 192.168.x.x:23
+| 10.x.x.x | 4000  | 192.168.x.x:8000
+| 10.x.x.x | 4001  | 192.168.x.x:23
 
 ## Power Switch
 Power switch is controlled by Raspberry PI's GPIO ports. This functionality is exposed by a web interface. Users can switch on/off ECU boards.
