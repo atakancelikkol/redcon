@@ -2,7 +2,7 @@
 
 **[Title of the task]**
 
-*[Description of the merge request or issue linke]*
+*[Description of the merge request or issue link]*
 
 **Before Submitting the Merge Request**
 * Make sure there is no work to be done for the task.
