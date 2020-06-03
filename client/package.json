@@ -5,10 +5,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint --no-fix",
-    "fix": "vue-cli-service lint --fix",
+    "lint": "vue-cli-service lint --no-fix && npx eslint test/.",
+    "fix": "vue-cli-service lint --fix && npx eslint --fix test/.",
     "test": "jest",
-    "prepush": "vue-cli-service lint --no-fix && jest --coverage",
+    "prepush": "vue-cli-service lint --no-fix && npx eslint test/. && jest --coverage",
     "coverage": "jest --coverage"
   },
   "dependencies": {
@@ -17,6 +17,8 @@
     "bootstrap-vue": "^2.9.0",
     "clone-deep": "^4.0.1",
     "core-js": "^3.6.4",
+    "eslint-plugin-jest": "^23.13.2",
+    "eslint-plugin-jest-formatting": "^1.2.0",
     "javascript-time-ago": "^2.0.7",
     "reconnecting-websocket": "^4.4.0",
     "sinon": "^9.0.2",

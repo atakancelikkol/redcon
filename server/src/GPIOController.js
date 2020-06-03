@@ -64,7 +64,9 @@ class GPIOController extends ControllerBase {
       this.endTime = new Date();
     }
 
-    this.history.unshift({ port: gpioPort, state, date: new Date() });
+    this.history.unshift({
+      port: gpioPort, state, date: new Date(),
+    });
     this.history = this.history.slice(0, 10);
 
     const obj = {};
