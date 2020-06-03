@@ -12,7 +12,7 @@ jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
 }) }));
 
 describe('PosixUSBUtility test', () => {
-  it('test methods for extractUsbState', () => {
+  it('test method for extractUsbState', () => {
     const posixUSBtility = new PosixUSBUtility();
     const mountPath = 'testPath';
     const device = 'testDevice';

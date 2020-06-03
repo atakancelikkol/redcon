@@ -1,7 +1,7 @@
 const RpiGPIOUtility = require('../../../../src/platform/posix/RpiGPIOUtility');
 
 describe('RpiGPIOUtility test', () => {
-  it('test methods for output mode', () => {
+  it('test method for output mode', () => {
     const rpiGPIOUtility = new RpiGPIOUtility();
     const portToOpenForOutput = 3;
     expect(rpiGPIOUtility.openForOutput(portToOpenForOutput, 0)).toEqual(undefined);
@@ -9,7 +9,7 @@ describe('RpiGPIOUtility test', () => {
     expect(rpiGPIOUtility.close(portToOpenForOutput)).toEqual(undefined);
   });
 
-  it('test methods for input mode', () => {
+  it('test method for input mode', () => {
     const rpiGPIOUtility = new RpiGPIOUtility();
     const portToOpenForInput = 5;
     expect(rpiGPIOUtility.openForInput(portToOpenForInput, 0)).toEqual(undefined);
