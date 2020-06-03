@@ -1,6 +1,4 @@
-let actions;
-// mapActions
-actions = {
+const actions = {
   // SerialConsole
   openSerialDevice: jest.fn(),
   closeSerialDevice: jest.fn(),

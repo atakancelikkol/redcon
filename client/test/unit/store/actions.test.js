@@ -99,12 +99,12 @@ describe('store actions', () => {
   });
 
   it('logout should call proper function', () => {
-    const test_user = {
+    const testUser = {
       username: 'test_name',
       password: 'test_password',
     };
     const mockCommit = jest.fn().mockName('mockCommit');
-    actions.logoutUser({ commit: mockCommit }, { user: test_user });
+    actions.logoutUser({ commit: mockCommit }, { user: testUser });
     expect(storageHelper.removeItem).toHaveBeenCalledWith('token');
     expect(webSocketConnector.sendLogoutUserMessage).toHaveBeenCalled();
   });

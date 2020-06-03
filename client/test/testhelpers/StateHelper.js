@@ -1,5 +1,4 @@
-let state;
-state = {
+const state = {
   // mapState
   receivedData: {
     authHistory: {

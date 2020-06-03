@@ -1,11 +1,11 @@
 import {
-  shallowMount, createLocalVue, mount, createWrapper,
+  createLocalVue, mount,
 } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
 import componentWithVuex from '../../../src/components/SerialConsole.vue';
-import actions from '../../testhelpers/ActionsHelper.js';
-import state from '../../testhelpers/StateHelper.js';
+import actions from '../../testhelpers/ActionsHelper';
+import state from '../../testhelpers/StateHelper';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

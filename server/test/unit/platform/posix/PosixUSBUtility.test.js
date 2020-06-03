@@ -1,12 +1,12 @@
 const PosixUSBUtility = require('../../../../src/platform/posix/PosixUSBUtility');
 
-let mockexecErrorParameter = true;
+let mockExecErrorParameter = true;
 const mockexecStdOutParameter = 'a1\n a2\n a3';
 let execCommandString = ''; // eslint-disable-line
 
 jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
   execCommandString = commandString;
-  const error = mockexecErrorParameter;
+  const error = mockExecErrorParameter;
   const testStdOut = mockexecStdOutParameter;
   callback(error, testStdOut, 'testStdError');
 }) }));
@@ -23,7 +23,7 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 1 for syncUsbDevice', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
-    mockexecErrorParameter = undefined;
+    mockExecErrorParameter = undefined;
     const usbState = {
       isAvailable: false,
       mountedPath: '',
@@ -37,7 +37,7 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 2 for syncUsbDevice', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
-    mockexecErrorParameter = undefined;
+    mockExecErrorParameter = undefined;
     const usbState = {
       isAvailable: true,
       mountedPath: '',
@@ -51,7 +51,7 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 3 for syncUsbDevice', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
-    mockexecErrorParameter = true;
+    mockExecErrorParameter = true;
     const usbState = {
       isAvailable: true,
       mountedPath: '',
@@ -65,7 +65,7 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 1 for ejectUSBDriveSafely', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
-    mockexecErrorParameter = undefined;
+    mockExecErrorParameter = undefined;
     const usbState = {
       isAvailable: false,
       mountedPath: '',
@@ -79,7 +79,7 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 2 for ejectUSBDriveSafely', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
-    mockexecErrorParameter = undefined;
+    mockExecErrorParameter = undefined;
     const usbState = {
       isAvailable: true,
       mountedPath: '',
@@ -93,7 +93,7 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 3 for ejectUSBDriveSafely', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
-    mockexecErrorParameter = true;
+    mockExecErrorParameter = true;
     const usbState = {
       isAvailable: true,
       mountedPath: '',
