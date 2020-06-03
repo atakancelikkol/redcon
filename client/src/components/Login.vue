@@ -97,7 +97,7 @@ export default {
       history.forEach((item) => {
         const itemDate = new Date(item.date);
         const itemActivityDate = new Date(item.activityDate);
-        item.date = `${itemDate.toLocaleString()} (${timeAgo.format(itemDate)})`;
+        item.date = `${itemDate.toLocaleString()} ( ${timeAgo.format(itemDate)} )`;
         item.activityDate = `${itemActivityDate.toLocaleString()} ( ${timeAgo.format(itemActivityDate)} )`;
       });
       return history;
