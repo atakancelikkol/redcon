@@ -1,15 +1,15 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
 const mutations = {
   APPEND_PARTIAL_DATA(state, data) {
     state.receivedData = { ...state.receivedData, ...data };
   },
   APPEND_SERIAL_DATA(state, serialData) {
-    if (state.serialData[serialData.path] == undefined) {
-      Vue.set(state.serialData, serialData.path, "");
+    if (state.serialData[serialData.path] === undefined) {
+      Vue.set(state.serialData, serialData.path, '');
     }
 
-    let currentData = state.serialData[serialData.path];
+    const currentData = state.serialData[serialData.path];
     let newData = currentData + serialData.data;
     const maxSize = 20000;
     if (newData.length > maxSize) {
@@ -28,6 +28,6 @@ const mutations = {
     state.authStatus = authData.authStatus;
     state.token = authData.token;
   },
-}
+};
 
 export default mutations;
