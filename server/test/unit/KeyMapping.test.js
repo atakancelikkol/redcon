@@ -2,13 +2,8 @@ const KeyMapping = require('../../src/util/KeyMapping');
 
 describe('KeyMapping', () => {
   it('ConvertKey of KeyMapping', () => {
-    // const dataToSend = KeyMapping.ConvertKey(keyCode, charCode, ctrlKey, shiftKey);
-    expect(1).toStrictEqual(1);
-  });
-
-  it('ConvertKey of KeyMapping', () => {
     let k = 1;
-    for (i = 65, j = 97; i <= 90, j <= 122; i++, j++) {
+    for (let i = 65, j = 97; (i <= 90 && j <= 122); i++, j++) { // eslint-disable-line
       const dataToSend = KeyMapping.ConvertKey(i, j, true);
       expect(k).toStrictEqual(dataToSend);
       k += 1;

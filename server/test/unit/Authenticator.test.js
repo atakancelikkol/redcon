@@ -83,7 +83,7 @@ describe('Authenticator', () => {
         getUserObject: () => client.userObject,
         setAuthentication: () => { client.authenticated = true; },
         getIp: () => client.ip,
-        setUserObject: (userInf) => { client.userObject = userInf; },
+        setUserObject: (userInfoPar) => { client.userObject = userInfoPar; },
         send: () => {},
       };
       const obj = { auth: { action: 'loginUser', username: 'user', password: 'pass' } };

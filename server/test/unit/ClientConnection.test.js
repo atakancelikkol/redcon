@@ -78,14 +78,14 @@ describe('ClientConnection', () => {
 
   describe('setUserObject', () => {
     it("Parameter passing to setUserObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }", () => {
-      userInf = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' };
+      const userInf = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' };
       const clientConnection = new ClientConnection({});
       clientConnection.setUserObject(userInf);
       expect(clientConnection.userObject).toStrictEqual(userInf);
     });
 
     it('Parameter passing to setUserObject = null', () => {
-      userInf = null;
+      const userInf = null;
       const clientConnection = new ClientConnection({});
       clientConnection.setUserObject(userInf);
       expect(clientConnection.userObject).toStrictEqual(userInf);

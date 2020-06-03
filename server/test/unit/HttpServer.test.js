@@ -132,13 +132,13 @@ describe('HttpServer ', () => {
       const testObject = { testMember: 'test' };
       const controllers = [];
       const mockController = {
-        appendData: (obj) => { obj.testMember = 'test'; },
+        appendData: (obj) => { obj.testMember = 'test'; }, // eslint-disable-line
       };
       controllers.push(mockController);
       const httpServer = new HttpServer({ controllers });
       let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      mockClient = {
+      const mockClient = {
         connection: mockConnection,
       };
       httpServer.sendInitialMessage(mockClient);

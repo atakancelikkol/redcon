@@ -24,7 +24,7 @@ describe('PlatformObjects test', () => {
 
   it('should throw an exception when creating for an invalid platform', () => {
     expect(() => {
-      const platformObjects = new PlatformObjects('invalid-platform');
+      const platformObjects = new PlatformObjects('invalid-platform'); // eslint-disable-line
     }).toThrow(new Error('Can not create object factory for the platform! invalid-platform'));
   });
 });

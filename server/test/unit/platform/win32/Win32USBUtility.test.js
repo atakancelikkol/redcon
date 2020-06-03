@@ -2,7 +2,7 @@ const Win32USBUtility = require('../../../../src/platform/win32/Win32USBUtility'
 
 let mockexecErrorParameter = true;
 let mockexecStdOutParameter = 'a1\n a2\n a3';
-let execCommandString = '';
+let execCommandString = ''; // eslint-disable-line
 
 jest.mock('child_process', () => ({
   exec: jest.fn((commandString, callback) => {
@@ -14,12 +14,11 @@ jest.mock('child_process', () => ({
 }));
 
 describe('Win32USBUtility test', () => {
-  it('test methods for extractUsbState', () => new Promise((done) => {
+  it('test methods for extractUsbState success case', () => new Promise((done) => {
     mockexecErrorParameter = undefined;
     mockexecStdOutParameter = 'a1\n a2\n a3';
     const win32USBtility = new Win32USBUtility();
     const mountPath = 'testPath';
-    const device = 'testDevice';
     win32USBtility.extractUsbState(mountPath).then((platformUsbState) => {
       expect(platformUsbState).toStrictEqual({
         device: '', isAvailable: true, mountedPath: 'testPat', usbErrorString: '', usbName: 'a2',
@@ -30,12 +29,11 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for extractUsbState', () => new Promise((done) => {
+  it('test methods for extractUsbState error case', () => new Promise((done) => { // eslint-disable-line
     mockexecErrorParameter = true;
     mockexecStdOutParameter = 'a1\n a2\n a3';
     const win32USBtility = new Win32USBUtility();
     const mountPath = 'testPath';
-    const device = 'testDevice';
     win32USBtility.extractUsbState(mountPath).then(() => {
       throw new Error();
     }, () => {
@@ -43,12 +41,11 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for extractUsbState', () => new Promise((done) => {
+  it('test methods for extractUsbState undefined USB name case', () => new Promise((done) => { // eslint-disable-line
     mockexecErrorParameter = undefined;
     mockexecStdOutParameter = undefined;
     const win32USBtility = new Win32USBUtility();
     const mountPath = 'testPath';
-    const device = 'testDevice';
     win32USBtility.extractUsbState(mountPath).then(() => {
       throw new Error();
     }, () => {
@@ -56,12 +53,11 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for extractUsbState', () => new Promise((done) => {
+  it('test methods for extractUsbState invalid USB name case', () => new Promise((done) => { // eslint-disable-line
     mockexecErrorParameter = undefined;
     mockexecStdOutParameter = 'invalid';
     const win32USBtility = new Win32USBUtility();
     const mountPath = 'testPath';
-    const device = 'testDevice';
     win32USBtility.extractUsbState(mountPath).then(() => {
       throw new Error();
     }, () => {
@@ -70,7 +66,7 @@ describe('Win32USBUtility test', () => {
   }));
 
 
-  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
+  it('test methods for ejectUSBDriveSafely USB is not available', () => new Promise((done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -84,7 +80,7 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
+  it('test methods for ejectUSBDriveSafely USB is available', () => new Promise((done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -98,7 +94,7 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
+  it('test methods for ejectUSBDriveSafely exec error USB is available case', () => new Promise((done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -112,7 +108,7 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for ejectUSBDriveSafely', () => new Promise((done) => {
+  it('test methods for ejectUSBDriveSafely exec error and USB is not available case', () => new Promise((done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true;
     const usbState = {
@@ -126,7 +122,7 @@ describe('Win32USBUtility test', () => {
     });
   }));
 
-  it('test methods for syncUsbDevice', () => (done) => {
+  it('test methods for syncUsbDevice USB is not available case', () => (done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -140,7 +136,7 @@ describe('Win32USBUtility test', () => {
     });
   });
 
-  it('test methods for syncUsbDevice', () => (done) => {
+  it('test methods for syncUsbDevice USB is available case', () => (done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = undefined;
     const usbState = {
@@ -154,7 +150,7 @@ describe('Win32USBUtility test', () => {
     });
   });
 
-  it('test methods for syncUsbDevice', () => new Promise((done) => {
+  it('test methods for syncUsbDevice exec error USB is available case', () => new Promise((done) => { // eslint-disable-line
     const win32USBtility = new Win32USBUtility();
     mockexecErrorParameter = true;
     const usbState = {

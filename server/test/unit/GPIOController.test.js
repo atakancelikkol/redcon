@@ -123,12 +123,10 @@ describe('GPIOController', () => {
 
   describe('setGPIOPort', () => {
     it("Parameters passing to setGPIOPort = ('3', 1)", () => {
-      let handler;
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
-        handler = h;
         obj = o;
       });
       gpioController.init();
@@ -137,12 +135,10 @@ describe('GPIOController', () => {
     });
 
     it("Parameters passing to setGPIOPort = ('5', 1)", () => {
-      let handler;
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
-        handler = h;
         obj = o;
       });
       gpioController.init();
@@ -151,12 +147,10 @@ describe('GPIOController', () => {
     });
 
     it("Parameters passing to setGPIOPort = ('3', 0)", () => {
-      let handler;
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
-        handler = h;
         obj = o;
       });
       gpioController.init();
@@ -165,12 +159,10 @@ describe('GPIOController', () => {
     });
 
     it("Parameters passing to setGPIOPort = ('5', 0)", () => {
-      let handler;
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.registerSendMessageCallback((h, o) => {
-        handler = h;
         obj = o;
       });
       gpioController.init();

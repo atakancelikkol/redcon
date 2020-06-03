@@ -6,22 +6,22 @@ describe('PlatformFactory test', () => {
     expect(win32Factory.getPlatformString()).toEqual('win32');
   });
 
-  it('should create posix factory', () => {
+  it('should create posix factory (darwin)', () => {
     const posixFactory = PlatformFactory.createFactory('darwin');
     expect(posixFactory.getPlatformString()).toEqual('posix');
   });
 
-  it('should create posix factory', () => {
+  it('should create posix factory (freebsd)', () => {
     const posixFactory = PlatformFactory.createFactory('freebsd');
     expect(posixFactory.getPlatformString()).toEqual('posix');
   });
 
-  it('should create posix factory', () => {
+  it('should create posix factory (linux)', () => {
     const posixFactory = PlatformFactory.createFactory('linux');
     expect(posixFactory.getPlatformString()).toEqual('posix');
   });
 
-  it('should create posix factory', () => {
+  it('should create posix factory (openbsd)', () => {
     const posixFactory = PlatformFactory.createFactory('openbsd');
     expect(posixFactory.getPlatformString()).toEqual('posix');
   });
