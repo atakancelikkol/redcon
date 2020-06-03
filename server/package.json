@@ -7,9 +7,9 @@
     "serve": "node src/main.js",
     "test": "npx jest",
     "coverage": "jest --coverage",
-    "lint": "npx eslint src/. && npx eslint test/unit/.",
+    "lint": "npx eslint src/. && npx eslint test/.",
     "fix": "npx eslint --fix src/. && npx eslint --fix test/unit/.",
-    "prepush": "npx eslint src/. && jest --coverage"
+    "prepush": "npx eslint src/. && npx eslint test/. && jest --coverage"
   },
   "author": "",
   "license": "ISC",
