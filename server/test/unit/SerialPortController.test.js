@@ -116,7 +116,9 @@ describe('SerialPortController', () => {
 
   describe('handleMessage', () => {
     test('handleMessage openDevice', () => {
-      const obj = { serial: { action: 'openDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'openDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
       //
       const mockOpenSerialPort = jest.fn();
@@ -126,7 +128,9 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage listDevices', () => {
-      const obj = { serial: { action: 'listDevices', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'listDevices', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
       const mockListPorts = jest.fn();
       serialPortController.listPorts = mockListPorts;
@@ -135,7 +139,9 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage closeDevice', () => {
-      const obj = { serial: { action: 'closeDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'closeDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
       const mockCloseSerialPort = jest.fn();
       serialPortController.closeSerialPort = mockCloseSerialPort;
@@ -144,7 +150,9 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage writeDevice', () => {
-      const obj = { serial: { action: 'writeDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'writeDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
       const mockWriteSerialPort = jest.fn();
       serialPortController.writeSerialPort = mockWriteSerialPort;
@@ -153,7 +161,9 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage writeKeyDevice', () => {
-      const obj = { serial: { action: 'writeKeyDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'writeKeyDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
       const mockWriteKeySerialPort = jest.fn();
       serialPortController.writeKeySerialPort = mockWriteKeySerialPort;
@@ -263,9 +273,7 @@ describe('SerialPortController', () => {
     };
     SerialPort.mockImplementation(() => mockSerialPortObj);
     //
-    const mockReadline = {
-      on: jest.fn(),
-    };
+    const mockReadline = { on: jest.fn() };
     SerialPort.parsers.Readline.mockImplementation(() => mockReadline);
     // fail
     serialPortController.openSerialPort(115200, 115200);

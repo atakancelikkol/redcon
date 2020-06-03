@@ -78,7 +78,9 @@ describe('ClientConnection', () => {
 
   describe('setUserObject', () => {
     it("Parameter passing to setUserObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }", () => {
-      const userInf = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' };
+      const userInf = {
+        username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+      };
       const clientConnection = new ClientConnection({});
       clientConnection.setUserObject(userInf);
       expect(clientConnection.userObject).toStrictEqual(userInf);
@@ -100,8 +102,12 @@ describe('ClientConnection', () => {
 
     it("Value returned by getUserObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }", () => {
       const clientConnection = new ClientConnection({});
-      clientConnection.userObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' };
-      expect(clientConnection.getUserObject()).toStrictEqual({ username: 'user', id: 'id', ip: '::ffff:127.0.0.1' });
+      clientConnection.userObject = {
+        username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+      };
+      expect(clientConnection.getUserObject()).toStrictEqual({
+        username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+      });
     });
 
     it('Value returned by getUserObject = null ', () => {
@@ -116,7 +122,9 @@ describe('ClientConnection', () => {
       let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
       const clientConnection = new ClientConnection({ connection: mockConnection });
-      const obj = { auth: { users: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' } } };
+      const obj = { auth: { users: {
+        username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+      } } };
       clientConnection.send(obj);
       expect(sendObject).toStrictEqual(JSON.stringify(obj));
     });

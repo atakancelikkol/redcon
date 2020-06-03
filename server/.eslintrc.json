@@ -22,12 +22,16 @@
     "jest-formatting"
   ],
   "rules": {
-    "linebreak-style": [
+    "linebreak-style": [ // fixable
       "error",
       "unix"
     ],
     "no-console": "off",
     "max-len": "off",
+    "object-curly-newline": [ // fixable
+      "warn",
+      {"minProperties": 2}
+    ],
     "class-methods-use-this": "off", // non-fixable
     "global-require": "warn", // non-fixable
     "no-param-reassign": "warn", // non-fixable
@@ -35,7 +39,5 @@
     "no-undef": "warn", // non-fixable
     "no-unused-vars": "warn", // non-fixable
     "no-use-before-define": "warn" // non-fixable
-
-
   }
 }

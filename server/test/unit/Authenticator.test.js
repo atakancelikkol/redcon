@@ -23,13 +23,17 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+        },
       };
       const mockGetUserObject = { getUserObject: () => client.userObject };
 
       const currentDate = new Date();
       authenticator.history = [
-        { username: 'user', date: currentDate, activityDate: 'Invalid Value' },
+        {
+          username: 'user', date: currentDate, activityDate: 'Invalid Value',
+        },
       ];
 
       authenticator.handleMessage(obj, mockGetUserObject);
@@ -49,13 +53,17 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+        },
       };
       const mockGetUserObject = { getUserObject: () => client.userObject };
 
       const currentDate = new Date();
       authenticator.history = [
-        { username: ' ', date: currentDate, activityDate: 'Invalid Value' },
+        {
+          username: ' ', date: currentDate, activityDate: 'Invalid Value',
+        },
       ];
 
       authenticator.handleMessage(obj, mockGetUserObject);
@@ -75,10 +83,14 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: '', id: '', ip: '' },
+        userObject: {
+          username: '', id: '', ip: '',
+        },
       };
 
-      const userInf = { username: 'user', id: 'id', ip: client.ip };
+      const userInf = {
+        username: 'user', id: 'id', ip: client.ip,
+      };
       const mockClient = {
         getUserObject: () => client.userObject,
         setAuthentication: () => { client.authenticated = true; },
@@ -86,11 +98,15 @@ describe('Authenticator', () => {
         setUserObject: (userInfoPar) => { client.userObject = userInfoPar; },
         send: () => {},
       };
-      const obj = { auth: { action: 'loginUser', username: 'user', password: 'pass' } };
+      const obj = { auth: {
+        action: 'loginUser', username: 'user', password: 'pass',
+      } };
 
       const currentDate = new Date();
       authenticator.history = [
-        { username: ' ', date: currentDate, activityDate: currentDate },
+        {
+          username: ' ', date: currentDate, activityDate: currentDate,
+        },
       ];
 
       authenticator.handleMessage(obj, mockClient);
@@ -106,7 +122,9 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: true,
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+        },
       };
       const mockClient = {
         getUserObject: () => client.userObject,
@@ -118,9 +136,13 @@ describe('Authenticator', () => {
 
       const currentDate = new Date();
       authenticator.history = [
-        { username: 'user', date: currentDate, activityDate: 'Invalid Value' },
+        {
+          username: 'user', date: currentDate, activityDate: 'Invalid Value',
+        },
       ];
-      const obj = { auth: { action: 'logoutUser', username: 'user', password: 'pass' } };
+      const obj = { auth: {
+        action: 'logoutUser', username: 'user', password: 'pass',
+      } };
 
       authenticator.handleMessage(obj, mockClient);
       expect(authenticator.history[0].activityDate).not.toBe('Invalid Value');
@@ -133,7 +155,9 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: 'username', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'username', id: 'id', ip: '::ffff:127.0.0.1',
+        },
       };
       const mockClient = {
         getUserObject: () => client.userObject,
@@ -143,17 +167,17 @@ describe('Authenticator', () => {
         send: () => {},
       };
       authenticator.result = {
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+        },
         iat: 1590075984,
         exp: 1590079584,
       };
       const token = jwt.sign({ userObject: authenticator.result.userObject }, ServerConfig.TokenSecret, { expiresIn: '1m' });
-      const obj = {
-        auth: {
-          action: 'checkStoredToken',
-          storedToken: token,
-        },
-      };
+      const obj = { auth: {
+        action: 'checkStoredToken',
+        storedToken: token,
+      } };
       authenticator.handleMessage(obj, mockClient);
       expect(client.userObject).toStrictEqual(authenticator.result.userObject);
     });
@@ -165,7 +189,9 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: 'username', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'username', id: 'id', ip: '::ffff:127.0.0.1',
+        },
       };
       const mockClient = {
         getUserObject: () => client.userObject,
@@ -175,17 +201,17 @@ describe('Authenticator', () => {
         send: () => {},
       };
       authenticator.result = {
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+        },
         iat: 1590075984,
         exp: 1590079584,
       };
       const token = jwt.sign({ userObject: authenticator.result.userObject }, ServerConfig.TokenSecret, { expiresIn: '100' });
-      const obj = {
-        auth: {
-          action: 'checkStoredToken',
-          storedToken: token,
-        },
-      };
+      const obj = { auth: {
+        action: 'checkStoredToken',
+        storedToken: token,
+      } };
       authenticator.handleMessage(obj, mockClient);
       expect(client.userObject).not.toStrictEqual(authenticator.result.userObject);
     });
@@ -197,7 +223,9 @@ describe('Authenticator', () => {
         ip: '::ffff:127.0.0.1',
         connection: { WebSocket: {} },
         authenticated: false,
-        userObject: { username: 'username', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'username', id: 'id', ip: '::ffff:127.0.0.1',
+        },
       };
       const mockClient = {
         getUserObject: () => client.userObject,
@@ -206,14 +234,14 @@ describe('Authenticator', () => {
         setUserObject: (o) => { client.username = o.username; client.id = 'id'; client.ip = '::ffff:127.0.0.1'; },
         send: () => {},
       };
-      const obj = {
-        auth: {
-          action: 'checkStoredToken',
-          storedToken: 'Invalid Token',
-        },
-      };
+      const obj = { auth: {
+        action: 'checkStoredToken',
+        storedToken: 'Invalid Token',
+      } };
       authenticator.result = {
-        userObject: { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' },
+        userObject: {
+          username: 'user', id: 'id', ip: '::ffff:127.0.0.1',
+        },
         iat: 1590075984,
         exp: 1590079584,
       };

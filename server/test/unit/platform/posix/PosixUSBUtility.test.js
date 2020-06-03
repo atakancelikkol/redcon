@@ -4,21 +4,21 @@ let mockexecErrorParameter = true;
 const mockexecStdOutParameter = 'a1\n a2\n a3';
 let execCommandString = ''; // eslint-disable-line
 
-jest.mock('child_process', () => ({
-  exec: jest.fn((commandString, callback) => {
-    execCommandString = commandString;
-    const error = mockexecErrorParameter;
-    const testStdOut = mockexecStdOutParameter;
-    callback(error, testStdOut, 'testStdError');
-  }),
-}));
+jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
+  execCommandString = commandString;
+  const error = mockexecErrorParameter;
+  const testStdOut = mockexecStdOutParameter;
+  callback(error, testStdOut, 'testStdError');
+}) }));
 
 describe('PosixUSBUtility test', () => {
   it('test methods for extractUsbState', () => {
     const posixUSBtility = new PosixUSBUtility();
     const mountPath = 'testPath';
     const device = 'testDevice';
-    expect(posixUSBtility.extractUsbState(mountPath, device)).toMatchObject({ device: 'testDevice', isAvailable: true, mountedPath: 'testPath', usbName: 'testPath' });
+    expect(posixUSBtility.extractUsbState(mountPath, device)).toMatchObject({
+      device: 'testDevice', isAvailable: true, mountedPath: 'testPath', usbName: 'testPath',
+    });
   });
 
   it('test method 1 for syncUsbDevice', () => new Promise((done) => { // eslint-disable-line

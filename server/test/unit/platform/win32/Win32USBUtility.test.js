@@ -4,14 +4,12 @@ let mockexecErrorParameter = true;
 let mockexecStdOutParameter = 'a1\n a2\n a3';
 let execCommandString = ''; // eslint-disable-line
 
-jest.mock('child_process', () => ({
-  exec: jest.fn((commandString, callback) => {
-    execCommandString = commandString;
-    const error = mockexecErrorParameter;
-    const testStdOut = mockexecStdOutParameter;
-    callback(error, testStdOut, 'testStdError');
-  }),
-}));
+jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
+  execCommandString = commandString;
+  const error = mockexecErrorParameter;
+  const testStdOut = mockexecStdOutParameter;
+  callback(error, testStdOut, 'testStdError');
+}) }));
 
 describe('Win32USBUtility test', () => {
   it('test methods for extractUsbState success case', () => new Promise((done) => {
