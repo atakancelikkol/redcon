@@ -7,7 +7,9 @@
     "extends": [
         "airbnb-base",
         "eslint:recommended",
-        "plugin:vue/recommended"
+        "plugin:vue/recommended",
+        "plugin:jest/recommended",
+        "plugin:jest-formatting/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -18,7 +20,9 @@
         "sourceType": "module"
     },
     "plugins": [
-        "vue"
+        "vue",
+        "jest",
+        "jest-formatting"
     ],
     "rules": {
 

@@ -1,15 +1,15 @@
-let actions
-//mapActions
+let actions;
+// mapActions
 actions = {
-  //SerialConsole
+  // SerialConsole
   openSerialDevice: jest.fn(),
   closeSerialDevice: jest.fn(),
   listSerialDevices: jest.fn(),
   writeSerialDevice: jest.fn(),
   writeKeySerialDevice: jest.fn(),
-  //LeftMenu
+  // LeftMenu
   logoutUser: jest.fn(),
-  //Login
+  // Login
   loginUser: jest.fn(),
-}
-export default actions
+};
+export default actions;
