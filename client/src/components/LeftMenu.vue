@@ -3,43 +3,61 @@
     <b-list-group>
       <b-list-group-item>REDCON</b-list-group-item>
       <b-list-group-item>
-        <router-link to="/">Home</router-link>
+        <router-link to="/">
+          Home
+        </router-link>
       </b-list-group-item>
       <b-list-group-item>
-        <router-link to="/board-control">Board Control</router-link>
+        <router-link to="/board-control">
+          Board Control
+        </router-link>
       </b-list-group-item>
       <b-list-group-item>
-        <router-link to="/port-mapping">Port Mapping</router-link>
+        <router-link to="/port-mapping">
+          Port Mapping
+        </router-link>
       </b-list-group-item>
       <b-list-group-item>
-        <router-link to="/serial-console">Serial Console</router-link>
+        <router-link to="/serial-console">
+          Serial Console
+        </router-link>
       </b-list-group-item>
       <b-list-group-item>
-        <router-link to="/usb-storage">USB Storage</router-link>
+        <router-link to="/usb-storage">
+          USB Storage
+        </router-link>
       </b-list-group-item>
       <b-list-group-item>
-        <router-link to="/utility">Utility</router-link>
+        <router-link to="/utility">
+          Utility
+        </router-link>
       </b-list-group-item>
-      <b-list-group-item v-if="this.user">
-        <b-link ref='logout' @click="logout">Logout</b-link>
-        <span>({{user.username}})</span>
+      <b-list-group-item v-if="user">
+        <b-link
+          ref="logout"
+          @click="logout"
+        >
+          Logout
+        </b-link>
+        <span>({{ user.username }})</span>
       </b-list-group-item>
     </b-list-group>
   </div>
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState } from 'vuex';
+
 export default {
-  name: "LeftMenu",
+  name: 'LeftMenu',
   computed: {
-    ...mapState(["user"]),
+    ...mapState(['user']),
   },
   methods: {
-    ...mapActions([ "logoutUser"]),
+    ...mapActions(['logoutUser']),
     logout() {
-      this.logoutUser({username: this.username,});
-      this.$router.push({ path: "/login" });
+      this.logoutUser({ username: this.username });
+      this.$router.push({ path: '/login' });
     },
   },
 };

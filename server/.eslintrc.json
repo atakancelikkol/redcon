@@ -3,6 +3,7 @@
     "es6": true,
     "node": true,
     "jest/globals": true
+    "node": true
   },
   "extends": [
     "airbnb-base",
@@ -22,7 +23,7 @@
     "jest-formatting"
   ],
   "rules": {
-    "linebreak-style": [ // fixable
+    "linebreak-style": [
       "error",
       "unix"
     ],
@@ -32,12 +33,12 @@
       "warn",
       {"minProperties": 2}
     ],
-    "class-methods-use-this": "off", // non-fixable
-    "global-require": "warn", // non-fixable
-    "no-param-reassign": "warn", // non-fixable
-    "no-restricted-globals": "warn", // non-fixable
-    "no-undef": "warn", // non-fixable
-    "no-unused-vars": "warn", // non-fixable
-    "no-use-before-define": "warn" // non-fixable
+    "class-methods-use-this": "off", 
+    "global-require": "warn", 
+    "no-param-reassign": "warn", 
+    "no-restricted-globals": "warn", 
+    "no-undef": "warn", 
+    "no-unused-vars": "warn", 
+    "no-use-before-define": "warn" 
   }
 }

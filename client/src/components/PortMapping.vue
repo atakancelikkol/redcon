@@ -1,108 +1,125 @@
 <template>
   <div class="port-mapping-container">
-    <b-card title="Port Mapping" style="flex:1">
-      <b-form-textarea ref="configRef" rows="25" v-model="textAreaContent"></b-form-textarea>
-      <b-button @click="onSaveButtonClicked" class="mb1">Save</b-button>
-      <b-button @click="onResetButtonClicked" class="mb2">Default Config</b-button>
+    <b-card
+      title="Port Mapping"
+      style="flex:1"
+    >
+      <b-form-textarea
+        ref="configRef"
+        v-model="textAreaContent"
+        rows="25"
+      />
+      <b-button
+        class="mb1"
+        @click="onSaveButtonClicked"
+      >
+        Save
+      </b-button>
+      <b-button
+        class="mb2"
+        @click="onResetButtonClicked"
+      >
+        Default Config
+      </b-button>
       <div style="white-space:pre; margin-top: 5px; color:red">
-        {{shellError}}
+        {{ shellError }}
       </div>
       <div style="white-space:pre; color:green">
-        {{shellOutput}}
-      </div>      
+        {{ shellOutput }}
+      </div>
     </b-card>
   </div>
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState } from 'vuex';
+
 export default {
-  name: "PortMapping",
+  name: 'PortMapping',
   data() {
     return {
-      textAreaContent: ""
+      textAreaContent: '',
     };
   },
-  mounted() {
-    this.fetchPortMappingConfiguration();
-    this.textAreaContent = this.configContents;
-  },
   computed: {
-    ...mapState(["receivedData"]),
+    ...mapState(['receivedData']),
     configContents() {
       if (this.receivedData.portconfig) {
         return this.receivedData.portconfig.configContents;
       }
-      return "";
+      return '';
     },
     shellError() {
       if (this.receivedData.portconfig) {
         return this.receivedData.portconfig.shellError;
       }
-      return "";
+      return '';
     },
     shellOutput() {
       if (this.receivedData.portconfig) {
         return this.receivedData.portconfig.shellOutput;
       }
-      return "";
-    }      
-  },
-  methods: {
-    ...mapActions([
-      "fetchPortMappingConfiguration",
-      "setPortMappingConfiguration",
-      "resetPortMappingConfiguration"
-    ]),
-
-    onSaveButtonClicked() {
-      this.$bvModal
-        .msgBoxConfirm("Please confirm that you want to save changes.", {
-          title: "Please Confirm",
-          size: "sm",
-          buttonSize: "sm",
-          okVariant: "danger",
-          okTitle: "YES",
-          cancelTitle: "NO",
-          footerClass: "p-2",
-          hideHeaderClose: false,
-          centered: true
-        })
-        .then(value => {
-          if (value == true)
-            this.setPortMappingConfiguration({configContents: this.textAreaContent});
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      return '';
     },
-      onResetButtonClicked() {
-      this.$bvModal
-        .msgBoxConfirm("Please confirm that you want default configuration.", {
-          title: "Please Confirm",
-          size: "sm",
-          buttonSize: "sm",
-          okVariant: "danger",
-          okTitle: "YES",
-          cancelTitle: "NO",
-          footerClass: "p-2",
-          hideHeaderClose: false,
-          centered: true
-        })
-        .then(value => {
-          if (value == true)
-            this.resetPortMappingConfiguration();
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }  
   },
   watch: {
     configContents() {
       this.textAreaContent = this.configContents;
-    }
-  }
+    },
+  },
+  mounted() {
+    this.fetchPortMappingConfiguration();
+    this.textAreaContent = this.configContents;
+  },
+  methods: {
+    ...mapActions([
+      'fetchPortMappingConfiguration',
+      'setPortMappingConfiguration',
+      'resetPortMappingConfiguration',
+    ]),
+
+    onSaveButtonClicked() {
+      this.$bvModal
+        .msgBoxConfirm('Please confirm that you want to save changes.', {
+          title: 'Please Confirm',
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'YES',
+          cancelTitle: 'NO',
+          footerClass: 'p-2',
+          hideHeaderClose: false,
+          centered: true,
+        })
+        .then((value) => {
+          if (value === true) this.setPortMappingConfiguration({ configContents: this.textAreaContent });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    onResetButtonClicked() {
+      this.$bvModal
+        .msgBoxConfirm('Please confirm that you want default configuration.', {
+          title: 'Please Confirm',
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'YES',
+          cancelTitle: 'NO',
+          footerClass: 'p-2',
+          hideHeaderClose: false,
+          centered: true,
+        })
+        .then((value) => {
+          if (value === true) this.resetPortMappingConfiguration();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+  },
+
 };
 </script>
 
