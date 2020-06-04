@@ -1,22 +1,17 @@
-
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 const USBController = require('../../src/USBController.js');
 let platformObjects = new PlatformObjects('mock');
-let usbController = new USBController()
-
+let usbController = new USBController({useMockUsbDetect: true})
 
 jest.useFakeTimers();
 jest.mock('usb-detection')
 jest.mock('md5-file')
 jest.mock('get-folder-size')
 
-
 let gpioUtility = platformObjects.getGPIOUtility();
 let usbUtility = platformObjects.getUSBUtility();
-const drivelist = require('drivelist');
-const nodePath = require('path');
-const fs = require('fs');
 
+const nodePath = require('path');
 
 let mockfsErrorParameter = false
 let mockfsStdOutParameter = 'mockstdout'
@@ -25,8 +20,29 @@ let fswithFileTypes = true;
 let fsrecursive = true;
 let fspath = ''
 
+let mockReadDirPath = '';
+let mockErr = undefined;
+let mockReadDirItems = [];
 
+// mock file system
+const fs = require('fs');
+jest.mock('fs', () => ({
+  readdir: jest.fn((dir, options, callback) => {
+    mockReadDirPath = dir;
+    const err = mockErr;
+    const items = mockReadDirItems;
+    callback(err, items);
+  })
+}));
 
+// mock drivelist
+const drivelist = require('drivelist');
+jest.mock('drivelist', () => ({
+  list: jest.fn(() => {
+    // TODO: return a mock item for testing, currently it is empty.
+    return [];
+  })
+}));
 
 describe("USBController", () => {
 
@@ -91,38 +107,31 @@ describe("USBController", () => {
   
     })
    */
-  test("listUsbDeviceItems", () => {
-    usbController.usbState.mountedPath = ''
-    path = 'testpath'
-    usbController.listUsbDeviceItems(path)
-    expect(usbController.usbState.currentDirectory).toBe(path);
-    expect(usbController.usbState.currentItems).toStrictEqual([]);
+  test("listUsbDeviceItems", (done) => {
+    mockErr = undefined;
+    mockReadDirItems = [{
+      name: 'testDir',
+      isDirectory: () => { return true; },
+    }];
+    const mockPath = 'anotherDir';
+    usbController.usbState.mountedPath = 'test';
+    usbController.listUsbDeviceItems(mockPath).then(() => {
+      expect(usbController.usbState.currentDirectory).toBe('test\\anotherDir');
+      expect(usbController.usbState.currentItems.length).toBe(2);
+      done();
+    });
   })
 
-  test("listUsbDeviceItems err", done => {
-    jest.mock('fs', () => ({
-      readdir: jest.fn((dir, withFileTypes, callback) => {
-        console.log("asdasdasdasdaskfjflgkşjdflkghm")
-        dirString = dir;
-        fswithFileTypes = withFileTypes;
-        const error = mockfsErrorParameter
-        const testStdOut = mockfsStdOutParameter
-        callback(error, testStdOut);
-      }),
-    }))
-  
-    path = '.'
-    mockfsErrorParameter = false
-    usbController.usbState.mountedPath = 'mountedPath'
-    usbController.listUsbDeviceItems(path).then(() => {
+  test("listUsbDeviceItems err", (done) => {
+    mockErr = true;
+    mockReadDirItems = [];
+    const mockPath = '.';
+    usbController.listUsbDeviceItems(mockPath).then(() => {
       throw new Error();
     }, () => {
       done()
     }
     );
-
-
-
   })
 
 
@@ -242,7 +251,7 @@ test("getItemInfo", () => {
   })
 
   test("handleMessage", () => {
-    let usbController = new USBController();
+    let usbController = new USBController({useMockUsbDetect: true});
     let obj = { usb: { action: 'toggleDevice' } };
     mocktfunc = jest.fn();
     usbController.toggleUsbDevice = mocktfunc;

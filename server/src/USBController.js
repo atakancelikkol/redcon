@@ -4,7 +4,6 @@ const drivelist = require('drivelist');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
-const usbDetect = require('usb-detection');
 const md5File = require('md5-file');
 const rimraf = require('rimraf');
 const getSize = require('get-folder-size');
@@ -17,7 +16,7 @@ const LED_CHECK_TIME_INTERVAL = 1000; // ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
 class USBController extends ControllerBase {
-  constructor() {
+  constructor(options) {
     super('USBController');
     this.usbState = {
       isAvailable: false,
@@ -35,12 +34,22 @@ class USBController extends ControllerBase {
 
     this.toggleTimeoutHandle = undefined;
     this.ledReadIntervalHandle = undefined;
+
+    if (options && options.useMockUsbDetect) {
+      this.usbDetect = {
+        startMonitoring: () => {},
+        stopMonitoring: () => {},
+        on: () => {},
+      };
+    } else {
+      this.usbDetect = require('usb-detection'); // eslint-disable-line
+    }
   }
 
   init() {
     console.log('initializing USBController');
-    usbDetect.startMonitoring();
-    usbDetect.on('change', () => {
+    this.usbDetect.startMonitoring();
+    this.usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
 
@@ -439,7 +448,7 @@ class USBController extends ControllerBase {
   }
 
   onExit() {
-    usbDetect.stopMonitoring();
+    this.usbDetect.stopMonitoring();
 
     if (this.ledReadIntervalHandle) {
       clearInterval(this.ledReadIntervalHandle);
