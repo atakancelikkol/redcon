@@ -1,11 +1,18 @@
 const MockUSBUtility = require('../../../../src/platform/mock/MockUSBUtility');
 
 describe("MockUSBUtility test", () => {
-  it("methods should be called without an error", () => {
+  it("methods should be called without an error", done => {
     const mockUSBUtility = new MockUSBUtility();
     expect(mockUSBUtility.extractUsbState()).toEqual(true);
     expect(mockUSBUtility.syncUsbDevice()).toEqual(true);
-    expect(mockUSBUtility.ejectUSBDriveSafely()).toEqual(true);
+    mockUSBUtility.ejectUSBDriveSafely().then(() => {
+      done()
+    }, () => {
+      throw new Error();
+    }
+    );
+
+
   });
 
 });
