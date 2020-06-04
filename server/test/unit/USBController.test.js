@@ -116,7 +116,7 @@ describe("USBController", () => {
     const mockPath = 'anotherDir';
     usbController.usbState.mountedPath = 'test';
     usbController.listUsbDeviceItems(mockPath).then(() => {
-      expect(usbController.usbState.currentDirectory).toBe('test\\anotherDir');
+      expect(usbController.usbState.currentDirectory).toMatch(/anotherDir/);
       expect(usbController.usbState.currentItems.length).toBe(2);
       done();
     });
