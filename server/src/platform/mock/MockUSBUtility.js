@@ -13,7 +13,11 @@ class MockUSBUtility extends IUSBUtility {
 
   ejectUSBDriveSafely(/* usbState */) {
     // console.log("MockUSBUtility ejectUSBDriveSafely: ", usbState.isAvailable);
-    return true;
+    return new Promise((resolve, reject) => {
+      resolve();
+      return true;
+    });
+
   }
 }
 

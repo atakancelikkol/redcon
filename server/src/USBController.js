@@ -149,14 +149,21 @@ class USBController extends ControllerBase {
   }
 
   listUsbDeviceItems(path) {
+
+    return new Promise((resolve, reject) => {
+      this.internalListUsbDeviceItems(path, resolve, reject);
+    });
+  }
+
+  internalListUsbDeviceItems(path, resolve, reject) {
     if (this.usbState.mountedPath === '') {
       // send empty item list
       this.usbState.currentDirectory = path;
       this.usbState.currentItems = [];
       this.sendCurrentState();
+      resolve();
       return;
     }
-
 
     const dir = nodePath.join(this.usbState.mountedPath, path);
 
@@ -167,6 +174,7 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant listUsbDeviceItems`;
         this.sendCurrentState();
         console.log(`Unable to scan directory: ${err}`);
+        reject();
         return;
       }
       const itemsList = [];
@@ -191,6 +199,7 @@ class USBController extends ControllerBase {
       this.usbState.currentItems = itemsList;
 
       this.sendCurrentState();
+      resolve();
     });
   }
 
