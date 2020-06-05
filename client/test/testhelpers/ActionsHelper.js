@@ -11,5 +11,7 @@ actions = {
   logoutUser: jest.fn(),
   //Login
   loginUser: jest.fn(),
+  //Utility
+  rebootDevice: jest.fn(), 
 }
 export default actions
