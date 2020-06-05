@@ -205,6 +205,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import logger from '../Logger';
 
 export default {
   name: 'USBStorage',
@@ -347,7 +348,8 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
+          logger.error(err);
         });
     },
     onInfoButtonClicked(item) {
@@ -400,12 +402,14 @@ export default {
         this.progressValue = -1;
       });
       oReq.upload.addEventListener('error', (err) => {
-        console.log(err);
+        // console.log(err);
+        logger.error(err);
         this.showUploadError = true;
         this.progressValue = -1;
       });
       oReq.upload.addEventListener('abort', (err) => {
-        console.log(err);
+        // console.log(err);
+        logger.error(err);
         this.showUploadError = true;
         this.progressValue = -1;
       });

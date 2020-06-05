@@ -33,6 +33,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import logger from '../Logger';
 
 export default {
   name: 'PortMapping',
@@ -95,7 +96,8 @@ export default {
           if (value === true) this.setPortMappingConfiguration({ configContents: this.textAreaContent });
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
+          logger.error(err);
         });
     },
     onResetButtonClicked() {
@@ -115,7 +117,8 @@ export default {
           if (value === true) this.resetPortMappingConfiguration();
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
+          logger.error(err);
         });
     },
   },

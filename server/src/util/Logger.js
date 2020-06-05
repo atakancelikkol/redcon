@@ -36,7 +36,6 @@ class Logger {
   info(...args) {
     const message = this.constructTheMessage(args);
     this.logger.log('info', message);
-    this.getCallSitesObject();
   }
 
   error(...args) {
