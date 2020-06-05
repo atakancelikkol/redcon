@@ -1,4 +1,3 @@
-//import ReconnectingWebSocket from 'reconnecting-websocket';
 import StorageHelper from '../../src/helpers/StorageHelper';
 import webSocketConnector from '../../src/WebSocketConnector';
 
