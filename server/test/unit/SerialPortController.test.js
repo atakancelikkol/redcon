@@ -1,6 +1,7 @@
 const fs = require('fs');
 const SerialPort = require('serialport');
 const SerialPortController = require('../../src/SerialPortController');
+const logger = require('../../src/util/Logger');
 
 jest.genMockFromModule('serialport');
 jest.mock('serialport');
@@ -262,7 +263,8 @@ describe('SerialPortController', () => {
   test('openSerialPort', () => {
     const serialPortController = new SerialPortController();
     //
-    const spyConsoleLog = jest.spyOn(console, 'log');
+    
+    const spyLogger = jest.spyOn(logger, 'error');
     //
     const mockStartVirtualDevice = jest.fn();
     serialPortController.startVirtualDevice = mockStartVirtualDevice;
@@ -277,11 +279,11 @@ describe('SerialPortController', () => {
     SerialPort.parsers.Readline.mockImplementation(() => mockReadline);
     // fail
     serialPortController.openSerialPort(115200, 115200);
-    expect(spyConsoleLog).toHaveBeenCalled();
-    spyConsoleLog.mockClear();
+    expect(spyLogger).toHaveBeenCalled();
+    spyLogger.mockClear();
     // success
     serialPortController.openSerialPort('COM7', 115200);
-    expect(spyConsoleLog).not.toHaveBeenCalled();
+    expect(spyLogger).not.toHaveBeenCalled();
     expect(mockSerialPortObj.on).toHaveBeenCalledWith('open', expect.anything());
     expect(mockSerialPortObj.on).toHaveBeenCalledWith('close', expect.anything());
     expect(mockSerialPortObj.on).toHaveBeenCalledWith('error', expect.anything());
