@@ -116,42 +116,56 @@ describe('SerialPortController', () => {
 
   describe('handleMessage', () => {
     test('handleMessage openDevice', () => {
-      const obj = { serial: { action: 'openDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'openDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
       //
-      mockOpenSerialPort = jest.fn();
+      const mockOpenSerialPort = jest.fn();
       serialPortController.openSerialPort = mockOpenSerialPort;
       serialPortController.handleMessage(obj);
       expect(mockOpenSerialPort).toHaveBeenCalled();
     });
+
     test('handleMessage listDevices', () => {
-      const obj = { serial: { action: 'listDevices', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'listDevices', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
-      mockListPorts = jest.fn();
+      const mockListPorts = jest.fn();
       serialPortController.listPorts = mockListPorts;
       serialPortController.handleMessage(obj);
       expect(mockListPorts).toHaveBeenCalled();
     });
+
     test('handleMessage closeDevice', () => {
-      const obj = { serial: { action: 'closeDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'closeDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
-      mockCloseSerialPort = jest.fn();
+      const mockCloseSerialPort = jest.fn();
       serialPortController.closeSerialPort = mockCloseSerialPort;
       serialPortController.handleMessage(obj);
       expect(mockCloseSerialPort).toHaveBeenCalled();
     });
+
     test('handleMessage writeDevice', () => {
-      const obj = { serial: { action: 'writeDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'writeDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
-      mockWriteSerialPort = jest.fn();
+      const mockWriteSerialPort = jest.fn();
       serialPortController.writeSerialPort = mockWriteSerialPort;
       serialPortController.handleMessage(obj);
       expect(mockWriteSerialPort).toHaveBeenCalled();
     });
+
     test('handleMessage writeKeyDevice', () => {
-      const obj = { serial: { action: 'writeKeyDevice', path: '', baudRate: '' } };
+      const obj = { serial: {
+        action: 'writeKeyDevice', path: '', baudRate: '',
+      } };
       const serialPortController = new SerialPortController();
-      mockWriteKeySerialPort = jest.fn();
+      const mockWriteKeySerialPort = jest.fn();
       serialPortController.writeKeySerialPort = mockWriteKeySerialPort;
       serialPortController.handleMessage(obj);
       expect(mockWriteKeySerialPort).toHaveBeenCalled();
@@ -161,7 +175,7 @@ describe('SerialPortController', () => {
   test('listPorts', async () => {
     const serialPortController = new SerialPortController();
     //
-    mockReadOutputFiles = jest.fn();
+    const mockReadOutputFiles = jest.fn();
     serialPortController.readOutputFiles = mockReadOutputFiles;
     //
     const mockUpdatePortStatus = jest.fn();
@@ -169,7 +183,7 @@ describe('SerialPortController', () => {
     //
     const mockPorts = [];
     mockPorts[0] = { path: 'COM7' };
-    spySerialPortList = jest.spyOn(SerialPort, 'list').mockImplementation(() => mockPorts);
+    jest.spyOn(SerialPort, 'list').mockImplementation(() => mockPorts);
     //
     serialPortController.portStatusObj = { COM1: { isOpen: false } };
     // if (devicePort === undefined)
@@ -259,9 +273,7 @@ describe('SerialPortController', () => {
     };
     SerialPort.mockImplementation(() => mockSerialPortObj);
     //
-    const mockReadline = {
-      on: jest.fn(),
-    };
+    const mockReadline = { on: jest.fn() };
     SerialPort.parsers.Readline.mockImplementation(() => mockReadline);
     // fail
     serialPortController.openSerialPort(115200, 115200);
@@ -298,10 +310,6 @@ describe('SerialPortController', () => {
 
   test('onPortDataReceived', () => {
     const serialPortController = new SerialPortController();
-    serialPortController.registerSendMessageCallback((h, o) => {
-      handler = h;
-      obj = o;
-    });
     const port = { path: 'COM7' };
     const mockWriter = { write: jest.fn() };
     // fail

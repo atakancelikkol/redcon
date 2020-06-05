@@ -1,11 +1,13 @@
 {
   "env": {
     "es6": true,
-    "node": true
+    "node": true,
+    "jest/globals": true
   },
   "extends": [
-    "plugin:vue/essential",
-    "airbnb-base"
+    "airbnb-base",
+    "plugin:jest/recommended",
+    "plugin:jest-formatting/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -16,7 +18,8 @@
     "sourceType": "module"
   },
   "plugins": [
-    "vue"
+    "jest",
+    "jest-formatting"
   ],
   "rules": {
     "linebreak-style": [
@@ -25,12 +28,16 @@
     ],
     "no-console": "off",
     "max-len": "off",
-    "class-methods-use-this": "off", // non-fixable
-    "global-require": "warn", // non-fixable
-    "no-param-reassign": "warn", // non-fixable
-    "no-restricted-globals": "warn", // non-fixable
-    "no-undef": "warn", // non-fixable
-    "no-unused-vars": "warn", // non-fixable
-    "no-use-before-define": "warn" // non-fixable
+    "object-curly-newline": [ // fixable
+      "warn",
+      {"minProperties": 2}
+    ],
+    "class-methods-use-this": "off", 
+    "global-require": "warn", 
+    "no-param-reassign": "warn", 
+    "no-restricted-globals": "warn", 
+    "no-undef": "warn", 
+    "no-unused-vars": "warn", 
+    "no-use-before-define": "warn" 
   }
 }
