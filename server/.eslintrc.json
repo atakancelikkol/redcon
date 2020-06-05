@@ -27,7 +27,6 @@
       "unix"
     ],
     "no-console": "error",
-    "prefer-rest-params": "off",
     "max-len": "off",
     "object-curly-newline": [ // fixable
       "warn",

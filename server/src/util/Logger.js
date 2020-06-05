@@ -2,7 +2,10 @@ const winston = require('winston');
 const callsites = require('callsites');
 const ServerConfig = require('../ServerConfig');
 
-const dateFormat = () => new Date(Date.now()).toUTCString();
+const dateFormat = () => {
+  const date = new Date(Date.now()).toUTCString();
+  return date.substring(5, date.length);
+};
 
 class Logger {
   constructor() {
@@ -30,33 +33,32 @@ class Logger {
     });
   }
 
-  info() {
-    let message = '';
-    const route = this.getCallerModule();
-    const lineNumberMessage = this.getCallerLineNumber();
-    message = this.concatenateArguments(route, lineNumberMessage, arguments);
+  info(...args) {
+    const message = this.constructTheMessage(args);
     this.logger.log('info', message);
+    this.getCallSitesObject();
   }
 
-  error() {
-    let message = '';
-    const route = this.getCallerModule();
-    const lineNumberMessage = this.getCallerLineNumber();
-    message = this.concatenateArguments(route, lineNumberMessage, arguments);
+  error(...args) {
+    const message = this.constructTheMessage(args);
     this.logger.log('error', message);
   }
 
-  debug() {
-    let message = '';
-    const route = this.getCallerModule();
-    const lineNumberMessage = this.getCallerLineNumber();
-    message = this.concatenateArguments(route, lineNumberMessage, arguments);
+  debug(...args) {
+    const message = this.constructTheMessage(args);
     this.logger.log('debug', message);
   }
 
-  concatenateArguments(route, lineNumberMessage, arg) {
-    let message = `${route} | ${lineNumberMessage} | ${arg[0]} |`;
-    for (let i = 1; i < arg.length; i += 1) {
+  constructTheMessage(args) {
+    const callSiteObject = this.getCallSitesObject();
+    const callerModule = this.getCallerModule(callSiteObject);
+    const lineNumberMessage = this.getCallerLineNumber(callSiteObject);
+    return this.concatenateArguments(callerModule, lineNumberMessage, args);
+  }
+
+  concatenateArguments(callerModule, lineNumberMessage, arg) {
+    let message = `${callerModule}:${lineNumberMessage} | `;
+    for (let i = 0; i < arg.length; i += 1) {
       if (arg[i] === null) {
         message = `${message} ${arg[i]} |`;
       } else if (Object.prototype.hasOwnProperty.call(arg[i], toString)) { // arg[i].hasOwnProperty('toString')
@@ -68,19 +70,32 @@ class Logger {
     return message;
   }
 
-  getCallerModule() {
-    const callerFileName = callsites()[2].getFileName();
-    const redundantCharacterNumberAtTheEnd = 3; // .js
-    const redundantCharacterNumberAtTheMiddle = 5; // \src\
-    const redundantCharacterNumberAtTheBeginning = process.cwd().length;
-
-    return callerFileName.substring(redundantCharacterNumberAtTheBeginning + redundantCharacterNumberAtTheMiddle, callerFileName.length - redundantCharacterNumberAtTheEnd);
+  getCallerModule(callSiteObject) {
+    const callerFileName = callSiteObject.getFileName();
+    return this.getCallerModuleString(callerFileName);
   }
 
-  getCallerLineNumber() {
-    const callerLineNumber = callsites()[2].getLineNumber();
-    const lineNumberMessage = `at line ${callerLineNumber}`;
+  getCallerLineNumber(callSiteObject) {
+    const callerLineNumber = callSiteObject.getLineNumber();
+    const lineNumberMessage = `${callerLineNumber}`;
     return lineNumberMessage;
+  }
+
+  getCallSitesObject() {
+    const callSites = callsites();
+    if (callSites[ServerConfig.LoggerCallerModuleDepth] !== undefined) {
+      return callSites[ServerConfig.LoggerCallerModuleDepth];
+    }
+    return callSites[0];
+  }
+
+  getCallerModuleString(callerFileName) {
+    const splittedFileNameArrayWin32 = callerFileName.split('\\');
+    if (splittedFileNameArrayWin32.length > 1) {
+      return splittedFileNameArrayWin32[splittedFileNameArrayWin32.length - 1];
+    }
+    const splittedFileNameArray = callerFileName.split('/');
+    return splittedFileNameArray[splittedFileNameArray.length - 1];
   }
 
   silenceLogger(condition) {
