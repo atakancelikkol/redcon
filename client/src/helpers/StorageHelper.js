@@ -1,9 +1,5 @@
 
-
 class StorageHelper {
-  constructor() {
-  }
-
   getItem(itemTag) {
     return localStorage.getItem(itemTag);
   }
@@ -22,4 +18,4 @@ class StorageHelper {
 }
 
 const instance = new StorageHelper();
-export default instance
+export default instance;

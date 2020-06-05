@@ -1,25 +1,25 @@
 const IObjectFactory = require('../../../../src/platform/interfaces/IObjectFactory');
 
-describe("IObjectFactory interface test", () => {
-  it("should throw error when calling methods directly", () => {
+describe('IObjectFactory interface test', () => {
+  it('should throw error when calling methods directly', () => {
     const iObjectFactory = new IObjectFactory();
-    expect(()=>{
+    expect(() => {
       iObjectFactory.getPlatformString();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iObjectFactory.createGPIOUtility();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iObjectFactory.createNetworkUtility();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iObjectFactory.createUSBUtility();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iObjectFactory.createPlatformUtility();
     }).toThrow(Error);
   });

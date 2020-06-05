@@ -176,7 +176,9 @@ class USBController extends ControllerBase {
       }
       const itemsList = [];
       if (parentDir !== '..') {
-        itemsList.push({ name: parentDir, isDirectory: true, fullPath: true });
+        itemsList.push({
+          name: parentDir, isDirectory: true, fullPath: true,
+        });
       }
 
       items.forEach((item) => {

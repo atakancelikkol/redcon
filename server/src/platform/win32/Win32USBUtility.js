@@ -9,9 +9,7 @@ class USBUtility {
       mountPath = mountPath.slice(0, -1); // eslint-disable-line
       exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout/* , stderr */) => {
         if (err) { // Handle error
-          platformUsbState = {
-            usbErrorString: `${err.message}Cant extractUsbStateWin32`,
-          };
+          platformUsbState = { usbErrorString: `${err.message}Cant extractUsbStateWin32` };
 
           reject(platformUsbState);
           return;

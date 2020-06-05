@@ -29,7 +29,9 @@ class HttpServer {
 
     // start web server
     this.app.use(bodyParser.json({ limit: '500mb' }));
-    this.app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
+    this.app.use(bodyParser.urlencoded({
+      limit: '500mb', extended: true,
+    }));
     this.app.use(bodyParser.raw({ limit: '500mb' }));
     this.app.use(compression());
 

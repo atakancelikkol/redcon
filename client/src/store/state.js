@@ -5,6 +5,6 @@ const state = {
   user: null,
   authStatus: '',
   token: '',
-}
+};
 
 export default state;
