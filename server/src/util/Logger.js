@@ -90,6 +90,6 @@ class Logger {
 
 const logger = new Logger();
 logger.createLogger();
-//Object.freeze(logger);
+// Object.freeze(logger);
 
 module.exports = logger;
