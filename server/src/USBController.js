@@ -37,9 +37,9 @@ class USBController extends ControllerBase {
 
     if (options && options.useMockUsbDetect) {
       this.usbDetect = {
-        startMonitoring: () => {},
-        stopMonitoring: () => {},
-        on: () => {},
+        startMonitoring: () => { },
+        stopMonitoring: () => { },
+        on: () => { },
       };
     } else {
       this.usbDetect = require('usb-detection'); // eslint-disable-line
@@ -276,7 +276,6 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant getFolderInfo-getSize`;
         size = 0; // eslint-disable-line
       }
-
       itemInfo.size = this.convertItemSizeToString(size); // eslint-disable-line
       this.usbState.currentItemInfo = itemInfo;
       this.sendCurrentState();
@@ -284,6 +283,12 @@ class USBController extends ControllerBase {
   }
 
   createUsbDeviceFolder(path, folderName) {
+    return new Promise((resolve, reject) => {
+      this.internalCreateUsbDeviceFolder(path, folderName, resolve, reject);
+    });
+  }
+
+  internalCreateUsbDeviceFolder(path, folderName, resolve, reject) {
     const dir = nodePath.join(this.usbState.mountedPath, path, folderName);
 
     this.usbState.usbErrorString = '';
@@ -292,10 +297,12 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant createUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
         console.log(err);
+        reject();
         return;
       }
       this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
+      resolve();
     });
   }
 
@@ -318,25 +325,43 @@ class USBController extends ControllerBase {
   }
 
   deleteUsbDeviceFile(dir, path) {
+    return new Promise((resolve, reject) => {
+      this.internalDeleteUsbDeviceFile(dir, path, resolve, reject);
+    });
+  }
+
+  internalDeleteUsbDeviceFile(dir, path, resolve, reject) {
     fs.unlink(dir, (err) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
         console.log('could not remove file! ', dir, err);
+        reject();
+        return;
       }
       this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
+      resolve();
     });
   }
 
   deleteUsbDeviceFolder(dir, path) {
+    return new Promise((resolve, reject) => {
+      this.internalDeleteUsbDeviceFolder(dir, path, resolve, reject);
+    });
+  }
+
+  internalDeleteUsbDeviceFolder(dir, path, resolve, reject) {
     rimraf(dir, async (err) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
         console.log('could not remove folder! ', dir, err);
+        reject();
+        return;
       }
       await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
+      resolve();
     });
   }
 
@@ -441,6 +466,7 @@ class USBController extends ControllerBase {
 
     if (!path || !fileName) {
       res.status(400).send('invalid parameters');
+      return;
     }
 
     const dir = nodePath.join(this.usbState.mountedPath, path, fileName);
