@@ -1,15 +1,15 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import componentWithVuex from '../../../src/components/Utility.vue';
-import actions from '../../testhelpers/ActionsHelper.js';
-import state from '../../testhelpers/StateHelper.js';
+import actions from '../../testhelpers/ActionsHelper';
+import state from '../../testhelpers/StateHelper';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe('componentWithVuex', () => {
   let store;
-  
+
   beforeEach(() => {
     store = new Vuex.Store({
       actions, state,
@@ -21,60 +21,62 @@ describe('componentWithVuex', () => {
     expect(defaultData).toStrictEqual({});
   });
 
-  it('reboot button when value is equal to true', (done) => {
-    
+  it('reboot button when value is equal to true', () => new Promise((done) => {
     const $bvModal = {
-      msgBoxConfirm: (CommandString, callback) => {
-        let msgCommandString = CommandString
-        console.log(msgCommandString)
-        return new Promise((resolve, reject) => {
-          let value = true
-          resolve(value) })
-      }
-    }
-    
+      msgBoxConfirm: (CommandString) => {
+        const msgCommandString = CommandString;
+        console.log(msgCommandString);
+        return new Promise((resolve) => {
+          const value = true;
+          resolve(value);
+        });
+      },
+    };
+
     const wrapper = mount(componentWithVuex, {
       store,
       localVue,
       mocks: {
-        $bvModal
-      }
+        $bvModal,
+      },
     });
 
     const button = wrapper.findComponent({ ref: 'reboot' });
     button.trigger('click');
     wrapper.vm.$nextTick(() => {
       expect(actions.rebootDevice).toHaveBeenCalled();
-      done()
-    })
-    
-  });
+      done();
+    });
+  }));
 
-  it('reboot button when promise throw exception', (done) => {
+  it('reboot button when promise throw exception', () => new Promise((done) => {
     const $bvModal = {
-      msgBoxConfirm: (CommandString, callback) => {
-        let msgCommandString = CommandString
-        console.log(msgCommandString)
+      msgBoxConfirm: (CommandString) => {
+        const msgCommandString = CommandString;
+        console.log(msgCommandString);
         return new Promise((resolve, reject) => {
-          let err = 'error'
-          reject(err) })
-      }
-    }
-    
+          const value = undefined;
+          if (value === true) {
+            resolve(value);
+          } const err = 'error';
+          reject(err);
+        });
+      },
+    };
+
     const wrapper = mount(componentWithVuex, {
       store,
       localVue,
       mocks: {
-        $bvModal
-      }
+        $bvModal,
+      },
     });
 
     const button = wrapper.findComponent({ ref: 'reboot' });
     button.trigger('click');
     wrapper.vm.$nextTick(() => {
       expect(actions.rebootDevice).toHaveBeenCalled();
-      done()
-    })
-  });
+      done();
+    });
+  }));
 });
-

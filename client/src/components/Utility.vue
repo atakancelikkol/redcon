@@ -1,12 +1,19 @@
 <template>
   <div class="utility-container">
-    <b-card title="Utility" style="flex:1">
-        Click to reboot Raspberry Pi device:<br>
-        <b-button
-          ref='reboot'
-          block variant="danger"
-          @click="onRebootClicked"
-          size=lg>Reboot device</b-button>
+    <b-card
+      title="Utility"
+      style="flex:1"
+    >
+      Click to reboot Raspberry Pi device:<br>
+      <b-button
+        ref="reboot"
+        block
+        variant="danger"
+        size="lg"
+        @click="onRebootClicked"
+      >
+        Reboot device
+      </b-button>
     </b-card>
   </div>
 </template>
