@@ -1,45 +1,39 @@
-import { shallowMount, createLocalVue, mount, createWrapper } from "@vue/test-utils"
-import Vuex from "vuex"
-import componentWithVuex from '../../../src/components/LeftMenu.vue'
-import { BootstrapVue } from 'bootstrap-vue'
-import VueRouter from 'vue-router'
-import actions from '../../testhelpers/ActionsHelper.js'
-import state from '../../testhelpers/StateHelper.js'
+import {
+  createLocalVue, mount,
+} from '@vue/test-utils';
+import Vuex from 'vuex';
+import { BootstrapVue } from 'bootstrap-vue';
+import VueRouter from 'vue-router';
+import componentWithVuex from '../../../src/components/LeftMenu.vue';
+import actions from '../../testhelpers/ActionsHelper';
+import state from '../../testhelpers/StateHelper';
 
 
-const localVue = createLocalVue()
-localVue.use(Vuex)
+const localVue = createLocalVue();
+localVue.use(Vuex);
 localVue.use(BootstrapVue);
-localVue.use(VueRouter)
-const router = new VueRouter()
+localVue.use(VueRouter);
+const router = new VueRouter();
 
 
-describe("componentWithVuex", () => {
-  let store
+describe('componentWithVuex', () => {
+  let store;
+
   beforeEach(() => {
     store = new Vuex.Store({
-      actions, state
-    })
-  })
+      actions, state,
+    });
+  });
 
   it('logout button', () => {
     const wrapper = mount(componentWithVuex, {
       store,
       localVue,
-      router
-    })
-    const button = wrapper.findComponent({ ref: 'logout' })
-    button.trigger('click')
-    expect(actions.logoutUser).toHaveBeenCalled()
+      router,
+    });
+    const button = wrapper.findComponent({ ref: 'logout' });
+    button.trigger('click');
+    expect(actions.logoutUser).toHaveBeenCalled();
     wrapper.destroy();
-
-  
-  })
-})
-
-
-
-
-
-
-
+  });
+});

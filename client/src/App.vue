@@ -1,20 +1,26 @@
 <template>
   <div class="app-container">
     <div class="app-reconnect-warning">
-      <b-alert :show="!isConnected" variant="warning" style="margin: auto; text-align: center">Connection is lost! It will try to connect automatically.</b-alert>
+      <b-alert
+        :show="!isConnected"
+        variant="warning"
+        style="margin: auto; text-align: center"
+      >
+        Connection is lost! It will try to connect automatically.
+      </b-alert>
     </div>
     <div class="app-left-menu">
       <LeftMenu />
     </div>
     <div class="app-main-container">
-      <router-view></router-view>
+      <router-view />
     </div>
   </div>
 </template>
 
 <script>
-import LeftMenu from './components/LeftMenu.vue'
-import { mapState } from 'vuex'
+import { mapState } from 'vuex';
+import LeftMenu from './components/LeftMenu.vue';
 
 export default {
   name: 'App',
@@ -23,8 +29,8 @@ export default {
   },
   computed: {
     ...mapState(['isConnected']),
-  }
-}
+  },
+};
 </script>
 
 <style>

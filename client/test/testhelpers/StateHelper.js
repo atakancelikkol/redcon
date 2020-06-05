@@ -1,18 +1,17 @@
-let state
-state = {
-  //mapState
+const state = {
+  // mapState
   receivedData: {
     authHistory: {
-      history: []
+      history: [],
     },
-    serial: { ports: {}, portStatus: {}, serialFiles: {} }
+    serial: { ports: {}, portStatus: {}, serialFiles: {} },
   },
   serialData: {},
   user: {
     username: 'testuser',
     id: 'id',
-    ip: '::1'
+    ip: '::1',
   },
 
-}
-export default state
+};
+export default state;

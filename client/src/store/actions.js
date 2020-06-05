@@ -1,15 +1,15 @@
-import StorageHelper from "../helpers/StorageHelper";
+import StorageHelper from '../helpers/StorageHelper';
 import webSocketConnector from '../WebSocketConnector';
 
 const actions = {
-  onDataReceived({ commit, state/*, getters*/ }, data) {
+  onDataReceived({ commit, state/* , getters */ }, data) {
     // handle exceptional cases before
     if (data.serialData) {
       commit('APPEND_SERIAL_DATA', data.serialData);
     } if (data.auth) {
       commit('SET_AUTH_DATA', data.auth);
       if (state.token) {
-        StorageHelper.setItem("token", state.token);
+        StorageHelper.setItem('token', state.token);
       }
     } else {
       commit('APPEND_PARTIAL_DATA', data);
@@ -54,7 +54,9 @@ const actions = {
     webSocketConnector.sendWriteSerialDeviceMessage({ devicePath, serialCmd });
   },
   writeKeySerialDevice({ commit }, { devicePath, keyCode, charCode, ctrlKey, shiftKey }) { // eslint-disable-line
-    webSocketConnector.sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey });
+    webSocketConnector.sendWriteKeySerialDeviceMessage({
+      devicePath, keyCode, charCode, ctrlKey, shiftKey,
+    });
   },
   listSerialDevices() {
     webSocketConnector.sendlistSerialDevicesMessage();
@@ -69,11 +71,11 @@ const actions = {
     webSocketConnector.sendResetPortMappingConfigurationMessage();
   },
   updateConnectionStatus({ commit }, status) {
-    commit('UPDATE_CONNECTION_STATUS', status)
+    commit('UPDATE_CONNECTION_STATUS', status);
   },
   rebootDevice({ commit }, ) { // eslint-disable-line
     webSocketConnector.sendRebootDeviceMessage();
-  }
-}
+  },
+};
 
 export default actions;

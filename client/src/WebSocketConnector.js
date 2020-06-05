@@ -1,5 +1,5 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import StorageHelper from "./helpers/StorageHelper";
+import StorageHelper from './helpers/StorageHelper';
 
 class WebSocketConnector {
   constructor() {
@@ -16,54 +16,54 @@ class WebSocketConnector {
   }
 
   getVuexPlugin() {
-    return store => {
+    return (store) => {
       // plugin callback
       this.registerStore(store);
-    }
+    };
   }
 
   registerStore(store) {
-    if(this.store) {
-      throw "store is already registered!";
+    if (this.store) {
+      throw new Error('store is already registered!');
     }
 
     this.store = store;
   }
 
   getWebSocketURL() {
-    let loc = window.location;
+    const loc = window.location;
     let newUri;
-    if (loc.protocol === "https:") {
-      newUri = "wss:";
+    if (loc.protocol === 'https:') {
+      newUri = 'wss:';
     } else {
-      newUri = "ws:";
+      newUri = 'ws:';
     }
 
-    if (process.env.NODE_ENV == 'production') {
-      newUri += "//" + loc.host;
+    if (process.env.NODE_ENV === 'production') {
+      newUri += `//${loc.host}`;
     } else {
-      newUri += "//localhost:3000";
+      newUri += '//localhost:3000';
     }
 
     return newUri;
   }
 
-  onOpen(/*event*/) {
+  onOpen(/* event */) {
     this.store.dispatch('updateConnectionStatus', true);
     console.log("websocket connection is opened!") // eslint-disable-line
-    this.sendStoredToken()
+    this.sendStoredToken();
   }
 
   sendStoredToken() {
-    let token = StorageHelper.getItem("token")
+    const token = StorageHelper.getItem('token');
     if (token != null) {
-      let obj = { auth: { action: "checkStoredToken", storedToken: token } };
+      const obj = { auth: { action: 'checkStoredToken', storedToken: token } };
       this.connectionSocket.send(JSON.stringify(obj));
     }
   }
 
   onMessage(event) {
-    let obj = JSON.parse(event.data);
+    const obj = JSON.parse(event.data);
     console.log("received data", obj) // eslint-disable-line
     this.store.dispatch('onDataReceived', obj);
   }
@@ -74,94 +74,100 @@ class WebSocketConnector {
   }
 
   sendGPIOUpdateMessage({ gpioPort, value }) {
-    let obj = { gpio: { port: gpioPort, state: value } };
+    const obj = { gpio: { port: gpioPort, state: value } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendFetchPortMappingConfigurationMessage() {
-    let obj = { portconfig: { action: "readConfigFile" } };
+    const obj = { portconfig: { action: 'readConfigFile' } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendSetPortMappingConfigurationMessage({ configContents }) {
-    let obj = { portconfig: { action: "setConfigFile", configContents } };
+    const obj = { portconfig: { action: 'setConfigFile', configContents } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendResetPortMappingConfigurationMessage() {
-    let obj = { portconfig: { action: "resetConfigFile" } };
+    const obj = { portconfig: { action: 'resetConfigFile' } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
-    var obj = { serial: { action: "openDevice", path: devicePath, baudRate } };
+    const obj = { serial: { action: 'openDevice', path: devicePath, baudRate } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendCloseSerialDeviceMessage({ devicePath }) {
-    var obj = { serial: { action: "closeDevice", path: devicePath } };
+    const obj = { serial: { action: 'closeDevice', path: devicePath } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendWriteSerialDeviceMessage({ devicePath, serialCmd }) {
-    var obj = { serial: { action: "writeDevice", path: devicePath, data: serialCmd } };
+    const obj = { serial: { action: 'writeDevice', path: devicePath, data: serialCmd } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendWriteKeySerialDeviceMessage({ devicePath, keyCode, charCode, ctrlKey, shiftKey }) {
-    var obj = { serial: { action: "writeKeyDevice", path: devicePath, keyCode, charCode, ctrlKey, shiftKey } };
+  sendWriteKeySerialDeviceMessage({
+    devicePath, keyCode, charCode, ctrlKey, shiftKey,
+  }) {
+    const obj = {
+      serial: {
+        action: 'writeKeyDevice', path: devicePath, keyCode, charCode, ctrlKey, shiftKey,
+      },
+    };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendLoginUserMessage({ username, password }) {
-    var obj = { auth: { action: "loginUser", username, password } };
+    const obj = { auth: { action: 'loginUser', username, password } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
+
   sendLogoutUserMessage({ user }) {
-    var obj = { auth: { action: "logoutUser", username: user } };
+    const obj = { auth: { action: 'logoutUser', username: user } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
-  
+
   sendlistSerialDevicesMessage() {
-    var obj = { serial: { action: "listDevices" } };
+    const obj = { serial: { action: 'listDevices' } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendToggleUSBDeviceMessage() {
-    var obj = { usb: { action: "toggleDevice" } };
+    const obj = { usb: { action: 'toggleDevice' } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendDetectUSBDeviceMessage() {
-    var obj = { usb: { action: "detectUsbDevice" } };
+    const obj = { usb: { action: 'detectUsbDevice' } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendListItemsUSBDeviceMessage({ path }) {
-    var obj = { usb: { action: "listItems", path } };
+    const obj = { usb: { action: 'listItems', path } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendDeleteItemUSBDeviceMessage({ path, itemName }) {
-    var obj = { usb: { action: "deleteItem", path, itemName } };
+    const obj = { usb: { action: 'deleteItem', path, itemName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendGetItemInfoUSBDeviceMessage({ path, itemName }) {
-    var obj = { usb: { action: "getItemInfo", path, itemName } };
+    const obj = { usb: { action: 'getItemInfo', path, itemName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendCreateFolderUSBDeviceMessage({ path, folderName }) {
-    var obj = { usb: { action: "createFolder", path, folderName } };
+    const obj = { usb: { action: 'createFolder', path, folderName } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
   sendRebootDeviceMessage() {
-    let obj = { utility: { action: "reboot" } };
+    const obj = { utility: { action: 'reboot' } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
-
 }
 
 const webSocketConnector = new WebSocketConnector();
