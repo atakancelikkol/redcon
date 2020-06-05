@@ -263,7 +263,7 @@ describe('SerialPortController', () => {
   test('openSerialPort', () => {
     const serialPortController = new SerialPortController();
     //
-    
+
     const spyLogger = jest.spyOn(logger, 'error');
     //
     const mockStartVirtualDevice = jest.fn();
