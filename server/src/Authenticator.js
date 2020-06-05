@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const ServerConfig = require('./ServerConfig');
 const ControllerBase = require('./ControllerBase');
+const logger = require('./util/Logger');
 
 class Authenticator extends ControllerBase {
   constructor() {
@@ -45,16 +46,17 @@ class Authenticator extends ControllerBase {
       try {
         result = jwt.verify(receivedToken, ServerConfig.TokenSecret);
       } catch (ex) {
-        console.log(ex);
+        // console.log(ex);
+        logger.debug(ex);
       }
 
       if (result && result.userObject && client.getIp() === result.userObject.ip) {
-        // console.log("Token ip verified with client ip.")
+        // logger.info('Token ip verified with client ip.');
         client.setAuthentication(true);
         client.setUserObject(result.userObject);
         this.sendUserToClient(client, result.userObject, 'success', receivedToken);
       } else {
-        // console.log("Token ip is invalid!")
+        // logger.error('Token ip is invalid');
       }
     }
   }

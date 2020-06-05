@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const ClientConnection = require('./ClientConnection');
 
+const logger = require('./util/Logger');
+
 class HttpServer {
   constructor({ controllers }) {
     this.controllers = controllers;
@@ -21,7 +23,8 @@ class HttpServer {
   }
 
   init() {
-    console.log('initializing HttpServer...');
+    // console.log('initializing HttpServer...');
+    logger.info('initializing HttpServer...');
     this.app = express();
 
     // start web server
@@ -59,11 +62,12 @@ class HttpServer {
       connection,
       isAuthenticated: false,
     });
-    console.log('New connection request received! id: ', client.getId());
-    console.log('Remote client address:', client.getIp());
+    // console.log('New connection request received! id: ', client.getId());
+    logger.info('New connection request received! id: ', client.getId());
+    // console.log('Remote client address:', client.getIp());
+    logger.info('Remote client address:', client.getIp());
 
     this.clients.push(client);
-
     // send initial message to the client
     this.sendInitialMessage(client);
 
@@ -81,12 +85,14 @@ class HttpServer {
   }
 
   onCloseHandler(client/* , connection */) {
-    console.log('connection closed! id: ', client.getId());
+    // console.log('connection closed! id: ', client.getId());
+    logger.info('connection closed! id: ', client.getId());
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
     } else {
-      console.log('Error on closing connection! id: ', client.getId());
+      // console.log('Error on closing connection! id: ', client.getId());
+      logger.info(`Error on closing connection ${client.getId()}`);
     }
   }
 

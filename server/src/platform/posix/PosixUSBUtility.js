@@ -1,5 +1,6 @@
 const nodePath = require('path');
 const { exec } = require('child_process');
+const logger = require('../../util/Logger');
 
 class USBUtility {
   extractUsbState(mountPath, device) {
@@ -27,7 +28,8 @@ class USBUtility {
           reject(usbErrorString);
           return;
         }
-        console.log('synchronized usb drive');
+        logger.info('synchronized usb drive');
+        // console.log('synchronized usb drive');
         resolve();
       });
     });
@@ -45,7 +47,8 @@ class USBUtility {
           reject(usbErrorString);
           return;
         }
-        console.log('ejected usb drive');
+        logger.info('ejected usb drive');
+        // console.log('ejected usb drive');
         resolve();
       });
     });

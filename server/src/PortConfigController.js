@@ -1,5 +1,6 @@
 const fs = require('fs');
 const ControllerBase = require('./ControllerBase');
+const logger = require('./util/Logger');
 
 const CONFIG_FILE_PATH = '../scripts/port_forwarding/int.config';
 const CONFIG_CUSTOM_CONFIG_PATH = '../scripts/port_forwarding/custom.config';
@@ -66,7 +67,8 @@ class PortConfigController extends ControllerBase {
 
   setConfigFile(configContents) {
     if (typeof configContents !== 'string') {
-      console.log('Invalid parameters', configContents);
+      // console.log('Invalid parameters', configContents);
+      logger.error('Invalid parameters', configContents);
       return;
     }
     fs.writeFile(CONFIG_CUSTOM_CONFIG_PATH, configContents, 'utf8', (/* err */) => {

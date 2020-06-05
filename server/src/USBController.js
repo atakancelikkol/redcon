@@ -11,6 +11,8 @@ const getSize = require('get-folder-size');
 const ControllerBase = require('./ControllerBase');
 const GPIOPins = require('./GPIOPins');
 
+const logger = require('./util/Logger');
+
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
 const LED_CHECK_TIME_INTERVAL = 1000; // ms
@@ -38,7 +40,8 @@ class USBController extends ControllerBase {
   }
 
   init() {
-    console.log('initializing USBController');
+    logger.info('initializing USBController...');
+    // console.log('initializing USBController');
     usbDetect.startMonitoring();
     usbDetect.on('change', () => {
       this.detectDriveChanges();
@@ -109,7 +112,8 @@ class USBController extends ControllerBase {
           if (tryCount < MAX_TRY_COUNT_DRIVE) {
             setTimeout(detectUsbInsertionInTimeIntervals, 1000);
           } else {
-            console.log('detectUsbDevice try count has been exceeded');
+            logger.info('detectUsbDevice try count has been exceeded');
+            // console.log('detectUsbDevice try count has been exceeded');
           }
         }
       });
@@ -166,7 +170,8 @@ class USBController extends ControllerBase {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant listUsbDeviceItems`;
         this.sendCurrentState();
-        console.log(`Unable to scan directory: ${err}`);
+        // console.log(`Unable to scan directory: ${err}`);
+        logger.error(`Unable to scan directory: ${err}`);
         return;
       }
       const itemsList = [];
@@ -201,7 +206,8 @@ class USBController extends ControllerBase {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant getFileStatus`;
         this.listUsbDeviceItems(path);
-        console.log(err);
+        // console.log(err);
+        logger.error(err);
         return;
       }
 
@@ -274,7 +280,8 @@ class USBController extends ControllerBase {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant createUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
-        console.log(err);
+        // console.log(err);
+        logger.error(err);
         return;
       }
       this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
@@ -289,7 +296,8 @@ class USBController extends ControllerBase {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant getFileStatus`;
         this.listUsbDeviceItems(path);
-        console.log(err);
+        // console.log(err);
+        logger.error(err);
         return;
       }
       if (stats.isFile()) { // if it's a file
@@ -304,7 +312,8 @@ class USBController extends ControllerBase {
     fs.unlink(dir, (err) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
-        console.log('could not remove file! ', dir, err);
+        // console.log('could not remove file! ', dir, err);
+        logger.error('could not remove file! ', dir, err);
       }
       this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
@@ -316,7 +325,8 @@ class USBController extends ControllerBase {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
-        console.log('could not remove folder! ', dir, err);
+        // console.log('could not remove folder! ', dir, err);
+        logger.error('could not remove file! ', dir, err);
       }
       await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
@@ -364,7 +374,8 @@ class USBController extends ControllerBase {
       } else if (tryCount < MAX_TRY_COUNT_LED) {
         this.toggleTimeoutHandle = setTimeout(detectLedChangeInTimeIntervals, 5);
       } else {
-        console.log('detectLedChange try count has been exceeded');
+        logger.info('detectLedChange try count has been exceeded');
+        // console.log('detectLedChange try count has been exceeded');
       }
     };
     detectLedChangeInTimeIntervals();
@@ -383,7 +394,8 @@ class USBController extends ControllerBase {
     // parse the incoming request containing the form data
     form.parse(req, (err, fields, files) => {
       if (err) { // Handle error
-        console.log('error occurred during file upload!', err);
+        // console.log('error occurred during file upload!', err);
+        logger.error('error occurred during file upload!', err);
         res.status(500).send(err.toString());
         return;
       }
@@ -394,7 +406,8 @@ class USBController extends ControllerBase {
       const copyHandler = (file) => {
         fs.copyFile(file.path, nodePath.join(dir, file.name), (er) => {
           if (er) { // Handle error
-            console.log('error occured during file copy!', er);
+            // console.log('error occured during file copy!', er);
+            logger.error('error occured during file copy!', er);
             res.status(500).send(er.toString());
             return;
           }
