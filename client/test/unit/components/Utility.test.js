@@ -1,5 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
+import { BButton, BCard, } from 'bootstrap-vue';
 import componentWithVuex from '../../../src/components/Utility.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
@@ -39,12 +40,17 @@ describe('componentWithVuex', () => {
       mocks: {
         $bvModal,
       },
+      stubs: {
+        'b-button': BButton,
+        'b-card': BCard,
+      },
     });
 
     const button = wrapper.findComponent({ ref: 'reboot' });
     button.trigger('click');
     wrapper.vm.$nextTick(() => {
-      expect(actions.rebootDevice).toHaveBeenCalled();
+      expect(actions.rebootDevice).toHaveBeenCalledTimes(1);
+      wrapper.destroy();
       done();
     });
   }));
@@ -70,12 +76,17 @@ describe('componentWithVuex', () => {
       mocks: {
         $bvModal,
       },
+      stubs: {
+        'b-button': BButton,
+        'b-card': BCard,
+      },
     });
 
     const button = wrapper.findComponent({ ref: 'reboot' });
     button.trigger('click');
     wrapper.vm.$nextTick(() => {
-      expect(actions.rebootDevice).toHaveBeenCalled();
+      expect(actions.rebootDevice).toHaveBeenCalledTimes(1);
+      wrapper.destroy();
       done();
     });
   }));
