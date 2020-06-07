@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { BButton, BCard, } from 'bootstrap-vue';
+import { BButton, BCard } from 'bootstrap-vue';
 import componentWithVuex from '../../../src/components/Utility.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
