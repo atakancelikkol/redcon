@@ -7,18 +7,24 @@
     "extends": [
         "airbnb-base",
         "eslint:recommended",
-        "plugin:vue/recommended"
+        "plugin:vue/recommended",
+        "plugin:jest/recommended",
+        "plugin:jest-formatting/recommended",
+        "plugin:vue/base"
     ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
+    "parser": "vue-eslint-parser",
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
     "plugins": [
-        "vue"
+        "vue",
+        "jest",
+        "jest-formatting"
     ],
     "rules": {
 

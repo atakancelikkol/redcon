@@ -1,3 +1,4 @@
+
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 const USBController = require('../../src/USBController.js');
 let platformObjects = new PlatformObjects('mock');

@@ -17,9 +17,7 @@ class Authenticator extends ControllerBase {
   }
 
   getCopyState() {
-    return {
-      history: [...this.history],
-    };
+    return { history: [...this.history] };
   }
 
   handleMessage(obj, client) {
@@ -62,7 +60,9 @@ class Authenticator extends ControllerBase {
   logUserActivity(client, activityType) {
     const insertHistoryItem = (historyClient) => {
       const currentDate = new Date();
-      const historyObject = { username: historyClient.getUserObject().username, date: currentDate, activityDate: currentDate };
+      const historyObject = {
+        username: historyClient.getUserObject().username, date: currentDate, activityDate: currentDate,
+      };
       this.history.unshift(historyObject);
       this.history = this.history.slice(0, 10);
     };
@@ -87,7 +87,9 @@ class Authenticator extends ControllerBase {
     const isAuthenticated = true;
     if (isAuthenticated) {
       client.setAuthentication(true);
-      client.setUserObject({ username, id: 'id', ip: client.getIp() });
+      client.setUserObject({
+        username, id: 'id', ip: client.getIp(),
+      });
       const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
       this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');
@@ -104,7 +106,9 @@ class Authenticator extends ControllerBase {
   }
 
   sendUserToClient(client, user, authStatus, token) {
-    client.send({ auth: { user, authStatus, token } });
+    client.send({ auth: {
+      user, authStatus, token,
+    } });
   }
 }
 

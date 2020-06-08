@@ -9,7 +9,9 @@ const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('./util/KeyMapping');
 
 if (virtualDeviceMode) {
-  MockBinding.createPort(mockDevicePath, { echo: true, record: true });
+  MockBinding.createPort(mockDevicePath, {
+    echo: true, record: true,
+  });
   SerialPortStream.Binding = MockBinding;
 }
 
@@ -185,9 +187,7 @@ class SerialPortController extends ControllerBase {
     // export serial stream to txt
     const date = new Date();
     const serialOutputPath = `../server/public/SerialOut/${portpath}_(${date.toISOString().slice(0, 10)}).txt`;
-    const writer = fs.createWriteStream(serialOutputPath, {
-      flags: 'a',
-    });
+    const writer = fs.createWriteStream(serialOutputPath, { flags: 'a' });
     this.writerInstances[portpath] = writer;
   }
 
@@ -228,7 +228,9 @@ class SerialPortController extends ControllerBase {
 
   onPortDataReceived(port, data) {
     const obj = {};
-    obj.serialData = { path: port.path, data };
+    obj.serialData = {
+      path: port.path, data,
+    };
     const writer = this.writerInstances[port.path];
     if (writer !== undefined) {
       writer.write(data);

@@ -1,25 +1,25 @@
 const IGPIOUtility = require('../../../../src/platform/interfaces/IGPIOUtility');
 
-describe("IGPIOUtility interface test", () => {
-  it("should throw error when calling methods directly", () => {
+describe('IGPIOUtility interface test', () => {
+  it('should throw error when calling methods directly', () => {
     const iGPIOUtility = new IGPIOUtility();
-    expect(()=>{
+    expect(() => {
       iGPIOUtility.openForOutput();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iGPIOUtility.openForInput();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iGPIOUtility.read();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iGPIOUtility.write();
     }).toThrow(Error);
 
-    expect(()=>{
+    expect(() => {
       iGPIOUtility.close();
     }).toThrow(Error);
   });

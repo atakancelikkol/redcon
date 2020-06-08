@@ -54,13 +54,11 @@ class PortConfigController extends ControllerBase {
   }
 
   sendConfigFileToClients(data, error) {
-    const configResponse = {
-      portconfig: {
-        configContents: error ? 'An error occurred while reading file' : data,
-        shellOutput: this.shellOutput,
-        shellError: this.shellError,
-      },
-    };
+    const configResponse = { portconfig: {
+      configContents: error ? 'An error occurred while reading file' : data,
+      shellOutput: this.shellOutput,
+      shellError: this.shellError,
+    } };
     this.sendMessageCallback(this, configResponse);
   }
 
