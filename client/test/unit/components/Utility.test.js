@@ -1,12 +1,23 @@
+/* eslint-disable */
 import { createLocalVue, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { BButton, BCard } from 'bootstrap-vue';
 import componentWithVuex from '../../../src/components/Utility.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
+import { BootstrapVue, BModal } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+localVue.use(BootstrapVue);
+
+export const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag)
+  document.body.appendChild(container)
+  return container
+}
+
+//export const waitNT = ctx => new Promise(resolve => ctx.$nextTick(resolve))
+//export const waitRAF = () => new Promise(resolve => requestAnimationFrame(resolve))
 
 describe('componentWithVuex', () => {
   let store;
@@ -22,72 +33,49 @@ describe('componentWithVuex', () => {
     expect(defaultData).toStrictEqual({});
   });
 
-  it('reboot button when value is equal to true', () => new Promise((done) => {
-    const $bvModal = {
-      msgBoxConfirm: (CommandString) => {
-        const msgCommandString = CommandString;
-        console.log(msgCommandString);
-        return new Promise((resolve) => {
-          const value = true;
-          resolve(value);
-        });
-      },
-    };
+  it('reboot button when value is equal to true', () =>  {
 
     const wrapper = mount(componentWithVuex, {
+      attachTo: createContainer(),
+      propsData: {
+        static: true,
+      },
       store,
       localVue,
-      mocks: {
-        $bvModal,
-      },
-      stubs: {
-        'b-button': BButton,
-        'b-card': BCard,
-      },
     });
 
-    const button = wrapper.findComponent({ ref: 'reboot' });
+    const button = wrapper.findComponent({ref: "reboot"});
     button.trigger('click');
-    wrapper.vm.$nextTick(() => {
-      expect(actions.rebootDevice).toHaveBeenCalledTimes(1);
-      wrapper.destroy();
-      done();
-    });
-  }));
 
-  it('reboot button when promise throw exception', () => new Promise((done) => {
-    const $bvModal = {
-      msgBoxConfirm: (CommandString) => {
-        const msgCommandString = CommandString;
-        console.log(msgCommandString);
-        return new Promise((resolve, reject) => {
-          const value = undefined;
-          if (value === true) {
-            resolve(value);
-          } const err = 'error';
-          reject(err);
-        });
-      },
-    };
+    const button2 = wrapper.find('.modal-content .btn-danger');
+    button2.trigger('click');
+  
+    expect(button2.text()).toBe('YES');
+  
+    expect(actions.rebootDevice).toHaveBeenCalledTimes(1);
 
-    const wrapper = mount(componentWithVuex, {
-      store,
-      localVue,
-      mocks: {
-        $bvModal,
-      },
-      stubs: {
-        'b-button': BButton,
-        'b-card': BCard,
-      },
-    });
-
-    const button = wrapper.findComponent({ ref: 'reboot' });
-    button.trigger('click');
-    wrapper.vm.$nextTick(() => {
-      expect(actions.rebootDevice).toHaveBeenCalledTimes(1);
-      wrapper.destroy();
-      done();
-    });
-  }));
+    wrapper.destroy();
+  });
 });
+
+/*it('reboot button when value is equal to true', () =>  {
+
+  const wrapper = mount(BModal, {
+    attachTo: createContainer(),
+    propsData: {
+      static: true,
+      id: '__BVID__140___BV_modal_footer_t'
+    },
+    store,
+    localVue,
+  });
+
+  const button = wrapper.find('.modal-content .btn');
+  button.trigger('click');
+
+  //expect(button.text()).toBe('YES');
+
+  expect(actions.rebootDevice).toHaveBeenCalledTimes(1);
+
+  wrapper.destroy();
+}); */
