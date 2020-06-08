@@ -38,6 +38,7 @@ export default {
     onRebootClicked() {
       this.$bvModal
         .msgBoxConfirm('Please confirm that you want to reboot Raspberry Pi device.', {
+          id: 'rebootModalConfirmation',
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
