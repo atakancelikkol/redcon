@@ -33,7 +33,7 @@ describe('componentWithVuex', () => {
     expect(defaultData).toStrictEqual({});
   });
 
-  it('reboot button when value is equal to true', () =>  {
+  xit('reboot button when value is equal to true', () =>  {
 
     const wrapper = mount(componentWithVuex, {
       attachTo: createContainer(),
