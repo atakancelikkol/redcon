@@ -118,11 +118,11 @@ class USBController extends ControllerBase {
           if (this.usbState.isAvailable === lastState) {
             if (tryCount < MAX_TRY_COUNT_DRIVE) {
               setTimeout(detectUsbInsertionInTimeIntervals, 1000);
-              resolve();
             } else {
-              console.log('detectUsbDevice try count has been exceeded');
               reject();
             }
+          } else {
+            resolve();
           }
         });
       };

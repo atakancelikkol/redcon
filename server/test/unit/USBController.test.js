@@ -118,6 +118,7 @@ describe('USBController Usb Flash Operations', () => {
   });
 
   test('detectDriveChanges', () => new Promise((done) => {
+    usbController.usbState.isAvailable = false;
     usbController.detectDriveChanges().then(() => {
       expect(usbController.usbState.isAvailable).toBe(true);
       done();
