@@ -1,7 +1,7 @@
 import { createLocalVue, mount, createWrapper } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
-import componentWithVuex from '../../../src/components/Utility.vue';
+import componentUtility from '../../../src/components/Utility.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
 import { createContainer, waitNT, waitRAF } from '../../testhelpers/Utils';
@@ -10,7 +10,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(BootstrapVue);
 
-describe('componentWithVuex', () => {
+describe('componentUtility', () => {
   let store;
 
   beforeEach(() => {
@@ -20,12 +20,12 @@ describe('componentWithVuex', () => {
   });
 
   it('default values', () => {
-    const defaultData = componentWithVuex.data();
+    const defaultData = componentUtility.data();
     expect(defaultData).toStrictEqual({});
   });
 
   it('reboot operation when clicked to yes option', async () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentUtility, {
       attachTo: createContainer(),
       propsData: {
         static: true,
@@ -58,7 +58,7 @@ describe('componentWithVuex', () => {
   });
 
   it('reboot operation when clicked to no option', async () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentUtility, {
       attachTo: createContainer(),
       propsData: {
         static: true,
@@ -91,7 +91,7 @@ describe('componentWithVuex', () => {
   });
 
   it('reboot operation when clicked to × option', async () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentUtility, {
       attachTo: createContainer(),
       propsData: {
         static: true,
