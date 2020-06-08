@@ -51,9 +51,6 @@ export default {
         })
         .then((value) => {
           if (value === true) this.rebootDevice();
-        })
-        .catch((err) => {
-          console.log(err);
         });
     },
   },
