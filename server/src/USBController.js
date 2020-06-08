@@ -108,23 +108,26 @@ class USBController extends ControllerBase {
   }
 
   detectDriveChanges() {
-    const lastState = this.usbState.isAvailable;
-    let tryCount = 0;
+    return new Promise((resolve, reject) => {
+      const lastState = this.usbState.isAvailable;
+      let tryCount = 0;
 
-    const detectUsbInsertionInTimeIntervals = () => {
-      this.detectUsbDevice().then(() => {
-        tryCount += 1;
-        if (this.usbState.isAvailable === lastState) {
-          if (tryCount < MAX_TRY_COUNT_DRIVE) {
-            setTimeout(detectUsbInsertionInTimeIntervals, 1000);
-          } else {
-            console.log('detectUsbDevice try count has been exceeded');
+      const detectUsbInsertionInTimeIntervals = () => {
+        this.detectUsbDevice().then(() => {
+          tryCount += 1;
+          if (this.usbState.isAvailable === lastState) {
+            if (tryCount < MAX_TRY_COUNT_DRIVE) {
+              setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+              resolve();
+            } else {
+              console.log('detectUsbDevice try count has been exceeded');
+              reject();
+            }
           }
-        }
-      });
-    };
-
-    detectUsbInsertionInTimeIntervals();
+        });
+      };
+      detectUsbInsertionInTimeIntervals();
+    });
   }
 
   // platform

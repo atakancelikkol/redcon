@@ -3,7 +3,14 @@ const IUSBUtility = require('../interfaces/IUSBUtility');
 class MockUSBUtility extends IUSBUtility {
   extractUsbState(/* mountPath, device */) {
     // console.log("MockUSBUtility extractUsbState: ", mountPath, device);
-    return true;
+    const platformUsbState = {
+      isAvailable: true,
+      mountedPath: '',
+      usbName: 'testUsbName',
+      device: '',
+      usbErrorString: '',
+    };
+    return platformUsbState;
   }
 
   syncUsbDevice(/* usbState */) {

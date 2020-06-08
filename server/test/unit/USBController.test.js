@@ -1,123 +1,99 @@
-
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 const USBController = require('../../src/USBController.js');
-let platformObjects = new PlatformObjects('mock');
-let usbController = new USBController({ useMockUsbDetect: true })
+
+const platformObjects = new PlatformObjects('mock');
+const usbController = new USBController({ useMockUsbDetect: true });
 
 jest.useFakeTimers();
-jest.mock('usb-detection')
-jest.mock('md5-file')
-jest.mock('get-folder-size')
-jest.mock('rimraf')
+jest.mock('usb-detection');
+jest.mock('md5-file');
+jest.mock('get-folder-size');
+jest.mock('rimraf');
 
-let gpioUtility = platformObjects.getGPIOUtility();
-let usbUtility = platformObjects.getUSBUtility();
-
-const nodePath = require('path');
-
-let mockfsErrorParameter = false
-let mockfsStdOutParameter = 'mockstdout'
-let dirString = " D:\ "
-let fswithFileTypes = true;
-let fsrecursive = true;
-let fspath = ''
-
-let mockReadDirPath = '';
-let mockErr = undefined;
-let mockCopyFileErr = undefined;
+const gpioUtility = platformObjects.getGPIOUtility();
+const usbUtility = platformObjects.getUSBUtility();
+let mockPath = '';
+let fspath = 'testpath';
+let mockErr;
+let mockCopyFileErr;
 let mockFsReturnValue = [];
 let mockdeviceList = [{
   description: 'Test USB Device',
   mountpoints: [
-    {
-      path: 'T:\\'
-    }
+    { path: 'T:\\' },
   ],
   isUSB: true,
-}]
+}];
+let itemName = 'testname';
 
 // mock file system
-const fs = require('fs');
 jest.mock('fs', () => ({
   readdir: jest.fn((dir, options, callback) => {
-
     const err = mockErr;
     const items = mockFsReturnValue;
     callback(err, items);
   }),
   stat: jest.fn((dir, callback) => {
-
     const err = mockErr;
     const items = mockFsReturnValue;
     callback(err, items);
   }),
   mkdir: jest.fn((dir, option, callback) => {
-
     const err = mockErr;
     callback(err);
   }),
   lstat: jest.fn((dir, callback) => {
-
     const err = mockErr;
     const items = mockFsReturnValue;
     callback(err, items);
   }),
   unlink: jest.fn((dir, callback) => {
-
     const err = mockErr;
     callback(err);
   }),
   copyFile: jest.fn((dir, anotherDir, callback) => {
     const err = mockCopyFileErr;
     callback(err);
-  })
+  }),
 }));
 
 // mock drivelist
-const drivelist = require('drivelist');
-jest.mock('drivelist', () => ({
-  list: jest.fn(() => {
-    const drivelist = mockdeviceList
-    return drivelist;
-  })
-}));
+jest.mock('drivelist', () => ({ list: jest.fn(() => {
+  const drivelist = mockdeviceList;
+  return drivelist;
+}) }));
 
-//mock getsize
-const getSize = require('get-folder-size');
+// mock getsize
 jest.mock('get-folder-size', () => jest.fn((dir, callback) => {
-  let size = 993192
+  const size = 993192;
   const err = mockErr;
   callback(err, size);
 }));
 
-//mock rimraf
-const rimraf = require('rimraf');
+// mock rimraf
 jest.mock('rimraf', () => jest.fn((dir, callback) => {
   const err = mockErr;
   callback(err);
 }));
 
-let File = { path: 'testPath', name: 'testName' }
-let mockForm = {
+const File = {
+  path: 'testPath', name: 'testName',
+};
+const mockForm = {
   multiples: false,
   maxFileSize: 0,
   parse: jest.fn((req, callback) => {
-    let fields = { currentDirectory: 'currentDir' }
-    let files = { uploads: File }
+    const fields = { currentDirectory: 'currentDir' };
+    const files = { uploads: File };
     const err = mockErr;
-    callback(err, fields, files)
-  })
-}
-
-//mock formidable
-const formidable = require('formidable');
-jest.mock('formidable', () => ({
-  IncomingForm: jest.fn(() => {
-    return mockForm;
+    callback(err, fields, files);
   }),
-}));
+};
 
-//mock
+// mock formidable
+jest.mock('formidable', () => ({ IncomingForm: jest.fn(() => mockForm) }));
+
+// mock
 const mockResponse = () => {
   const res = {};
   res.status = jest.fn().mockReturnValue(res);
@@ -126,333 +102,312 @@ const mockResponse = () => {
   return res;
 };
 
-const mockRequest = (queryData) => {
-  return {
-    query: queryData,
-  };
-};
-
-describe("USBController Usb Flash Operations", () => {
-
-  test("init should call openForInput", () => {
-    let openForInputSpy = jest.spyOn(gpioUtility, 'openForInput');
+describe('USBController Usb Flash Operations', () => {
+  test('init should call openForInput', () => {
+    const openForInputSpy = jest.spyOn(gpioUtility, 'openForInput');
     usbController.registerPlatformObjects(platformObjects);
     usbController.init();
     expect(openForInputSpy).toHaveBeenCalledTimes(2);
-  })
+  });
 
-  test("checkKVMLedState", () => {
+  test('checkKVMLedState', () => {
     usbController.checkKVMLedState();
     expect(usbController.usbState.kvmLedStateRPI).toBe(true);
     expect(usbController.usbState.kvmLedStateECU).toBe(true);
     usbController.checkKVMLedState();
-  })
+  });
 
-  //??
-  /* 
-  test("detectDriveChanges", () => {
-    console.log('wowowo1', usbController.usbState)
+  test('detectDriveChanges', () => new Promise((done) => {
+    usbController.detectDriveChanges().then(() => {
+      expect(usbController.usbState.isAvailable).toBe(true);
+      done();
+    }, () => {
+      throw new Error();
+    });
+  }));
 
-    usbController.detectDriveChanges()
-
-    usbController.detectDriveChanges()
-    jest.advanceTimersByTime(1500);
-    console.log('wowowo2', usbController.usbState)
-    //expect(usbusbController.usbState)
-  }) */
-
-  test("detectUsbDevice isDriveFound = true;", async () => {
-    let extractUsbStateSpy = jest.spyOn(usbUtility, 'extractUsbState');
+  test('detectUsbDevice isDriveFound = true;', async () => {
+    const extractUsbStateSpy = jest.spyOn(usbUtility, 'extractUsbState');
     await usbController.detectUsbDevice();
     expect(extractUsbStateSpy).toBeCalled();
-  })
+  });
 
-  test("detectUsbDevice isDriveFound = false;", async () => {
+  test('detectUsbDevice isDriveFound = false;', async () => {
     mockdeviceList = [{
       description: 'Test USB Device',
       mountpoints: [
-        {
-          path: 'T:\\'
-        }
+        { path: 'T:\\' },
       ],
       isUSB: false,
-    }]
+    }];
     await usbController.detectUsbDevice();
     expect(usbController.usbState.isAvailable).toBe(false);
-  })
+  });
 
-  test("isSafeToToggleUsbDevice ", () => {
-    usbController.timeToCheckSafety = 0
+  test('isSafeToToggleUsbDevice ', () => {
+    usbController.timeToCheckSafety = 0;
     expect(usbController.isSafeToToggleUsbDevice()).toBe(true);
     expect(usbController.isSafeToToggleUsbDevice()).toBe(false);
-    usbController.timeToCheckSafety = 1591193912494
+    usbController.timeToCheckSafety = 1591193912494;
     expect(usbController.isSafeToToggleUsbDevice()).toBe(true);
-  })
+  });
 
-  test("toggleUsbDevice ", () => {
-    usbController.timeToCheckSafety = 0
-    let ejectUSBDriveSafelySpy = jest.spyOn(usbUtility, 'ejectUSBDriveSafely');
-    usbController.toggleUsbDevice()
+  test('toggleUsbDevice ', () => {
+    usbController.timeToCheckSafety = 0;
+    const ejectUSBDriveSafelySpy = jest.spyOn(usbUtility, 'ejectUSBDriveSafely');
+    usbController.toggleUsbDevice();
     expect(ejectUSBDriveSafelySpy).toHaveBeenCalled();
-    usbController.toggleUsbDevice()
-  })
+    usbController.toggleUsbDevice();
+  });
 
-  test("pinToggleSequence toggleTimeoutHandle ", () => {
-    usbController.toggleTimeoutHandle = true
-    usbController.pinToggleSequence()
-    expect(usbController.toggleTimeoutHandle).toBe(true)
+  test('pinToggleSequence toggleTimeoutHandle ', () => {
+    usbController.toggleTimeoutHandle = true;
+    usbController.pinToggleSequence();
+    expect(usbController.toggleTimeoutHandle).toBe(true);
     jest.advanceTimersByTime(1500);
-    usbController.pinToggleSequence()
-  })
+    usbController.pinToggleSequence();
+  });
 });
 
-describe("USBController Folder Operations", () => {
+describe('USBController Folder Operations', () => {
   beforeEach(() => {
-    mockfsErrorParameter = false
-    mockfsStdOutParameter = 'mockstdout'
-    dirString = " D:\ "
-    fswithFileTypes = true;
-    fsrecursive = true;
-    fspath = ''
-    mockReadDirPath = '';
     mockErr = undefined;
     mockCopyFileErr = undefined;
     mockFsReturnValue = [];
-  })
+    itemName = 'testname';
+    fspath = 'testpath';
+    mockPath = 'anotherDir';
+  });
 
-  test("listUsbDeviceItems", (done) => {
+  test('listUsbDeviceItems', () => new Promise((done) => {
     mockErr = undefined;
     mockFsReturnValue = [{
       name: 'testDir',
-      isDirectory: () => { return true; },
+      isDirectory: () => true,
     }];
-    const mockPath = 'anotherDir';
+    mockPath = 'anotherDir';
     usbController.usbState.mountedPath = 'test';
     usbController.listUsbDeviceItems(mockPath).then(() => {
       expect(usbController.usbState.currentDirectory).toMatch(/anotherDir/);
       expect(usbController.usbState.currentItems.length).toBe(2);
       done();
     });
-  })
+  }));
 
-  test("listUsbDeviceItems err", (done) => {
+  test('listUsbDeviceItems err', () => new Promise((done) => {
     mockErr = true;
     mockFsReturnValue = [];
-    const mockPath = '.';
+    mockPath = '.';
     usbController.listUsbDeviceItems(mockPath).then(() => {
       throw new Error();
     }, () => {
-      done()
-    }
-    );
-  })
+      expect(usbController.usbState.usbErrorString).toBe('undefined Cant listUsbDeviceItems');
+      done();
+    });
+  }));
 
-  test("listUsbDeviceItems if case resolve", (done) => {
+  test('listUsbDeviceItems if case resolve', () => new Promise((done) => {
     mockErr = undefined;
     mockFsReturnValue = [];
-    const mockPath = '.';
-    usbController.usbState.mountedPath = ''
+    mockPath = 'testPath';
+    usbController.usbState.mountedPath = '';
     usbController.listUsbDeviceItems(mockPath).then(() => {
-      done()
+      expect(usbController.usbState.currentDirectory).toBe('testPath');
+      done();
     }, () => {
       throw new Error();
-    }
-    );
-  })
+    });
+  }));
 
-  test("createUsbDeviceFolder", (done) => {
+  test('createUsbDeviceFolder', () => new Promise((done) => {
     mockErr = undefined;
     mockFsReturnValue = [{
       name: 'testDir',
-      isDirectory: () => { return true; },
+      isDirectory: () => true,
     }];
-    const mockPath = '.';
-    let syncUsbDeviceSpy = jest.spyOn(usbUtility, 'syncUsbDevice');
+    mockPath = '.';
+    const syncUsbDeviceSpy = jest.spyOn(usbUtility, 'syncUsbDevice');
     usbController.createUsbDeviceFolder(mockPath, 'asd').then(() => {
       expect(syncUsbDeviceSpy).toHaveBeenCalled();
-      done()
+      done();
     }, () => {
       throw new Error();
-    }
-    );
-  })
+    });
+  }));
 
-  test("createUsbDeviceFolder err", (done) => {
+  test('createUsbDeviceFolder err', () => new Promise((done) => {
     mockErr = true;
     mockFsReturnValue = [{
       name: 'testDir',
-      isDirectory: () => { return true; },
+      isDirectory: () => true,
     }];
-    const mockPath = '.';
-    let syncUsbDeviceSpy = jest.spyOn(usbUtility, 'syncUsbDevice');
+    mockPath = '.';
     usbController.createUsbDeviceFolder(mockPath, 'asd').then(() => {
       throw new Error();
     }, () => {
       expect(usbController.usbState.usbErrorString).toBe('undefined Cant createUsbDeviceFolder');
-      done()
-    }
-    );
-  })
+      done();
+    });
+  }));
 
-  test("getItemInfo", () => {
-    mockErr = undefined
-    itemName = 'testname'
-    path = 'testpath'
+  test('getItemInfo', () => {
+    mockErr = undefined;
+    itemName = 'testname';
+    fspath = 'testpath';
 
     mockFsReturnValue = {
       size: 0,
       mtime: '2020-05-28T07:21:32.000Z',
       birthtime: '2020-05-28T07:21:30.380Z',
-      isDirectory: () => { return false; },
-      isFile: () => { return true; },
-    }
-    let getFileInfoSpy = jest.spyOn(usbController, 'getFileInfo');
-    usbController.getItemInfo(path, itemName);
+      isDirectory: () => false,
+      isFile: () => true,
+    };
+    const getFileInfoSpy = jest.spyOn(usbController, 'getFileInfo');
+    usbController.getItemInfo(fspath, itemName);
     expect(getFileInfoSpy).toHaveBeenCalled();
 
     mockFsReturnValue = {
       size: 0,
       mtime: '2020-05-28T07:21:32.000Z',
       birthtime: '2020-05-28T07:21:30.380Z',
-      isDirectory: () => { return true; },
-      isFile: () => { return false; },
-    }
-    let getFolderInfoSpy = jest.spyOn(usbController, 'getFolderInfo');
-    usbController.getItemInfo(path, itemName);
+      isDirectory: () => true,
+      isFile: () => false,
+    };
+    const getFolderInfoSpy = jest.spyOn(usbController, 'getFolderInfo');
+    usbController.getItemInfo(fspath, itemName);
     expect(getFolderInfoSpy).toHaveBeenCalled();
-  })
+  });
 
-  test("getItemInfo err", () => {
-    itemName = 'testname'
-    path = 'testpath'
-    mockErr = true
-    usbController.getItemInfo(path, itemName);
+  test('getItemInfo err', () => {
+    itemName = 'testname';
+    fspath = 'testpath';
+    mockErr = true;
+    usbController.getItemInfo(fspath, itemName);
     expect(usbController.usbState.usbErrorString).toBe('undefined Cant getFileStatus');
-  })
+  });
 
-  test("deleteUsbDeviceItem", () => {
+  test('deleteUsbDeviceItem', () => {
     mockErr = undefined;
 
     mockFsReturnValue = {
       size: 0,
       mtime: '2020-05-28T07:21:32.000Z',
       birthtime: '2020-05-28T07:21:30.380Z',
-      isDirectory: () => { return false; },
-      isFile: () => { return true; },
-    }
-    let deleteUsbDeviceFileSpy = jest.spyOn(usbController, 'deleteUsbDeviceFile');
-    const mockPath = 'testDir';
-    const itemName = 'testName';
-    usbController.deleteUsbDeviceItem(mockPath, itemName)
+      isDirectory: () => false,
+      isFile: () => true,
+    };
+    const deleteUsbDeviceFileSpy = jest.spyOn(usbController, 'deleteUsbDeviceFile');
+    mockPath = 'testDir';
+    itemName = 'testName';
+    usbController.deleteUsbDeviceItem(mockPath, itemName);
     expect(deleteUsbDeviceFileSpy).toHaveBeenCalled();
 
     mockFsReturnValue = {
       size: 0,
       mtime: '2020-05-28T07:21:32.000Z',
       birthtime: '2020-05-28T07:21:30.380Z',
-      isDirectory: () => { return true; },
-      isFile: () => { return false; },
-    }
-    let deleteUsbDeviceFolderSpy = jest.spyOn(usbController, 'deleteUsbDeviceFolder');
-    usbController.deleteUsbDeviceItem(mockPath, itemName)
+      isDirectory: () => true,
+      isFile: () => false,
+    };
+    const deleteUsbDeviceFolderSpy = jest.spyOn(usbController, 'deleteUsbDeviceFolder');
+    usbController.deleteUsbDeviceItem(mockPath, itemName);
     expect(deleteUsbDeviceFolderSpy).toHaveBeenCalled();
-  })
+  });
 
-  test("deleteUsbDeviceItem err", () => {
+  test('deleteUsbDeviceItem err', () => {
     mockErr = true;
     mockFsReturnValue = {
       size: 0,
       mtime: '2020-05-28T07:21:32.000Z',
       birthtime: '2020-05-28T07:21:30.380Z',
-      isDirectory: () => { return false; },
-      isFile: () => { return true; },
-    }
-    let deleteUsbDeviceFileSpy = jest.spyOn(usbController, 'deleteUsbDeviceFile');
-    const mockPath = 'testDir';
-    const itemName = 'testName';
-    usbController.deleteUsbDeviceItem(mockPath, itemName)
+      isDirectory: () => false,
+      isFile: () => true,
+    };
+    mockPath = 'testDir';
+    itemName = 'testName';
+    usbController.deleteUsbDeviceItem(mockPath, itemName);
     expect(usbController.usbState.usbErrorString).toBe('undefined Cant getFileStatus');
-  })
+  });
 
-  test("deleteUsbDeviceFile", done => {
+  test('deleteUsbDeviceFile', () => new Promise((done) => {
+    const syncUsbDeviceSpy = jest.spyOn(usbUtility, 'syncUsbDevice');
     mockErr = undefined;
-    const mockPath = 'testDir';
-    const itemName = 'testName';
+    mockPath = 'testDir';
+    itemName = 'testName';
     usbController.deleteUsbDeviceFile(mockPath, itemName).then(() => {
-      done()
+      expect(syncUsbDeviceSpy).toHaveBeenCalled();
+      done();
     }, () => {
       throw new Error();
-    }
-    );
-  })
+    });
+  }));
 
-  test("deleteUsbDeviceFile err", done => {
+  test('deleteUsbDeviceFile err', () => new Promise((done) => {
     mockErr = true;
-    const mockPath = 'testDir';
-    const itemName = 'testName';
+    mockPath = 'testDir';
+    itemName = 'testName';
     usbController.deleteUsbDeviceFile(mockPath, itemName).then(() => {
       throw new Error();
     }, () => {
       expect(usbController.usbState.usbErrorString).toBe('undefined Cant deleteUsbDeviceFile');
-      done()
-    }
-    );
-  })
+      done();
+    });
+  }));
 
-  test("deleteUsbDeviceFolder", done => {
+  test('deleteUsbDeviceFolder', () => new Promise((done) => {
+    const syncUsbDeviceSpy = jest.spyOn(usbUtility, 'syncUsbDevice');
     mockErr = undefined;
-    const mockPath = 'testDir';
-    const itemName = 'testName';
+    mockPath = 'testDir';
+    itemName = 'testName';
     usbController.deleteUsbDeviceFolder(mockPath, itemName).then(() => {
-      done()
+      expect(syncUsbDeviceSpy).toHaveBeenCalled();
+      done();
     }, () => {
       throw new Error();
-    }
-    );
-  })
+    });
+  }));
 
-  test("deleteUsbDeviceFolder err", done => {
+  test('deleteUsbDeviceFolder err', () => new Promise((done) => {
     mockErr = true;
-    const mockPath = 'testDir';
-    const itemName = 'testName';
+    mockPath = 'testDir';
+    itemName = 'testName';
     usbController.deleteUsbDeviceFolder(mockPath, itemName).then(() => {
       throw new Error();
     }, () => {
       expect(usbController.usbState.usbErrorString).toBe('undefined Cant deleteUsbDeviceFolder');
-      done()
-    }
-    );
-  })
+      done();
+    });
+  }));
 
-  test("convertItemSizeToString", () => {
-    sizeInBytes = 194
+  test('convertItemSizeToString', () => {
+    let sizeInBytes = 194;
     usbController.convertItemSizeToString(sizeInBytes);
     expect(usbController.convertItemSizeToString(sizeInBytes)).toBe('194 Bytes');
 
-    sizeInBytes = 18273
+    sizeInBytes = 18273;
     usbController.convertItemSizeToString(sizeInBytes);
     expect(usbController.convertItemSizeToString(sizeInBytes)).toBe('17.84 KB');
 
-    sizeInBytes = 1986384
+    sizeInBytes = 1986384;
     usbController.convertItemSizeToString(sizeInBytes);
     expect(usbController.convertItemSizeToString(sizeInBytes)).toBe('1.89 MB');
 
-    sizeInBytes = 9199986384
+    sizeInBytes = 9199986384;
     usbController.convertItemSizeToString(sizeInBytes);
     expect(usbController.convertItemSizeToString(sizeInBytes)).toBe('8.57 GB');
-  })
+  });
 
-  test("getFileInfo", async () => {
-    let dir = 'D:\test\testDocument.pdf'
-    let itemInfo = {
+  test('getFileInfo', async () => {
+    const dir = 'D:\test\testDocument.pdf';
+    const itemInfo = {
       path: 'D:\\test\\testDocument.pdf',
       name: 'testDocument.pdf',
       createDate: '04/06/2020, 08:08:19',
       modifyDate: '28/01/2020, 14:33:42',
       size: undefined,
-      md5: undefined
-    }
-    let stats = {
+      md5: undefined,
+    };
+    const stats = {
       dev: 3325788114,
       mode: 33206,
       nlink: 1,
@@ -470,132 +425,146 @@ describe("USBController Folder Operations", () => {
       atime: '2020-06-03T21:00:00.000Z',
       mtime: '2020-01-28T11:33:42.000Z',
       ctime: '2076-11-29T08:54:34.955Z',
-      birthtime: '2020-06-04T05:08:19.520Z'
-    }
-    await usbController.getFileInfo(stats, dir, itemInfo)
-    expect(usbController.usbState.currentItemInfo).toStrictEqual({ "createDate": "04/06/2020, 08:08:19", "md5": undefined, "modifyDate": "28/01/2020, 14:33:42", "name": "testDocument.pdf", "path": "D:\\test\\testDocument.pdf", "size": "89.57 KB" });
-  })
+      birthtime: '2020-06-04T05:08:19.520Z',
+    };
+    await usbController.getFileInfo(stats, dir, itemInfo);
+    expect(usbController.usbState.currentItemInfo).toStrictEqual({
+      createDate: '04/06/2020, 08:08:19', md5: undefined, modifyDate: '28/01/2020, 14:33:42', name: 'testDocument.pdf', path: 'D:\\test\\testDocument.pdf', size: '89.57 KB',
+    });
+  });
 
-  test("getFolderInfo", () => {
-    mockErr = undefined
-    let dir = 'D:\test\anotherTestDocument.pdf'
-    let itemInfo = {
+  test('getFolderInfo', () => {
+    mockErr = undefined;
+    const dir = 'D:\\test\\anotherTestDocument.pdf';
+    const itemInfo = {
       path: 'D:\\test\\anotherTestDocument.pdf',
       name: 'anotherTestDocument.pdf',
       createDate: '04/06/2020, 08:08:19',
       modifyDate: '28/01/2020, 14:33:42',
       size: 51513,
-      md5: undefined
-    }
-    let stats = ''
-    usbController.getFolderInfo(stats, dir, itemInfo)
-    expect(usbController.usbState.currentItemInfo).toStrictEqual({ "createDate": "04/06/2020, 08:08:19", "md5": undefined, "modifyDate": "28/01/2020, 14:33:42", "name": "anotherTestDocument.pdf", "path": "D:\\test\\anotherTestDocument.pdf", "size": "969.91 KB" });
-  })
+      md5: undefined,
+    };
+    const stats = '';
+    usbController.getFolderInfo(stats, dir, itemInfo);
+    expect(usbController.usbState.currentItemInfo).toStrictEqual({
+      createDate: '04/06/2020, 08:08:19', md5: undefined, modifyDate: '28/01/2020, 14:33:42', name: 'anotherTestDocument.pdf', path: 'D:\\test\\anotherTestDocument.pdf', size: '969.91 KB',
+    });
+  });
 
-  test("getFolderInfo err", () => {
-    mockErr = true
-    let dir = 'D:\test\anotherTestDocument.pdf'
-    let itemInfo = {
+  test('getFolderInfo err', () => {
+    mockErr = true;
+    const dir = 'D:\\test\\anotherTestDocument.pdf';
+    const itemInfo = {
       path: 'D:\\test\\anotherTestDocument.pdf',
       name: 'anotherTestDocument.pdf',
       createDate: '04/06/2020, 08:08:19',
       modifyDate: '28/01/2020, 14:33:42',
       size: 51513,
-      md5: undefined
-    }
-    let stats = ''
-    usbController.getFolderInfo(stats, dir, itemInfo)
+      md5: undefined,
+    };
+    const stats = '';
+    usbController.getFolderInfo(stats, dir, itemInfo);
     expect(usbController.usbState.usbErrorString).toBe('undefined Cant getFolderInfo-getSize');
-  })
+  });
 
-  test("uploadFileToUsbDevice ", () => {
-    mockErr = undefined
+  test('uploadFileToUsbDevice ', () => {
+    mockErr = undefined;
     const res = mockResponse();
-    let req = {}
-    usbController.uploadFileToUsbDevice(req, res)
-    expect(res.send).toHaveBeenCalledWith('done')
-  })
+    const req = {};
+    usbController.uploadFileToUsbDevice(req, res);
+    expect(res.send).toHaveBeenCalledWith('done');
+  });
 
-  test("uploadFileToUsbDevice parse err ", () => {
-    mockErr = true
+  test('uploadFileToUsbDevice parse err ', () => {
+    mockErr = true;
     const res = mockResponse();
-    let req = {}
-    usbController.uploadFileToUsbDevice(req, res)
-    expect(res.send).toHaveBeenCalledWith('true')
-  })
+    const req = {};
+    usbController.uploadFileToUsbDevice(req, res);
+    expect(res.send).toHaveBeenCalledWith('true');
+  });
 
-  test("uploadFileToUsbDevice copyFile err ", () => {
-    mockCopyFileErr = true
-    mockErr = undefined
+  test('uploadFileToUsbDevice copyFile err ', () => {
+    mockCopyFileErr = true;
+    mockErr = undefined;
     const res = mockResponse();
-    let req = {}
-    usbController.uploadFileToUsbDevice(req, res)
-    expect(res.send).toHaveBeenCalledWith('true')
-  })
+    const req = {};
+    usbController.uploadFileToUsbDevice(req, res);
+    expect(res.send).toHaveBeenCalledWith('true');
+  });
 
-  test("getFileFromUsbDevice ", () => {
-    let req = { query: { path: 'testPath', fileName: 'testName' } }
-    //const req = mockRequest(path);
+  test('getFileFromUsbDevice ', () => {
+    let req = { query: {
+      path: 'testPath', fileName: 'testName',
+    } };
     const res = mockResponse();
-    usbController.getFileFromUsbDevice(req, res)
-    expect(res.download).toHaveBeenCalled()
+    usbController.getFileFromUsbDevice(req, res);
+    expect(res.download).toHaveBeenCalled();
 
-    req = { query: { path: undefined, fileName: undefined } }
-    usbController.getFileFromUsbDevice(req, res)
-    expect(res.send).toHaveBeenCalledWith('invalid parameters')
-  })
+    req = { query: {
+      path: undefined, fileName: undefined,
+    } };
+    usbController.getFileFromUsbDevice(req, res);
+    expect(res.send).toHaveBeenCalledWith('invalid parameters');
+  });
 });
 
-describe("USBController", () => {
-
-  test("should return true", () => {
+describe('USBController', () => {
+  test('should return true', () => {
     expect(usbController.isAuthRequired()).toBe(true);
   });
 
-  test("onExit  ", () => {
-    usbController.onExit()
-    usbController.ledReadIntervalHandle = false
-    usbController.onExit()
-    expect(usbController.ledReadIntervalHandle).toBe(false)
-  })
+  test('onExit  ', () => {
+    usbController.onExit();
+    usbController.ledReadIntervalHandle = false;
+    usbController.onExit();
+    expect(usbController.ledReadIntervalHandle).toBe(false);
+  });
 
-  test("handleMessage", () => {
-    let usbController = new USBController({ useMockUsbDetect: true });
+  test('handleMessage', () => {
+    const usbControllerMsgHandler = new USBController({ useMockUsbDetect: true });
     let obj = { usb: { action: 'toggleDevice' } };
-    mocktfunc = jest.fn();
-    usbController.toggleUsbDevice = mocktfunc;
-    usbController.handleMessage(obj);
+    const mocktfunc = jest.fn();
+    usbControllerMsgHandler.toggleUsbDevice = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
     obj = { usb: { action: 'detectUsbDevice' } };
-    usbController.detectUsbDevice = mocktfunc;
-    usbController.handleMessage(obj);
+    usbControllerMsgHandler.detectUsbDevice = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
-    obj = { usb: { action: 'listItems', path: 'testpath' } };
-    usbController.listUsbDeviceItems = mocktfunc;
-    usbController.handleMessage(obj);
+    obj = { usb: {
+      action: 'listItems', path: 'testpath',
+    } };
+    usbControllerMsgHandler.listUsbDeviceItems = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
-    obj = { usb: { action: 'deleteItem', path: 'testpath', itemName: "testname" } };
-    usbController.deleteUsbDeviceItem = mocktfunc;
-    usbController.handleMessage(obj);
+    obj = { usb: {
+      action: 'deleteItem', path: 'testpath', itemName: 'testname',
+    } };
+    usbControllerMsgHandler.deleteUsbDeviceItem = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
-    obj = { usb: { action: 'getItemInfo', path: 'testpath', itemName: "testname" } };
-    usbController.getItemInfo = mocktfunc;
-    usbController.handleMessage(obj);
+    obj = { usb: {
+      action: 'getItemInfo', path: 'testpath', itemName: 'testname',
+    } };
+    usbControllerMsgHandler.getItemInfo = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
-    obj = { usb: { action: 'createFolder', path: 'testpath', itemName: "testname" } };
-    usbController.createUsbDeviceFolder = mocktfunc;
-    usbController.handleMessage(obj);
+    obj = { usb: {
+      action: 'createFolder', path: 'testpath', itemName: 'testname',
+    } };
+    usbControllerMsgHandler.createUsbDeviceFolder = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
     obj = { usb: { action: 'testaction' } };
-    usbController.handleMessage(obj);
+    usbControllerMsgHandler.handleMessage(obj);
 
-    obj.usb = undefined
-    usbController.handleMessage(obj);
-  })
+    obj.usb = undefined;
+    usbControllerMsgHandler.handleMessage(obj);
+  });
 });
