@@ -6,6 +6,7 @@
     >
       <div style="display:flex; flex-direction: row; margin-top:10px">
         <b-button
+          ref="buttonOpen"
           variant="outline-primary"
           @click="onButtonClicked"
         >
@@ -19,6 +20,7 @@
           {{ ecuLedState ? 'Plugged to ECU' : 'Not plugged to ECU' }}
         </b-button>
         <b-button
+          ref="buttonToggle"
           variant="primary"
           style="margin-left: 10px;"
           @click="onToggleButtonClicked"
@@ -45,7 +47,7 @@
         </b>
         <b>
           <u>USB Name:</u>
-          {{ usbStatus.usbname }}
+          {{ usbStatus.usbName }}
         </b>
       </div>
       <b-card
@@ -67,6 +69,7 @@
             drop-placeholder="Drop file here..."
           />
           <b-button
+            ref="buttonUpload"
             variant="outline-primary"
             style="margin-left: 10px"
             @click="onUploadClicked"
@@ -136,6 +139,7 @@
             <template v-slot:cell(operations)="data">
               <b-button
                 v-if="!(data.item.fullPath)"
+                ref="buttonInfo"
                 variant="outline-primary"
                 style="margin-right: 20px;"
                 @click="onInfoButtonClicked(data.item)"
@@ -223,14 +227,14 @@ export default {
     ...mapState(['receivedData']),
     usbStatus() {
       const status = {};
-      if (this.receivedData.usb && this.receivedData.usb.isAvailable === true) {
-        status.usbname = this.receivedData.usb.usbName;
-        status.availability = `${status.usbname} is ready to be used`;
+      if (this.receivedData.usb.isAvailable === true) {
+        status.usbName = this.receivedData.usb.usbName;
+        status.availability = `${status.usbName} is ready to be used`;
         status.mountedpath = this.receivedData.usb.mountedPath;
 
         return status;
       }
-      status.usbname = '----------------';
+      status.usbName = '----------------';
       status.availability = 'USB is not ready';
       status.mountedpath = '----------------';
       return status;
@@ -243,16 +247,15 @@ export default {
       return this.receivedData.usb.isAvailable;
     },
     ecuLedState() {
-      return this.receivedData.usb && this.receivedData.usb.kvmLedStateECU;
+      return this.receivedData.usb.kvmLedStateECU;
     },
     rpiLedState() {
-      return this.receivedData.usb && this.receivedData.usb.kvmLedStateRPI;
+      return this.receivedData.usb.kvmLedStateRPI;
     },
     itemList() {
       if (!this.receivedData.usb) {
         return [];
       }
-
       return this.receivedData.usb.currentItems;
     },
     getDirectory() {
