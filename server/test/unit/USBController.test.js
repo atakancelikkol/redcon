@@ -8,7 +8,6 @@ jest.mock('usb-detection')
 jest.mock('md5-file')
 jest.mock('get-folder-size')
 jest.mock('rimraf')
-//const rimraf = require('rimraf');
 
 let gpioUtility = platformObjects.getGPIOUtility();
 let usbUtility = platformObjects.getUSBUtility();
@@ -24,7 +23,7 @@ let fspath = ''
 
 let mockReadDirPath = '';
 let mockErr = undefined;
-mockFsReturnItems = [];
+let mockCopyFileErr = undefined;
 let mockFsReturnValue = [];
 let mockdeviceList = [{
   description: 'Test USB Device',
@@ -33,7 +32,6 @@ let mockdeviceList = [{
       path: 'T:\\'
     }
   ],
-
   isUSB: true,
 }]
 
@@ -69,10 +67,9 @@ jest.mock('fs', () => ({
     callback(err);
   }),
   copyFile: jest.fn((dir, anotherDir, callback) => {
-    const err = mockErr;
+    const err = mockCopyFileErr;
     callback(err);
   })
-
 }));
 
 // mock drivelist
@@ -92,7 +89,6 @@ jest.mock('get-folder-size', () => jest.fn((dir, callback) => {
   callback(err, size);
 }));
 
-
 //mock rimraf
 const rimraf = require('rimraf');
 jest.mock('rimraf', () => jest.fn((dir, callback) => {
@@ -100,28 +96,24 @@ jest.mock('rimraf', () => jest.fn((dir, callback) => {
   callback(err);
 }));
 
-let File ={path:'testPath',name:'testName'}
+let File = { path: 'testPath', name: 'testName' }
 let mockForm = {
   multiples: false,
   maxFileSize: 0,
   parse: jest.fn((req, callback) => {
-    let fields = {currentDirectory:'currentDir'}
-    let files = {uploads: File}
+    let fields = { currentDirectory: 'currentDir' }
+    let files = { uploads: File }
     const err = mockErr;
     callback(err, fields, files)
   })
 }
 
-
 //mock formidable
 const formidable = require('formidable');
 jest.mock('formidable', () => ({
   IncomingForm: jest.fn(() => {
-
     return mockForm;
   }),
-
-
 }));
 
 //mock
@@ -130,21 +122,16 @@ const mockResponse = () => {
   res.status = jest.fn().mockReturnValue(res);
   res.download = jest.fn().mockReturnValue(res);
   res.send = jest.fn().mockReturnValue(res);
-
   return res;
 };
+
 const mockRequest = (queryData) => {
   return {
     query: queryData,
   };
 };
 
-
-describe("USBController", () => {
-
-  test("should return true", () => {
-    expect(usbController.isAuthRequired()).toBe(true);
-  });
+describe("USBController Usb Flash Operations", () => {
 
   test("init should call openForInput", () => {
     let openForInputSpy = jest.spyOn(gpioUtility, 'openForInput');
@@ -160,13 +147,20 @@ describe("USBController", () => {
     usbController.checkKVMLedState();
   })
 
+  //??
+  /* 
   test("detectDriveChanges", () => {
+    console.log('wowowo1', usbController.usbState)
+
     usbController.detectDriveChanges()
 
-  })
+    usbController.detectDriveChanges()
+    jest.advanceTimersByTime(1500);
+    console.log('wowowo2', usbController.usbState)
+    //expect(usbusbController.usbState)
+  }) */
 
   test("detectUsbDevice isDriveFound = true;", async () => {
-
     let extractUsbStateSpy = jest.spyOn(usbUtility, 'extractUsbState');
     await usbController.detectUsbDevice();
     expect(extractUsbStateSpy).toBeCalled();
@@ -180,11 +174,49 @@ describe("USBController", () => {
           path: 'T:\\'
         }
       ],
-
       isUSB: false,
     }]
     await usbController.detectUsbDevice();
     expect(usbController.usbState.isAvailable).toBe(false);
+  })
+
+  test("isSafeToToggleUsbDevice ", () => {
+    usbController.timeToCheckSafety = 0
+    expect(usbController.isSafeToToggleUsbDevice()).toBe(true);
+    expect(usbController.isSafeToToggleUsbDevice()).toBe(false);
+    usbController.timeToCheckSafety = 1591193912494
+    expect(usbController.isSafeToToggleUsbDevice()).toBe(true);
+  })
+
+  test("toggleUsbDevice ", () => {
+    usbController.timeToCheckSafety = 0
+    let ejectUSBDriveSafelySpy = jest.spyOn(usbUtility, 'ejectUSBDriveSafely');
+    usbController.toggleUsbDevice()
+    expect(ejectUSBDriveSafelySpy).toHaveBeenCalled();
+    usbController.toggleUsbDevice()
+  })
+
+  test("pinToggleSequence toggleTimeoutHandle ", () => {
+    usbController.toggleTimeoutHandle = true
+    usbController.pinToggleSequence()
+    expect(usbController.toggleTimeoutHandle).toBe(true)
+    jest.advanceTimersByTime(1500);
+    usbController.pinToggleSequence()
+  })
+});
+
+describe("USBController Folder Operations", () => {
+  beforeEach(() => {
+    mockfsErrorParameter = false
+    mockfsStdOutParameter = 'mockstdout'
+    dirString = " D:\ "
+    fswithFileTypes = true;
+    fsrecursive = true;
+    fspath = ''
+    mockReadDirPath = '';
+    mockErr = undefined;
+    mockCopyFileErr = undefined;
+    mockFsReturnValue = [];
   })
 
   test("listUsbDeviceItems", (done) => {
@@ -226,7 +258,6 @@ describe("USBController", () => {
     }
     );
   })
-
 
   test("createUsbDeviceFolder", (done) => {
     mockErr = undefined;
@@ -290,7 +321,6 @@ describe("USBController", () => {
     expect(getFolderInfoSpy).toHaveBeenCalled();
   })
 
-
   test("getItemInfo err", () => {
     itemName = 'testname'
     path = 'testpath'
@@ -298,7 +328,6 @@ describe("USBController", () => {
     usbController.getItemInfo(path, itemName);
     expect(usbController.usbState.usbErrorString).toBe('undefined Cant getFileStatus');
   })
-
 
   test("deleteUsbDeviceItem", () => {
     mockErr = undefined;
@@ -344,7 +373,6 @@ describe("USBController", () => {
     expect(usbController.usbState.usbErrorString).toBe('undefined Cant getFileStatus');
   })
 
-
   test("deleteUsbDeviceFile", done => {
     mockErr = undefined;
     const mockPath = 'testDir';
@@ -370,7 +398,6 @@ describe("USBController", () => {
     );
   })
 
-
   test("deleteUsbDeviceFolder", done => {
     mockErr = undefined;
     const mockPath = 'testDir';
@@ -395,7 +422,6 @@ describe("USBController", () => {
     }
     );
   })
-
 
   test("convertItemSizeToString", () => {
     sizeInBytes = 194
@@ -481,41 +507,30 @@ describe("USBController", () => {
     expect(usbController.usbState.usbErrorString).toBe('undefined Cant getFolderInfo-getSize');
   })
 
-  test("isSafeToToggleUsbDevice ", () => {
-    usbController.timeToCheckSafety = 0
-    expect(usbController.isSafeToToggleUsbDevice()).toBe(true);
-    expect(usbController.isSafeToToggleUsbDevice()).toBe(false);
-    usbController.timeToCheckSafety = 1591193912494
-    expect(usbController.isSafeToToggleUsbDevice()).toBe(true);
-  })
-
-  test("toggleUsbDevice ", () => {
-    usbController.timeToCheckSafety = 0
-    let ejectUSBDriveSafelySpy = jest.spyOn(usbUtility, 'ejectUSBDriveSafely');
-    usbController.toggleUsbDevice()
-    expect(ejectUSBDriveSafelySpy).toHaveBeenCalled();
-    usbController.toggleUsbDevice()
-  })
-
-  test("pinToggleSequence toggleTimeoutHandle ", () => {
-    usbController.toggleTimeoutHandle = true
-    usbController.pinToggleSequence()
-    expect(usbController.toggleTimeoutHandle).toBe(true)
-    jest.advanceTimersByTime(1500);
-    usbController.pinToggleSequence()
-  })
   test("uploadFileToUsbDevice ", () => {
     mockErr = undefined
     const res = mockResponse();
     let req = {}
     usbController.uploadFileToUsbDevice(req, res)
-
     expect(res.send).toHaveBeenCalledWith('done')
-
   })
 
+  test("uploadFileToUsbDevice parse err ", () => {
+    mockErr = true
+    const res = mockResponse();
+    let req = {}
+    usbController.uploadFileToUsbDevice(req, res)
+    expect(res.send).toHaveBeenCalledWith('true')
+  })
 
-
+  test("uploadFileToUsbDevice copyFile err ", () => {
+    mockCopyFileErr = true
+    mockErr = undefined
+    const res = mockResponse();
+    let req = {}
+    usbController.uploadFileToUsbDevice(req, res)
+    expect(res.send).toHaveBeenCalledWith('true')
+  })
 
   test("getFileFromUsbDevice ", () => {
     let req = { query: { path: 'testPath', fileName: 'testName' } }
@@ -527,9 +542,14 @@ describe("USBController", () => {
     req = { query: { path: undefined, fileName: undefined } }
     usbController.getFileFromUsbDevice(req, res)
     expect(res.send).toHaveBeenCalledWith('invalid parameters')
-
   })
+});
 
+describe("USBController", () => {
+
+  test("should return true", () => {
+    expect(usbController.isAuthRequired()).toBe(true);
+  });
 
   test("onExit  ", () => {
     usbController.onExit()
@@ -576,6 +596,5 @@ describe("USBController", () => {
 
     obj.usb = undefined
     usbController.handleMessage(obj);
-
   })
 });
