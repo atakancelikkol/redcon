@@ -19,7 +19,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import logger from '../Logger';
+import logger from '../helpers/Logger';
 // const cloneDeep = require('clone-deep');
 
 export default {

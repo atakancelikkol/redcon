@@ -1,6 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import StorageHelper from './helpers/StorageHelper';
-import logger from './Logger';
+import logger from './helpers/Logger';
 
 class WebSocketConnector {
   constructor() {

@@ -205,7 +205,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import logger from '../Logger';
+import logger from '../helpers/Logger';
 
 export default {
   name: 'USBStorage',

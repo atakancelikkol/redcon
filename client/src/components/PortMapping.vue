@@ -33,7 +33,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import logger from '../Logger';
+import logger from '../helpers/Logger';
 
 export default {
   name: 'PortMapping',

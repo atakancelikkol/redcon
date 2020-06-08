@@ -2,14 +2,13 @@ const winston = require('winston');
 const callsites = require('callsites');
 const ServerConfig = require('../ServerConfig');
 
-const dateFormat = () => {
-  const date = new Date(Date.now()).toUTCString();
-  return date.substring(5, date.length);
-};
-
 class Logger {
   constructor() {
     this.logger = undefined;
+  }
+
+  dateFormat() {
+    return new Date(Date.now()).toLocaleString();
   }
 
   createLogger() {
@@ -25,7 +24,7 @@ class Logger {
       ],
 
       format: winston.format.printf((info) => {
-        const message = `${dateFormat()} | ${info.level.toUpperCase()} | ${info.message}`;
+        const message = `${this.dateFormat()} | ${info.level.toUpperCase()} | ${info.message}`;
         return message;
       }),
       silent: false,
@@ -55,37 +54,17 @@ class Logger {
     return this.concatenateArguments(callerModule, lineNumberMessage, args);
   }
 
-  concatenateArguments(callerModule, lineNumberMessage, arg) {
-    let message = `${callerModule}:${lineNumberMessage} | `;
-    for (let i = 0; i < arg.length; i += 1) {
-      if (arg[i] === null) {
-        message = `${message} ${arg[i]} |`;
-      } else if (Object.prototype.hasOwnProperty.call(arg[i], toString)) { // arg[i].hasOwnProperty('toString')
-        message = `${message} ${arg[i]} |`;
-      } else {
-        message = `${message} ${JSON.stringify(arg[i])} |`;
-      }
-    }
-    return message;
+  getCallSitesObject() {
+    const callSites = callsites();
+    return callSites[ServerConfig.LoggerCallerModuleDepth];
   }
 
   getCallerModule(callSiteObject) {
-    const callerFileName = callSiteObject.getFileName();
-    return this.getCallerModuleString(callerFileName);
-  }
-
-  getCallerLineNumber(callSiteObject) {
-    const callerLineNumber = callSiteObject.getLineNumber();
-    const lineNumberMessage = `${callerLineNumber}`;
-    return lineNumberMessage;
-  }
-
-  getCallSitesObject() {
-    const callSites = callsites();
-    if (callSites[ServerConfig.LoggerCallerModuleDepth] !== undefined) {
-      return callSites[ServerConfig.LoggerCallerModuleDepth];
+    if (callSiteObject !== undefined) {
+      const callerFileName = callSiteObject.getFileName();
+      return this.getCallerModuleString(callerFileName);
     }
-    return callSites[0];
+    return 'Undefined Module';
   }
 
   getCallerModuleString(callerFileName) {
@@ -97,6 +76,39 @@ class Logger {
     return splittedFileNameArray[splittedFileNameArray.length - 1];
   }
 
+  getCallerLineNumber(callSiteObject) {
+    if (callSiteObject !== undefined) {
+      const callerLineNumber = callSiteObject.getLineNumber();
+      const lineNumberMessage = `${callerLineNumber}`;
+      return lineNumberMessage;
+    }
+    return '?';
+  }
+
+  concatenateArguments(callerModule, lineNumberMessage, arg) {
+    let message = `${callerModule}:${lineNumberMessage} | `;
+    for (let i = 0; i < arg.length; i += 1) {
+      if (arg[i] == null) {
+        message = `${message} ${arg[i]} |`;
+      } else if (typeof arg[i] === 'function') {
+        message = `${message} ${typeof arg[i]} |`;
+      } else {
+        let hasItToStringProperty;
+        try {
+          hasItToStringProperty = Object.prototype.hasOwnProperty.call(arg[i], 'toString'); // (arg[i]).hasOwnProperty('toString')
+        } catch (error) {
+          this.error(error);
+        }
+        if (hasItToStringProperty) {
+          message = `${message} ${arg[i].toString()} |`;
+        } else {
+          message = `${message} ${JSON.stringify(arg[i])} |`;
+        }
+      }
+    }
+    return message;
+  }
+
   silenceLogger(condition) {
     this.logger.silent = condition;
   }
@@ -104,6 +116,5 @@ class Logger {
 
 const logger = new Logger();
 logger.createLogger();
-// Object.freeze(logger);
 
 module.exports = logger;
