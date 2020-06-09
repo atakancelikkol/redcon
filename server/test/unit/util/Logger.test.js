@@ -1,3 +1,4 @@
+const winston = require('winston');
 const loggerInstance = require('../../../src/util/Logger');
 
 describe('Logger', () => {
@@ -16,15 +17,25 @@ describe('Logger', () => {
     });
   });
 
+  describe('createLogger', () => {
+    it('tests whether the createLogger method winston package does work or not ', () => {
+      const createLoggerSpy = jest.spyOn(winston, 'createLogger');
+      loggerInstance.createLogger();
+      expect(createLoggerSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('info', () => {
     it('tests info method of the class ', () => {
       const tempconstructTheMessage = loggerInstance.constructTheMessage;
       loggerInstance.constructTheMessage = jest.fn();
+      const templog = loggerInstance.logger.log;
       loggerInstance.logger.log = jest.fn();
       loggerInstance.info();
       expect(loggerInstance.constructTheMessage).toHaveBeenCalled();
       expect(loggerInstance.logger.log.mock.calls[0][0]).toBe('info');
       loggerInstance.constructTheMessage = tempconstructTheMessage;
+      loggerInstance.logger.log = templog;
     });
   });
 
@@ -32,11 +43,13 @@ describe('Logger', () => {
     it('tests error method of the class ', () => {
       const tempconstructTheMessage = loggerInstance.constructTheMessage;
       loggerInstance.constructTheMessage = jest.fn();
+      const templog = loggerInstance.logger.log;
       loggerInstance.logger.log = jest.fn();
       loggerInstance.error();
       expect(loggerInstance.constructTheMessage).toHaveBeenCalled();
       expect(loggerInstance.logger.log.mock.calls[0][0]).toBe('error');
       loggerInstance.constructTheMessage = tempconstructTheMessage;
+      loggerInstance.logger.log = templog;
     });
   });
 
@@ -44,11 +57,13 @@ describe('Logger', () => {
     it('tests debug method of the class ', () => {
       const tempconstructTheMessage = loggerInstance.constructTheMessage;
       loggerInstance.constructTheMessage = jest.fn();
+      const templog = loggerInstance.logger.log;
       loggerInstance.logger.log = jest.fn();
       loggerInstance.debug();
       expect(loggerInstance.constructTheMessage).toHaveBeenCalled();
       expect(loggerInstance.logger.log.mock.calls[0][0]).toBe('debug');
       loggerInstance.constructTheMessage = tempconstructTheMessage;
+      loggerInstance.logger.log = templog;
     });
   });
 
@@ -77,7 +92,8 @@ describe('Logger', () => {
 
   describe('getCallSitesObject', () => {
     it('tests getting callsites object properly ', () => {
-      expect(1).toBe(1);
+      const callSites = loggerInstance.getCallSitesObject();
+      expect(callSites).not.toBe(undefined);
     });
   });
 
