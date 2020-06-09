@@ -1,5 +1,7 @@
 # REDCON (remote ecu device contoller)
 
+[![coverage report](https://gitlab.com/redcon-remote/redcon/badges/development/coverage.svg)](https://gitlab.com/redcon-remote/redcon/-/commits/development)
+
 REDCON is a utility that makes it easier to connect and debug ECU boards. This project is designed to run on all operating systems. Raspberry pi is selected target device. This device is used for isolating ECU board from the network and controlling it remotely. A typical setup is shown in the diagram given below.
 
 ## REDCON Overview 
