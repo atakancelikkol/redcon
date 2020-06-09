@@ -6,11 +6,14 @@ const SerialPortController = require('./SerialPortController');
 const PortConfigController = require('./PortConfigController');
 const UtilityDataHandler = require('./UtilityDataHandler');
 const Authenticator = require('./Authenticator');
+const NetworkConfigController = require('./NetworkConfigController');
 const PlatformObjects = require('./platform/PlatformObjects');
+const DataStorage = require('./dataStorage/LowDBDataStorage');
 
 class Server {
   constructor() {
     this.platformObjects = new PlatformObjects();
+    this.dataStorage = new DataStorage();
     this.controllers = [];
 
     this.controllers.push(new Authenticator());
@@ -20,18 +23,21 @@ class Server {
     this.controllers.push(new SerialPortController());
     this.controllers.push(new PortConfigController());
     this.controllers.push(new UtilityDataHandler());
+    this.controllers.push(new NetworkConfigController());
 
     // create connection manager
     this.httpServer = new HttpServer({ controllers: this.controllers });
   }
 
-  init() {
+  async init() {
+    await this.dataStorage.init();
     this.httpServer.init();
 
     // init controllers
     this.controllers.forEach((controller) => {
       controller.registerSendMessageCallback(this.httpServer.sendToAllClients.bind(this.httpServer));
       controller.registerPlatformObjects(this.platformObjects);
+      controller.registerDataStorage(this.dataStorage);
       controller.init();
     });
 

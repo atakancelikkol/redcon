@@ -29,6 +29,7 @@
     "get-folder-size": "^2.0.1",
     "http": "0.0.0",
     "jsonwebtoken": "^8.5.1",
+    "lowdb": "^1.0.0",
     "md5-file": "^5.0.0",
     "path": "^0.12.7",
     "rimraf": "^3.0.2",

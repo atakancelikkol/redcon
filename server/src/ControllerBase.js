@@ -7,6 +7,7 @@ class ControllerBase {
     this.name = name;
     this.sendMessageCallback = () => {};
     this.platformObjects = null;
+    this.dataStorage = null;
   }
 
   /**
@@ -35,6 +36,14 @@ class ControllerBase {
     }
 
     this.platformObjects = platformObjects;
+  }
+
+  registerDataStorage(dataStorage) {
+    if (this.dataStorage) {
+      throw new Error('dataStorage is already defined!');
+    }
+
+    this.dataStorage = dataStorage;
   }
 
   /**
