@@ -6,6 +6,7 @@
     >
       Click to reboot Raspberry Pi device:<br>
       <b-button
+        ref="reboot"
         block
         variant="danger"
         size="lg"
@@ -37,6 +38,7 @@ export default {
     onRebootClicked() {
       this.$bvModal
         .msgBoxConfirm('Please confirm that you want to reboot Raspberry Pi device.', {
+          id: 'rebootModalConfirmation',
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
@@ -49,9 +51,6 @@ export default {
         })
         .then((value) => {
           if (value === true) this.rebootDevice();
-        })
-        .catch((err) => {
-          console.log(err);
         });
     },
   },
