@@ -44,6 +44,6 @@ describe('Logger', () => {
 
   it('tests changing log level default', () => {
     logger.setLevel('defaultlevel');
-    expect(logger.level).toBe(0);
+    expect(logger.level).toBe(2);
   });
 });

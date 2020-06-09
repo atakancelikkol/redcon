@@ -44,7 +44,6 @@ class Authenticator extends ControllerBase {
       try {
         result = jwt.verify(receivedToken, ServerConfig.TokenSecret);
       } catch (ex) {
-        // console.log(ex);
         logger.debug(ex);
       }
 

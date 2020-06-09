@@ -12,7 +12,6 @@ class PosixNetworkUtility extends INetworkUtility {
       exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
         platformPortConfig.shellOutput = stdout;
         platformPortConfig.shellError = stderr;
-        // console.log(error, stdout, stderr);
         logger.info(error, stdout, stderr);
         resolve(platformPortConfig);
       });

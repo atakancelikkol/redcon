@@ -65,7 +65,6 @@ class PortConfigController extends ControllerBase {
 
   setConfigFile(configContents) {
     if (typeof configContents !== 'string') {
-      // console.log('Invalid parameters', configContents);
       logger.error('Invalid parameters', configContents);
       return;
     }

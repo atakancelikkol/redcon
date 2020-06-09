@@ -52,7 +52,6 @@ export default {
           if (value === true) this.rebootDevice();
         })
         .catch((err) => {
-          // console.log(err);
           logger.error(err);
         });
     },

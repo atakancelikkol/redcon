@@ -96,7 +96,6 @@ export default {
           if (value === true) this.setPortMappingConfiguration({ configContents: this.textAreaContent });
         })
         .catch((err) => {
-          // console.log(err);
           logger.error(err);
         });
     },
@@ -117,7 +116,6 @@ export default {
           if (value === true) this.resetPortMappingConfiguration();
         })
         .catch((err) => {
-          // console.log(err);
           logger.error(err);
         });
     },

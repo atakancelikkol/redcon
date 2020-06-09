@@ -34,7 +34,7 @@ class Logger {
         this.level = 0;
         break;
       default:
-        this.level = 0;
+        this.level = 2;
     }
   }
 }

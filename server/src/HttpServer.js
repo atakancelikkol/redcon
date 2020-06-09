@@ -23,7 +23,6 @@ class HttpServer {
   }
 
   init() {
-    // console.log('initializing HttpServer...');
     logger.info('initializing HttpServer...');
     this.app = express();
 
@@ -64,9 +63,7 @@ class HttpServer {
       connection,
       isAuthenticated: false,
     });
-    // console.log('New connection request received! id: ', client.getId());
     logger.info('New connection request received! id: ', client.getId());
-    // console.log('Remote client address:', client.getIp());
     logger.info('Remote client address:', client.getIp());
 
     this.clients.push(client);
@@ -87,13 +84,11 @@ class HttpServer {
   }
 
   onCloseHandler(client/* , connection */) {
-    // console.log('connection closed! id: ', client.getId());
     logger.info('connection closed! id: ', client.getId());
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
     } else {
-      // console.log('Error on closing connection! id: ', client.getId());
       logger.info(`Error on closing connection ${client.getId()}`);
     }
   }

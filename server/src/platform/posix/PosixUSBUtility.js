@@ -29,7 +29,6 @@ class USBUtility {
           return;
         }
         logger.info('synchronized usb drive');
-        // console.log('synchronized usb drive');
         resolve();
       });
     });
@@ -48,7 +47,6 @@ class USBUtility {
           return;
         }
         logger.info('ejected usb drive');
-        // console.log('ejected usb drive');
         resolve();
       });
     });
