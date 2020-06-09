@@ -114,7 +114,6 @@ describe('USBController Usb Flash Operations', () => {
     usbController.checkKVMLedState();
     expect(usbController.usbState.kvmLedStateRPI).toBe(true);
     expect(usbController.usbState.kvmLedStateECU).toBe(true);
-    usbController.checkKVMLedState();
   });
 
   test('detectDriveChanges', () => new Promise((done) => {
