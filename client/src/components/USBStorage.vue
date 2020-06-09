@@ -8,7 +8,7 @@
         <b-button
           ref="buttonOpen"
           variant="outline-primary"
-          @click="onButtonClicked"
+          @click="onDetectButtonClicked"
         >
           Detect USB Devices
         </b-button>
@@ -227,7 +227,7 @@ export default {
     ...mapState(['receivedData']),
     usbStatus() {
       const status = {};
-      if (this.receivedData.usb.isAvailable === true) {
+      if (this.receivedData.usb && this.receivedData.usb.isAvailable === true) {
         status.usbName = this.receivedData.usb.usbName;
         status.availability = `${status.usbName} is ready to be used`;
         status.mountedpath = this.receivedData.usb.mountedPath;
@@ -243,14 +243,13 @@ export default {
       if (!this.receivedData.usb) {
         return false;
       }
-
       return this.receivedData.usb.isAvailable;
     },
     ecuLedState() {
-      return this.receivedData.usb.kvmLedStateECU;
+      return this.receivedData.usb && this.receivedData.usb.kvmLedStateECU;
     },
     rpiLedState() {
-      return this.receivedData.usb.kvmLedStateRPI;
+      return this.receivedData.usb && this.receivedData.usb.kvmLedStateRPI;
     },
     itemList() {
       if (!this.receivedData.usb) {
@@ -262,7 +261,6 @@ export default {
       if (!this.receivedData.usb) {
         return '';
       }
-
       return this.receivedData.usb.currentDirectory;
     },
     itemInfo() {
@@ -295,7 +293,7 @@ export default {
     onToggleButtonClicked() {
       this.toggleUSBPort();
     },
-    onButtonClicked() {
+    onDetectButtonClicked() {
       this.detectUSBDevice();
     },
     clearFiles() {

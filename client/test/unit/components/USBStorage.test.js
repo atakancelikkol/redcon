@@ -44,6 +44,7 @@ describe('USBStorage', () => {
     statusTest.availability = 'USB is not ready';
     statusTest.mountedpath = '----------------';
     expect(wrapper.vm.usbStatus).toEqual(statusTest);
+    wrapper.destroy();
   });
 
   test('computed isUsbDeviceAvailable', () => {
@@ -54,16 +55,19 @@ describe('USBStorage', () => {
     // fail
     state.receivedData.usb = {};
     expect(wrapper.vm.isUsbDeviceAvailable).toBeFalsy();
+    wrapper.destroy();
   });
 
   test('computed ecuLedState', () => {
     const wrapper = mount(USBStorage, { store, localVue });
     expect(wrapper.vm.ecuLedState).toEqual(state.receivedData.usb.kvmLedStateECU);
+    wrapper.destroy();
   });
 
   test('computed rpiLedState', () => {
     const wrapper = mount(USBStorage, { store, localVue });
     expect(wrapper.vm.rpiLedState).toEqual(state.receivedData.usb.rpiLedState);
+    wrapper.destroy();
   });
 
   test('computed itemList', () => {
@@ -72,8 +76,9 @@ describe('USBStorage', () => {
     state.receivedData.usb = { currentItems: ['item1', 'item2'] };
     expect(wrapper.vm.itemList).toEqual(['item1', 'item2']);
     // fail
-    state.receivedData.usb = false;
+    state.receivedData.usb = undefined;
     expect(wrapper.vm.itemList).toEqual([]);
+    wrapper.destroy();
   });
 
   test('computed getDirectory', () => {
@@ -82,8 +87,9 @@ describe('USBStorage', () => {
     state.receivedData.usb = { currentDirectory: 'dir' };
     expect(wrapper.vm.getDirectory).toEqual('dir');
     // fail
-    state.receivedData.usb = false;
+    state.receivedData.usb = undefined;
     expect(wrapper.vm.getDirectory).toEqual('');
+    wrapper.destroy();
   });
 
   test('computed itemInfo', () => {
@@ -92,8 +98,9 @@ describe('USBStorage', () => {
     state.receivedData.usb = { currentItemInfo: {} };
     expect(wrapper.vm.itemInfo).toEqual({});
     // false
-    state.receivedData.usb = false;
+    state.receivedData.usb = undefined;
     expect(wrapper.vm.itemInfo).toBeUndefined();
+    wrapper.destroy();
   });
 
   test('computed usbError', () => {
@@ -102,8 +109,9 @@ describe('USBStorage', () => {
     state.receivedData.usb = { usbErrorString: 'ERROR' };
     expect(wrapper.vm.usbError).toEqual('ERROR');
     // false
-    state.receivedData.usb = false;
+    state.receivedData.usb = undefined;
     expect(wrapper.vm.usbError).toBe('');
+    wrapper.destroy();
   });
 
   test('if Toggle USB Device button is clicked, toggleUSBPort should be called', () => {
