@@ -14,14 +14,15 @@ class Logger {
   createLogger() {
     this.logger = winston.createLogger({
 
-      transports: [
+      transports: this.transportSettings(),
+      /* [
         new winston.transports.Console({ level: ServerConfig.LoggerLevel }),
-        new winston.transports.File({
+         new winston.transports.File({
           filename: './logs/Server.log',
           maxsize: ServerConfig.MaxLoggerFileSize, // max size
           level: ServerConfig.LoggerLevel,
         }),
-      ],
+      ], */
 
       format: winston.format.printf((info) => {
         const message = `${this.dateFormat()} | ${info.level.toUpperCase()} | ${info.message}`;
@@ -30,6 +31,20 @@ class Logger {
       silent: false,
 
     });
+  }
+
+  transportSettings() {
+    const transports = [];
+    transports[0] = new winston.transports.Console({ level: ServerConfig.LoggerLevel });
+
+    if (process.env.NODE_ENV !== 'test') {
+      transports[1] = new winston.transports.File({
+        filename: './logs/Server.log',
+        maxsize: ServerConfig.MaxLoggerFileSize, // max size
+        level: ServerConfig.LoggerLevel,
+      });
+    }
+    return transports;
   }
 
   info(...args) {
