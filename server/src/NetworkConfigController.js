@@ -1,3 +1,4 @@
+const os = require('os');
 const ControllerBase = require('./ControllerBase');
 
 class NetworkConfigController extends ControllerBase {
@@ -26,21 +27,32 @@ class NetworkConfigController extends ControllerBase {
         await this.addTcpIntToExtNetworkRule(commandObject.rule);
       } else if (commandObject.action === 'removeTcpIntToExtNetworkRule' && commandObject.rule) {
         await this.removeTcpIntToExtNetworkRule(commandObject.rule);
-      } else if (commandObject.action === 'getNetworkInterfaces') {
-        await this.getNetworkInterfaces();
       }
     }
   }
 
   appendData(obj) {
     // this function returns the initial state
-    obj.networkConfig = this.dataStorage.getNetworkConfiguration(); // eslint-disable-line
+    obj.networkConfig = {...this.dataStorage.getNetworkConfiguration()}; // eslint-disable-line
+    obj.networkConfig.networkInterfaces = this.getNetworkInterfaces(); // eslint-disable-line
   }
 
-  async getNetworkInterfaces() {
-    const interfaces = await this.platformObjects.getNetworkUtility().getNetworkInterfaces();
-    const obj = { networkConfig: { interfaces } };
-    this.sendMessageCallback(this, obj);
+  getNetworkInterfaces() {
+    const interfaces = os.networkInterfaces();
+    const interfaceNames = Object.keys(interfaces);
+    const networkInterfaces = [];
+    interfaceNames.forEach((name) => {
+      let ip;
+      let mac;
+      interfaces[name].forEach((obj) => {
+        if (obj.family === 'IPv4') {
+          ip = obj.address;
+          mac = obj.mac;
+        }
+      });
+      networkInterfaces.push({ name, ip, mac });
+    });
+    return networkInterfaces;
   }
 
   async updateNetworkInterfaceConfiguration(configuration) {

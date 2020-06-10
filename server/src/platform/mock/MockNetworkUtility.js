@@ -7,10 +7,6 @@ class MockNetworkUtility extends INetworkUtility {
     });
   }
 
-  async getNetworkInterfaces() {
-    return ['mockEth0', 'mockEth1', 'mockEth2'];
-  }
-
   async applyNetworkConfiguration(config) {
     console.log('applying configuration!', config);
   }

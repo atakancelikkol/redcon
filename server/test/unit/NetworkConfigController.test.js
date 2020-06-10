@@ -9,6 +9,23 @@ const sendCallbackMock = jest.fn((controller, obj) => {
   lastSentObject = obj;
 });
 
+jest.mock('os', () => ({
+  networkInterfaces: jest.fn(() => ({
+    enp0s8: [
+      {
+        address: 'ipv4address',
+        family: 'IPv4',
+        mac: 'xx:xx:xx:xx:xx:xx',
+      },
+      {
+        address: 'ipv6address',
+        family: 'IPv6',
+        mac: 'yy:yy:yy:yy:yy:yy',
+      },
+    ],
+  })),
+}));
+
 function createNetworkConfigController() {
   const controller = new NetworkConfigController();
   controller.registerSendMessageCallback(sendCallbackMock);
@@ -30,7 +47,9 @@ describe('NetworkConfigController', () => {
 
     const obj = {};
     controller.appendData(obj);
-    expect(obj.networkConfig).toStrictEqual(dataStorage.getNetworkConfiguration());
+    const defaultConfiguration = { ...dataStorage.getNetworkConfiguration() }; // copy configuration
+    defaultConfiguration.networkInterfaces = [{ name: 'enp0s8', ip: 'ipv4address', mac: 'xx:xx:xx:xx:xx:xx' }];
+    expect(obj.networkConfig).toStrictEqual(defaultConfiguration);
   });
 
   test('empty handle message test', async () => {
@@ -40,12 +59,6 @@ describe('NetworkConfigController', () => {
 
     await controller.handleMessage({ networkConfig: {} });
     expect(lastSentObject).toStrictEqual(undefined);
-  });
-
-  test('getNetworkInterfaces test', async () => {
-    const controller = createNetworkConfigController();
-    await controller.handleMessage({ networkConfig: { action: 'getNetworkInterfaces' } });
-    expect(lastSentObject.networkConfig.interfaces).toStrictEqual(['mockEth0', 'mockEth1', 'mockEth2']);
   });
 
   test('updateNetworkInterfaceConfiguration test', async () => {
