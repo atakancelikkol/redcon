@@ -42,6 +42,12 @@ describe('NetworkConfigController', () => {
     expect(lastSentObject).toStrictEqual(undefined);
   });
 
+  test('getNetworkInterfaces test', async () => {
+    const controller = createNetworkConfigController();
+    await controller.handleMessage({ networkConfig: { action: 'getNetworkInterfaces' } });
+    expect(lastSentObject.networkConfig.interfaces).toStrictEqual(['mockEth0', 'mockEth1', 'mockEth2']);
+  });
+
   test('updateNetworkInterfaceConfiguration test', async () => {
     const controller = createNetworkConfigController();
     const action = 'updateNetworkInterfaceConfiguration';
