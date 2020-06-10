@@ -16,5 +16,7 @@ const actions = {
   deleteItemUSBDevice: jest.fn(),
   getItemInfoUSBDevice: jest.fn(),
   createFolderUSBDevice: jest.fn(),
+  // Utility
+  rebootDevice: jest.fn(),
 };
 export default actions;
