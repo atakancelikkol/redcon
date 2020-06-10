@@ -43,7 +43,8 @@ describe('Logger', () => {
   });
 
   it('tests changing log level default', () => {
-    logger.setLevel('defaultlevel');
+    logger.setLevel('debug'); // set to default level debug before the test
+    logger.setLevel('defaultlevel'); // no change
     expect(logger.currentLogLevel).toBe(logger.LOG_LEVELS.debug);
   });
 });

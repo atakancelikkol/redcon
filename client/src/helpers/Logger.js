@@ -1,6 +1,6 @@
 class Logger {
   constructor() {
-    this.currentLogLevel = ''; // default level is set to debug level
+    this.currentLogLevel = 0; // default level is set to debug level
     this.LOG_LEVELS = { debug: 0, info: 1, error: 2 };
   }
 
@@ -22,25 +22,14 @@ class Logger {
     }
   }
 
-  setLevel(lvl) {
-    switch (lvl) {
-      case 'info':
-        this.currentLogLevel = this.LOG_LEVELS.info;
-        break;
-      case 'error':
-        this.currentLogLevel = this.LOG_LEVELS.error;
-        break;
-      case 'debug':
-        this.currentLogLevel = this.LOG_LEVELS.debug;
-        break;
-      default:
-        this.currentLogLevel = this.LOG_LEVELS.debug;
+  setLevel(level) {
+    if (Object.prototype.hasOwnProperty.call(this.LOG_LEVELS, level)) {
+      this.currentLogLevel = this.LOG_LEVELS[level];
     }
   }
 }
 
 const logger = new Logger();
-logger.setLevel(); // default level is set 
 // Object.freeze(logger);
 
 export default logger;
