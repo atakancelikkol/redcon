@@ -10,8 +10,8 @@ class MockGPIOUtility extends IGPIOUtility {
     logger.info('MockGPIOUtility openForInput: ', portPinNumber, initialState);
   }
 
-  read(portPinNumber) {
-    logger.info('MockGPIOUtility read: ', portPinNumber);
+  read(/* portPinNumber */) {
+    // logger.info('MockGPIOUtility read: ', portPinNumber);
     return true;
   }
 
