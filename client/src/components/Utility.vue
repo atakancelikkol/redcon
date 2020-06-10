@@ -6,6 +6,7 @@
     >
       Click to reboot Raspberry Pi device:<br>
       <b-button
+        ref="reboot"
         block
         variant="danger"
         size="lg"
@@ -19,7 +20,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import logger from '../helpers/Logger';
+// import logger from '../helpers/Logger';
 // const cloneDeep = require('clone-deep');
 
 export default {
@@ -38,6 +39,7 @@ export default {
     onRebootClicked() {
       this.$bvModal
         .msgBoxConfirm('Please confirm that you want to reboot Raspberry Pi device.', {
+          id: 'rebootModalConfirmation',
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
@@ -50,9 +52,6 @@ export default {
         })
         .then((value) => {
           if (value === true) this.rebootDevice();
-        })
-        .catch((err) => {
-          logger.error(err);
         });
     },
   },

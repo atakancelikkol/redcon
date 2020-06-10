@@ -4,7 +4,7 @@ import {
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
-import componentWithVuex from '../../../src/components/LeftMenu.vue';
+import componentLeftMenu from '../../../src/components/LeftMenu.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
 
@@ -16,7 +16,7 @@ localVue.use(VueRouter);
 const router = new VueRouter();
 
 
-describe('componentWithVuex', () => {
+describe('componentLeftMenu', () => {
   let store;
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('componentWithVuex', () => {
   });
 
   it('logout button', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLeftMenu, {
       store,
       localVue,
       router,

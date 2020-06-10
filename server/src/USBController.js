@@ -4,7 +4,6 @@ const drivelist = require('drivelist');
 const nodePath = require('path');
 const fs = require('fs');
 const formidable = require('formidable');
-const usbDetect = require('usb-detection');
 const md5File = require('md5-file');
 const rimraf = require('rimraf');
 const getSize = require('get-folder-size');
@@ -19,7 +18,7 @@ const LED_CHECK_TIME_INTERVAL = 1000; // ms
 const MIN_TOGGLE_INTERVAL = 1000; // ms
 
 class USBController extends ControllerBase {
-  constructor() {
+  constructor(options) {
     super('USBController');
     this.usbState = {
       isAvailable: false,
@@ -37,12 +36,22 @@ class USBController extends ControllerBase {
 
     this.toggleTimeoutHandle = undefined;
     this.ledReadIntervalHandle = undefined;
+
+    if (options && options.useMockUsbDetect) {
+      this.usbDetect = {
+        startMonitoring: () => { },
+        stopMonitoring: () => { },
+        on: () => { },
+      };
+    } else {
+      this.usbDetect = require('usb-detection'); // eslint-disable-line
+    }
   }
 
   init() {
     logger.info('initializing USBController...');
-    usbDetect.startMonitoring();
-    usbDetect.on('change', () => {
+    this.usbDetect.startMonitoring();
+    this.usbDetect.on('change', () => {
       this.detectDriveChanges();
     });
 
@@ -101,23 +110,27 @@ class USBController extends ControllerBase {
   }
 
   detectDriveChanges() {
-    const lastState = this.usbState.isAvailable;
-    let tryCount = 0;
+    return new Promise((resolve, reject) => {
+      const lastState = this.usbState.isAvailable;
+      let tryCount = 0;
 
-    const detectUsbInsertionInTimeIntervals = () => {
-      this.detectUsbDevice().then(() => {
-        tryCount += 1;
-        if (this.usbState.isAvailable === lastState) {
-          if (tryCount < MAX_TRY_COUNT_DRIVE) {
-            setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+      const detectUsbInsertionInTimeIntervals = () => {
+        this.detectUsbDevice().then(() => {
+          tryCount += 1;
+          if (this.usbState.isAvailable === lastState) {
+            if (tryCount < MAX_TRY_COUNT_DRIVE) {
+              setTimeout(detectUsbInsertionInTimeIntervals, 1000);
+            } else {
+              reject();
+            }
           } else {
             logger.info('detectUsbDevice try count has been exceeded');
+            resolve();
           }
-        }
-      });
-    };
-
-    detectUsbInsertionInTimeIntervals();
+        });
+      };
+      detectUsbInsertionInTimeIntervals();
+    });
   }
 
   // platform
@@ -151,14 +164,20 @@ class USBController extends ControllerBase {
   }
 
   listUsbDeviceItems(path) {
+    return new Promise((resolve, reject) => {
+      this.internalListUsbDeviceItems(path, resolve, reject);
+    });
+  }
+
+  internalListUsbDeviceItems(path, resolve, reject) {
     if (this.usbState.mountedPath === '') {
       // send empty item list
       this.usbState.currentDirectory = path;
       this.usbState.currentItems = [];
       this.sendCurrentState();
+      resolve();
       return;
     }
-
 
     const dir = nodePath.join(this.usbState.mountedPath, path);
 
@@ -169,6 +188,7 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant listUsbDeviceItems`;
         this.sendCurrentState();
         logger.error(`Unable to scan directory: ${err}`);
+        reject();
         return;
       }
       const itemsList = [];
@@ -195,6 +215,7 @@ class USBController extends ControllerBase {
       this.usbState.currentItems = itemsList;
 
       this.sendCurrentState();
+      resolve();
     });
   }
 
@@ -263,7 +284,6 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant getFolderInfo-getSize`;
         size = 0; // eslint-disable-line
       }
-
       itemInfo.size = this.convertItemSizeToString(size); // eslint-disable-line
       this.usbState.currentItemInfo = itemInfo;
       this.sendCurrentState();
@@ -271,6 +291,12 @@ class USBController extends ControllerBase {
   }
 
   createUsbDeviceFolder(path, folderName) {
+    return new Promise((resolve, reject) => {
+      this.internalCreateUsbDeviceFolder(path, folderName, resolve, reject);
+    });
+  }
+
+  internalCreateUsbDeviceFolder(path, folderName, resolve, reject) {
     const dir = nodePath.join(this.usbState.mountedPath, path, folderName);
 
     this.usbState.usbErrorString = '';
@@ -279,10 +305,12 @@ class USBController extends ControllerBase {
         this.usbState.usbErrorString = `${err.message} Cant createUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
         logger.error(err);
+        reject();
         return;
       }
       this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
+      resolve();
     });
   }
 
@@ -305,25 +333,43 @@ class USBController extends ControllerBase {
   }
 
   deleteUsbDeviceFile(dir, path) {
+    return new Promise((resolve, reject) => {
+      this.internalDeleteUsbDeviceFile(dir, path, resolve, reject);
+    });
+  }
+
+  internalDeleteUsbDeviceFile(dir, path, resolve, reject) {
     fs.unlink(dir, (err) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFile`;
         logger.error('could not remove file! ', dir, err);
+        reject();
+        return;
       }
       this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
+      resolve();
     });
   }
 
   deleteUsbDeviceFolder(dir, path) {
+    return new Promise((resolve, reject) => {
+      this.internalDeleteUsbDeviceFolder(dir, path, resolve, reject);
+    });
+  }
+
+  internalDeleteUsbDeviceFolder(dir, path, resolve, reject) {
     rimraf(dir, async (err) => {
       if (err) { // Handle error
         this.usbState.usbErrorString = `${err.message} Cant deleteUsbDeviceFolder`;
         this.listUsbDeviceItems(path);
         logger.error('could not remove file! ', dir, err);
+        reject();
+        return;
       }
       await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
+      resolve();
     });
   }
 
@@ -428,6 +474,7 @@ class USBController extends ControllerBase {
 
     if (!path || !fileName) {
       res.status(400).send('invalid parameters');
+      return;
     }
 
     const dir = nodePath.join(this.usbState.mountedPath, path, fileName);
@@ -435,7 +482,7 @@ class USBController extends ControllerBase {
   }
 
   onExit() {
-    usbDetect.stopMonitoring();
+    this.usbDetect.stopMonitoring();
 
     if (this.ledReadIntervalHandle) {
       clearInterval(this.ledReadIntervalHandle);

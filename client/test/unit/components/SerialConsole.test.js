@@ -3,7 +3,7 @@ import {
 } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
-import componentWithVuex from '../../../src/components/SerialConsole.vue';
+import componentSerialConsol from '../../../src/components/SerialConsole.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
 
@@ -12,7 +12,7 @@ localVue.use(Vuex);
 localVue.use(BootstrapVue);
 
 
-describe('componentWithVuex else branchs', () => {
+describe('componentSerialConsol else branchs', () => {
   let store;
 
   beforeEach(() => {
@@ -22,7 +22,7 @@ describe('componentWithVuex else branchs', () => {
   });
 
   it('keydown event for not enter onEnterKey', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -33,7 +33,7 @@ describe('componentWithVuex else branchs', () => {
   });
 
   it('keydown event for ignore ctrl-shift-alt, onKeyDown', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -46,7 +46,7 @@ describe('componentWithVuex else branchs', () => {
   });
 
   it('computed serialDeviceList return []', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -55,7 +55,7 @@ describe('componentWithVuex else branchs', () => {
   });
 
   it('computed listSerialConsoleFiles return []', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -65,7 +65,7 @@ describe('componentWithVuex else branchs', () => {
   });
 });
 
-describe('componentWithVuex', () => {
+describe('componentSerialConsol', () => {
   let store;
 
   beforeEach(() => {
@@ -75,7 +75,7 @@ describe('componentWithVuex', () => {
   });
 
   it('default values', () => {
-    const defaultData = componentWithVuex.data();
+    const defaultData = componentSerialConsol.data();
     expect(defaultData.baudRate).toBe(115200);
     expect(defaultData.currentSerialDevice).toBe(null);
     expect(defaultData.serialmsg).toBe('');
@@ -97,7 +97,7 @@ describe('componentWithVuex', () => {
   });
 
   it('click event for openSelectedDevice', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -108,7 +108,7 @@ describe('componentWithVuex', () => {
   });
 
   it('click event for closeSelectedDevice', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -119,7 +119,7 @@ describe('componentWithVuex', () => {
   });
 
   it('click event for writeSelectedDevice', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -136,7 +136,7 @@ describe('componentWithVuex', () => {
     const mockedOpen = jest.fn();
     const originalOpen = window.open;
     window.open = mockedOpen;
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -153,7 +153,7 @@ describe('componentWithVuex', () => {
   });
 
   it('keydown event for serialSend onEnterKey', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -164,7 +164,7 @@ describe('componentWithVuex', () => {
   });
 
   it('keydown event for printable characters, onKeyDown', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -182,7 +182,7 @@ describe('componentWithVuex', () => {
 
 
   it('keydown event for dataArea enter, onKeyDown', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -193,7 +193,7 @@ describe('componentWithVuex', () => {
   });
 
   it('computed serialDeviceList', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -216,7 +216,7 @@ describe('componentWithVuex', () => {
   });
 
   it('computed listSerialConsoleFiles', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
@@ -226,7 +226,7 @@ describe('componentWithVuex', () => {
   });
 
   it('method updateInitialSelection', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentSerialConsol, {
       store,
       localVue,
     });
