@@ -1,10 +1,11 @@
 const SerialPort = require('serialport');
 const SerialPortStream = require('@serialport/stream');
 const MockBinding = require('@serialport/binding-mock');
+const fs = require('fs');
+const logger = require('./util/Logger');
 
 const virtualDeviceMode = false;
 const mockDevicePath = '/dev/ROBOT';
-const fs = require('fs');
 const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('./util/KeyMapping');
 
@@ -141,29 +142,29 @@ class SerialPortController extends ControllerBase {
   // write serial data to device
   writeSerialPort(devicePath, serialCmd) {
     if (typeof serialCmd !== 'string') {
-      console.log('invalid parameters', serialCmd);
+      logger.error('invalid parameters', serialCmd);
       return;
     }
-    // console.log("Sending to device(", devicePath, ") :", serialCmd)
+    // logger.debug("Sending to device(", devicePath, ") :", serialCmd);
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
       port.write(serialCmd);
     } else {
-      console.log('port write error! can not find port with the specified path.', devicePath);
+      logger.error('port write error! can not find port with the specified path.', devicePath);
     }
   }
 
   writeKeySerialPort(devicePath, keyCode, charCode, ctrlKey, shiftKey) {
-    // console.log("send key to device", keyCode, ctrlKey, shiftKey);
+    // logger.debug("send key to device", keyCode, ctrlKey, shiftKey);
     if (this.portInstances[devicePath]) {
       const port = this.portInstances[devicePath];
 
       const dataToSend = KeyMapping.ConvertKey(keyCode, charCode, ctrlKey, shiftKey);
 
-      // console.log("data to send = ", dataToSend);
+      // logger.debug("data to send = ", dataToSend);
       port.write([dataToSend]);
     } else {
-      console.log('port write error! can not find port with the specified path.', devicePath);
+      logger.error('port write error! can not find port with the specified path.', devicePath);
     }
   }
 
@@ -171,7 +172,7 @@ class SerialPortController extends ControllerBase {
   closeSerialPort(devicePath) {
     // number and string check
     if (typeof devicePath !== 'string') {
-      console.log('invalid parameters', devicePath);
+      logger.error('invalid parameters', devicePath);
       return;
     }
 
@@ -179,7 +180,7 @@ class SerialPortController extends ControllerBase {
       const port = this.portInstances[devicePath];
       port.close();
     } else {
-      console.log('port close error! can not find port with the specified path.', devicePath);
+      logger.error('port close error! can not find port with the specified path.', devicePath);
     }
   }
 
@@ -195,7 +196,7 @@ class SerialPortController extends ControllerBase {
   openSerialPort(devicePath, baudRate = 115200) {
     // number and string check
     if (typeof devicePath !== 'string' || typeof baudRate !== 'number') {
-      console.log('invalid parameters', devicePath, baudRate);
+      logger.error('invalid parameters', devicePath, baudRate);
       return;
     }
 
@@ -204,7 +205,7 @@ class SerialPortController extends ControllerBase {
     port.on('open', this.onPortOpened.bind(this, port));
     port.on('close', this.onPortClosed.bind(this, port));
     port.on('error', (err) => {
-      console.log('Error: ', err.message);
+      logger.error('Error: ', err.message);
     });
 
     // create parser
@@ -219,7 +220,7 @@ class SerialPortController extends ControllerBase {
   }
 
   onPortOpened(port) {
-    console.log('port open.', port.path);
+    logger.info('port open.', port.path);
     this.portStatusObj[port.path].isOpen = true;
     this.portInstances[port.path] = port;
     this.openWriteStream(port.path);
@@ -239,7 +240,7 @@ class SerialPortController extends ControllerBase {
   }
 
   onPortClosed(port) {
-    console.log('port closed.', port.path);
+    logger.info('port closed.', port.path);
     this.portStatusObj[port.path].isOpen = false;
     this.updatePortStatus();
     const writer = this.writerInstances[port.path];

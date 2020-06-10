@@ -1,5 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import StorageHelper from './helpers/StorageHelper';
+import logger from './helpers/Logger';
 
 class WebSocketConnector {
   constructor() {
@@ -8,7 +9,7 @@ class WebSocketConnector {
   }
 
   init() {
-    console.log("initializing web socket connector"); // eslint-disable-line
+    logger.info('initializing web socket connector');
     this.connectionSocket = new ReconnectingWebSocket(this.getWebSocketURL());
     this.connectionSocket.onopen = this.onOpen.bind(this);
     this.connectionSocket.onmessage = this.onMessage.bind(this);
@@ -50,7 +51,7 @@ class WebSocketConnector {
 
   onOpen(/* event */) {
     this.store.dispatch('updateConnectionStatus', true);
-    console.log("websocket connection is opened!") // eslint-disable-line
+    logger.info('websocket connection is opened!');
     this.sendStoredToken();
   }
 
@@ -64,13 +65,13 @@ class WebSocketConnector {
 
   onMessage(event) {
     const obj = JSON.parse(event.data);
-    console.log("received data", obj) // eslint-disable-line
+    logger.info('received data', obj);
     this.store.dispatch('onDataReceived', obj);
   }
 
   onClose() {
     this.store.dispatch('updateConnectionStatus', false);
-    console.log("websocket connection is closed!") // eslint-disable-line
+    logger.info('websocket connection is closed!');
   }
 
   sendGPIOUpdateMessage({ gpioPort, value }) {
