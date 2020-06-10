@@ -17,6 +17,7 @@ describe('USBStorage', () => {
     store = new Vuex.Store({ // we make a mock store with our mock values
       actions, state,
     });
+    jest.resetAllMocks();
   });
 
   test('default values', () => {
@@ -129,4 +130,121 @@ describe('USBStorage', () => {
     expect(actions.detectUSBDevice).toHaveBeenCalled();
     wrapper.destroy();
   });
+
+  test(' of mounted listItemsUSBDevice control', () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(1);
+    expect(actions.listItemsUSBDevice.mock.calls[0][1]).toStrictEqual({ path: '.' });
+    wrapper.destroy();
+  });
+
+  test('of watch isUsbDeviceAvailable', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    wrapper.setData({ currentDirectory: 'mockDirectory' });
+    state.receivedData.usb = {
+      isAvailable: true,
+    };
+    expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(1);
+
+    // const waitNT = (ctx) => new Promise((resolve) => ctx.$nextTick(resolve));
+    // await waitNT(wrapper.vm);
+    await wrapper.vm.$nextTick();
+    expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(2);
+    expect(actions.listItemsUSBDevice.mock.calls[1][1]).toStrictEqual({ path: 'mockDirectory' });
+    wrapper.destroy();
+  });
+
+  test('if directory link is clicked, selectDirectory method is called', () => new Promise((done) => {
+    // fullPath: true
+    state.receivedData.usb = { currentItems: [{ name: 'name', isDirectory: true, fullPath: true }] };
+    const wrapper = mount(USBStorage, { store, localVue });
+    const linkClicked = wrapper.findComponent({ ref: 'linkDir' });
+    linkClicked.trigger('click');
+    expect(wrapper.vm.currentDirectory).toMatch('name');
+    // fullPath: false
+    state.receivedData.usb = { currentItems: [{ name: 'name', isDirectory: true, fullPath: false }] };
+    wrapper.vm.$nextTick(() => {
+      linkClicked.trigger('click');
+      try {
+        expect(wrapper.vm.currentDirectory).toMatch('/name');
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+    expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(2);
+  }));
+
+  test('if Info button is clicked, onInfoButtonClicked method is called', () => {
+    state.receivedData.usb = { currentItems: [{ fullPath: false }] };
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonInfo' });
+    buttonClicked.trigger('click');
+    expect(actions.getItemInfoUSBDevice).toHaveBeenCalled();
+  });
+
+  test('if Download is clicked, onDownloadFileClicked method is called', () => {
+    state.receivedData.usb = { currentItems: [{ name: 'name', isDirectory: false, fullPath: true }] };
+    //
+    const mockedOpen = jest.fn();
+    const originalOpen = window.open;
+    window.open = mockedOpen;
+    //
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonDownload' });
+    buttonClicked.trigger('click');
+    expect(mockedOpen).toHaveBeenCalled();
+    //
+    window.open = originalOpen;
+  });
+
+  test('if create folder modal calls createFolderUSBDevice', () => new Promise((done) => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const modal = wrapper.findComponent({ ref: 'modal' });
+    modal.vm.$emit('ok');
+    wrapper.vm.$nextTick(() => {
+      try {
+        expect(actions.createFolderUSBDevice).toHaveBeenCalled();
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  }));
+
+  test('if Upload is clicked, onUploadClicked method is called(fail cases)', () => new Promise((done) => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonUpload' });
+    // this.isUsbDeviceAvailable === false
+    wrapper.vm.showUploadError = true;
+    state.receivedData.usb = { isAvailable: false };
+    buttonClicked.trigger('click');
+    expect(wrapper.vm.showUploadError).toBeTruthy();
+    // this.selectedFiles.length === 0
+    wrapper.vm.showUploadError = true;
+    state.receivedData.usb = { isAvailable: true };
+    wrapper.vm.selectedFiles = [];
+    buttonClicked.trigger('click');
+    wrapper.vm.$nextTick(() => {
+      try {
+        expect(wrapper.vm.showUploadError).toBeTruthy();
+        // success
+        wrapper.vm.showUploadError = true;
+        state.receivedData.usb = { isAvailable: true };
+        wrapper.vm.selectedFiles = ['file'];
+        buttonClicked.trigger('click');
+        wrapper.vm.$nextTick(() => {
+          try {
+            expect(wrapper.vm.showUploadError).toBeFalsy();
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  }));
 });

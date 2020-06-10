@@ -130,6 +130,7 @@
             <template v-slot:cell(name)="data">
               <b-link
                 v-if="data.item.isDirectory"
+                ref="linkDir"
                 @click="selectDirectory(data.item.name, data.item.fullPath)"
               >
                 {{ getVisibleItemName(data.item) }}
@@ -148,6 +149,7 @@
               </b-button>
               <b-button
                 v-if="!data.item.isDirectory"
+                ref="buttonDownload"
                 variant="primary"
                 style="margin-right: 20px;"
                 @click="onDownloadFileClicked(data.item)"
@@ -156,6 +158,7 @@
               </b-button>
               <b-button
                 v-if="!(data.item.fullPath)"
+                ref="buttonDelete"
                 variant="outline-danger"
                 @click="onDeleteItemClicked(data.item)"
               >
@@ -363,11 +366,9 @@ export default {
       if (this.isUsbDeviceAvailable === false) {
         return;
       }
-
       if (this.selectedFiles.length === 0) {
         return;
       }
-
       this.showUploadError = false;
       this.errorString = '';
 
