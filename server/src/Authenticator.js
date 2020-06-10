@@ -48,12 +48,12 @@ class Authenticator extends ControllerBase {
       }
 
       if (result && result.userObject && client.getIp() === result.userObject.ip) {
-        // logger.info('Token ip verified with client ip.');
+        logger.info('Token ip verified with client ip.');
         client.setAuthentication(true);
         client.setUserObject(result.userObject);
         this.sendUserToClient(client, result.userObject, 'success', receivedToken);
       } else {
-        // logger.error('Token ip is invalid');
+        logger.debug('Token ip is invalid');
       }
     }
   }

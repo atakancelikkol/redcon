@@ -2,8 +2,8 @@
 import logger from '../../../src/helpers/Logger';
 
 describe('Logger', () => {
-  it('test level', () => {
-    expect(logger.level).toBe(0);
+  it('test currentLogLevel', () => {
+    expect(logger.currentLogLevel).toBe(logger.LOG_LEVELS.debug); // default level is set to debug
   });
 
   it('tests info', () => {
@@ -29,21 +29,21 @@ describe('Logger', () => {
 
   it('tests changing log level debug', () => {
     logger.setLevel('debug');
-    expect(logger.level).toBe(0);
+    expect(logger.currentLogLevel).toBe(logger.LOG_LEVELS.debug);
   });
 
   it('tests changing log level info', () => {
     logger.setLevel('info');
-    expect(logger.level).toBe(1);
+    expect(logger.currentLogLevel).toBe(logger.LOG_LEVELS.info);
   });
 
   it('tests changing log level error', () => {
     logger.setLevel('error');
-    expect(logger.level).toBe(2);
+    expect(logger.currentLogLevel).toBe(logger.LOG_LEVELS.error);
   });
 
   it('tests changing log level default', () => {
     logger.setLevel('defaultlevel');
-    expect(logger.level).toBe(2);
+    expect(logger.currentLogLevel).toBe(logger.LOG_LEVELS.debug);
   });
 });

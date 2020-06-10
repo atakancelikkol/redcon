@@ -401,13 +401,11 @@ export default {
         this.progressValue = -1;
       });
       oReq.upload.addEventListener('error', (err) => {
-        // console.log(err);
         logger.error(err);
         this.showUploadError = true;
         this.progressValue = -1;
       });
       oReq.upload.addEventListener('abort', (err) => {
-        // console.log(err);
         logger.error(err);
         this.showUploadError = true;
         this.progressValue = -1;

@@ -1,9 +1,9 @@
 const IPlatformUtility = require('../interfaces/IPlatformUtility');
-// const logger = require('../../util/Logger');
+const logger = require('../../util/Logger');
 
 class MockPlatformUtility extends IPlatformUtility {
   rebootSystem() {
-    // logger.info('MockPlatformUtility rebootSystem is called!');
+    logger.info('MockPlatformUtility rebootSystem is called!');
   }
 }
 
