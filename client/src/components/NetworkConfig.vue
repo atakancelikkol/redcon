@@ -4,31 +4,46 @@
       title="Network Configration"
       style="flex:1"
     >
-      <div class="Rules">
-        <NetworkRuleTable
-          :table-title="'TCP Rules'"
-          :item-ext-to-int="tcpExtToInt"
-          :item-int-to-ext="tcpIntToExt"
-          :fields-int-to-ext="fieldsTcpIntToExt"
-          :fields-ext-to-int="fieldsTcpExtToInt"
+      <div class="row">
+        <div class="table-responsive col-md-6">
+          <NetworkRuleTable
+            :table-title="'TCP Rules IntToExt'"
+            :fields="fieldsTcpIntToExt"
 
-          @addInternalToExternal="addTcpIntToExtNetworkRule"
-          @addExternalToInternal="addTcpExtToIntNetworkRule"
-        />
-      </div>
-      <div class="Rules">
-        <NetworkRuleTable
-          :table-title="'UDP Rules'"
-          :item-ext-to-int="udpExtToInt"
-          :item-int-to-ext="udpIntToExt"
-          :fields-int-to-ext="fieldsUdpIntToExt"
-          :fields-ext-to-int="fieldsUdpExtToInt"
+            @addRule="addTcpIntToExtNetworkRule"
+            @removeRule="removeTcpIntToExtNetworkRule"
+          />
+        </div>
+        <div class="table-responsive col-md-6">
+          <NetworkRuleTable
+            :table-title="'TCP Rules ExtToInt'"
+            :fields="fieldsTcpExtToInt"
 
-          @addInternalToExternal="addUdpIntToExtNetworkRule"
-          @addExternalToInternal="addUdpExtToIntNetworkRule"
-        />
+            @addRule="addTcpExtToIntNetworkRule"
+            @removeRule="removeTcpExtToIntNetworkRule"
+          />
+        </div>
       </div>
-      <div class="row" />
+      <div class="row">
+        <div class="table-responsive col-md-6">
+          <NetworkRuleTable
+            :table-title="'UDP Rules IntToExt'"
+            :field="fieldsUdpIntToExt"
+
+            @addRule="addUdpIntToExtNetworkRule"
+            @removeRule="removeUdpIntToExtNetworkRule"
+          />
+        </div>
+        <div class="table-responsive col-md-6">
+          <NetworkRuleTable
+            :table-title="'UDP Rules ExtToInt'"
+            :field="fieldsUdpExtToInt"
+
+            @addRule="addUdpExtToIntNetworkRule"
+            @removeRule="removeUdpExtToIntNetworkRule"
+          />
+        </div>
+      </div>
     </b-card>
   </div>
 </template>
@@ -44,36 +59,29 @@ export default {
   },
   data() {
     return {
-      fieldsTcpIntToExt: ['optionip1', 'optionip2', 'optionip3', 'optionip4'],
-      fieldsTcpExtToInt: ['externalPort', '---------->', 'internalIp', 'internalPort'],
+      fieldsTcpIntToExt: ['ruleName', 'option1', 'option2', 'option3'],
+      fieldsTcpExtToInt: ['ruleName', 'option1', 'option2', 'option3'],
 
-      fieldsUdpIntToExt: ['optionip1', 'optionip2', 'optionip3', 'optionip4'],
-      fieldsUdpExtToInt: ['externalIp', 'externalPort', '---------->', 'internalIp'],
+      fieldsUdpIntToExt: ['ruleName', 'option1', 'option2', 'option3'],
+      fieldsUdpExtToInt: ['ruleName', 'option1', 'option2', 'option3'],
 
-      udpExtToInt: ['', '', ''],
-      tcpExtToInt: ['', '', ''],
-      udpIntToExt: ['', '', ''],
-      tcpIntToExt: ['', '', ''],
       configuration: { internalInterfaceName: '', externalInterfaceName: '' },
     };
   },
   computed: {
     ...mapState(['receivedData']),
     configContents() {
-      if (this.receivedData.portconfig) {
-        return this.receivedData.portconfig;
+      if (this.receivedData.networkConfig) {
+        return this.receivedData.networkConfig;
       }
       return '';
     },
   },
   watch: {
-    configContents() {
-      this.textAreaContent = this.configContents;
-    },
+
   },
   mounted() {
     this.updateNetworkInterfaceConfiguration(this.configuration);
-    this.textAreaContent = this.configContents;
   },
   methods: {
     ...mapActions([
@@ -94,9 +102,11 @@ export default {
     addTcpExtToIntNetworkRule(rules) {
       console.log('hobaleyy', rules);
     },
-    addUdpExtToIntNetworkRule() {
+    addUdpExtToIntNetworkRule(rules) {
+      console.log('hobaleyyy', rules);
     },
-    addUdpIntToExtNetworkRule() {
+    addUdpIntToExtNetworkRule(rules) {
+      console.log('hobaleyyyy', rules);
     },
 
     onSaveButtonClicked() {

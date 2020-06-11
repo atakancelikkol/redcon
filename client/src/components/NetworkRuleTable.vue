@@ -5,70 +5,35 @@
       style="flex:1"
     >
       <div class="row">
-        <div class="table-responsive col-md-6">
-          <b-table
-            striped
-            hover
-            :items="items"
-            :fields="fieldsIntToExt"
-            class="rules-container__table"
-          >
-            <template v-slot:cell(optionip1)="row">
-              <b-form-input v-model="row.item.optionip1" />
-            </template>
-            <template v-slot:cell(optionip2)="row">
-              <b-form-input v-model="row.item.optionip2" />
-            </template>
-            <template v-slot:cell(optionip3)="row">
-              <b-form-input v-model="row.item.optionip3" />
-            </template>
-            <template v-slot:cell(optionip4)="row">
-              <b-form-input v-model="row.item.optionip4" />
-            </template>
-          </b-table>
-          <div class="input-group">
+        <b-table
+          striped
+          hover
+          :items="rules"
+          :fields="fieldContents"
+          class="rules-container__table"
+        >
+          <template v-slot:cell(ruleName)="row">
+            <b-form-input v-model="row.item.ruleName" />
+          </template>
+          <template v-slot:cell(option1)="row">
+            <b-form-input v-model="row.item.option1" />
+          </template>
+          <template v-slot:cell(option2)="row">
+            <b-form-input v-model="row.item.option2" />
+          </template>
+          <template v-slot:cell(option3)="row">
+            <b-form-input v-model="row.item.option3" />
+          </template>
+          <template v-slot:cell(operations)>
             <b-button
               ref="addRule"
               variant="success"
-              style="margin-left: 5px"
-              @click="addInternalToExternal()"
+              @click="addRule()"
             >
-              Add Rule
+              Add
             </b-button>
-          </div>
-        </div>
-        <div class="table-responsive col-md-6">
-          <b-table
-            striped
-            hover
-            :items="items"
-            :fields="fieldsIntToExt"
-            class="rules-container__table"
-          >
-            <template v-slot:cell(optionip1)="row">
-              <b-form-input v-model="row.item.optionip1" />
-            </template>
-            <template v-slot:cell(optionip2)="row">
-              <b-form-input v-model="row.item.optionip2" />
-            </template>
-            <template v-slot:cell(optionip3)="row">
-              <b-form-input v-model="row.item.optionip3" />
-            </template>
-            <template v-slot:cell(optionip4)="row">
-              <b-form-input v-model="row.item.optionip4" />
-            </template>
-          </b-table>
-          <div class="input-group">
-            <b-button
-              ref="addRule"
-              variant="success"
-              style="margin-left: 5px"
-              @click="addExternalToInternal()"
-            >
-              Add Rule
-            </b-button>
-          </div>
-        </div>
+          </template>
+        </b-table>
       </div>
     </b-card>
   </div>
@@ -80,11 +45,7 @@
 export default {
   name: 'NetworkConfigTable',
   props: {
-    fieldsIntToExt: {
-      type: Array,
-      default: () => [],
-    },
-    fieldsExtToInt: {
+    fields: {
       type: Array,
       default: () => [],
     },
@@ -92,34 +53,31 @@ export default {
       type: String,
       default: () => 'Rules',
     },
-    itemExtToInt: {
-      type: Array,
-      default: () => [],
-    },
-    itemIntToExt: {
+    rule: {
       type: Array,
       default: () => [],
     },
   },
   data() {
     return {
-      items: [{
-        optionip1: 'Joe', optionip2: 33, optionip3: 'qwe', optionip4: 'qwes',
+      rules: [{
+        ruleName: 'Device', option1: '0.0.0.0', option2: '0.0.0.0', option3: '0.0.0.0', operations: 'qwes',
       }],
     };
   },
+  computed: {
+    fieldContents() {
+      let tableFields = this.fields;
+      tableFields = tableFields.push('operations');
+      return tableFields;
+    },
+  },
   methods: {
-    addInternalToExternal() {
-      this.$emit('addInternalToExternal', this.items);
+    addRule() {
+      this.$emit('addRule', this.rules);
     },
-    addExternalToInternal() {
-      this.$emit('addExternalToInternal', this.items);
-    },
-    removeInternalToExternal() {
-      this.$emit('removeInternalToExternal');
-    },
-    removeExternalToInternal() {
-      this.$emit('removeExternalToInternal');
+    removeRule() {
+      this.$emit('removeRule', this.rules);
     },
   },
 };
