@@ -24,12 +24,9 @@ client:
     - npm run coverage
 
 job:on-schedule:
-  stage: test
-  tags:
-    - linux
+
   only:
     - schedules
-      - cron 47 15 * * *
   script:
     - cd ./client/
     - npm ci
