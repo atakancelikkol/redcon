@@ -9,18 +9,18 @@
           <NetworkRuleTable
             :table-title="'TCP Rules IntToExt'"
             :fields="fieldsTcpIntToExt"
-
-            @addRule="addTcpIntToExtNetworkRule"
-            @removeRule="removeTcpIntToExtNetworkRule"
+            :rules="configContents.tcpIntToExtRules"
+            @addRule="addTcpIntToExtRule"
+            @removeRule="removeTcpIntToExtRule"
           />
         </div>
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
             :table-title="'TCP Rules ExtToInt'"
             :fields="fieldsTcpExtToInt"
-
-            @addRule="addTcpExtToIntNetworkRule"
-            @removeRule="removeTcpExtToIntNetworkRule"
+            :rules="configContents.tcpExtToIntRules"
+            @addRule="addTcpExtToIntRule"
+            @removeRule="removeTcpExtToIntRule"
           />
         </div>
       </div>
@@ -29,18 +29,20 @@
           <NetworkRuleTable
             :table-title="'UDP Rules IntToExt'"
             :fields="fieldsUdpIntToExt"
+            :rules="configContents.udpIntToExtRules"
 
-            @addRule="addUdpIntToExtNetworkRule"
-            @removeRule="removeUdpIntToExtNetworkRule"
+            @addRule="addUdpIntToExtRule"
+            @removeRule="removeUdpIntToExtRule"
           />
         </div>
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
             :table-title="'UDP Rules ExtToInt'"
             :fields="fieldsUdpExtToInt"
+            :rules="configContents.udpExtToIntRules"
 
-            @addRule="addUdpExtToIntNetworkRule"
-            @removeRule="removeUdpExtToIntNetworkRule"
+            @addRule="addUdpExtToIntRule"
+            @removeRule="removeUdpExtToIntRule"
           />
         </div>
       </div>
@@ -60,31 +62,27 @@ export default {
   data() {
     return {
       fieldsTcpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
-        { key: 'option1', label: 'DeviceInternal Port' },
+        { key: 'option1', label: 'Device Internal Port' },
         { key: 'option2', label: 'External Ip' },
-        { key: 'option3', label: 'External Port' },
-        { key: 'operations', label: 'Operations' }],
+        { key: 'option3', label: 'External Port' }],
 
       fieldsTcpExtToInt: [{ key: 'ruleName', label: 'Rule Name' },
-        { key: 'option1', label: 'DeviceExternal Port' },
+        { key: 'option1', label: 'Device External Port' },
         { key: 'option2', label: 'Internal Ip' },
-        { key: 'option3', label: 'Internal Port' },
-        { key: 'operations', label: 'Operations' }],
+        { key: 'option3', label: 'Internal Port' }],
 
       fieldsUdpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
         { key: 'option1', label: 'Internal Ip' },
-        { key: 'option2', label: 'Internal Port' },
-        { key: 'option3', label: 'External Ip' },
-        { key: 'operations', label: 'Operations' }],
+        { key: 'option2', label: 'External Ip' },
+        { key: 'option3', label: 'External Port' }],
 
       fieldsUdpExtToInt: [{ key: 'ruleName', label: 'Rule Name' },
         { key: 'option1', label: 'External Ip' },
-        { key: 'option2', label: 'External Port' },
-        { key: 'option3', label: 'Internal Ip' },
-        { key: 'operations', label: 'Operations' }],
+        { key: 'option2', label: 'Internal Ip' },
+        { key: 'option3', label: 'Internal Port' }],
 
 
-      configuration: { internalInterfaceName: '', externalInterfaceName: '' },
+      configuration: { internalInterfaceName: '', externalInterfaceName: '', internalInterfaceSubnet: '' },
     };
   },
   computed: {
@@ -113,76 +111,49 @@ export default {
       'removeTcpExtToIntNetworkRule',
       'addTcpIntToExtNetworkRule',
       'removeTcpIntToExtNetworkRule',
-
     ]),
-    addTcpIntToExtNetworkRule(rules) {
-      console.log('hobaley', rules);
+    addTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaley', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.addTcpIntToExtNetworkRule({
+        currentRuleName, currentOption1, currentOption2, currentOption3,
+      });
     },
-    addTcpExtToIntNetworkRule(rules) {
-      console.log('hobaleyy', rules);
+    addTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaleyy', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.addTcpExtToIntNetworkRule({
+        currentRuleName, currentOption1, currentOption2, currentOption3,
+      });
     },
-    addUdpExtToIntNetworkRule(rules) {
-      console.log('hobaleyyy', rules);
+    addUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaleyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.addUdpExtToIntNetworkRule({
+        currentRuleName, currentOption1, currentOption2, currentOption3,
+      });
     },
-    addUdpIntToExtNetworkRule(rules) {
-      console.log('hobaleyyyy', rules);
+    addUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaleyyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.addUdpIntToExtNetworkRule({
+        currentRuleName, currentOption1, currentOption2, currentOption3,
+      });
     },
 
-    onSaveButtonClicked() {
-      this.$bvModal
-        .msgBoxConfirm('Please confirm that you want to save changes.', {
-          title: 'Please Confirm',
-          size: 'sm',
-          buttonSize: 'sm',
-          okVariant: 'danger',
-          okTitle: 'YES',
-          cancelTitle: 'NO',
-          footerClass: 'p-2',
-          hideHeaderClose: false,
-          centered: true,
-        })
-        .then((value) => {
-          if (value === true) this.setPortMappingConfiguration({ configContents: this.textAreaContent });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    removeTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaley', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.removeTcpIntToExtNetworkRule({ currentOption1, currentOption2, currentOption3 });
     },
-    onResetButtonClicked() {
-      console.log('asdasdasdasd', this.receivedData);
-      this.$bvModal
-        .msgBoxConfirm('Please confirm that you want default configuration.', {
-          title: 'Please Confirm',
-          size: 'sm',
-          buttonSize: 'sm',
-          okVariant: 'danger',
-          okTitle: 'YES',
-          cancelTitle: 'NO',
-          footerClass: 'p-2',
-          hideHeaderClose: false,
-          centered: true,
-        })
-        .then((value) => {
-          if (value === true) this.resetPortMappingConfiguration();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    removeTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaleyy', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.removeTcpExtToIntNetworkRule({ currentOption1, currentOption2, currentOption3 });
+    },
+    removeUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaleyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.removeUdpIntToExtNetworkRule({ currentOption1, currentOption2, currentOption3 });
+    },
+    removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
+      console.log('hobaleyyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
+      this.removeUdpExtToIntNetworkRule({ currentOption1, currentOption2, currentOption3 });
     },
   },
 
 };
 </script>
-
-<style>
-.mb1 {
-  margin-top: 10px;
-}
-</style>
-
-<style>
-.mb2 {
-  margin-top: 10px;
-  margin-left: 15px;
-}
-</style>

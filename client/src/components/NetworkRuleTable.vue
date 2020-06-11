@@ -8,27 +8,49 @@
         <b-table
           striped
           hover
-          :items="rule"
+          :items="itemsContents"
           :fields="fieldContents"
           class="rules-container__table"
+          foot-clone
         >
-          <template v-slot:cell(ruleName)="row">
-            <b-form-input v-model="row.item.ruleName" />
+          <template v-slot:cell(operations)="row">
+            <b-button
+              ref="addRule"
+              variant="danger"
+              @click="removeRule(row.item)"
+            >
+              Remove
+            </b-button>
           </template>
-          <template v-slot:cell(option1)="row">
-            <b-form-input v-model="row.item.option1" />
+          <template v-slot:foot(ruleName)="row">
+            <b-form-input
+              v-model="currentRuleName"
+              :place-holder="row.label"
+            />
           </template>
-          <template v-slot:cell(option2)="row">
-            <b-form-input v-model="row.item.option2" />
+          <template v-slot:foot(option1)="row">
+            <b-form-input
+              v-model="currentOption1"
+              :place-holder="row.label"
+            />
           </template>
-          <template v-slot:cell(option3)="row">
-            <b-form-input v-model="row.item.option3" />
+          <template v-slot:foot(option2)="row">
+            <b-form-input
+              v-model="currentOption2"
+              :place-holder="row.label"
+            />
           </template>
-          <template v-slot:cell(operations)>
+          <template v-slot:foot(option3)="row">
+            <b-form-input
+              v-model="currentOption3"
+              :place-holder="row.label"
+            />
+          </template>
+          <template v-slot:foot(operations)>
             <b-button
               ref="addRule"
               variant="success"
-              @click="addRule()"
+              @click="addRule"
             >
               Add
             </b-button>
@@ -60,24 +82,33 @@ export default {
   },
   data() {
     return {
-      rule: [{
-        ruleName: 'Device', option1: '0.0.0.0', option2: '0.0.0.0', option3: '0.0.0.0', operations: 'qwes',
-      }],
+      currentRuleName: '',
+      currentOption1: '',
+      currentOption2: '',
+      currentOption3: '',
     };
   },
   computed: {
     fieldContents() {
       const tableFields = this.fields;
-      // tableFields = tableFields.push({ key: 'operations', label: 'operations' });
+      tableFields.push({ key: 'operations', label: 'operations' });
       return tableFields;
+    },
+    itemsContents() {
+      const rulesArray = this.rules;
+      rulesArray.push('operations');
+      const tableItems = [{
+        ruleName: rulesArray[0], option1: rulesArray[1], option2: rulesArray[2], option3: rulesArray[3], operations: rulesArray[4],
+      }];
+      return tableItems;
     },
   },
   methods: {
     addRule() {
-      this.$emit('addRule', this.rule);
+      this.$emit('addRule', this.currentRuleName, this.currentOption1, this.currentOption2, this.currentOption3);
     },
-    removeRule() {
-      this.$emit('removeRule', this.rule);
+    removeRule(rule) {
+      this.$emit('removeRule', rule.ruleName, rule.option1, rule.option2, rule.option3);
     },
   },
 };
