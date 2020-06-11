@@ -237,6 +237,15 @@ describe('USBStorage', () => {
   });
 
   test.skip('if Upload is clicked, onUploadClicked method is called(success case)', async () => {
+    /* let firstParameter;
+    let secondParameter;
+    const mockoReq = {
+      addEventListener: (p1, p2) => {
+        firstParameter = p1;
+        secondParameter = p2;
+      },
+    };
+    */
     const wrapper = mount(USBStorage, { store, localVue });
     const buttonClicked = wrapper.findComponent({ ref: 'buttonUpload' });
     // success

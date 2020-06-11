@@ -184,15 +184,15 @@
           label="Spinning"
         />
         <br>
-        <br>
-        Loading...
+        <br>Loading...
       </div>
       <div v-else>
         <div
           v-for="(item, index) in Object.keys(itemInfo)"
           :key="index"
         >
-          <b>{{ item }}:</b> {{ itemInfo[item] }}
+          <b>{{ item }}:</b>
+          {{ itemInfo[item] }}
         </div>
       </div>
     </b-modal>
@@ -267,7 +267,9 @@ export default {
       return this.receivedData.usb.currentDirectory;
     },
     itemInfo() {
-      return this.receivedData.usb ? this.receivedData.usb.currentItemInfo : undefined;
+      return this.receivedData.usb
+        ? this.receivedData.usb.currentItemInfo
+        : undefined;
     },
     usbError() {
       if (!this.receivedData.usb) {
@@ -314,7 +316,8 @@ export default {
     getVisibleItemName(item) {
       if (item.name === '.') {
         return '[ROOT]';
-      } if (item.fullPath) {
+      }
+      if (item.fullPath) {
         return `[PARENT DIR] ${item.name}`;
       }
       return item.name;
@@ -331,18 +334,21 @@ export default {
     },
     onDeleteItemClicked(item) {
       this.$bvModal
-        .msgBoxConfirm(`Please confirm that you want to delete "${item.name}".`, {
-          id: 'deleteItemModalConfirmation',
-          title: 'Please Confirm',
-          size: 'sm',
-          buttonSize: 'sm',
-          okVariant: 'danger',
-          okTitle: 'YES',
-          cancelTitle: 'NO',
-          footerClass: 'p-2',
-          hideHeaderClose: false,
-          centered: true,
-        })
+        .msgBoxConfirm(
+          `Please confirm that you want to delete "${item.name}".`,
+          {
+            id: 'deleteItemModalConfirmation',
+            title: 'Please Confirm',
+            size: 'sm',
+            buttonSize: 'sm',
+            okVariant: 'danger',
+            okTitle: 'YES',
+            cancelTitle: 'NO',
+            footerClass: 'p-2',
+            hideHeaderClose: false,
+            centered: true,
+          },
+        )
         .then((value) => {
           if (value === true) {
             this.deleteItemUSBDevice({
@@ -381,43 +387,56 @@ export default {
 
       // create xhr request
       const oReq = new XMLHttpRequest();
-      oReq.addEventListener('load', () => {
-        if (oReq.status !== 200) {
-          this.showUploadError = true;
-          this.errorString = oReq.responseText;
-        } else {
-          this.showUploadError = false;
-          this.errorString = '';
-        }
-      });
-      oReq.upload.addEventListener('progress', (evt) => {
-        if (evt.lengthComputable) {
-          let percentComplete = evt.loaded / evt.total;
-          percentComplete = parseInt(percentComplete * 100, 10);
-          this.progressValue = percentComplete;
-        } else {
-          this.progressValue = 50;
-        }
-      });
-      oReq.upload.addEventListener('load', () => {
-        this.progressValue = -1;
-      });
-      oReq.upload.addEventListener('error', (err) => {
-        console.log(err);
-        this.showUploadError = true;
-        this.progressValue = -1;
-      });
-      oReq.upload.addEventListener('abort', (err) => {
-        console.log(err);
-        this.showUploadError = true;
-        this.progressValue = -1;
-      });
-
+      oReq.addEventListener('load', this.eventListenerLoad.bind(this, oReq));
+      oReq.addEventListener(
+        'progress',
+        this.uploadEventListenerProgress.bind(this),
+      );
+      oReq.addEventListener('load', this.uploadEventListenerLoad.bind(this));
+      oReq.addEventListener(
+        'error',
+        this.uploadEventListenerError.bind(this, oReq),
+      );
+      oReq.addEventListener(
+        'abort',
+        this.uploadEventListenerAbort.bind(this, oReq),
+      );
 
       const uri = `${this.getEndPoint()}/uploadFileToUsbDevice`;
       oReq.open('POST', uri);
       oReq.send(formData);
       this.clearFiles();
+    },
+    eventListenerLoad(oReq) {
+      if (oReq.status !== 200) {
+        this.showUploadError = true;
+        this.errorString = oReq.responseText;
+      } else {
+        this.showUploadError = false;
+        this.errorString = '';
+      }
+    },
+    uploadEventListenerProgress(evt) {
+      if (evt.lengthComputable) {
+        let percentComplete = evt.loaded / evt.total;
+        percentComplete = parseInt(percentComplete * 100, 10);
+        this.progressValue = percentComplete;
+      } else {
+        this.progressValue = 50;
+      }
+    },
+    uploadEventListenerLoad() {
+      this.progressValue = -1;
+    },
+    uploadEventListenerError(err) {
+      console.log(err);
+      this.showUploadError = true;
+      this.progressValue = -1;
+    },
+    uploadEventListenerAbort(err) {
+      console.log(err);
+      this.showUploadError = true;
+      this.progressValue = -1;
     },
     getEndPoint() {
       const loc = window.location;
@@ -433,7 +452,9 @@ export default {
     onDownloadFileClicked(item) {
       const path = this.currentDirectory;
       const fileName = item.name;
-      const filePath = `${this.getEndPoint()}/getFileFromUsbDevice?path=${encodeURIComponent(path)}&fileName=${encodeURIComponent(fileName)}`;
+      const filePath = `${this.getEndPoint()}/getFileFromUsbDevice?path=${encodeURIComponent(
+        path,
+      )}&fileName=${encodeURIComponent(fileName)}`;
       window.open(filePath, '_blank');
     },
   },
