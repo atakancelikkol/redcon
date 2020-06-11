@@ -1,9 +1,10 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue, createWrapper } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
 import USBStorage from '../../../src/components/USBStorage.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
+import { createContainer, waitNT, waitRAF } from '../../testhelpers/Utils';
 
 const localVue = createLocalVue(); // localVue is a scoped Vue constructor
 
@@ -115,18 +116,18 @@ describe('USBStorage', () => {
     wrapper.destroy();
   });
 
-  test('if Toggle USB Device button is clicked, toggleUSBPort should be called', () => {
+  test('if Toggle USB Device button is clicked, toggleUSBPort should be called', async () => {
     const wrapper = mount(USBStorage, { store, localVue }); // we create a mock Vuex store and then pass it to Vue Test Utils
     const buttonClicked = wrapper.findComponent({ ref: 'buttonToggle' });
-    buttonClicked.trigger('click');
+    await buttonClicked.trigger('click');
     expect(actions.toggleUSBPort).toHaveBeenCalled();
     wrapper.destroy();
   });
 
-  test('if Detect USB Devices button is clicked, detectUSBDevice should be called ', () => {
+  test('if Detect USB Devices button is clicked, detectUSBDevice should be called ', async () => {
     const wrapper = mount(USBStorage, { store, localVue });
     const buttonClicked = wrapper.findComponent({ ref: 'buttonOpen' });
-    buttonClicked.trigger('click');
+    await buttonClicked.trigger('click');
     expect(actions.detectUSBDevice).toHaveBeenCalled();
     wrapper.destroy();
   });
@@ -154,36 +155,32 @@ describe('USBStorage', () => {
     wrapper.destroy();
   });
 
-  test('if directory link is clicked, selectDirectory method is called', () => new Promise((done) => {
+  test('if directory link is clicked, selectDirectory method is called', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
     // fullPath: true
     state.receivedData.usb = { currentItems: [{ name: 'name', isDirectory: true, fullPath: true }] };
-    const wrapper = mount(USBStorage, { store, localVue });
+    await waitNT(wrapper.vm);
     const linkClicked = wrapper.findComponent({ ref: 'linkDir' });
-    linkClicked.trigger('click');
+    await linkClicked.trigger('click');
     expect(wrapper.vm.currentDirectory).toMatch('name');
     // fullPath: false
     state.receivedData.usb = { currentItems: [{ name: 'name', isDirectory: true, fullPath: false }] };
-    wrapper.vm.$nextTick(() => {
-      linkClicked.trigger('click');
-      try {
-        expect(wrapper.vm.currentDirectory).toMatch('/name');
-        done();
-      } catch (error) {
-        done(error);
-      }
-    });
-    expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(2);
-  }));
+    await waitNT(wrapper.vm);
+    await linkClicked.trigger('click');
+    expect(wrapper.vm.currentDirectory).toMatch('/name');
+    //
+    expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(4);
+  });
 
-  test('if Info button is clicked, onInfoButtonClicked method is called', () => {
+  test('if Info button is clicked, onInfoButtonClicked method is called', async () => {
     state.receivedData.usb = { currentItems: [{ fullPath: false }] };
     const wrapper = mount(USBStorage, { store, localVue });
     const buttonClicked = wrapper.findComponent({ ref: 'buttonInfo' });
-    buttonClicked.trigger('click');
+    await buttonClicked.trigger('click');
     expect(actions.getItemInfoUSBDevice).toHaveBeenCalled();
   });
 
-  test('if Download is clicked, onDownloadFileClicked method is called', () => {
+  test('if Download is clicked, onDownloadFileClicked method is called', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'name', isDirectory: false, fullPath: true }] };
     //
     const mockedOpen = jest.fn();
@@ -192,7 +189,7 @@ describe('USBStorage', () => {
     //
     const wrapper = mount(USBStorage, { store, localVue });
     const buttonClicked = wrapper.findComponent({ ref: 'buttonDownload' });
-    buttonClicked.trigger('click');
+    await buttonClicked.trigger('click');
     expect(mockedOpen).toHaveBeenCalled();
     //
     window.open = originalOpen;
@@ -212,39 +209,123 @@ describe('USBStorage', () => {
     });
   }));
 
-  test('if Upload is clicked, onUploadClicked method is called(fail cases)', () => new Promise((done) => {
+  test('if Upload is clicked, onUploadClicked method is called(fail cases)', async () => {
     const wrapper = mount(USBStorage, { store, localVue });
     const buttonClicked = wrapper.findComponent({ ref: 'buttonUpload' });
     // this.isUsbDeviceAvailable === false
     wrapper.vm.showUploadError = true;
     state.receivedData.usb = { isAvailable: false };
-    buttonClicked.trigger('click');
+    await waitNT(wrapper.vm);
+    await buttonClicked.trigger('click');
     expect(wrapper.vm.showUploadError).toBeTruthy();
     // this.selectedFiles.length === 0
     wrapper.vm.showUploadError = true;
     state.receivedData.usb = { isAvailable: true };
     wrapper.vm.selectedFiles = [];
-    buttonClicked.trigger('click');
-    wrapper.vm.$nextTick(() => {
-      try {
-        expect(wrapper.vm.showUploadError).toBeTruthy();
-        // success
-        wrapper.vm.showUploadError = true;
-        state.receivedData.usb = { isAvailable: true };
-        wrapper.vm.selectedFiles = ['file'];
-        buttonClicked.trigger('click');
-        wrapper.vm.$nextTick(() => {
-          try {
-            expect(wrapper.vm.showUploadError).toBeFalsy();
-            done();
-          } catch (error) {
-            done(error);
-          }
-        });
-        done();
-      } catch (error) {
-        done(error);
+    await waitNT(wrapper.vm);
+    await buttonClicked.trigger('click');
+    expect(wrapper.vm.showUploadError).toBeTruthy();
+    // success
+    wrapper.vm.showUploadError = true;
+    state.receivedData.usb = { isAvailable: true };
+    //
+    const file = new File([''], 'fileName');
+    wrapper.vm.selectedFiles = [file];
+    await waitNT(wrapper.vm);
+    await buttonClicked.trigger('click');
+    expect(wrapper.vm.showUploadError).toBeFalsy();
+  });
+
+  test.skip('if Upload is clicked, onUploadClicked method is called(success case)', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonUpload' });
+    // success
+    state.receivedData.usb = { isAvailable: true };
+    /*
+    class mockXMLHttpRequest {
+      constructor() {
+        this.addEventListener = jest.fn();
+        this.upload = jest.fn(() => { addEventListener });
       }
+    }
+    global.XMLHttpRequest = mockXMLHttpRequest;
+    */
+    const file = new File([''], 'fileName');
+    wrapper.vm.selectedFiles = [file];
+    await waitNT(wrapper.vm);
+    await buttonClicked.trigger('click');
+    //
+    // expect(mockXMLHttpRequest).toHaveBeenCalled();
+  });
+
+  test('onDeleteItemClicked "NO" ', async () => {
+    state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
+    const wrapper = mount(USBStorage, {
+      attachTo: createContainer(),
+      propsData: {
+        static: true,
+      },
+      store,
+      localVue,
     });
-  }));
+    // wrapper.setData({ currentDirectory: 'mockDirectory' });
+    const deleteButton = wrapper.findComponent({ ref: 'buttonDelete' });
+    deleteButton.trigger('click');
+
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+
+    const modal = document.querySelector('#deleteItemModalConfirmation');
+    expect(modal).toBeDefined();
+    const $modal = createWrapper(modal);
+
+    const buttonSecondary = $modal.find('.modal-content .btn-secondary');
+    expect(buttonSecondary.text()).toBe('NO');
+    await buttonSecondary.trigger('click');
+    // await waitNT(wrapper.vm);
+
+    expect(actions.deleteItemUSBDevice).toHaveBeenCalledTimes(0);
+    wrapper.destroy();
+  });
+
+  test('onDeleteItemClicked "×" ', async () => {
+    state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
+    const wrapper = mount(USBStorage, {
+      attachTo: createContainer(),
+      propsData: {
+        static: true,
+      },
+      store,
+      localVue,
+    });
+    // wrapper.setData({ currentDirectory: 'mockDirectory' });
+    const deleteButton = wrapper.findComponent({ ref: 'buttonDelete' });
+    deleteButton.trigger('click');
+
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+
+    const modal = document.querySelector('#deleteItemModalConfirmation');
+    expect(modal).toBeDefined();
+    const $modal = createWrapper(modal);
+
+    const buttonClose = $modal.find('.modal-content .close');
+    expect(buttonClose.text()).toBe('×');
+    await buttonClose.trigger('click');
+    // await waitNT(wrapper.vm);
+
+    expect(actions.deleteItemUSBDevice).toHaveBeenCalledTimes(0);
+    wrapper.destroy();
+  });
+
+  test.skip('getEndPoint', () => {
+  });
 });

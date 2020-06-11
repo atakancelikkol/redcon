@@ -332,6 +332,7 @@ export default {
     onDeleteItemClicked(item) {
       this.$bvModal
         .msgBoxConfirm(`Please confirm that you want to delete "${item.name}".`, {
+          id: 'deleteItemModalConfirmation',
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
