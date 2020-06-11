@@ -73,25 +73,25 @@ function generateScript(config) {
   config.udpIntToExtRules.forEach((rule, index) => {
     iptableCommand.udpIntToExtRules.push(generateUdpIntToExtRule(interfaces, rule, index));
   });
-  iptableCommand.udpIntToExtRules.push(`-----${EOL}`);
+  iptableCommand.udpIntToExtRules.push(`# -----${EOL}`);
 
   iptableCommand.udpExtToIntRules.push('# UDP | EXTERNAL network -> INTERNAL network');
   config.udpExtToIntRules.forEach((rule, index) => {
     iptableCommand.udpExtToIntRules.push(generateUdpExtToIntRule(interfaces, rule, index));
   });
-  iptableCommand.udpExtToIntRules.push(`-----${EOL}`);
+  iptableCommand.udpExtToIntRules.push(`# -----${EOL}`);
 
   iptableCommand.tcpIntToExtRules.push('# TCP | INTERNAL network -> EXTERNAL network');
   config.tcpIntToExtRules.forEach((rule, index) => {
     iptableCommand.tcpIntToExtRules.push(generateTcpIntToExtRule(interfaces, rule, index));
   });
-  iptableCommand.tcpIntToExtRules.push(`-----${EOL}`);
+  iptableCommand.tcpIntToExtRules.push(`# -----${EOL}`);
 
   iptableCommand.tcpExtToIntRules.push('# TCP | EXTERNAL network -> INTERNAL network');
   config.tcpExtToIntRules.forEach((rule, index) => {
     iptableCommand.tcpExtToIntRules.push(generateTcpExtToIntRule(interfaces, rule, index));
   });
-  iptableCommand.tcpExtToIntRules.push(`-----${EOL}`);
+  iptableCommand.tcpExtToIntRules.push(`# -----${EOL}`);
 
   // concat commands
   const udpIntToExtCommand = iptableCommand.udpIntToExtRules.join(EOL);
