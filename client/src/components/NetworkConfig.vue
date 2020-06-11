@@ -28,7 +28,7 @@
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
             :table-title="'UDP Rules IntToExt'"
-            :field="fieldsUdpIntToExt"
+            :fields="fieldsUdpIntToExt"
 
             @addRule="addUdpIntToExtNetworkRule"
             @removeRule="removeUdpIntToExtNetworkRule"
@@ -37,7 +37,7 @@
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
             :table-title="'UDP Rules ExtToInt'"
-            :field="fieldsUdpExtToInt"
+            :fields="fieldsUdpExtToInt"
 
             @addRule="addUdpExtToIntNetworkRule"
             @removeRule="removeUdpExtToIntNetworkRule"
@@ -59,11 +59,30 @@ export default {
   },
   data() {
     return {
-      fieldsTcpIntToExt: ['ruleName', 'option1', 'option2', 'option3'],
-      fieldsTcpExtToInt: ['ruleName', 'option1', 'option2', 'option3'],
+      fieldsTcpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
+        { key: 'option1', label: 'DeviceInternal Port' },
+        { key: 'option2', label: 'External Ip' },
+        { key: 'option3', label: 'External Port' },
+        { key: 'operations', label: 'Operations' }],
 
-      fieldsUdpIntToExt: ['ruleName', 'option1', 'option2', 'option3'],
-      fieldsUdpExtToInt: ['ruleName', 'option1', 'option2', 'option3'],
+      fieldsTcpExtToInt: [{ key: 'ruleName', label: 'Rule Name' },
+        { key: 'option1', label: 'DeviceExternal Port' },
+        { key: 'option2', label: 'Internal Ip' },
+        { key: 'option3', label: 'Internal Port' },
+        { key: 'operations', label: 'Operations' }],
+
+      fieldsUdpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
+        { key: 'option1', label: 'Internal Ip' },
+        { key: 'option2', label: 'Internal Port' },
+        { key: 'option3', label: 'External Ip' },
+        { key: 'operations', label: 'Operations' }],
+
+      fieldsUdpExtToInt: [{ key: 'ruleName', label: 'Rule Name' },
+        { key: 'option1', label: 'External Ip' },
+        { key: 'option2', label: 'External Port' },
+        { key: 'option3', label: 'Internal Ip' },
+        { key: 'operations', label: 'Operations' }],
+
 
       configuration: { internalInterfaceName: '', externalInterfaceName: '' },
     };

@@ -8,7 +8,7 @@
         <b-table
           striped
           hover
-          :items="rules"
+          :items="rule"
           :fields="fieldContents"
           class="rules-container__table"
         >
@@ -53,31 +53,31 @@ export default {
       type: String,
       default: () => 'Rules',
     },
-    rule: {
+    rules: {
       type: Array,
       default: () => [],
     },
   },
   data() {
     return {
-      rules: [{
+      rule: [{
         ruleName: 'Device', option1: '0.0.0.0', option2: '0.0.0.0', option3: '0.0.0.0', operations: 'qwes',
       }],
     };
   },
   computed: {
     fieldContents() {
-      let tableFields = this.fields;
-      tableFields = tableFields.push('operations');
+      const tableFields = this.fields;
+      // tableFields = tableFields.push({ key: 'operations', label: 'operations' });
       return tableFields;
     },
   },
   methods: {
     addRule() {
-      this.$emit('addRule', this.rules);
+      this.$emit('addRule', this.rule);
     },
     removeRule() {
-      this.$emit('removeRule', this.rules);
+      this.$emit('removeRule', this.rule);
     },
   },
 };
