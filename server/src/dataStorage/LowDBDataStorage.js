@@ -33,29 +33,29 @@ class LowDBDataStorage {
     await interfaceConfiguration.assign(config).write();
   }
 
-  async addUdpExtToIntNetworkRule({ name, externalIp, externalPort, internalIp }) {
+  async addUdpExtToIntNetworkRule({ name, externalPort, internalIp, internalPort }) {
     const udpExtToIntRules = this.db.get('networkConfiguration').get('udpExtToIntRules');
     // externalIp, externalPort must be unique!
-    const existingRule = await udpExtToIntRules.find({ externalIp, externalPort, internalIp }).value();
+    const existingRule = await udpExtToIntRules.find({ externalPort, internalIp, internalPort }).value();
     if (!existingRule) {
-      await udpExtToIntRules.push({ name, externalIp, externalPort, internalIp }).write();
+      await udpExtToIntRules.push({ name, externalPort, internalIp, internalPort }).write();
     }
   }
 
-  async removeUdpExtToIntNetworkRule({ externalIp, externalPort, internalIp }) {
-    return this.db.get('networkConfiguration').get('udpExtToIntRules').remove({ externalIp, externalPort, internalIp }).write();
+  async removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort }) {
+    return this.db.get('networkConfiguration').get('udpExtToIntRules').remove({ externalPort, internalIp, internalPort }).write();
   }
 
-  async addUdpIntToExtNetworkRule({ name, internalIp, internalPort, externalIp }) {
+  async addUdpIntToExtNetworkRule({ name, internalPort, externalIp, externalPort }) {
     const udpIntToExtRules = this.db.get('networkConfiguration').get('udpIntToExtRules');
-    const existingRule = await udpIntToExtRules.find({ internalIp, internalPort, externalIp }).value();
+    const existingRule = await udpIntToExtRules.find({ internalPort, externalIp, externalPort }).value();
     if (!existingRule) {
-      await udpIntToExtRules.push({ name, internalIp, internalPort, externalIp }).write();
+      await udpIntToExtRules.push({ name, internalPort, externalIp, externalPort }).write();
     }
   }
 
-  async removeUdpIntToExtNetworkRule({ internalIp, internalPort, externalIp }) {
-    return this.db.get('networkConfiguration').get('udpIntToExtRules').remove({ internalIp, internalPort, externalIp }).write();
+  async removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort }) {
+    return this.db.get('networkConfiguration').get('udpIntToExtRules').remove({ internalPort, externalIp, externalPort }).write();
   }
 
   async addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort }) {

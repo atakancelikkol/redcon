@@ -13,9 +13,9 @@ ${iptablesCommand} -t nat -A POSTROUTING ! -d ${internalInterfaceSubnet} -o ${in
 function generateUdpIntToExtRule(iptablesCommand, interfaces, rule, index) {
   // internalIp, internalPort, externalIp
   const iptableRule = `# rule-${index} "${rule.name}" -- UDP INTERNAL to EXTERNAL network
-sudo ${iptablesCommand} -t nat -A PREROUTING -i ${interfaces.internal.name} -p udp --dport ${rule.internalPort} -j DNAT --to ${rule.externalIp}
+sudo ${iptablesCommand} -t nat -A PREROUTING -i ${interfaces.internal.name} -p udp --dport ${rule.internalPort} -j DNAT --to ${rule.externalIp}:${rule.externalPort}
 sudo ${iptablesCommand} -t nat -A POSTROUTING -o ${interfaces.external.name} -p udp --dport ${rule.internalPort} -j SNAT --to-source ${interfaces.external.ip}
-sudo ${iptablesCommand} -t nat -A POSTROUTING -p udp --sport ${rule.internalPort} -j SNAT --to-source ${rule.internalIp}
+sudo ${iptablesCommand} -t nat -A POSTROUTING -p udp --sport ${rule.internalPort} -j SNAT --to-source ${interfaces.internal.ip}
 `;
   return iptableRule;
 }
@@ -23,9 +23,9 @@ sudo ${iptablesCommand} -t nat -A POSTROUTING -p udp --sport ${rule.internalPort
 function generateUdpExtToIntRule(iptablesCommand, interfaces, rule, index) {
   // externalIp && externalPort && internalIp
   const iptableRule = `# rule-${index} "${rule.name}" -- UDP EXTERNAL to INTERNAL network
-sudo ${iptablesCommand} -t nat -A PREROUTING -i ${interfaces.external.name} -p udp --dport ${rule.externalPort} -j DNAT --to ${rule.internalIp}
+sudo ${iptablesCommand} -t nat -A PREROUTING -i ${interfaces.external.name} -p udp --dport ${rule.externalPort} -j DNAT --to ${rule.internalIp}:${rule.internalPort}
 sudo ${iptablesCommand} -t nat -A POSTROUTING -o ${interfaces.internal.name} -p udp --dport ${rule.externalPort} -j SNAT --to-source ${interfaces.internal.ip}
-sudo ${iptablesCommand} -t nat -A POSTROUTING -p udp --sport ${rule.externalPort} -j SNAT --to-source ${rule.externalIp}
+sudo ${iptablesCommand} -t nat -A POSTROUTING -p udp --sport ${rule.externalPort} -j SNAT --to-source ${interfaces.external.ip}
 `;
   return iptableRule;
 }
@@ -48,7 +48,7 @@ sudo ${iptablesCommand} -A FORWARD -p tcp -d ${rule.externalIp} --dport ${rule.e
   return iptableRule;
 }
 
-function generateScript(config, useLegacyIpTables = true) {
+function generateScript(config, useLegacyIpTables = false) {
   const iptablesCommand = useLegacyIpTables ? 'iptables-legacy' : 'iptables';
   // device external ip
   const interfaces = {};

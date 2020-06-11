@@ -78,10 +78,10 @@ describe('NetworkConfigController', () => {
   test('add/remove UdpExtToIntNetworkRule test', async () => {
     const controller = createNetworkConfigController();
     let action = 'addUdpExtToIntNetworkRule';
-    const rule = { name: 'testRuleName', externalIp: 'extIP', externalPort: 'extPort', internalIp: 'intPort' };
+    const rule = { name: 'testRuleName', externalPort: 'extPort', internalIp: 'intIp', internalPort: 'intPort' };
     await controller.handleMessage({ networkConfig: { action, rule } });
     expect(lastSentObject.networkConfig.udpExtToIntRules).toStrictEqual([rule]);
-    const wrongRule = { externalIp1: 'extIP', externalPort2: 'extPort', internalIp3: 'intPort' };
+    const wrongRule = { externalPort1: 'extPort', internalIp2: 'intIp', internalPort3: 'intPort' };
     await controller.handleMessage({ networkConfig: { action, rule: wrongRule } });
     expect(lastSentObject.networkConfig.udpExtToIntRules).toStrictEqual([rule]);
 
@@ -95,10 +95,10 @@ describe('NetworkConfigController', () => {
   test('add/remove UdpIntToExtNetworkRule test', async () => {
     const controller = createNetworkConfigController();
     let action = 'addUdpIntToExtNetworkRule';
-    const rule = { name: 'testRuleName', internalIp: 'intIP', internalPort: 'intPort', externalIp: 'extIP' };
+    const rule = { name: 'testRuleName', internalPort: 'intPort', externalIp: 'extIP', externalPort: 'extPort' };
     await controller.handleMessage({ networkConfig: { action, rule } });
     expect(lastSentObject.networkConfig.udpIntToExtRules).toStrictEqual([rule]);
-    const wrongRule = { internalIp1: 'intIP', internalPort2: 'intPort', externalIp3: 'extIP' };
+    const wrongRule = { internalPort1: 'intPort', externalIp2: 'extIP', externalPort3: 'extPort' };
     await controller.handleMessage({ networkConfig: { action, rule: wrongRule } });
     expect(lastSentObject.networkConfig.udpIntToExtRules).toStrictEqual([rule]);
 
