@@ -434,12 +434,12 @@ export default {
       this.progressValue = -1;
     },
     uploadEventListenerError(err) {
-      console.log(err);
+      logger.error(err);
       this.showUploadError = true;
       this.progressValue = -1;
     },
     uploadEventListenerAbort(err) {
-      console.log(err);
+      logger.error(err);
       this.showUploadError = true;
       this.progressValue = -1;
     },
