@@ -41,7 +41,7 @@ describe('LowDBDataStorage network configuration tests', () => {
   test('add / remove udp external to internal network rule', async () => {
     const lowDBDataStorage = new LowDBDataStorage();
     await lowDBDataStorage.init();
-    const testObj = { name: 'testrule', externalIp: 'externalTestIp', externalPort: '3333', internalIp: 'internalTestIp' };
+    const testObj = { name: 'testrule', externalPort: '3333', internalIp: 'internalTestIp', internalPort: 'internalPort' };
     await lowDBDataStorage.addUdpExtToIntNetworkRule(testObj);
 
     let configuration = lowDBDataStorage.getNetworkConfiguration();
@@ -61,7 +61,7 @@ describe('LowDBDataStorage network configuration tests', () => {
   test('add / remove udp internal to external network rule', async () => {
     const lowDBDataStorage = new LowDBDataStorage();
     await lowDBDataStorage.init();
-    const testObj = { name: 'testrule', internalIp: 'internalTestIP', internalPort: '4444', externalIp: 'extIp' };
+    const testObj = { name: 'testrule', internalPort: '4444', externalIp: 'extIp', externalPort: 'extPort' };
     await lowDBDataStorage.addUdpIntToExtNetworkRule(testObj);
 
     let configuration = lowDBDataStorage.getNetworkConfiguration();

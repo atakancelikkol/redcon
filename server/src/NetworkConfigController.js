@@ -67,30 +67,30 @@ class NetworkConfigController extends ControllerBase {
     }
   }
 
-  async addUdpExtToIntNetworkRule({ name, externalIp, externalPort, internalIp }) {
-    if (externalIp && externalPort && internalIp) {
-      await this.dataStorage.addUdpExtToIntNetworkRule({ name, externalIp, externalPort, internalIp });
+  async addUdpExtToIntNetworkRule({ name, externalPort, internalIp, internalPort }) {
+    if (externalPort && internalIp && internalPort) {
+      await this.dataStorage.addUdpExtToIntNetworkRule({ name, externalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
 
-  async removeUdpExtToIntNetworkRule({ externalIp, externalPort, internalIp }) {
-    if (externalIp && externalPort && internalIp) {
-      await this.dataStorage.removeUdpExtToIntNetworkRule({ externalIp, externalPort, internalIp });
+  async removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort }) {
+    if (externalPort && internalIp && internalPort) {
+      await this.dataStorage.removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
 
-  async addUdpIntToExtNetworkRule({ name, internalIp, internalPort, externalIp }) {
-    if (internalIp && internalPort && externalIp) {
-      await this.dataStorage.addUdpIntToExtNetworkRule({ name, internalIp, internalPort, externalIp });
+  async addUdpIntToExtNetworkRule({ name, internalPort, externalIp, externalPort }) {
+    if (internalPort && externalIp && externalPort) {
+      await this.dataStorage.addUdpIntToExtNetworkRule({ name, internalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
   }
 
-  async removeUdpIntToExtNetworkRule({ internalIp, internalPort, externalIp }) {
-    if (internalIp && internalPort && externalIp) {
-      await this.dataStorage.removeUdpIntToExtNetworkRule({ internalIp, internalPort, externalIp });
+  async removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort }) {
+    if (internalPort && externalIp && externalPort) {
+      await this.dataStorage.removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
   }
