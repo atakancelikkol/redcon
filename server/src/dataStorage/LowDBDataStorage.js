@@ -33,12 +33,12 @@ class LowDBDataStorage {
     await interfaceConfiguration.assign(config).write();
   }
 
-  async addUdpExtToIntNetworkRule({ externalIp, externalPort, internalIp }) {
+  async addUdpExtToIntNetworkRule({ name, externalIp, externalPort, internalIp }) {
     const udpExtToIntRules = this.db.get('networkConfiguration').get('udpExtToIntRules');
     // externalIp, externalPort must be unique!
     const existingRule = await udpExtToIntRules.find({ externalIp, externalPort, internalIp }).value();
     if (!existingRule) {
-      await udpExtToIntRules.push({ externalIp, externalPort, internalIp }).write();
+      await udpExtToIntRules.push({ name, externalIp, externalPort, internalIp }).write();
     }
   }
 
@@ -46,11 +46,11 @@ class LowDBDataStorage {
     return this.db.get('networkConfiguration').get('udpExtToIntRules').remove({ externalIp, externalPort, internalIp }).write();
   }
 
-  async addUdpIntToExtNetworkRule({ internalIp, internalPort, externalIp }) {
+  async addUdpIntToExtNetworkRule({ name, internalIp, internalPort, externalIp }) {
     const udpIntToExtRules = this.db.get('networkConfiguration').get('udpIntToExtRules');
     const existingRule = await udpIntToExtRules.find({ internalIp, internalPort, externalIp }).value();
     if (!existingRule) {
-      await udpIntToExtRules.push({ internalIp, internalPort, externalIp }).write();
+      await udpIntToExtRules.push({ name, internalIp, internalPort, externalIp }).write();
     }
   }
 
@@ -58,11 +58,11 @@ class LowDBDataStorage {
     return this.db.get('networkConfiguration').get('udpIntToExtRules').remove({ internalIp, internalPort, externalIp }).write();
   }
 
-  async addTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort }) {
+  async addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort }) {
     const tcpExtToIntRules = this.db.get('networkConfiguration').get('tcpExtToIntRules');
     const existingRule = await tcpExtToIntRules.find({ deviceExternalPort, internalIp, internalPort }).value();
     if (!existingRule) {
-      await tcpExtToIntRules.push({ deviceExternalPort, internalIp, internalPort }).write();
+      await tcpExtToIntRules.push({ name, deviceExternalPort, internalIp, internalPort }).write();
     }
   }
 
@@ -70,11 +70,11 @@ class LowDBDataStorage {
     return this.db.get('networkConfiguration').get('tcpExtToIntRules').remove({ deviceExternalPort, internalIp, internalPort }).write();
   }
 
-  async addTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort }) {
+  async addTcpIntToExtNetworkRule({ name, deviceInternalPort, externalIp, externalPort }) {
     const tcpIntToExtRules = this.db.get('networkConfiguration').get('tcpIntToExtRules');
     const existingRule = await tcpIntToExtRules.find({ deviceInternalPort, externalIp, externalPort }).value();
     if (!existingRule) {
-      await tcpIntToExtRules.push({ deviceInternalPort, externalIp, externalPort }).write();
+      await tcpIntToExtRules.push({ name, deviceInternalPort, externalIp, externalPort }).write();
     }
   }
 

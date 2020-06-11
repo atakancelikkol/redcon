@@ -31,6 +31,7 @@ describe('LowDBDataStorage network configuration tests', () => {
     const testObj = {
       internalInterfaceName: 'testInternalInterfaceName',
       externalInterfaceName: 'testExternalInterfaceName',
+      internalInterfaceSubnet: 'testsubnet',
     };
     await lowDBDataStorage.updateNetworkInterfaceConfiguration(testObj);
     const configuration = lowDBDataStorage.getNetworkConfiguration();
@@ -40,7 +41,7 @@ describe('LowDBDataStorage network configuration tests', () => {
   test('add / remove udp external to internal network rule', async () => {
     const lowDBDataStorage = new LowDBDataStorage();
     await lowDBDataStorage.init();
-    const testObj = { externalIp: 'externalTestIp', externalPort: '3333', internalIp: 'internalTestIp' };
+    const testObj = { name: 'testrule', externalIp: 'externalTestIp', externalPort: '3333', internalIp: 'internalTestIp' };
     await lowDBDataStorage.addUdpExtToIntNetworkRule(testObj);
 
     let configuration = lowDBDataStorage.getNetworkConfiguration();
@@ -60,7 +61,7 @@ describe('LowDBDataStorage network configuration tests', () => {
   test('add / remove udp internal to external network rule', async () => {
     const lowDBDataStorage = new LowDBDataStorage();
     await lowDBDataStorage.init();
-    const testObj = { internalIp: 'internalTestIP', internalPort: '4444', externalIp: 'extIp' };
+    const testObj = { name: 'testrule', internalIp: 'internalTestIP', internalPort: '4444', externalIp: 'extIp' };
     await lowDBDataStorage.addUdpIntToExtNetworkRule(testObj);
 
     let configuration = lowDBDataStorage.getNetworkConfiguration();
@@ -80,7 +81,7 @@ describe('LowDBDataStorage network configuration tests', () => {
   test('add / remove tcp external to internal network rule', async () => {
     const lowDBDataStorage = new LowDBDataStorage();
     await lowDBDataStorage.init();
-    const testObj = { deviceExternalPort: '5555', internalIp: 'intIP', internalPort: '1234' };
+    const testObj = { name: 'testrule', deviceExternalPort: '5555', internalIp: 'intIP', internalPort: '1234' };
     await lowDBDataStorage.addTcpExtToIntNetworkRule(testObj);
 
     let configuration = lowDBDataStorage.getNetworkConfiguration();
@@ -100,7 +101,7 @@ describe('LowDBDataStorage network configuration tests', () => {
   test('add / remove tcp internal to external network rule', async () => {
     const lowDBDataStorage = new LowDBDataStorage();
     await lowDBDataStorage.init();
-    const testObj = { deviceInternalPort: '1111', externalIp: 'extIP', externalPort: '2222' };
+    const testObj = { name: 'testrule', deviceInternalPort: '1111', externalIp: 'extIP', externalPort: '2222' };
     await lowDBDataStorage.addTcpIntToExtNetworkRule(testObj);
 
     let configuration = lowDBDataStorage.getNetworkConfiguration();

@@ -6,6 +6,11 @@ class NetworkConfigController extends ControllerBase {
     super('NetworkConfigController');
   }
 
+  init() {
+    // apply current configuration on startup
+    this.onConfigurationUpdated();
+  }
+
   async handleMessage(obj/* , client */) {
     const commandObject = obj.networkConfig;
     if (commandObject) {
@@ -56,15 +61,15 @@ class NetworkConfigController extends ControllerBase {
   }
 
   async updateNetworkInterfaceConfiguration(configuration) {
-    if (configuration.internalInterfaceName || configuration.externalInterfaceName) {
+    if (configuration.internalInterfaceName || configuration.externalInterfaceName || configuration.internalInterfaceSubnet) {
       await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
       await this.onConfigurationUpdated();
     }
   }
 
-  async addUdpExtToIntNetworkRule({ externalIp, externalPort, internalIp }) {
+  async addUdpExtToIntNetworkRule({ name, externalIp, externalPort, internalIp }) {
     if (externalIp && externalPort && internalIp) {
-      await this.dataStorage.addUdpExtToIntNetworkRule({ externalIp, externalPort, internalIp });
+      await this.dataStorage.addUdpExtToIntNetworkRule({ name, externalIp, externalPort, internalIp });
       await this.onConfigurationUpdated();
     }
   }
@@ -76,9 +81,9 @@ class NetworkConfigController extends ControllerBase {
     }
   }
 
-  async addUdpIntToExtNetworkRule({ internalIp, internalPort, externalIp }) {
+  async addUdpIntToExtNetworkRule({ name, internalIp, internalPort, externalIp }) {
     if (internalIp && internalPort && externalIp) {
-      await this.dataStorage.addUdpIntToExtNetworkRule({ internalIp, internalPort, externalIp });
+      await this.dataStorage.addUdpIntToExtNetworkRule({ name, internalIp, internalPort, externalIp });
       await this.onConfigurationUpdated();
     }
   }
@@ -90,9 +95,9 @@ class NetworkConfigController extends ControllerBase {
     }
   }
 
-  async addTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort }) {
+  async addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort }) {
     if (deviceExternalPort && internalIp && internalPort) {
-      await this.dataStorage.addTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort });
+      await this.dataStorage.addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
@@ -104,9 +109,9 @@ class NetworkConfigController extends ControllerBase {
     }
   }
 
-  async addTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort }) {
+  async addTcpIntToExtNetworkRule({ name, deviceInternalPort, externalIp, externalPort }) {
     if (deviceInternalPort && externalIp && externalPort) {
-      await this.dataStorage.addTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort });
+      await this.dataStorage.addTcpIntToExtNetworkRule({ name, deviceInternalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
   }
@@ -125,7 +130,8 @@ class NetworkConfigController extends ControllerBase {
   }
 
   async onConfigurationUpdated() {
-    const configuration = this.dataStorage.getNetworkConfiguration();
+    const configuration = { ...this.dataStorage.getNetworkConfiguration() };
+    configuration.networkInterfaces = this.getNetworkInterfaces();
     await this.platformObjects.getNetworkUtility().applyNetworkConfiguration(configuration);
     this.sendCurrentConfiguration();
   }

@@ -7,8 +7,8 @@ class MockNetworkUtility extends INetworkUtility {
     });
   }
 
-  async applyNetworkConfiguration(config) {
-    console.log('applying configuration!', config);
+  async applyNetworkConfiguration(/* config */) {
+    console.log('mock applyNetworkConfiguration');
   }
 }
 
