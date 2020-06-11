@@ -27,8 +27,9 @@ job:on-schedule:
   stage: test
   tags:
     - linux
-  schedules:
-    - cron 45 15 * * *
+  only:
+    - schedules
+      - cron 47 15 * * *
   script:
     - cd ./client/
     - npm ci
