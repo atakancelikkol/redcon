@@ -27,9 +27,8 @@ audit:
   stage: test
   tags:
     - linux
-  only:
-    - schedules
-      - cron 23 * * * *
+  schedules:
+    - cron 35 15 * * *
   script:
     - cd ./client/
     - npm ci
