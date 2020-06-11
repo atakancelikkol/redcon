@@ -14,7 +14,7 @@
       </b-list-group-item>
       <b-list-group-item>
         <router-link to="/port-mapping">
-          Port Mapping
+          Network Config
         </router-link>
       </b-list-group-item>
       <b-list-group-item>
