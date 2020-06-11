@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { mount, createLocalVue, createWrapper } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
@@ -170,6 +171,7 @@ describe('USBStorage', () => {
     expect(wrapper.vm.currentDirectory).toMatch('/name');
     //
     expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(4);
+    wrapper.destroy();
   });
 
   test('if Info button is clicked, onInfoButtonClicked method is called', async () => {
@@ -178,6 +180,7 @@ describe('USBStorage', () => {
     const buttonClicked = wrapper.findComponent({ ref: 'buttonInfo' });
     await buttonClicked.trigger('click');
     expect(actions.getItemInfoUSBDevice).toHaveBeenCalled();
+    wrapper.destroy();
   });
 
   test('if Download is clicked, onDownloadFileClicked method is called', async () => {
@@ -193,6 +196,7 @@ describe('USBStorage', () => {
     expect(mockedOpen).toHaveBeenCalled();
     //
     window.open = originalOpen;
+    wrapper.destroy();
   });
 
   test('if create folder modal calls createFolderUSBDevice', () => new Promise((done) => {
@@ -207,6 +211,7 @@ describe('USBStorage', () => {
         done(error);
       }
     });
+    wrapper.destroy();
   }));
 
   test('if Upload is clicked, onUploadClicked method is called(fail cases)', async () => {
@@ -234,37 +239,173 @@ describe('USBStorage', () => {
     await waitNT(wrapper.vm);
     await buttonClicked.trigger('click');
     expect(wrapper.vm.showUploadError).toBeFalsy();
+    wrapper.destroy();
   });
 
-  test.skip('if Upload is clicked, onUploadClicked method is called(success case)', async () => {
-    /* let firstParameter;
-    let secondParameter;
-    const mockoReq = {
-      addEventListener: (p1, p2) => {
-        firstParameter = p1;
-        secondParameter = p2;
-      },
-    };
-    */
-    const wrapper = mount(USBStorage, { store, localVue });
-    const buttonClicked = wrapper.findComponent({ ref: 'buttonUpload' });
-    // success
-    state.receivedData.usb = { isAvailable: true };
-    /*
-    class mockXMLHttpRequest {
+  test('if Upload is clicked, onUploadClicked method is called(success case)', async () => {
+    const mockAppend = jest.fn();
+    class MockFormData { // eslint-disable-line
+      append(...args) { // eslint-disable-line
+        mockAppend(...args); // eslint-disable-line
+      } // eslint-disable-line
+    } // eslint-disable-line
+    global.FormData = MockFormData; // eslint-disable-line
+
+    const mockUploadAddEventListener = jest.fn();
+    const mockAddEventListener = jest.fn();
+    const mockOpen = jest.fn();
+    const mockSend = jest.fn();
+    class MockXMLHttpRequest {
       constructor() {
-        this.addEventListener = jest.fn();
-        this.upload = jest.fn(() => { addEventListener });
+        this.upload = {
+          addEventListener(p1, p2) {
+            mockUploadAddEventListener(p1, p2);
+          },
+        };
+      }
+
+      addEventListener(p1, p2) {
+        mockAddEventListener(p1, p2);
+      }
+
+      open(p1, p2) {
+        mockOpen(p1, p2);
+      }
+
+      send(p1) {
+        mockSend(p1);
       }
     }
-    global.XMLHttpRequest = mockXMLHttpRequest;
-    */
-    const file = new File([''], 'fileName');
+    global.XMLHttpRequest = MockXMLHttpRequest;
+
+    const wrapper = mount(USBStorage, { store, localVue });
+    wrapper.vm.getEndPoint = () => 'mockUri';
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonUpload' });
+    wrapper.setData({ currentDirectory: 'mockDirectory' });
+    state.receivedData.usb = { isAvailable: true };
+
+    const file = new File([''], 'mockFileName');
     wrapper.vm.selectedFiles = [file];
     await waitNT(wrapper.vm);
     await buttonClicked.trigger('click');
     //
-    // expect(mockXMLHttpRequest).toHaveBeenCalled();
+    expect(mockAppend).toHaveBeenCalledTimes(2);
+    expect(mockAppend).toHaveBeenNthCalledWith(1, 'uploads', file, 'mockFileName');
+    expect(mockAppend).toHaveBeenNthCalledWith(2, 'currentDirectory', 'mockDirectory');
+    expect(mockAddEventListener).toHaveBeenCalledTimes(1);
+    expect(mockAddEventListener.mock.calls[0][0]).toBe('load');
+    expect(typeof mockAddEventListener.mock.calls[0][1]).toBe('function');
+    expect(mockUploadAddEventListener).toHaveBeenCalledTimes(4);
+    expect(mockUploadAddEventListener.mock.calls[0][0]).toBe('progress');
+    expect(mockUploadAddEventListener.mock.calls[1][0]).toBe('load');
+    expect(mockUploadAddEventListener.mock.calls[2][0]).toBe('error');
+    expect(mockUploadAddEventListener.mock.calls[3][0]).toBe('abort');
+    expect(mockOpen).toHaveBeenCalledWith('POST', 'mockUri/uploadFileToUsbDevice');
+    expect(mockSend).toHaveBeenCalledWith(new MockFormData());
+    wrapper.destroy();
+  });
+
+  test('eventListenerLoad', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    // oReq.status !== 200
+    wrapper.showUploadError = false;
+    let oreq = { status: 300, responseText: 'text' };
+    wrapper.vm.eventListenerLoad(oreq);
+    expect(wrapper.vm.showUploadError).toBeTruthy();
+    expect(wrapper.vm.errorString).toBe('text');
+    // else
+    oreq = { status: 200, responseText: 'text' };
+    wrapper.vm.eventListenerLoad(oreq);
+    expect(wrapper.vm.showUploadError).toBeFalsy();
+    expect(wrapper.vm.errorString).toBe('');
+    wrapper.destroy();
+  });
+
+  test('uploadEventListenerProgress', () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    // mock parseInt
+    const tmpParseInt = parseInt;
+    parseInt = jest.fn(); // eslint-disable-line
+    // evt.lengthComputable
+    let evt = { lengthComputable: true, loaded: 10, total: 2 };
+    wrapper.vm.uploadEventListenerProgress(evt);
+    expect(parseInt).toHaveBeenCalled();
+    // else
+    evt = { lengthComputable: false, loaded: 10, total: 2 };
+    wrapper.vm.uploadEventListenerProgress(evt);
+    expect(wrapper.vm.progressValue).toBe(50);
+    //
+    parseInt = tmpParseInt; // eslint-disable-line
+    wrapper.destroy();
+  });
+
+  test('uploadEventListenerLoad ', () => {
+    const wrapper = mount(USBStorage, {
+      store,
+      localVue,
+    });
+    wrapper.setData({ progressValue: 100 });
+    expect(wrapper.vm.progressValue).toBe(100);
+    wrapper.vm.uploadEventListenerLoad();
+    expect(wrapper.vm.progressValue).toBe(-1);
+    wrapper.destroy();
+  });
+
+  test('uploadEventListenerError ', () => {
+    const wrapper = mount(USBStorage, {
+      store,
+      localVue,
+    });
+    wrapper.vm.uploadEventListenerError('error');
+    expect(wrapper.vm.showUploadError).toBeTruthy();
+    expect(wrapper.vm.progressValue).toBe(-1);
+    wrapper.destroy();
+  });
+
+  test('uploadEventListenerAbort ', () => {
+    const wrapper = mount(USBStorage, {
+      store,
+      localVue,
+    });
+    wrapper.vm.uploadEventListenerAbort('error');
+    expect(wrapper.vm.showUploadError).toBeTruthy();
+    expect(wrapper.vm.progressValue).toBe(-1);
+    wrapper.destroy();
+  });
+
+  test('onDeleteItemClicked "YES" ', async () => {
+    state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
+    const wrapper = mount(USBStorage, {
+      attachTo: createContainer(),
+      propsData: {
+        static: true,
+      },
+      store,
+      localVue,
+    });
+    wrapper.setData({ currentDirectory: 'mockDirectory' });
+    const deleteButton = wrapper.findComponent({ ref: 'buttonDelete' });
+    deleteButton.trigger('click');
+
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+
+    const modal = document.querySelector('#deleteItemModalConfirmation');
+    expect(modal).toBeDefined();
+    const $modal = createWrapper(modal);
+
+    const buttonDanger = $modal.find('.modal-content .btn-danger');
+    expect(buttonDanger.text()).toBe('YES');
+    await buttonDanger.trigger('click');
+    // await waitNT(wrapper.vm);
+
+    expect(actions.deleteItemUSBDevice).toHaveBeenCalledTimes(1);
+    expect(actions.deleteItemUSBDevice.mock.calls[0][1]).toStrictEqual({ itemName: 'mockName', path: 'mockDirectory' });
+    wrapper.destroy();
   });
 
   test('onDeleteItemClicked "NO" ', async () => {
@@ -335,6 +476,46 @@ describe('USBStorage', () => {
     wrapper.destroy();
   });
 
-  test.skip('getEndPoint', () => {
+  test('getEndPoint method', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    // mock window.location
+    const originalLoc = window.location;
+    delete window.location;
+    window.location = {
+      protocol: 'http:',
+      host: 'testhost',
+    };
+    // mock process.env.NODE_ENV
+    const tmp = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    expect(wrapper.vm.getEndPoint()).toBe('http:////testhost');
+    // else
+    process.env.NODE_ENV = 'debug';
+    await waitNT(wrapper.vm);
+    expect(wrapper.vm.getEndPoint()).toBe('http:////localhost:3000');
+    //
+    process.env.NODE_ENV = tmp;
+    window.location = originalLoc;
+  });
+
+  test('if Create a Folder is clicked, onCreateFolderClicked method is called', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonCreateFolder' });
+    await buttonClicked.trigger('click');
+    expect(wrapper.vm.createdFolderName).toBe('');
+  });
+
+  test('getVisibleItemName', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    expect(wrapper.vm.getVisibleItemName({ name: '.' })).toBe('[ROOT]');
+    await waitNT(wrapper.vm);
+    expect(wrapper.vm.getVisibleItemName({ name: 'name', fullPath: 'path' })).toBe('[PARENT DIR] name');
+  });
+
+  test('clearFiles', () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const spyReset = jest.spyOn(wrapper.vm.$refs['file-input'], 'reset');
+    wrapper.vm.clearFiles();
+    expect(spyReset).toHaveBeenCalled();
   });
 });

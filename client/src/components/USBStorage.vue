@@ -113,6 +113,7 @@
             </b-breadcrumb-item>
           </b-breadcrumb>
           <b-button
+            ref="buttonCreateFolder"
             variant="outline-primary"
             style="margin-left: 10px; max-height:50px;margin-top: 15px"
             @click="onCreateFolderClicked"
@@ -388,16 +389,19 @@ export default {
       // create xhr request
       const oReq = new XMLHttpRequest();
       oReq.addEventListener('load', this.eventListenerLoad.bind(this, oReq));
-      oReq.addEventListener(
+      oReq.upload.addEventListener(
         'progress',
         this.uploadEventListenerProgress.bind(this),
       );
-      oReq.addEventListener('load', this.uploadEventListenerLoad.bind(this));
-      oReq.addEventListener(
+      oReq.upload.addEventListener(
+        'load',
+        this.uploadEventListenerLoad.bind(this),
+      );
+      oReq.upload.addEventListener(
         'error',
         this.uploadEventListenerError.bind(this, oReq),
       );
-      oReq.addEventListener(
+      oReq.upload.addEventListener(
         'abort',
         this.uploadEventListenerAbort.bind(this, oReq),
       );
