@@ -213,6 +213,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import logger from '../helpers/Logger';
 
 export default {
   name: 'USBStorage',
@@ -359,7 +360,7 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err);
+          logger.error(err);
         });
     },
     onInfoButtonClicked(item) {

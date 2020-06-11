@@ -1,7 +1,7 @@
 
 import StorageHelper from '../../../src/helpers/StorageHelper';
 
-describe('GPIOController', () => {
+describe('StorageHelper', () => {
   it('Storage helper getItem', () => {
     localStorage.testTag = 'testItem';
     const item = StorageHelper.getItem('testTag');
