@@ -29,7 +29,7 @@ audit:
     - linux
   only:
     - schedules
-      - cron 23 * * *
+      - cron 23 * * * *
   script:
     - cd ./client/
     - npm ci
