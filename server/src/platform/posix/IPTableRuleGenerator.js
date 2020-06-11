@@ -1,4 +1,5 @@
 const { EOL } = require('os');
+const logger = require('../../util/Logger');
 
 function generateRouteCommands(iptablesCommand, interfaces, interfaceConfiguration) {
   const { internalInterfaceSubnet } = interfaceConfiguration;
@@ -55,7 +56,7 @@ function generateScript(config, useLegacyIpTables = false) {
   interfaces.external = config.networkInterfaces.find((item) => item.name === config.interfaceConfiguration.externalInterfaceName);
   interfaces.internal = config.networkInterfaces.find((item) => item.name === config.interfaceConfiguration.internalInterfaceName);
   if (!interfaces.external || !interfaces.internal) {
-    console.log('can not find external or internal interface!');
+    logger.error('can not find external or internal interface!');
     return { error: true, script: '' };
   }
 

@@ -27,20 +27,15 @@ class PosixNetworkUtility extends INetworkUtility {
 
 
   async applyNetworkConfiguration(config) {
-    console.log('applying configuration!', config);
+    logger.info('applying configuration!', config);
     const status = IPTableRuleGenerator.generateScript(config);
     if (status.error) {
-      console.log('error occurred during iptable rule generation!');
-      return;
+      logger.error('error occurred during iptable rule generation!');
+      return { error: true };
     }
 
-    console.log(status.script);
-
-    const { error, stdout, stderr } = await execPromise(status.script);
-    console.log('run script. output is');
-    console.log('ERROR:', error);
-    console.log('stdout:', stdout);
-    console.log('stderr:', stderr);
+    const output = await execPromise(status.script);
+    return output;
   }
 }
 

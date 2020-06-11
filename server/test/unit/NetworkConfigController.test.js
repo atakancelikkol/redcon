@@ -1,3 +1,4 @@
+const os = require('os');
 const NetworkConfigController = require('../../src/NetworkConfigController');
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 const DataStorage = require('../../src/dataStorage/LowDBDataStorage');
@@ -9,21 +10,20 @@ const sendCallbackMock = jest.fn((controller, obj) => {
   lastSentObject = obj;
 });
 
-jest.mock('os', () => ({
-  networkInterfaces: jest.fn(() => ({
-    enp0s8: [
-      {
-        address: '10.0.0.250',
-        family: 'IPv4',
-        mac: 'xx:xx:xx:xx:xx:xx',
-      },
-      {
-        address: 'ipv6address',
-        family: 'IPv6',
-        mac: 'yy:yy:yy:yy:yy:yy',
-      },
-    ],
-  })),
+// mock - networkInterfaces
+os.networkInterfaces = jest.fn(() => ({
+  enp0s8: [
+    {
+      address: '10.0.0.250',
+      family: 'IPv4',
+      mac: 'xx:xx:xx:xx:xx:xx',
+    },
+    {
+      address: 'ipv6address',
+      family: 'IPv6',
+      mac: 'yy:yy:yy:yy:yy:yy',
+    },
+  ],
 }));
 
 function createNetworkConfigController() {
