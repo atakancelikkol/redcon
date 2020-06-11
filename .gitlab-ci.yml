@@ -23,12 +23,12 @@ client:
     - npm run lint
     - npm run coverage
 
-audit:
+job:on-schedule:
   stage: test
   tags:
     - linux
   schedules:
-    - cron 35 15 * * *
+    - cron 45 15 * * *
   script:
     - cd ./client/
     - npm ci
