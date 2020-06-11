@@ -3,6 +3,7 @@ const DefaultData = {
     interfaceConfiguration: {
       internalInterfaceName: '',
       externalInterfaceName: '',
+      internalInterfaceSubnet: '10.32.0.0/16',
     },
     udpIntToExtRules: [],
     udpExtToIntRules: [],
