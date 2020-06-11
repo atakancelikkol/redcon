@@ -23,11 +23,20 @@ client:
     - npm run lint
     - npm run coverage
 
-job:on-schedule:
+client:on-schedule:
 
   only:
     - schedules
   script:
     - cd ./client/
+    - npm ci
+    - npm audit
+
+server:on-schedule:
+
+  only:
+    - schedules
+  script:
+    - cd ./server/
     - npm ci
     - npm audit
