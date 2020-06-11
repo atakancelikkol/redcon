@@ -1,26 +1,26 @@
 const IGPIOUtility = require('../interfaces/IGPIOUtility');
+const logger = require('../../util/Logger');
 
 class MockGPIOUtility extends IGPIOUtility {
-  openForOutput(/* portPinNumber, initialState */) {
-    // TODO: Open logs after implementing a log utility!
-    // console.log("MockGPIOUtility openForOutput: ", portPinNumber, initialState);
+  openForOutput(portPinNumber, initialState) {
+    logger.info('MockGPIOUtility openForOutput: ', portPinNumber, initialState);
   }
 
-  openForInput(/* portPinNumber, initialState */) {
-    // console.log("MockGPIOUtility openForInput: ", portPinNumber, initialState);
+  openForInput(portPinNumber, initialState) {
+    logger.info('MockGPIOUtility openForInput: ', portPinNumber, initialState);
   }
 
   read(/* portPinNumber */) {
-    // console.log("MockGPIOUtility read: ", portPinNumber);
+    // logger.info('MockGPIOUtility read: ', portPinNumber);
     return true;
   }
 
-  write(/* portPinNumber, state */) {
-    // console.log("MockGPIOUtility write: ", portPinNumber, state);
+  write(portPinNumber, state) {
+    logger.info('MockGPIOUtility write: ', portPinNumber, state);
   }
 
-  close(/* portPinNumber */) {
-    // console.log("MockGPIOUtility close: ", portPinNumber);
+  close(portPinNumber) {
+    logger.info('MockGPIOUtility close: ', portPinNumber);
   }
 }
 

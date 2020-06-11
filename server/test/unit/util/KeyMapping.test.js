@@ -1,4 +1,4 @@
-const KeyMapping = require('../../src/util/KeyMapping');
+const KeyMapping = require('../../../src/util/KeyMapping');
 
 describe('KeyMapping', () => {
   it('ConvertKey of KeyMapping', () => {

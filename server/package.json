@@ -17,6 +17,7 @@
     "@serialport/binding-mock": "^9.0.0",
     "@serialport/stream": "^9.0.0",
     "body-parser": "^1.19.0",
+    "callsites": "^3.1.0",
     "clone-deep": "^4.0.1",
     "compression": "^1.7.4",
     "detect-rpi": "^1.4.0",
@@ -37,6 +38,7 @@
     "serialport": "^8.0.7",
     "usb-detection": "^4.9.0",
     "uuid": "^7.0.2",
+    "winston": "^3.2.1",
     "ws": "^7.2.3"
   },
   "devDependencies": {

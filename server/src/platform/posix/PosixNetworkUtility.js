@@ -1,6 +1,7 @@
 const { exec } = require('child_process');
 const INetworkUtility = require('../interfaces/INetworkUtility');
 const IPTableRuleGenerator = require('./IPTableRuleGenerator');
+const logger = require('../../util/Logger');
 
 const execPromise = (command) => new Promise((resolve) => {
   exec(command, (error, stdout, stderr) => {
@@ -18,7 +19,7 @@ class PosixNetworkUtility extends INetworkUtility {
       exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
         platformPortConfig.shellOutput = stdout;
         platformPortConfig.shellError = stderr;
-        console.log(error, stdout, stderr);
+        logger.info(error, stdout, stderr);
         resolve(platformPortConfig);
       });
     });
