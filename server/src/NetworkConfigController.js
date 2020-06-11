@@ -1,4 +1,5 @@
 const os = require('os');
+const net = require('net');
 const ControllerBase = require('./ControllerBase');
 
 class NetworkConfigController extends ControllerBase {
@@ -61,63 +62,65 @@ class NetworkConfigController extends ControllerBase {
   }
 
   async updateNetworkInterfaceConfiguration(configuration) {
-    if (configuration.internalInterfaceName || configuration.externalInterfaceName || configuration.internalInterfaceSubnet) {
+    configuration.internalInterfaceName = this.normalizeString(configuration.internalInterfaceName); // eslint-disable-line
+    configuration.externalInterfaceName = this.normalizeString(configuration.externalInterfaceName); // eslint-disable-line
+    if (configuration.internalInterfaceName && configuration.externalInterfaceName && this.parameterCheckIsSubNet(configuration.internalInterfaceSubnet)) {
       await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
       await this.onConfigurationUpdated();
     }
   }
 
   async addUdpExtToIntNetworkRule({ name, externalPort, internalIp, internalPort }) {
-    if (externalPort && internalIp && internalPort) {
-      await this.dataStorage.addUdpExtToIntNetworkRule({ name, externalPort, internalIp, internalPort });
+    if (this.parameterCheckPort(externalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
+      await this.dataStorage.addUdpExtToIntNetworkRule({ name: this.normalizeString(name), externalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort }) {
-    if (externalPort && internalIp && internalPort) {
+    if (this.parameterCheckPort(externalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
       await this.dataStorage.removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async addUdpIntToExtNetworkRule({ name, internalPort, externalIp, externalPort }) {
-    if (internalPort && externalIp && externalPort) {
-      await this.dataStorage.addUdpIntToExtNetworkRule({ name, internalPort, externalIp, externalPort });
+    if (this.parameterCheckPort(internalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
+      await this.dataStorage.addUdpIntToExtNetworkRule({ name: this.normalizeString(name), internalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort }) {
-    if (internalPort && externalIp && externalPort) {
+    if (this.parameterCheckPort(internalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
       await this.dataStorage.removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort }) {
-    if (deviceExternalPort && internalIp && internalPort) {
-      await this.dataStorage.addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort });
+    if (this.parameterCheckPort(deviceExternalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
+      await this.dataStorage.addTcpExtToIntNetworkRule({ name: this.normalizeString(name), deviceExternalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async removeTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort }) {
-    if (deviceExternalPort && internalIp && internalPort) {
+    if (this.parameterCheckPort(deviceExternalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
       await this.dataStorage.removeTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async addTcpIntToExtNetworkRule({ name, deviceInternalPort, externalIp, externalPort }) {
-    if (deviceInternalPort && externalIp && externalPort) {
-      await this.dataStorage.addTcpIntToExtNetworkRule({ name, deviceInternalPort, externalIp, externalPort });
+    if (this.parameterCheckPort(deviceInternalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
+      await this.dataStorage.addTcpIntToExtNetworkRule({ name: this.normalizeString(name), deviceInternalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
   }
 
   async removeTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort }) {
-    if (deviceInternalPort && externalIp && externalPort) {
+    if (this.parameterCheckPort(deviceInternalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
       await this.dataStorage.removeTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
@@ -127,6 +130,54 @@ class NetworkConfigController extends ControllerBase {
     const obj = {};
     this.appendData(obj);
     this.sendMessageCallback(this, obj);
+  }
+
+  parameterCheckPort(port) {
+    const portInt = Number.parseInt(port, 10);
+    if (!Number.isNaN(portInt) && portInt >= 0 && portInt <= 65535) {
+      return true;
+    }
+
+    return false;
+  }
+
+  parameterCheckIp(ip) {
+    return net.isIPv4(ip);
+  }
+
+  parameterCheckIsSubNet(subnet) {
+    if (!subnet) {
+      return false;
+    }
+
+    const items = subnet.split('/');
+    if (!items[0] || !this.parameterCheckIp(items[0])) {
+      return false;
+    }
+
+    if (!items[1]) {
+      return false;
+    }
+
+    const subnetMask = Number.parseInt(items[1], 10);
+    if (Number.isNaN(subnetMask) || subnetMask < 0 || subnetMask > 32) {
+      return false;
+    }
+
+    return true;
+  }
+
+  normalizeString(str) {
+    if (typeof str !== 'string') {
+      return '';
+    }
+
+    let normalizedString = str.replace(/[\W_]+/g, ' ');
+    if (normalizedString.length > 30) {
+      normalizedString = normalizedString.substr(0, 30);
+    }
+
+    return normalizedString;
   }
 
   async onConfigurationUpdated() {
