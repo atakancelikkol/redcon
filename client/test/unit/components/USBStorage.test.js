@@ -376,9 +376,6 @@ describe('USBStorage', () => {
   test('onDeleteItemClicked "YES" ', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
     const wrapper = mount(USBStorage, {
-      propsData: {
-        static: true,
-      },
       store,
       localVue,
     });
@@ -410,9 +407,6 @@ describe('USBStorage', () => {
   test('onDeleteItemClicked "NO" ', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
     const wrapper = mount(USBStorage, {
-      propsData: {
-        static: true,
-      },
       store,
       localVue,
     });
@@ -443,9 +437,6 @@ describe('USBStorage', () => {
   test('onDeleteItemClicked "×" ', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
     const wrapper = mount(USBStorage, {
-      propsData: {
-        static: true,
-      },
       store,
       localVue,
     });
