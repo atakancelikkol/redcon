@@ -36,7 +36,7 @@
         "error",
         "single"
     ],
-    "no-console": "off",
+    "no-console": "error",
     "max-len": "off",
     "class-methods-use-this": "off", 
     "global-require": "warn", 

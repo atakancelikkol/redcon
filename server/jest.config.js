@@ -182,4 +182,12 @@ module.exports = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  }
 };

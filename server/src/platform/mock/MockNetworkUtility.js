@@ -1,4 +1,5 @@
 const INetworkUtility = require('../interfaces/INetworkUtility');
+const logger = require('../../util/Logger');
 
 class MockNetworkUtility extends INetworkUtility {
   applyPortConfiguration() {
@@ -8,7 +9,7 @@ class MockNetworkUtility extends INetworkUtility {
   }
 
   async applyNetworkConfiguration(/* config */) {
-    console.log('mock applyNetworkConfiguration');
+    logger.info('mock applyNetworkConfiguration');
   }
 }
 

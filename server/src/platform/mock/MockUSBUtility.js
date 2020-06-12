@@ -1,19 +1,30 @@
 const IUSBUtility = require('../interfaces/IUSBUtility');
+const logger = require('../../util/Logger');
 
 class MockUSBUtility extends IUSBUtility {
-  extractUsbState(/* mountPath, device */) {
-    // console.log("MockUSBUtility extractUsbState: ", mountPath, device);
+  extractUsbState(mountPath, device) {
+    logger.info('MockUSBUtility extractUsbState: ', mountPath, device);
+    const platformUsbState = {
+      isAvailable: true,
+      mountedPath: '',
+      usbName: 'testUsbName',
+      device: '',
+      usbErrorString: '',
+    };
+    return platformUsbState;
+  }
+
+  syncUsbDevice(usbState) {
+    logger.info('MockUSBUtility syncUsbDevice: ', usbState.isAvailable);
     return true;
   }
 
-  syncUsbDevice(/* usbState */) {
-    // console.log("MockUSBUtility syncUsbDevice: ", usbState.isAvailable);
-    return true;
-  }
-
-  ejectUSBDriveSafely(/* usbState */) {
-    // console.log("MockUSBUtility ejectUSBDriveSafely: ", usbState.isAvailable);
-    return true;
+  ejectUSBDriveSafely(usbState) {
+    logger.info('MockUSBUtility ejectUSBDriveSafely: ', usbState.isAvailable);
+    return new Promise((resolve) => {
+      resolve();
+      return true;
+    });
   }
 }
 

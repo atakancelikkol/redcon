@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint --no-fix && npx eslint test/.",
     "fix": "vue-cli-service lint --fix && npx eslint --fix test/.",
     "test": "jest",
-    "prepush": "vue-cli-service lint --no-fix && npx eslint test/. && jest --coverage",
+    "prepush": "npm audit fix && vue-cli-service lint --no-fix && npx eslint test/. && jest --coverage",
     "coverage": "jest --coverage"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "vuex": "^3.1.3"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.10.1",
     "@vue/cli-plugin-babel": "~4.2.0",
     "@vue/cli-plugin-eslint": "~4.2.0",
     "@vue/cli-service": "^4.2.3",
@@ -54,6 +55,14 @@
     },
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
     }
   },
   "eslintConfig": {

@@ -3,7 +3,7 @@ import {
 } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
-import componentWithVuex from '../../../src/components/Login.vue';
+import componentLogin from '../../../src/components/Login.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
 
@@ -11,7 +11,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(BootstrapVue);
 
-describe('componentWithVuex', () => {
+describe('componentLogin', () => {
   let store;
 
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe('componentWithVuex', () => {
   });
 
   it('default values', () => {
-    const defaultData = componentWithVuex.data();
+    const defaultData = componentLogin.data();
     expect(defaultData.username).toBe('');
     expect(defaultData.pass).toBe('');
     expect(defaultData.displayErrorMessage).toBe(false);
@@ -34,7 +34,7 @@ describe('componentWithVuex', () => {
   });
 
   it('onEnterkey return', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLogin, {
       store,
       localVue,
     });
@@ -45,7 +45,7 @@ describe('componentWithVuex', () => {
   });
 
   it('login button', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLogin, {
       store,
       localVue,
     });
@@ -56,7 +56,7 @@ describe('componentWithVuex', () => {
   });
 
   it('login on enter key', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLogin, {
       store,
       localVue,
     });
@@ -67,7 +67,7 @@ describe('componentWithVuex', () => {
   });
 
   it('computed eventItems return []', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLogin, {
       store,
       localVue,
     });
@@ -79,7 +79,7 @@ describe('componentWithVuex', () => {
   });
 
   it('computed eventItems ', () => {
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLogin, {
       store,
       localVue,
     });
@@ -107,7 +107,7 @@ describe('componentWithVuex', () => {
         routePath = param.path;
       },
     };
-    const wrapper = mount(componentWithVuex, {
+    const wrapper = mount(componentLogin, {
       store,
       localVue,
     });

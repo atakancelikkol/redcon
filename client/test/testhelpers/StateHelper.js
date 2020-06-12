@@ -5,6 +5,18 @@ const state = {
       history: [],
     },
     serial: { ports: {}, portStatus: {}, serialFiles: {} },
+    usb: {
+      isAvailable: false,
+      kvmLedStateECU: false,
+      kvmLedStateRPI: false,
+      mountedPath: '',
+      usbName: '',
+      device: '',
+      currentDirectory: '.',
+      currentItems: [],
+      currentItemInfo: {},
+      usbErrorString: '',
+    },
   },
   serialData: {},
   user: {
