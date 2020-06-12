@@ -111,7 +111,26 @@ export default {
       this.$emit('addRule', this.currentRuleName, this.currentOption1, this.currentOption2, this.currentOption3);
     },
     removeRule(rule) {
-      this.$emit('removeRule', rule.ruleName, rule.option1, rule.option2, rule.option3);
+      this.$bvModal
+        .msgBoxConfirm('Please confirm to remove rule.', {
+          title: 'Please Confirm',
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'YES',
+          cancelTitle: 'NO',
+          footerClass: 'p-2',
+          hideHeaderClose: false,
+          centered: true,
+        })
+        .then((value) => {
+          if (value === true) {
+            this.$emit('removeRule', rule.ruleName, rule.option1, rule.option2, rule.option3);
+          }
+        })
+        .catch(() => {
+
+        });
     },
   },
 };
