@@ -9,7 +9,7 @@
     "coverage": "jest --coverage",
     "lint": "npx eslint src/. && npx eslint test/.",
     "fix": "npx eslint --fix src/. && npx eslint --fix test/unit/.",
-    "prepush": "npx eslint src/. && npx eslint test/. && jest --coverage"
+    "prepush": "npm audit fix && npx eslint src/. && npx eslint test/. && jest --coverage"
   },
   "author": "",
   "license": "ISC",

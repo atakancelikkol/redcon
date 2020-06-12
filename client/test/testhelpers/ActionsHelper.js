@@ -9,6 +9,13 @@ const actions = {
   logoutUser: jest.fn(),
   // Login
   loginUser: jest.fn(),
+  // USBStorage
+  toggleUSBPort: jest.fn(),
+  detectUSBDevice: jest.fn(),
+  listItemsUSBDevice: jest.fn(),
+  deleteItemUSBDevice: jest.fn(),
+  getItemInfoUSBDevice: jest.fn(),
+  createFolderUSBDevice: jest.fn(),
   // Utility
   rebootDevice: jest.fn(),
 };
