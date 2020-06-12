@@ -5,7 +5,7 @@ import { BootstrapVue } from 'bootstrap-vue';
 import USBStorage from '../../../src/components/USBStorage.vue';
 import actions from '../../testhelpers/ActionsHelper';
 import state from '../../testhelpers/StateHelper';
-import { createContainer, waitNT, waitRAF } from '../../testhelpers/Utils';
+import { waitNT, waitRAF } from '../../testhelpers/Utils';
 
 const localVue = createLocalVue(); // localVue is a scoped Vue constructor
 
@@ -376,7 +376,6 @@ describe('USBStorage', () => {
   test('onDeleteItemClicked "YES" ', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
     const wrapper = mount(USBStorage, {
-      attachTo: createContainer(),
       propsData: {
         static: true,
       },
@@ -411,7 +410,6 @@ describe('USBStorage', () => {
   test('onDeleteItemClicked "NO" ', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
     const wrapper = mount(USBStorage, {
-      attachTo: createContainer(),
       propsData: {
         static: true,
       },
@@ -445,7 +443,6 @@ describe('USBStorage', () => {
   test('onDeleteItemClicked "×" ', async () => {
     state.receivedData.usb = { currentItems: [{ name: 'mockName', fullPath: false }] };
     const wrapper = mount(USBStorage, {
-      attachTo: createContainer(),
       propsData: {
         static: true,
       },
