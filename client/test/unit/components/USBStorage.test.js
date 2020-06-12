@@ -485,11 +485,11 @@ describe('USBStorage', () => {
     // mock process.env.NODE_ENV
     const tmp = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
-    expect(wrapper.vm.getEndPoint()).toBe('http:////testhost');
+    expect(wrapper.vm.getEndPoint()).toBe('http://testhost');
     // else
     process.env.NODE_ENV = 'debug';
     await waitNT(wrapper.vm);
-    expect(wrapper.vm.getEndPoint()).toBe('http:////localhost:3000');
+    expect(wrapper.vm.getEndPoint()).toBe('http://localhost:3000');
     //
     process.env.NODE_ENV = tmp;
     window.location = originalLoc;
@@ -497,6 +497,7 @@ describe('USBStorage', () => {
 
   test('if Create a Folder is clicked, onCreateFolderClicked method is called', async () => {
     const wrapper = mount(USBStorage, { store, localVue });
+    wrapper.vm.createdFolderName = 'tmp';
     const buttonClicked = wrapper.findComponent({ ref: 'buttonCreateFolder' });
     await buttonClicked.trigger('click');
     expect(wrapper.vm.createdFolderName).toBe('');

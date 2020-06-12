@@ -447,9 +447,9 @@ export default {
       const loc = window.location;
       let uri = `${loc.protocol}//`;
       if (process.env.NODE_ENV === 'production') {
-        uri += `//${loc.host}`;
+        uri += `${loc.host}`;
       } else {
-        uri += '//localhost:3000';
+        uri += 'localhost:3000';
       }
 
       return uri;
