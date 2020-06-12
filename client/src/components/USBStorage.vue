@@ -6,8 +6,9 @@
     >
       <div style="display:flex; flex-direction: row; margin-top:10px">
         <b-button
+          ref="buttonOpen"
           variant="outline-primary"
-          @click="onButtonClicked"
+          @click="onDetectButtonClicked"
         >
           Detect USB Devices
         </b-button>
@@ -19,6 +20,7 @@
           {{ ecuLedState ? 'Plugged to ECU' : 'Not plugged to ECU' }}
         </b-button>
         <b-button
+          ref="buttonToggle"
           variant="primary"
           style="margin-left: 10px;"
           @click="onToggleButtonClicked"
@@ -45,7 +47,7 @@
         </b>
         <b>
           <u>USB Name:</u>
-          {{ usbStatus.usbname }}
+          {{ usbStatus.usbName }}
         </b>
       </div>
       <b-card
@@ -67,6 +69,7 @@
             drop-placeholder="Drop file here..."
           />
           <b-button
+            ref="buttonUpload"
             variant="outline-primary"
             style="margin-left: 10px"
             @click="onUploadClicked"
@@ -110,6 +113,7 @@
             </b-breadcrumb-item>
           </b-breadcrumb>
           <b-button
+            ref="buttonCreateFolder"
             variant="outline-primary"
             style="margin-left: 10px; max-height:50px;margin-top: 15px"
             @click="onCreateFolderClicked"
@@ -127,6 +131,7 @@
             <template v-slot:cell(name)="data">
               <b-link
                 v-if="data.item.isDirectory"
+                ref="linkDir"
                 @click="selectDirectory(data.item.name, data.item.fullPath)"
               >
                 {{ getVisibleItemName(data.item) }}
@@ -136,6 +141,7 @@
             <template v-slot:cell(operations)="data">
               <b-button
                 v-if="!(data.item.fullPath)"
+                ref="buttonInfo"
                 variant="outline-primary"
                 style="margin-right: 20px;"
                 @click="onInfoButtonClicked(data.item)"
@@ -144,6 +150,7 @@
               </b-button>
               <b-button
                 v-if="!data.item.isDirectory"
+                ref="buttonDownload"
                 variant="primary"
                 style="margin-right: 20px;"
                 @click="onDownloadFileClicked(data.item)"
@@ -152,6 +159,7 @@
               </b-button>
               <b-button
                 v-if="!(data.item.fullPath)"
+                ref="buttonDelete"
                 variant="outline-danger"
                 @click="onDeleteItemClicked(data.item)"
               >
@@ -177,15 +185,15 @@
           label="Spinning"
         />
         <br>
-        <br>
-        Loading...
+        <br>Loading...
       </div>
       <div v-else>
         <div
           v-for="(item, index) in Object.keys(itemInfo)"
           :key="index"
         >
-          <b>{{ item }}:</b> {{ itemInfo[item] }}
+          <b>{{ item }}:</b>
+          {{ itemInfo[item] }}
         </div>
       </div>
     </b-modal>
@@ -225,13 +233,13 @@ export default {
     usbStatus() {
       const status = {};
       if (this.receivedData.usb && this.receivedData.usb.isAvailable === true) {
-        status.usbname = this.receivedData.usb.usbName;
-        status.availability = `${status.usbname} is ready to be used`;
+        status.usbName = this.receivedData.usb.usbName;
+        status.availability = `${status.usbName} is ready to be used`;
         status.mountedpath = this.receivedData.usb.mountedPath;
 
         return status;
       }
-      status.usbname = '----------------';
+      status.usbName = '----------------';
       status.availability = 'USB is not ready';
       status.mountedpath = '----------------';
       return status;
@@ -240,7 +248,6 @@ export default {
       if (!this.receivedData.usb) {
         return false;
       }
-
       return this.receivedData.usb.isAvailable;
     },
     ecuLedState() {
@@ -253,18 +260,18 @@ export default {
       if (!this.receivedData.usb) {
         return [];
       }
-
       return this.receivedData.usb.currentItems;
     },
     getDirectory() {
       if (!this.receivedData.usb) {
         return '';
       }
-
       return this.receivedData.usb.currentDirectory;
     },
     itemInfo() {
-      return this.receivedData.usb ? this.receivedData.usb.currentItemInfo : undefined;
+      return this.receivedData.usb
+        ? this.receivedData.usb.currentItemInfo
+        : undefined;
     },
     usbError() {
       if (!this.receivedData.usb) {
@@ -293,7 +300,7 @@ export default {
     onToggleButtonClicked() {
       this.toggleUSBPort();
     },
-    onButtonClicked() {
+    onDetectButtonClicked() {
       this.detectUSBDevice();
     },
     clearFiles() {
@@ -311,7 +318,8 @@ export default {
     getVisibleItemName(item) {
       if (item.name === '.') {
         return '[ROOT]';
-      } if (item.fullPath) {
+      }
+      if (item.fullPath) {
         return `[PARENT DIR] ${item.name}`;
       }
       return item.name;
@@ -328,17 +336,21 @@ export default {
     },
     onDeleteItemClicked(item) {
       this.$bvModal
-        .msgBoxConfirm(`Please confirm that you want to delete "${item.name}".`, {
-          title: 'Please Confirm',
-          size: 'sm',
-          buttonSize: 'sm',
-          okVariant: 'danger',
-          okTitle: 'YES',
-          cancelTitle: 'NO',
-          footerClass: 'p-2',
-          hideHeaderClose: false,
-          centered: true,
-        })
+        .msgBoxConfirm(
+          `Please confirm that you want to delete "${item.name}".`,
+          {
+            id: 'deleteItemModalConfirmation',
+            title: 'Please Confirm',
+            size: 'sm',
+            buttonSize: 'sm',
+            okVariant: 'danger',
+            okTitle: 'YES',
+            cancelTitle: 'NO',
+            footerClass: 'p-2',
+            hideHeaderClose: false,
+            centered: true,
+          },
+        )
         .then((value) => {
           if (value === true) {
             this.deleteItemUSBDevice({
@@ -363,11 +375,9 @@ export default {
       if (this.isUsbDeviceAvailable === false) {
         return;
       }
-
       if (this.selectedFiles.length === 0) {
         return;
       }
-
       this.showUploadError = false;
       this.errorString = '';
 
@@ -379,51 +389,67 @@ export default {
 
       // create xhr request
       const oReq = new XMLHttpRequest();
-      oReq.addEventListener('load', () => {
-        if (oReq.status !== 200) {
-          this.showUploadError = true;
-          this.errorString = oReq.responseText;
-        } else {
-          this.showUploadError = false;
-          this.errorString = '';
-        }
-      });
-      oReq.upload.addEventListener('progress', (evt) => {
-        if (evt.lengthComputable) {
-          let percentComplete = evt.loaded / evt.total;
-          percentComplete = parseInt(percentComplete * 100, 10);
-          this.progressValue = percentComplete;
-        } else {
-          this.progressValue = 50;
-        }
-      });
-      oReq.upload.addEventListener('load', () => {
-        this.progressValue = -1;
-      });
-      oReq.upload.addEventListener('error', (err) => {
-        logger.error(err);
-        this.showUploadError = true;
-        this.progressValue = -1;
-      });
-      oReq.upload.addEventListener('abort', (err) => {
-        logger.error(err);
-        this.showUploadError = true;
-        this.progressValue = -1;
-      });
-
+      oReq.addEventListener('load', this.eventListenerLoad.bind(this, oReq));
+      oReq.upload.addEventListener(
+        'progress',
+        this.uploadEventListenerProgress.bind(this),
+      );
+      oReq.upload.addEventListener(
+        'load',
+        this.uploadEventListenerLoad.bind(this),
+      );
+      oReq.upload.addEventListener(
+        'error',
+        this.uploadEventListenerError.bind(this, oReq),
+      );
+      oReq.upload.addEventListener(
+        'abort',
+        this.uploadEventListenerAbort.bind(this, oReq),
+      );
 
       const uri = `${this.getEndPoint()}/uploadFileToUsbDevice`;
       oReq.open('POST', uri);
       oReq.send(formData);
       this.clearFiles();
     },
+    eventListenerLoad(oReq) {
+      if (oReq.status !== 200) {
+        this.showUploadError = true;
+        this.errorString = oReq.responseText;
+      } else {
+        this.showUploadError = false;
+        this.errorString = '';
+      }
+    },
+    uploadEventListenerProgress(evt) {
+      if (evt.lengthComputable) {
+        let percentComplete = evt.loaded / evt.total;
+        percentComplete = parseInt(percentComplete * 100, 10);
+        this.progressValue = percentComplete;
+      } else {
+        this.progressValue = 50;
+      }
+    },
+    uploadEventListenerLoad() {
+      this.progressValue = -1;
+    },
+    uploadEventListenerError(err) {
+      logger.error(err);
+      this.showUploadError = true;
+      this.progressValue = -1;
+    },
+    uploadEventListenerAbort(err) {
+      logger.error(err);
+      this.showUploadError = true;
+      this.progressValue = -1;
+    },
     getEndPoint() {
       const loc = window.location;
       let uri = `${loc.protocol}//`;
       if (process.env.NODE_ENV === 'production') {
-        uri += `//${loc.host}`;
+        uri += `${loc.host}`;
       } else {
-        uri += '//localhost:3000';
+        uri += 'localhost:3000';
       }
 
       return uri;
@@ -431,7 +457,9 @@ export default {
     onDownloadFileClicked(item) {
       const path = this.currentDirectory;
       const fileName = item.name;
-      const filePath = `${this.getEndPoint()}/getFileFromUsbDevice?path=${encodeURIComponent(path)}&fileName=${encodeURIComponent(fileName)}`;
+      const filePath = `${this.getEndPoint()}/getFileFromUsbDevice?path=${encodeURIComponent(
+        path,
+      )}&fileName=${encodeURIComponent(fileName)}`;
       window.open(filePath, '_blank');
     },
   },
