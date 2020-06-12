@@ -30,7 +30,6 @@
           </div>
           <b-form-input
             v-model="configuration.internalInterfaceSubnet"
-            placeholder="0.0.0.0/16"
             style="flex: 1; margin-right: 100px; margin-left: 20px"
           />
           <b-button
@@ -123,44 +122,38 @@ export default {
         { key: 'option3', label: 'Internal Port' }],
 
 
-      configuration: { internalInterfaceName: '', externalInterfaceName: '', internalInterfaceSubnet: '' },
+      configuration: { internalInterfaceName: null, externalInterfaceName: null, internalInterfaceSubnet: null },
     };
   },
   computed: {
     ...mapState(['receivedData']),
-    configContents() {
-      if (this.receivedData.networkConfig) {
-        return this.receivedData.networkConfig;
-      }
-      return '';
-    },
     tcpIntToExtRules() {
       if (this.receivedData.networkConfig) {
         const receivedRules = this.receivedData.networkConfig.tcpIntToExtRules;
         return receivedRules;
       }
-      return '';
+      return [];
     },
     tcpExtToIntRules() {
       if (this.receivedData.networkConfig) {
         const receivedRules = this.receivedData.networkConfig.tcpExtToIntRules;
         return receivedRules;
       }
-      return '';
+      return [];
     },
     udpIntToExtRules() {
       if (this.receivedData.networkConfig) {
         const receivedRules = this.receivedData.networkConfig.udpIntToExtRules;
         return receivedRules;
       }
-      return '';
+      return [];
     },
     udpExtToIntRules() {
       if (this.receivedData.networkConfig) {
         const receivedRules = this.receivedData.networkConfig.udpExtToIntRules;
         return receivedRules;
       }
-      return '';
+      return [];
     },
     networkInterfaces() {
       if (this.receivedData.networkConfig) {
@@ -172,12 +165,16 @@ export default {
         });
         return interfaces;
       }
-      return '';
+      return [];
     },
   },
   watch: {
+    networkInterfaces() {
+      this.updateNetworkSelection();
+    },
   },
   mounted() {
+    this.updateNetworkSelection();
   },
   methods: {
     ...mapActions([
@@ -233,6 +230,13 @@ export default {
     removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
       const rule = { externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
       this.removeUdpExtToIntNetworkRule(rule);
+    },
+    updateNetworkSelection() {
+      if (this.receivedData.networkConfig && this.receivedData.networkConfig.interfaceConfiguration) {
+        this.configuration.internalInterfaceName = this.receivedData.networkConfig.interfaceConfiguration.internalInterfaceName;
+        this.configuration.externalInterfaceName = this.receivedData.networkConfig.interfaceConfiguration.externalInterfaceName;
+        this.configuration.internalInterfaceSubnet = this.receivedData.networkConfig.interfaceConfiguration.internalInterfaceSubnet;
+      }
     },
   },
 
