@@ -484,6 +484,7 @@ describe('USBStorage', () => {
     //
     process.env.NODE_ENV = tmp;
     window.location = originalLoc;
+    wrapper.destroy();
   });
 
   test('if Create a Folder is clicked, onCreateFolderClicked method is called', async () => {
@@ -492,6 +493,7 @@ describe('USBStorage', () => {
     const buttonClicked = wrapper.findComponent({ ref: 'buttonCreateFolder' });
     await buttonClicked.trigger('click');
     expect(wrapper.vm.createdFolderName).toBe('');
+    wrapper.destroy();
   });
 
   test('getVisibleItemName', async () => {
@@ -499,6 +501,7 @@ describe('USBStorage', () => {
     expect(wrapper.vm.getVisibleItemName({ name: '.' })).toBe('[ROOT]');
     await waitNT(wrapper.vm);
     expect(wrapper.vm.getVisibleItemName({ name: 'name', fullPath: 'path' })).toBe('[PARENT DIR] name');
+    wrapper.destroy();
   });
 
   test('clearFiles', () => {
@@ -506,5 +509,6 @@ describe('USBStorage', () => {
     const spyReset = jest.spyOn(wrapper.vm.$refs['file-input'], 'reset');
     wrapper.vm.clearFiles();
     expect(spyReset).toHaveBeenCalled();
+    wrapper.destroy();
   });
 });
