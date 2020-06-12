@@ -80,7 +80,7 @@
             :table-title="'UDP Rules External To Internal'"
             :fields="fieldsUdpExtToInt"
             :rules="udpExtToIntRules"
-            :rule-keys="{ruleName: 'name', option1: 'externalPort', option2: 'internalIp', option3: 'externalPort'}"
+            :rule-keys="{ruleName: 'name', option1: 'externalPort', option2: 'internalIp', option3: 'internalPort'}"
             @addRule="addUdpExtToIntRule"
             @removeRule="removeUdpExtToIntRule"
           />
