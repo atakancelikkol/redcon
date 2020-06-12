@@ -79,6 +79,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    ruleKeys: {
+      type: Object,
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -95,12 +99,11 @@ export default {
       return tableFields;
     },
     itemsContents() {
-      const rulesArray = this.rules;
-      rulesArray.push('operations');
-      const tableItems = [{
-        ruleName: rulesArray[0], option1: rulesArray[1], option2: rulesArray[2], option3: rulesArray[3], operations: rulesArray[4],
-      }];
-      return tableItems;
+      const items = [...this.rules];
+      const rule = items.map((item) => ({
+        ruleName: item[this.ruleKeys.ruleName], option1: item[this.ruleKeys.option1], option2: item[this.ruleKeys.option2], option3: item[this.ruleKeys.option3],
+      }));
+      return rule;
     },
   },
   methods: {

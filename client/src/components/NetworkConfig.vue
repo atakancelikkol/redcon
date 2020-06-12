@@ -9,7 +9,8 @@
           <NetworkRuleTable
             :table-title="'TCP Rules IntToExt'"
             :fields="fieldsTcpIntToExt"
-            :rules="configContents.tcpIntToExtRules"
+            :rules="tcpIntToExtRules"
+            :rule-keys="{ruleName: 'name', option1: 'deviceInternalPort', option2: 'externalIp', option3: 'externalPort'}"
             @addRule="addTcpIntToExtRule"
             @removeRule="removeTcpIntToExtRule"
           />
@@ -18,7 +19,8 @@
           <NetworkRuleTable
             :table-title="'TCP Rules ExtToInt'"
             :fields="fieldsTcpExtToInt"
-            :rules="configContents.tcpExtToIntRules"
+            :rules="tcpExtToIntRules"
+            :rule-keys="{ruleName: 'name', option1: 'deviceExternalPort', option2: 'internalIp', option3: 'internalPort'}"
             @addRule="addTcpExtToIntRule"
             @removeRule="removeTcpExtToIntRule"
           />
@@ -29,8 +31,8 @@
           <NetworkRuleTable
             :table-title="'UDP Rules IntToExt'"
             :fields="fieldsUdpIntToExt"
-            :rules="configContents.udpIntToExtRules"
-
+            :rules="udpIntToExtRules"
+            :rule-keys="{ruleName: 'name', option1: 'internalPort', option2: 'externalIp', option3: 'externalPort'}"
             @addRule="addUdpIntToExtRule"
             @removeRule="removeUdpIntToExtRule"
           />
@@ -39,8 +41,8 @@
           <NetworkRuleTable
             :table-title="'UDP Rules ExtToInt'"
             :fields="fieldsUdpExtToInt"
-            :rules="configContents.udpExtToIntRules"
-
+            :rules="udpExtToIntRules"
+            :rule-keys="{ruleName: 'name', option1: 'externalPort', option2: 'internalIp', option3: 'externalPort'}"
             @addRule="addUdpExtToIntRule"
             @removeRule="removeUdpExtToIntRule"
           />
@@ -72,12 +74,12 @@ export default {
         { key: 'option3', label: 'Internal Port' }],
 
       fieldsUdpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
-        { key: 'option1', label: 'Internal Ip' },
+        { key: 'option1', label: 'Internal Port' },
         { key: 'option2', label: 'External Ip' },
         { key: 'option3', label: 'External Port' }],
 
       fieldsUdpExtToInt: [{ key: 'ruleName', label: 'Rule Name' },
-        { key: 'option1', label: 'External Ip' },
+        { key: 'option1', label: 'External Port' },
         { key: 'option2', label: 'Internal Ip' },
         { key: 'option3', label: 'Internal Port' }],
 
@@ -90,6 +92,34 @@ export default {
     configContents() {
       if (this.receivedData.networkConfig) {
         return this.receivedData.networkConfig;
+      }
+      return '';
+    },
+    tcpIntToExtRules() {
+      if (this.receivedData.networkConfig) {
+        const receivedRules = this.receivedData.networkConfig.tcpIntToExtRules;
+        return receivedRules;
+      }
+      return '';
+    },
+    tcpExtToIntRules() {
+      if (this.receivedData.networkConfig) {
+        const receivedRules = this.receivedData.networkConfig.tcpExtToIntRules;
+        return receivedRules;
+      }
+      return '';
+    },
+    udpIntToExtRules() {
+      if (this.receivedData.networkConfig) {
+        const receivedRules = this.receivedData.networkConfig.udpIntToExtRules;
+        return receivedRules;
+      }
+      return '';
+    },
+    udpExtToIntRules() {
+      if (this.receivedData.networkConfig) {
+        const receivedRules = this.receivedData.networkConfig.udpExtToIntRules;
+        return receivedRules;
       }
       return '';
     },
@@ -113,45 +143,44 @@ export default {
       'removeTcpIntToExtNetworkRule',
     ]),
     addTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaley', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.addTcpIntToExtNetworkRule({
-        currentRuleName, currentOption1, currentOption2, currentOption3,
-      });
+      const rule = {
+        name: currentRuleName, deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,
+      };
+      this.addTcpIntToExtNetworkRule(rule);
     },
     addTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaleyy', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.addTcpExtToIntNetworkRule({
-        currentRuleName, currentOption1, currentOption2, currentOption3,
-      });
+      const rule = {
+        name: currentRuleName, deviceExternalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3,
+      };
+      this.addTcpExtToIntNetworkRule(rule);
     },
     addUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaleyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.addUdpExtToIntNetworkRule({
-        currentRuleName, currentOption1, currentOption2, currentOption3,
-      });
+      const rule = {
+        name: currentRuleName, externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3,
+      };
+      this.addUdpExtToIntNetworkRule(rule);
     },
     addUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaleyyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.addUdpIntToExtNetworkRule({
-        currentRuleName, currentOption1, currentOption2, currentOption3,
-      });
+      const rule = {
+        name: currentRuleName, internalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,
+      };
+      this.addUdpIntToExtNetworkRule(rule);
     },
-
     removeTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaley', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.removeTcpIntToExtNetworkRule({ currentOption1, currentOption2, currentOption3 });
+      const rule = { deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3 };
+      this.removeTcpIntToExtNetworkRule(rule);
     },
     removeTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaleyy', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.removeTcpExtToIntNetworkRule({ currentOption1, currentOption2, currentOption3 });
+      const rule = { deviceExternalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
+      this.removeTcpExtToIntNetworkRule(rule);
     },
     removeUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaleyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.removeUdpIntToExtNetworkRule({ currentOption1, currentOption2, currentOption3 });
+      const rule = { internalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3 };
+      this.removeUdpIntToExtNetworkRule(rule);
     },
     removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      console.log('hobaleyyyy', currentRuleName, currentOption1, currentOption2, currentOption3);
-      this.removeUdpExtToIntNetworkRule({ currentOption1, currentOption2, currentOption3 });
+      const rule = { externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
+      this.removeUdpExtToIntNetworkRule(rule);
     },
   },
 

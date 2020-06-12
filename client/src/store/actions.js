@@ -79,29 +79,29 @@ const actions = {
   updateNetworkInterfaceConfiguration({ commit }, { configuration }) { // eslint-disable-line
     webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessege({ configuration });
   },
-  addUdpExtToIntNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessege({ rule });
+  addUdpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessege(rule);
   },
-  removeUdpExtToIntNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessege({ rule });
+  removeUdpExtToIntNetworkRule({ commit }, rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessege(rule);
   },
-  addUdpIntToExtNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessege({ rule });
+  addUdpIntToExtNetworkRule({ commit }, rule ) { // eslint-disable-line
+    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessege(rule);
   },
-  removeUdpIntToExtNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessege({ rule });
+  removeUdpIntToExtNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessege(rule);
   },
-  addTcpExtToIntNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessege({ rule });
+  addTcpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessege(rule);
   },
-  removeTcpExtToIntNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessege({ rule });
+  removeTcpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessege(rule);
   },
-  addTcpIntToExtNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessege({ rule });
+  addTcpIntToExtNetworkRule({ commit }, rule ) { // eslint-disable-line
+    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessege(rule);
   },
-  removeTcpIntToExtNetworkRule({ commit }, { rule }) { // eslint-disable-line
-    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessege({ rule });
+  removeTcpIntToExtNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessege(rule);
   },
 };
 
