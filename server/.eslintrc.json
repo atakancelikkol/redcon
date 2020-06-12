@@ -28,10 +28,7 @@
     ],
     "no-console": "error",
     "max-len": "off",
-    "object-curly-newline": [ // fixable
-      "warn",
-      {"minProperties": 2}
-    ],
+    "object-curly-newline": "off",
     "class-methods-use-this": "off", 
     "global-require": "warn", 
     "no-param-reassign": "warn", 

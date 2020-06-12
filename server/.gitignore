@@ -3,6 +3,7 @@ node_modules
 /dist
 /public
 coverage
+database.json
 
 # local env files
 .env.local
