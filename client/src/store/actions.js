@@ -76,8 +76,8 @@ const actions = {
   rebootDevice({ commit }, ) { // eslint-disable-line
     webSocketConnector.sendRebootDeviceMessage();
   },
-  updateNetworkInterfaceConfiguration({ commit }, { configuration }) { // eslint-disable-line
-    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessege({ configuration });
+  updateNetworkInterfaceConfiguration({ commit },  configuration ) { // eslint-disable-line
+    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessege(configuration);
   },
   addUdpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
     webSocketConnector.sendAddUdpExtToIntNetworkRuleMessege(rule);

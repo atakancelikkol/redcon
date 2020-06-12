@@ -1,13 +1,52 @@
 <template>
   <div class="port-mapping-container">
     <b-card
-      title="Network Configration"
+      title="Network Configuration"
       style="flex:1"
     >
+      <b-card
+        title="Interface Configuration"
+        style="flex:1"
+      >
+        <div class="row">
+          <div style="margin-right: 5px; margin-top: 2px; fontSize: 20px ">
+            External Interface :
+          </div>
+          <b-form-select
+            v-model="configuration.externalInterfaceName"
+            :options="networkInterfaces"
+            style="flex: 1; margin-right: 100px; margin-left: 20px"
+          />
+          <div style="margin-right: 5px; margin-top: 2px; fontSize: 20px ">
+            Internal Interface :
+          </div>
+          <b-form-select
+            v-model="configuration.internalInterfaceName"
+            :options="networkInterfaces"
+            style="flex: 1; margin-right: 100px; margin-left: 20px"
+          />
+          <div style="margin-right: 5px; margin-top: 2px; fontSize: 20px ">
+            Internal Interface Subnet:
+          </div>
+          <b-form-input
+            v-model="configuration.internalInterfaceSubnet"
+            placeholder="0.0.0.0/16"
+            style="flex: 1; margin-right: 100px; margin-left: 20px"
+          />
+          <b-button
+            ref="addConf"
+            variant="success"
+            style="flex: 1; margin-right: 50px; margin-left: 20px"
+            @click="acceptConfiguration"
+          >
+            Apply
+          </b-button>
+        </div>
+      </b-card>
       <div class="row">
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
-            :table-title="'TCP Rules IntToExt'"
+            :table-title="'TCP Rules Internal To External'"
             :fields="fieldsTcpIntToExt"
             :rules="tcpIntToExtRules"
             :rule-keys="{ruleName: 'name', option1: 'deviceInternalPort', option2: 'externalIp', option3: 'externalPort'}"
@@ -17,7 +56,7 @@
         </div>
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
-            :table-title="'TCP Rules ExtToInt'"
+            :table-title="'TCP Rules External To Internal'"
             :fields="fieldsTcpExtToInt"
             :rules="tcpExtToIntRules"
             :rule-keys="{ruleName: 'name', option1: 'deviceExternalPort', option2: 'internalIp', option3: 'internalPort'}"
@@ -29,7 +68,7 @@
       <div class="row">
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
-            :table-title="'UDP Rules IntToExt'"
+            :table-title="'UDP Rules Internal To External'"
             :fields="fieldsUdpIntToExt"
             :rules="udpIntToExtRules"
             :rule-keys="{ruleName: 'name', option1: 'internalPort', option2: 'externalIp', option3: 'externalPort'}"
@@ -39,7 +78,7 @@
         </div>
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
-            :table-title="'UDP Rules ExtToInt'"
+            :table-title="'UDP Rules External To Internal'"
             :fields="fieldsUdpExtToInt"
             :rules="udpExtToIntRules"
             :rule-keys="{ruleName: 'name', option1: 'externalPort', option2: 'internalIp', option3: 'externalPort'}"
@@ -123,12 +162,22 @@ export default {
       }
       return '';
     },
+    networkInterfaces() {
+      if (this.receivedData.networkConfig) {
+        const receivedInterfaces = this.receivedData.networkConfig.networkInterfaces;
+        const interfaces = [];
+        receivedInterfaces.forEach((item) => {
+          const { name } = item;
+          interfaces.push(name);
+        });
+        return interfaces;
+      }
+      return '';
+    },
   },
   watch: {
-
   },
   mounted() {
-    this.updateNetworkInterfaceConfiguration(this.configuration);
   },
   methods: {
     ...mapActions([
@@ -142,6 +191,9 @@ export default {
       'addTcpIntToExtNetworkRule',
       'removeTcpIntToExtNetworkRule',
     ]),
+    acceptConfiguration() {
+      this.updateNetworkInterfaceConfiguration(this.configuration);
+    },
     addTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
       const rule = {
         name: currentRuleName, deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,

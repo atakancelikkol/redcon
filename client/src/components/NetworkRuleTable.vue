@@ -95,7 +95,7 @@ export default {
   computed: {
     fieldContents() {
       const tableFields = this.fields;
-      tableFields.push({ key: 'operations', label: 'operations' });
+      tableFields.push({ key: 'operations', label: 'Operations' });
       return tableFields;
     },
     itemsContents() {

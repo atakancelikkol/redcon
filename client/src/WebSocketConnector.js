@@ -169,8 +169,8 @@ class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendUpdateNetworkInterfaceConfigurationMessege({ configration }) {
-    const obj = { networkConfig: { action: 'updateNetworkInterfaceConfiguration', configration } };
+  sendUpdateNetworkInterfaceConfigurationMessege(configuration) {
+    const obj = { networkConfig: { action: 'updateNetworkInterfaceConfiguration', configuration } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
