@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint --no-fix && npx eslint test/.",
     "fix": "vue-cli-service lint --fix && npx eslint --fix test/.",
     "test": "jest",
-    "prepush": "vue-cli-service lint --no-fix && npx eslint test/. && jest --coverage",
+    "prepush": "npm audit fix && vue-cli-service lint --no-fix && npx eslint test/. && jest --coverage",
     "coverage": "jest --coverage"
   },
   "dependencies": {
