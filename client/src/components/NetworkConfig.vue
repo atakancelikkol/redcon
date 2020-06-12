@@ -1,5 +1,12 @@
 <template>
   <div class="port-mapping-container">
+    <b-alert
+      :show="!validParam"
+      variant="warning"
+      style="margin: auto; text-align: center"
+    >
+      Invalid Parameter!
+    </b-alert>
     <b-card
       title="Network Configuration"
       style="flex:1"
@@ -101,6 +108,8 @@ export default {
   },
   data() {
     return {
+      validParam: true,
+
       fieldsTcpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
         { key: 'option1', label: 'Device Internal Port' },
         { key: 'option2', label: 'External Ip' },
@@ -259,42 +268,54 @@ export default {
     parameterCheckPort(port) {
       const portInt = Number.parseInt(port, 10);
       if (!Number.isNaN(portInt) && portInt >= 0 && portInt <= 65535) {
+        this.validParam = true;
         return true;
       }
-
+      this.validParam = false;
       return false;
     },
 
     parameterCheckIp(ip) {
       const arrIp = ip.split('.');
       let isValid = false;
-      if (arrIp.length !== 4) return false;
+      if (arrIp.length !== 4) {
+        this.validParam = false;
+        return false;
+      }
       arrIp.forEach((num) => {
         if (Number.isNaN(num) || Number(num) < 0 || Number(num) > 255) { isValid = false; }
         isValid = true;
       });
-      return isValid;
+      if (isValid) {
+        this.validParam = true;
+        return isValid;
+      }
+      return false;
     },
 
     parameterCheckIsSubNet(subnet) {
       if (!subnet) {
+        this.validParam = false;
         return false;
       }
 
       const items = subnet.split('/');
       if (!items[0] || !this.parameterCheckIp(items[0])) {
+        this.validParam = false;
         return false;
       }
 
       if (!items[1]) {
+        this.validParam = false;
         return false;
       }
 
       const subnetMask = Number.parseInt(items[1], 10);
       if (Number.isNaN(subnetMask) || subnetMask < 0 || subnetMask > 32) {
+        this.validParam = false;
         return false;
       }
-
+      this.validParam = true;
       return true;
     },
 
