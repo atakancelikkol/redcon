@@ -166,8 +166,6 @@ describe('store actions', () => {
   });
 
 
-
-
   it('updateNetworkInterfaceConfiguration should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const configuration = {};
@@ -178,64 +176,56 @@ describe('store actions', () => {
   it('addUdpExtToIntNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.addUdpExtToIntNetworkRule({ commit: mockCommit }, rule  );
+    actions.addUdpExtToIntNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendAddUdpExtToIntNetworkRuleMessege).toHaveBeenCalled();
   });
-  
+
   it('removeUdpExtToIntNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.removeUdpExtToIntNetworkRule({ commit: mockCommit }, rule  );
+    actions.removeUdpExtToIntNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessege).toHaveBeenCalled();
   });
 
   it('addUdpIntToExtNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.addUdpIntToExtNetworkRule({ commit: mockCommit }, rule  );
+    actions.addUdpIntToExtNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendAddUdpIntToExtNetworkRuleMessege).toHaveBeenCalled();
   });
-  
+
   it('removeUdpIntToExtNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.removeUdpIntToExtNetworkRule({ commit: mockCommit }, rule  );
+    actions.removeUdpIntToExtNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessege).toHaveBeenCalled();
   });
-  
+
   it('addTcpExtToIntNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.addTcpExtToIntNetworkRule({ commit: mockCommit }, rule  );
+    actions.addTcpExtToIntNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendAddTcpExtToIntNetworkRuleMessege).toHaveBeenCalled();
   });
-  
+
   it('removeTcpExtToIntNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.removeTcpExtToIntNetworkRule({ commit: mockCommit }, rule  );
+    actions.removeTcpExtToIntNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessege).toHaveBeenCalled();
   });
 
   it('addTcpIntToExtNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.addTcpIntToExtNetworkRule({ commit: mockCommit }, rule  );
+    actions.addTcpIntToExtNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendAddTcpIntToExtNetworkRuleMessege).toHaveBeenCalled();
   });
 
   it('removeTcpIntToExtNetworkRule should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const rule = {};
-    actions.removeTcpIntToExtNetworkRule({ commit: mockCommit }, rule  );
+    actions.removeTcpIntToExtNetworkRule({ commit: mockCommit }, rule);
     expect(webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessege).toHaveBeenCalled();
   });
-
-
-
-
-
-
-
-
 });

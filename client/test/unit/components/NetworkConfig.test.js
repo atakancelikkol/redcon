@@ -1,5 +1,5 @@
 import {
-  createLocalVue, mount, createWrapper,
+  createLocalVue, mount,
 } from '@vue/test-utils';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
@@ -351,17 +351,5 @@ describe('component NetworkConfig remove rules', () => {
     wrapper.vm.removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
     expect(actions.removeUdpExtToIntNetworkRule).toHaveBeenCalledTimes(0);
     wrapper.destroy();
-  });
-});
-
-
-describe('component NetworkConfig paramcheck', () => {
-  let store;
-
-  beforeEach(() => {
-    store = new Vuex.Store({
-      actions, state,
-    });
-    jest.resetAllMocks();
   });
 });
