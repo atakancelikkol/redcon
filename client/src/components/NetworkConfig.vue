@@ -277,20 +277,19 @@ export default {
 
     parameterCheckIp(ip) {
       const arrIp = ip.split('.');
-      let isValid = false;
+      let isValid = true;
+
       if (arrIp.length !== 4) {
         this.validParam = false;
         return false;
       }
       arrIp.forEach((num) => {
-        if (Number.isNaN(num) || Number(num) < 0 || Number(num) > 255) { isValid = false; }
-        isValid = true;
+        if ((Number.isNaN(Number(num))) || Number(num) < 0 || Number(num) > 255) {
+          isValid = false;
+          this.validParam = false;
+        }
       });
-      if (isValid) {
-        this.validParam = true;
-        return isValid;
-      }
-      return false;
+      return isValid;
     },
 
     parameterCheckIsSubNet(subnet) {
