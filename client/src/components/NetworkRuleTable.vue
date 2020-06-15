@@ -15,7 +15,7 @@
         >
           <template v-slot:cell(operations)="row">
             <b-button
-              ref="addRule"
+              ref="removeRule"
               variant="danger"
               @click="removeRule(row.item)"
             >
@@ -113,6 +113,7 @@ export default {
     removeRule(rule) {
       this.$bvModal
         .msgBoxConfirm('Please confirm to remove rule.', {
+          id: 'removeRuleConfirmation',
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
