@@ -95,21 +95,6 @@ describe('WebSocketConnector', () => {
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"gpio":{"port":16070,"state":100}}');
   });
 
-  it('checks sendFetchPortMappingConfigurationMessage', () => {
-    webSocketConnector.sendFetchPortMappingConfigurationMessage();
-    expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"portconfig":{"action":"readConfigFile"}}');
-  });
-
-  it('checks sendSetPortMappingConfigurationMessage', () => {
-    webSocketConnector.sendSetPortMappingConfigurationMessage({ configContents: 'test_config' });
-    expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"portconfig":{"action":"setConfigFile","configContents":"test_config"}}');
-  });
-
-  it('checks sendResetPortMappingConfigurationMessage', () => {
-    webSocketConnector.sendResetPortMappingConfigurationMessage();
-    expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"portconfig":{"action":"resetConfigFile"}}');
-  });
-
   it('checks sendOpenSerialDeviceMessage', () => {
     webSocketConnector.sendOpenSerialDeviceMessage({ devicePath: 'test_path', baudRate: 'test_baudRate' });
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"serial":{"action":"openDevice","path":"test_path","baudRate":"test_baudRate"}}');

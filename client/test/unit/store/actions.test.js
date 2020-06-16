@@ -134,24 +134,6 @@ describe('store actions', () => {
     expect(webSocketConnector.sendlistSerialDevicesMessage).toHaveBeenCalled();
   });
 
-  it('fetch Port Mapping Configuration should call proper function', () => {
-    const mockCommit = jest.fn().mockName('mockCommit');
-    actions.fetchPortMappingConfiguration({ commit: mockCommit });
-    expect(webSocketConnector.sendFetchPortMappingConfigurationMessage).toHaveBeenCalled();
-  });
-
-  it('set Port Mapping Configuration should call proper function', () => {
-    const mockCommit = jest.fn().mockName('mockCommit');
-    actions.setPortMappingConfiguration({ commit: mockCommit }, { configContents: 'test_content' });
-    expect(webSocketConnector.sendSetPortMappingConfigurationMessage).toHaveBeenCalled();
-  });
-
-  it('reset Port Mapping Configuration should call proper function', () => {
-    const mockCommit = jest.fn().mockName('mockCommit');
-    actions.resetPortMappingConfiguration({ commit: mockCommit });
-    expect(webSocketConnector.sendResetPortMappingConfigurationMessage).toHaveBeenCalled();
-  });
-
   it('update connection status should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     const status = 'test_status';
@@ -164,7 +146,6 @@ describe('store actions', () => {
     actions.rebootDevice({ commit: mockCommit });
     expect(webSocketConnector.sendRebootDeviceMessage).toHaveBeenCalled();
   });
-
 
   it('updateNetworkInterfaceConfiguration should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
