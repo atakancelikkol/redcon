@@ -71,13 +71,13 @@ class USBUtility {
     });
   }
 
-  unmountUSBDrive(usbAvailability, partitionName) {
+  unmountUSBDrive(usbState) {
     return new Promise((resolve, reject) => {
-      if (!usbAvailability) {
+      if (!usbState.isAvailable) {
         resolve();
         return;
       }
-      exec(`sudo umount ${partitionName}`, (err) => {
+      exec(`sudo umount ${usbState.partition}`, (err) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
           reject(usbErrorString);
@@ -89,13 +89,13 @@ class USBUtility {
     });
   }
 
-  formatUSBDrive(usbAvailability, partitionName) {
+  formatUSBDrive(usbState) {
     return new Promise((resolve, reject) => {
-      if (!usbAvailability) {
+      if (!usbState.isAvailable) {
         resolve();
         return;
       }
-      exec(`sudo mkfs -t vfat -n REDCONewName ${partitionName}`, (err) => {
+      exec(`sudo mkfs -t vfat -n REDCONewName ${usbState.partition}`, (err) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant formatUSBDriveLinux`;
           reject(usbErrorString);

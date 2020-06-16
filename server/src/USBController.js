@@ -147,7 +147,8 @@ class USBController extends ControllerBase {
         const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         const { device } = driveList[index];
         const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device); // eslint-disable-line
-        this.usbState.usbErrorStrin = platformUsbState.usbErrorStrin;
+        this.usbState.partition = await this.platformObjects.getUSBUtility().getPartitionName(mountPath, platformUsbState.isAvailable); // eslint-disable-line
+        this.usbState.usbErrorString = platformUsbState.usbErrorString;
         this.usbState.device = platformUsbState.device;
         this.usbState.usbName = platformUsbState.usbName;
         this.usbState.mountedPath = platformUsbState.mountedPath;
@@ -376,13 +377,13 @@ class USBController extends ControllerBase {
     });
   }
 
-  formatUsbDevice() {
+  async formatUsbDevice() {
     if (!this.usbState.isAvailable) {
       return;
     }
 
-    this.platformObjects.getUSBUtility().unmountUSBDrive(this.usbState).then(() => {
-      this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState).then(async () => {
+    await this.platformObjects.getUSBUtility().unmountUSBDrive(this.usbState).then(async () => {
+      await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState).then(async () => {
         await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       });
     });
