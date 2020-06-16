@@ -175,7 +175,6 @@ export default {
       }
       return normalizedString;
     },
-
   },
 };
 </script>

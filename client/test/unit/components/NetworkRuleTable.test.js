@@ -15,14 +15,49 @@ describe('componentNetworkRuleTable', () => {
     const wrapper = mount(componentNetworkRuleTable, {
       localVue,
     });
-    wrapper.setData({ currentRuleName: 'test' });
-    wrapper.setData({ currentOption1: 'testOption1' });
-    wrapper.setData({ currentOption2: 'testOption2' });
-    wrapper.setData({ currentOption3: 'testOption3' });
+    wrapper.setData({ currentRuleName: 'testRule' });
+    wrapper.setData({ currentOption1: '2000' });
+    wrapper.setData({ currentOption2: '10.32.0.0' });
+    wrapper.setData({ currentOption3: '3000' });
 
     const button = wrapper.findComponent({ ref: 'addRule' });
     button.trigger('click');
-    expect(wrapper.emitted().addRule).toStrictEqual([['test', 'testOption1', 'testOption2', 'testOption3']]);
+    expect(wrapper.emitted().addRule).toStrictEqual([['testRule', '2000', '10.32.0.0', '3000']]);
+    wrapper.destroy();
+  });
+
+  it('addRule button invalid port', () => {
+    const wrapper = mount(componentNetworkRuleTable, {
+      localVue,
+    });
+    wrapper.setData({ currentRuleName: 'testRule' });
+    wrapper.setData({ currentOption1: 'invalidPort' });
+    wrapper.setData({ currentOption2: '10.32.0.0' });
+    wrapper.setData({ currentOption3: '3000' });
+
+    const button = wrapper.findComponent({ ref: 'addRule' });
+    button.trigger('click');
+    expect(wrapper.emitted().addRule).toStrictEqual(undefined);
+    wrapper.destroy();
+  });
+
+  it('addRule button invalid ıp', () => {
+    const wrapper = mount(componentNetworkRuleTable, {
+      localVue,
+    });
+    wrapper.setData({ currentRuleName: 'testRule' });
+    wrapper.setData({ currentOption1: '2000' });
+    wrapper.setData({ currentOption2: '10.asd.0.0' });
+    wrapper.setData({ currentOption3: '3000' });
+
+    const button = wrapper.findComponent({ ref: 'addRule' });
+    button.trigger('click');
+    expect(wrapper.emitted().addRule).toStrictEqual(undefined);
+
+    wrapper.setData({ currentOption2: '10.32.0.0.0' });
+    const anotherbutton = wrapper.findComponent({ ref: 'addRule' });
+    anotherbutton.trigger('click');
+    expect(wrapper.emitted().addRule).toStrictEqual(undefined);
     wrapper.destroy();
   });
 
@@ -109,6 +144,21 @@ describe('componentNetworkRuleTable', () => {
     await waitNT(wrapper.vm);
 
     expect(wrapper.emitted().removeRule).toStrictEqual(undefined);
+    wrapper.destroy();
+  });
+});
+
+describe('component NetworkRuleTable paramcheck', () => {
+   it('normalizeString ', () => {
+    const wrapper = mount(componentNetworkRuleTable, {
+        localVue,
+    });
+    const notString = 5;
+    expect(wrapper.vm.normalizeString(notString)).toStrictEqual('');
+    let testString = 't/[/e[\_s]+/\+t' // eslint-disable-line
+    expect(wrapper.vm.normalizeString(testString)).toStrictEqual('t e s t');
+    testString = 'tooLongTestStringOverThirtyCharacters';
+    expect(wrapper.vm.normalizeString(testString)).toStrictEqual('tooLongTestStringOverThirtyCha');
     wrapper.destroy();
   });
 });
