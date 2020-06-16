@@ -21,13 +21,11 @@ describe('component NetworkConfig add rules', () => {
     jest.resetAllMocks();
   });
 
-
   it('updateNetworkSelection ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
       localVue,
     });
-
 
     wrapper.vm.updateNetworkSelection();
     expect(wrapper.vm.configuration).toStrictEqual({ externalInterfaceName: 'anotherTestInterface', internalInterfaceName: 'testInterface', internalInterfaceSubnet: '10.32.0.0/16' });
@@ -212,7 +210,6 @@ describe('component NetworkConfig remove rules', () => {
     jest.resetAllMocks();
   });
 
-
   it('removeTcpIntToExtRule ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
@@ -231,7 +228,6 @@ describe('component NetworkConfig remove rules', () => {
     });
     wrapper.destroy();
   });
-
 
   it('removeTcpIntToExtRule invalid port ', () => {
     const wrapper = mount(componentNetworkConfig, {
@@ -267,15 +263,14 @@ describe('component NetworkConfig remove rules', () => {
     wrapper.destroy();
   });
 
-
-  it('removeTcpExtToIntRule invalid port ', () => {
+  it('removeTcpExtToIntRule invalid ip ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
       localVue,
     });
     const currentRuleName = 'testRule';
-    const currentOption1 = 'invalidPort';
-    const currentOption2 = '10.32.0.0';
+    const currentOption1 = '2000';
+    const currentOption2 = '10.32.asd.0';
     const currentOption3 = '3000';
 
     wrapper.vm.removeTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
@@ -301,7 +296,6 @@ describe('component NetworkConfig remove rules', () => {
     });
     wrapper.destroy();
   });
-
 
   it('removeUdpIntToExtRule invalid port ', () => {
     const wrapper = mount(componentNetworkConfig, {
@@ -350,6 +344,45 @@ describe('component NetworkConfig remove rules', () => {
 
     wrapper.vm.removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
     expect(actions.removeUdpExtToIntNetworkRule).toHaveBeenCalledTimes(0);
+    wrapper.destroy();
+  });
+});
+
+describe('component NetworkConfig paramcheck', () => {
+  let store;
+
+  beforeEach(() => {
+    store = new Vuex.Store({
+      actions, state,
+    });
+    jest.resetAllMocks();
+  });
+
+  it('normalizeString ', () => {
+    const wrapper = mount(componentNetworkConfig, {
+      store,
+      localVue,
+    });
+    const notString = 5;
+    expect(wrapper.vm.normalizeString(notString)).toStrictEqual('');
+    let testString = 't/[/e[\_s]+/\+t' // eslint-disable-line
+    expect(wrapper.vm.normalizeString(testString)).toStrictEqual('t e s t');
+    testString = 'tooLongTestStringOverThirtyCharacters';
+    expect(wrapper.vm.normalizeString(testString)).toStrictEqual('tooLongTestStringOverThirtyCha');
+    wrapper.destroy();
+  });
+
+  it('parameterCheckIsSubNet ', () => {
+    const wrapper = mount(componentNetworkConfig, {
+      store,
+      localVue,
+    });
+    let subnet;
+    expect(wrapper.vm.parameterCheckIsSubNet(subnet)).toBe(false);
+    subnet = '10.32.0.0/';
+    expect(wrapper.vm.parameterCheckIsSubNet(subnet)).toBe(false);
+    subnet = '10.32.0.0/500';
+    expect(wrapper.vm.parameterCheckIsSubNet(subnet)).toBe(false);
     wrapper.destroy();
   });
 });

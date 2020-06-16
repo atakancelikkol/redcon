@@ -18,7 +18,7 @@ const state = {
       usbErrorString: '',
     },
     networkConfig: {
-      networkInterfaces: [],
+      networkInterfaces: [{}, {}],
       interfaceConfiguration: { internalInterfaceName: 'testInterface', externalInterfaceName: 'anotherTestInterface', internalInterfaceSubnet: '10.32.0.0/16' },
     },
   },
