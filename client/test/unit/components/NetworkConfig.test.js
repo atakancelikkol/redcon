@@ -79,21 +79,6 @@ describe('component NetworkConfig add rules', () => {
     wrapper.destroy();
   });
 
-  it('addTcpIntToExtRule invalid port ', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = 'invalidPort';
-    const currentOption2 = '10.32.0.0';
-    const currentOption3 = '3000';
-
-    wrapper.vm.addTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.addTcpIntToExtNetworkRule).toHaveBeenCalledTimes(0);
-    wrapper.destroy();
-  });
-
   it('addTcpExtToIntRule ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
@@ -111,21 +96,6 @@ describe('component NetworkConfig add rules', () => {
       internalPort: '3000',
       name: 'testRule',
     });
-    wrapper.destroy();
-  });
-
-  it('addTcpExtToIntRule invalid Ip', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = '2000';
-    const currentOption2 = 'invalidIp';
-    const currentOption3 = '3000';
-
-    wrapper.vm.addTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.addTcpExtToIntNetworkRule).toHaveBeenCalledTimes(0);
     wrapper.destroy();
   });
 
@@ -149,21 +119,6 @@ describe('component NetworkConfig add rules', () => {
     wrapper.destroy();
   });
 
-  it('addUdpExtToIntRule invalid Port', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = '2000';
-    const currentOption2 = '10.32.0.0';
-    const currentOption3 = 'invalidPort';
-
-    wrapper.vm.addUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.addUdpExtToIntNetworkRule).toHaveBeenCalledTimes(0);
-    wrapper.destroy();
-  });
-
   it('addUdpIntToExtRule ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
@@ -181,21 +136,6 @@ describe('component NetworkConfig add rules', () => {
       externalPort: '3000',
       name: 'testRule',
     });
-    wrapper.destroy();
-  });
-
-  it('addUdpIntToExtRule invalid Port', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = '2000';
-    const currentOption2 = '10.32.0.0';
-    const currentOption3 = 'invalidPort';
-
-    wrapper.vm.addUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.addUdpIntToExtNetworkRule).toHaveBeenCalledTimes(0);
     wrapper.destroy();
   });
 });
@@ -229,21 +169,6 @@ describe('component NetworkConfig remove rules', () => {
     wrapper.destroy();
   });
 
-  it('removeTcpIntToExtRule invalid port ', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = 'invalidPort';
-    const currentOption2 = '10.32.0.0';
-    const currentOption3 = '3000';
-
-    wrapper.vm.removeTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.removeTcpIntToExtNetworkRule).toHaveBeenCalledTimes(0);
-    wrapper.destroy();
-  });
-
   it('removeTcpExtToIntRule ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
@@ -260,21 +185,6 @@ describe('component NetworkConfig remove rules', () => {
       internalIp: '10.32.0.0',
       internalPort: '3000',
     });
-    wrapper.destroy();
-  });
-
-  it('removeTcpExtToIntRule invalid ip ', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = '2000';
-    const currentOption2 = '10.32.asd.0';
-    const currentOption3 = '3000';
-
-    wrapper.vm.removeTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.removeTcpExtToIntNetworkRule).toHaveBeenCalledTimes(0);
     wrapper.destroy();
   });
 
@@ -297,21 +207,6 @@ describe('component NetworkConfig remove rules', () => {
     wrapper.destroy();
   });
 
-  it('removeUdpIntToExtRule invalid port ', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = 'invalidPort';
-    const currentOption2 = '10.32.0.0';
-    const currentOption3 = '3000';
-
-    wrapper.vm.removeUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.removeUdpIntToExtNetworkRule).toHaveBeenCalledTimes(0);
-    wrapper.destroy();
-  });
-
   it('removeUdpExtToIntRule ', () => {
     const wrapper = mount(componentNetworkConfig, {
       store,
@@ -330,22 +225,6 @@ describe('component NetworkConfig remove rules', () => {
     });
     wrapper.destroy();
   });
-
-
-  it('removeUdpExtToIntRule invalid port ', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const currentRuleName = 'testRule';
-    const currentOption1 = 'invalidPort';
-    const currentOption2 = '10.32.0.0';
-    const currentOption3 = '3000';
-
-    wrapper.vm.removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3);
-    expect(actions.removeUdpExtToIntNetworkRule).toHaveBeenCalledTimes(0);
-    wrapper.destroy();
-  });
 });
 
 describe('component NetworkConfig paramcheck', () => {
@@ -356,20 +235,6 @@ describe('component NetworkConfig paramcheck', () => {
       actions, state,
     });
     jest.resetAllMocks();
-  });
-
-  it('normalizeString ', () => {
-    const wrapper = mount(componentNetworkConfig, {
-      store,
-      localVue,
-    });
-    const notString = 5;
-    expect(wrapper.vm.normalizeString(notString)).toStrictEqual('');
-    let testString = 't/[/e[\_s]+/\+t' // eslint-disable-line
-    expect(wrapper.vm.normalizeString(testString)).toStrictEqual('t e s t');
-    testString = 'tooLongTestStringOverThirtyCharacters';
-    expect(wrapper.vm.normalizeString(testString)).toStrictEqual('tooLongTestStringOverThirtyCha');
-    wrapper.destroy();
   });
 
   it('parameterCheckIsSubNet ', () => {

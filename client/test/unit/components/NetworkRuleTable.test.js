@@ -149,9 +149,9 @@ describe('componentNetworkRuleTable', () => {
 });
 
 describe('component NetworkRuleTable paramcheck', () => {
-   it('normalizeString ', () => {
+  it('normalizeString ', () => {
     const wrapper = mount(componentNetworkRuleTable, {
-        localVue,
+      localVue,
     });
     const notString = 5;
     expect(wrapper.vm.normalizeString(notString)).toStrictEqual('');
