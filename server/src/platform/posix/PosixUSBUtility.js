@@ -15,6 +15,25 @@ class USBUtility {
     return platformUsbState;
   }
 
+  getPartitionName(mountPath, usbAvailability) {
+    return new Promise((resolve, reject) => {
+      if (!usbAvailability) {
+        resolve();
+        return;
+      }
+      exec(`df -h | grep ${mountPath}`, (err, stdout /* , stderr */) => {
+        if (err) { // Handle error
+          const usbErrorString = `${err.message} Cant getPartitionNameLinux`;
+          reject(usbErrorString);
+          return;
+        }
+        logger.info('obtained Partition Name');
+        logger.debug('stdout', stdout);
+        logger.debug('stdout char length ', stdout.length);
+        resolve();
+      });
+    });
+  }
 
   syncUsbDevice(usbState) {
     return new Promise((resolve, reject) => {
@@ -47,6 +66,42 @@ class USBUtility {
           return;
         }
         logger.info('ejected usb drive');
+        resolve();
+      });
+    });
+  }
+
+  unmountUSBDrive(usbAvailability, partitionName) {
+    return new Promise((resolve, reject) => {
+      if (!usbAvailability) {
+        resolve();
+        return;
+      }
+      exec(`sudo umount ${partitionName}`, (err) => {
+        if (err) { // Handle error
+          const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
+          reject(usbErrorString);
+          return;
+        }
+        logger.info('unmounted usb drive');
+        resolve();
+      });
+    });
+  }
+
+  formatUSBDrive(usbAvailability, partitionName) {
+    return new Promise((resolve, reject) => {
+      if (!usbAvailability) {
+        resolve();
+        return;
+      }
+      exec(`sudo mkfs -t vfat -n REDCONewName ${partitionName}`, (err) => {
+        if (err) { // Handle error
+          const usbErrorString = `${err.message} Cant formatUSBDriveLinux`;
+          reject(usbErrorString);
+          return;
+        }
+        logger.info('formatted usb drive');
         resolve();
       });
     });

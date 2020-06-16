@@ -27,6 +27,7 @@ class USBController extends ControllerBase {
       mountedPath: '',
       usbName: '',
       device: '',
+      partition: '',
       currentDirectory: '.',
       currentItems: [],
       currentItemInfo: {},
@@ -105,6 +106,8 @@ class USBController extends ControllerBase {
         this.getItemInfo(obj.usb.path, obj.usb.itemName);
       } else if (obj.usb.action === 'createFolder') {
         this.createUsbDeviceFolder(obj.usb.path, obj.usb.folderName);
+      } else if (obj.usb.action === 'formatUsbDevice') {
+        this.formatUsbDevice();
       }
     }
   }
@@ -370,6 +373,18 @@ class USBController extends ControllerBase {
       await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
       this.listUsbDeviceItems(path);
       resolve();
+    });
+  }
+
+  formatUsbDevice() {
+    if (!this.usbState.isAvailable) {
+      return;
+    }
+
+    this.platformObjects.getUSBUtility().unmountUSBDrive(this.usbState).then(() => {
+      this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState).then(async () => {
+        await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
+      });
     });
   }
 

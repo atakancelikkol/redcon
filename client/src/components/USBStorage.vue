@@ -10,7 +10,16 @@
           variant="outline-primary"
           @click="onDetectButtonClicked"
         >
-          Detect USB Devices
+          Detect USB Device
+        </b-button>
+
+        <b-button
+          ref="buttonFormat"
+          variant="outline-primary"
+          style="margin-left: 10px"
+          @click="onFormatButtonClicked"
+        >
+          Format USB Device
         </b-button>
 
         <b-button
@@ -296,12 +305,16 @@ export default {
       'deleteItemUSBDevice',
       'getItemInfoUSBDevice',
       'createFolderUSBDevice',
+      'formatUSBDevice',
     ]),
     onToggleButtonClicked() {
       this.toggleUSBPort();
     },
     onDetectButtonClicked() {
       this.detectUSBDevice();
+    },
+    onFormatButtonClicked() {
+      this.formatUSBDevice();
     },
     clearFiles() {
       this.$refs['file-input'].reset();

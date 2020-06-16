@@ -37,6 +37,9 @@ const actions = {
   createFolderUSBDevice({ commit }, { path, folderName }) { // eslint-disable-line
     webSocketConnector.sendCreateFolderUSBDeviceMessage({ path, folderName });
   },
+  formatUSBDevice({ commit }) { // eslint-disable-line
+    webSocketConnector.sendFormatUSBDeviceMessage();
+  },
   openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
     webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
   },
