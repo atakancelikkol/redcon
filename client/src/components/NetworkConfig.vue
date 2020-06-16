@@ -8,42 +8,56 @@
         title="Interface Configuration"
         style="flex:1"
       >
-        <div class="row">
-          <div style="margin-right: 5px; margin-top: 2px; fontSize: 20px ">
-            External Interface :
-          </div>
-          <b-form-select
-            v-model="configuration.externalInterfaceName"
-            :options="networkInterfaces"
-            style="flex: 1; margin-right: 100px; margin-left: 20px"
-          />
-          <div style="margin-right: 5px; margin-top: 2px; fontSize: 20px ">
-            Internal Interface :
-          </div>
-          <b-form-select
-            v-model="configuration.internalInterfaceName"
-            :options="networkInterfaces"
-            style="flex: 1; margin-right: 100px; margin-left: 20px"
-          />
-          <div style="margin-right: 5px; margin-top: 2px; fontSize: 20px ">
-            Internal Interface Subnet:
-          </div>
-          <b-form-input
-            v-model="configuration.internalInterfaceSubnet"
-            style="flex: 1; margin-right: 100px; margin-left: 20px"
-            :state="validParamSubmask"
-          />
-          <b-button
-            ref="addConf"
-            variant="success"
-            style="flex: 1; margin-right: 50px; margin-left: 20px"
-            @click="acceptConfiguration"
+        <div
+          class="row"
+          style="margin-top:30px "
+        >
+          <div
+            class="col"
           >
-            Apply
-          </b-button>
+            <div style="margin-right: 5px; margin-top: 20px; fontSize: 20px ">
+              External Interface :
+            </div>
+            <b-form-select
+              v-model="configuration.externalInterfaceName"
+              :options="networkInterfaces"
+              style="max-width: 700px; margin-right: 80px; margin-left: 10px; margin-top: 10px"
+            />
+            <div style="margin-right: 5px; margin-top: 20px; fontSize: 20px ">
+              Internal Interface :
+            </div>
+            <b-form-select
+              v-model="configuration.internalInterfaceName"
+              :options="networkInterfaces"
+              style="max-width: 700px; margin-right: 80px; margin-left: 10px; margin-top: 10px"
+            />
+            <div style="margin-right: 5px; margin-top: 20px; fontSize: 20px ">
+              Internal Interface Subnet:
+            </div>
+            <b-form-input
+              v-model="configuration.internalInterfaceSubnet"
+              style="max-width: 700px; margin-right: 80px; margin-left: 10px; margin-top: 10px"
+              :state="validParamSubmask"
+            />
+          </div> <div
+            class="col"
+            style="max-width: 200px; "
+          >
+            <b-button
+              ref="addConf"
+              variant="success"
+              style="flex: 1; margin-left: 50px; fontSize: 30px;margin-top: 240px; "
+              @click="acceptConfiguration"
+            >
+              Apply
+            </b-button>
+          </div>
         </div>
       </b-card>
-      <div class="row">
+      <div
+        class="row"
+        style="margin-top:30px "
+      >
         <div class="table-responsive col-md-6">
           <NetworkRuleTable
             :table-title="'TCP Rules Internal To External'"
@@ -166,8 +180,8 @@ export default {
         const receivedInterfaces = this.receivedData.networkConfig.networkInterfaces;
         const interfaces = [];
         receivedInterfaces.forEach((item) => {
-          const { name } = item;
-          interfaces.push(name);
+          const config = { value: item.name, text: `${item.name} (${item.ip})` };
+          interfaces.push(config);
         });
         return interfaces;
       }
