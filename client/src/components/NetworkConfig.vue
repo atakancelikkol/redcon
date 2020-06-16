@@ -1,12 +1,5 @@
 <template>
   <div class="port-mapping-container">
-    <b-alert
-      :show="!validParam"
-      variant="warning"
-      style="margin: auto; text-align: center"
-    >
-      Invalid Parameter!
-    </b-alert>
     <b-card
       title="Network Configuration"
       style="flex:1"
@@ -38,6 +31,7 @@
           <b-form-input
             v-model="configuration.internalInterfaceSubnet"
             style="flex: 1; margin-right: 100px; margin-left: 20px"
+            :state="validParamSubmask"
           />
           <b-button
             ref="addConf"
@@ -56,6 +50,7 @@
             :fields="fieldsTcpIntToExt"
             :rules="tcpIntToExtRules"
             :rule-keys="{ruleName: 'name', option1: 'deviceInternalPort', option2: 'externalIp', option3: 'externalPort'}"
+
             @addRule="addTcpIntToExtRule"
             @removeRule="removeTcpIntToExtRule"
           />
@@ -66,6 +61,7 @@
             :fields="fieldsTcpExtToInt"
             :rules="tcpExtToIntRules"
             :rule-keys="{ruleName: 'name', option1: 'deviceExternalPort', option2: 'internalIp', option3: 'internalPort'}"
+
             @addRule="addTcpExtToIntRule"
             @removeRule="removeTcpExtToIntRule"
           />
@@ -108,7 +104,8 @@ export default {
   },
   data() {
     return {
-      validParam: true,
+      validParamSubmask: null,
+
 
       fieldsTcpIntToExt: [{ key: 'ruleName', label: 'Rule Name' },
         { key: 'option1', label: 'Device Internal Port' },
@@ -203,132 +200,89 @@ export default {
       }
     },
     addTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = {
-          name: this.normalizeString(currentRuleName), deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,
-        };
-        this.addTcpIntToExtNetworkRule(rule);
-      }
+      const rule = {
+        name: currentRuleName, deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,
+      };
+      this.addTcpIntToExtNetworkRule(rule);
     },
     addTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = {
-          name: this.normalizeString(currentRuleName), deviceExternalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3,
-        };
-        this.addTcpExtToIntNetworkRule(rule);
-      }
+      const rule = {
+        name: currentRuleName, deviceExternalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3,
+      };
+      this.addTcpExtToIntNetworkRule(rule);
     },
     addUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = {
-          name: this.normalizeString(currentRuleName), externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3,
-        };
-        this.addUdpExtToIntNetworkRule(rule);
-      }
+      const rule = {
+        name: currentRuleName, externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3,
+      };
+      this.addUdpExtToIntNetworkRule(rule);
     },
     addUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = {
-          name: this.normalizeString(currentRuleName), internalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,
-        };
-        this.addUdpIntToExtNetworkRule(rule);
-      }
+      const rule = {
+        name: currentRuleName, internalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3,
+      };
+      this.addUdpIntToExtNetworkRule(rule);
     },
     removeTcpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = { deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3 };
-        this.removeTcpIntToExtNetworkRule(rule);
-      }
+      const rule = { deviceInternalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3 };
+      this.removeTcpIntToExtNetworkRule(rule);
     },
     removeTcpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = { deviceExternalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
-        this.removeTcpExtToIntNetworkRule(rule);
-      }
+      const rule = { deviceExternalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
+      this.removeTcpExtToIntNetworkRule(rule);
     },
     removeUdpIntToExtRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = { internalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3 };
-        this.removeUdpIntToExtNetworkRule(rule);
-      }
+      const rule = { internalPort: currentOption1, externalIp: currentOption2, externalPort: currentOption3 };
+      this.removeUdpIntToExtNetworkRule(rule);
     },
     removeUdpExtToIntRule(currentRuleName, currentOption1, currentOption2, currentOption3) {
-      if (this.parameterCheckPort(currentOption1) && this.parameterCheckIp(currentOption2) && this.parameterCheckPort(currentOption3)) {
-        const rule = { externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
-        this.removeUdpExtToIntNetworkRule(rule);
-      }
+      const rule = { externalPort: currentOption1, internalIp: currentOption2, internalPort: currentOption3 };
+      this.removeUdpExtToIntNetworkRule(rule);
     },
     updateNetworkSelection() {
-      if (this.receivedData.networkConfig && this.receivedData.networkConfig.interfaceConfiguration) {
-        this.configuration.internalInterfaceName = this.receivedData.networkConfig.interfaceConfiguration.internalInterfaceName;
-        this.configuration.externalInterfaceName = this.receivedData.networkConfig.interfaceConfiguration.externalInterfaceName;
-        this.configuration.internalInterfaceSubnet = this.receivedData.networkConfig.interfaceConfiguration.internalInterfaceSubnet;
-      }
-    },
-    parameterCheckPort(port) {
-      const portInt = Number.parseInt(port, 10);
-      if (!Number.isNaN(portInt) && portInt >= 0 && portInt <= 65535) {
-        this.validParam = true;
-        return true;
-      }
-      this.validParam = false;
-      return false;
-    },
-
-    parameterCheckIp(ip) {
-      const arrIp = ip.split('.');
-      let isValid = true;
-
-      if (arrIp.length !== 4) {
-        this.validParam = false;
-        return false;
-      }
-      arrIp.forEach((num) => {
-        if ((Number.isNaN(Number(num))) || Number(num) < 0 || Number(num) > 255) {
-          isValid = false;
-          this.validParam = false;
-        }
-      });
-      return isValid;
+      this.configuration.internalInterfaceName = this.receivedData.networkConfig.interfaceConfiguration.internalInterfaceName;
+      this.configuration.externalInterfaceName = this.receivedData.networkConfig.interfaceConfiguration.externalInterfaceName;
+      this.configuration.internalInterfaceSubnet = this.receivedData.networkConfig.interfaceConfiguration.internalInterfaceSubnet;
     },
 
     parameterCheckIsSubNet(subnet) {
       if (!subnet) {
-        this.validParam = false;
+        this.validParamSubmask = false;
         return false;
       }
 
       const items = subnet.split('/');
       if (!items[0] || !this.parameterCheckIp(items[0])) {
-        this.validParam = false;
+        this.validParamSubmask = false;
         return false;
       }
 
       if (!items[1]) {
-        this.validParam = false;
+        this.validParamSubmask = false;
         return false;
       }
 
       const subnetMask = Number.parseInt(items[1], 10);
       if (Number.isNaN(subnetMask) || subnetMask < 0 || subnetMask > 32) {
-        this.validParam = false;
+        this.validParamSubmask = false;
         return false;
       }
-      this.validParam = true;
+      this.validParamSubmask = null;
       return true;
     },
-
-    normalizeString(str) {
-      if (typeof str !== 'string') {
-        return '';
+    parameterCheckIp(ip) {
+      const arrIp = ip.split('.');
+      let isValid = true;
+      if (arrIp.length !== 4) {
+        return false;
       }
-      let normalizedString = str.replace(/[\W_]+/g, ' ');
-      if (normalizedString.length > 30) {
-        normalizedString = normalizedString.substr(0, 30);
-      }
-      return normalizedString;
+      arrIp.forEach((num) => {
+        if ((Number.isNaN(Number(num))) || Number(num) < 0 || Number(num) > 255) {
+          isValid = false;
+        }
+      });
+      return isValid;
     },
   },
-
 };
 </script>
