@@ -116,7 +116,7 @@ describe('USBController Usb Flash Operations', () => {
     expect(usbController.usbState.kvmLedStateECU).toBe(true);
   });
 
-  xtest('detectDriveChanges', () => new Promise((done) => {
+  test.skip('detectDriveChanges', () => new Promise((done) => { // eslint-disable-line
     usbController.usbState.isAvailable = false;
     usbController.detectDriveChanges().then(() => {
       expect(usbController.usbState.isAvailable).toBe(true);
@@ -126,7 +126,7 @@ describe('USBController Usb Flash Operations', () => {
     });
   }));
 
-  xtest('detectUsbDevice isDriveFound = true;', async () => {
+  test.skip('detectUsbDevice isDriveFound = true;', async () => { // eslint-disable-line
     const extractUsbStateSpy = jest.spyOn(usbUtility, 'extractUsbState');
     await usbController.detectUsbDevice();
     expect(extractUsbStateSpy).toBeCalled();
