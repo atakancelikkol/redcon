@@ -263,9 +263,10 @@ describe('SerialPortController', () => {
   test('openSerialPort', () => {
     const serialPortController = new SerialPortController();
     //
-
     const spyLogger = jest.spyOn(logger, 'error');
     //
+    serialPortController.virtualDeviceMode = false;
+
     const mockStartVirtualDevice = jest.fn();
     serialPortController.startVirtualDevice = mockStartVirtualDevice;
     //
@@ -328,6 +329,7 @@ describe('SerialPortController', () => {
     const serialPortController = new SerialPortController();
     serialPortController.portStatusObj = { COM7: { isOpen: true } };
     //
+    serialPortController.virtualDeviceMode = false;
     const mockUpdatePortStatus = jest.fn();
     serialPortController.updatePortStatus = mockUpdatePortStatus;
     //
