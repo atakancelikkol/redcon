@@ -1,5 +1,5 @@
 <template>
-  <div class="port-mapping-container">
+  <div class="network-config-container">
     <b-card
       title="Network Configuration"
       style="flex:1"
