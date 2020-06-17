@@ -17,6 +17,10 @@ const state = {
       currentItemInfo: {},
       usbErrorString: '',
     },
+    networkConfig: {
+      networkInterfaces: [{}, {}],
+      interfaceConfiguration: { internalInterfaceName: 'testInterface', externalInterfaceName: 'anotherTestInterface', internalInterfaceSubnet: '10.32.0.0/16' },
+    },
   },
   serialData: {},
   user: {

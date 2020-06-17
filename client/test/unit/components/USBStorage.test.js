@@ -230,15 +230,6 @@ describe('USBStorage', () => {
     await waitNT(wrapper.vm);
     await buttonClicked.trigger('click');
     expect(wrapper.vm.showUploadError).toBeTruthy();
-    // success
-    wrapper.vm.showUploadError = true;
-    state.receivedData.usb = { isAvailable: true };
-    //
-    const file = new File([''], 'fileName');
-    wrapper.vm.selectedFiles = [file];
-    await waitNT(wrapper.vm);
-    await buttonClicked.trigger('click');
-    expect(wrapper.vm.showUploadError).toBeFalsy();
     wrapper.destroy();
   });
 

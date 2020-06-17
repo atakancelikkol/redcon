@@ -18,5 +18,15 @@ const actions = {
   createFolderUSBDevice: jest.fn(),
   // Utility
   rebootDevice: jest.fn(),
+  // NetworkConfig
+  updateNetworkInterfaceConfiguration: jest.fn(),
+  addUdpExtToIntNetworkRule: jest.fn(),
+  removeUdpExtToIntNetworkRule: jest.fn(),
+  addUdpIntToExtNetworkRule: jest.fn(),
+  removeUdpIntToExtNetworkRule: jest.fn(),
+  addTcpExtToIntNetworkRule: jest.fn(),
+  removeTcpExtToIntNetworkRule: jest.fn(),
+  addTcpIntToExtNetworkRule: jest.fn(),
+  removeTcpIntToExtNetworkRule: jest.fn(),
 };
 export default actions;

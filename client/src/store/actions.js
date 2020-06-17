@@ -61,20 +61,38 @@ const actions = {
   listSerialDevices() {
     webSocketConnector.sendlistSerialDevicesMessage();
   },
-  fetchPortMappingConfiguration({ commit }) { // eslint-disable-line
-    webSocketConnector.sendFetchPortMappingConfigurationMessage();
-  },
-  setPortMappingConfiguration({ commit }, { configContents }) { // eslint-disable-line
-    webSocketConnector.sendSetPortMappingConfigurationMessage({ configContents });
-  },
-  resetPortMappingConfiguration({ commit }, ) { // eslint-disable-line
-    webSocketConnector.sendResetPortMappingConfigurationMessage();
-  },
   updateConnectionStatus({ commit }, status) {
     commit('UPDATE_CONNECTION_STATUS', status);
   },
   rebootDevice({ commit }, ) { // eslint-disable-line
     webSocketConnector.sendRebootDeviceMessage();
+  },
+  updateNetworkInterfaceConfiguration({ commit },  configuration ) { // eslint-disable-line
+    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessage(configuration);
+  },
+  addUdpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessage(rule);
+  },
+  removeUdpExtToIntNetworkRule({ commit }, rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessage(rule);
+  },
+  addUdpIntToExtNetworkRule({ commit }, rule ) { // eslint-disable-line
+    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessage(rule);
+  },
+  removeUdpIntToExtNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessage(rule);
+  },
+  addTcpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessage(rule);
+  },
+  removeTcpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessage(rule);
+  },
+  addTcpIntToExtNetworkRule({ commit }, rule ) { // eslint-disable-line
+    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessage(rule);
+  },
+  removeTcpIntToExtNetworkRule({ commit },  rule ) { // eslint-disable-line
+    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessage(rule);
   },
 };
 
