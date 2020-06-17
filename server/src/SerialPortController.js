@@ -1,23 +1,13 @@
 const SerialPort = require('serialport');
-const SerialPortStream = require('@serialport/stream');
 const MockBinding = require('@serialport/binding-mock');
 const fs = require('fs');
 const logger = require('./util/Logger');
 
-const virtualDeviceMode = false;
-const mockDevicePath = '/dev/ROBOT';
 const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('./util/KeyMapping');
 
-if (virtualDeviceMode) {
-  MockBinding.createPort(mockDevicePath, {
-    echo: true, record: true,
-  });
-  SerialPortStream.Binding = MockBinding;
-}
-
 class SerialPortController extends ControllerBase {
-  constructor() {
+  constructor(options) {
     super('SerialPortController');
 
     /* [
@@ -43,11 +33,23 @@ class SerialPortController extends ControllerBase {
     // Port objects are stored here
     this.portInstances = {};
 
-    this.virtualDeviceInterval = undefined;
-
+    if (options && options.useVirtualDevice) {
+      this.virtualDeviceMode = true;
+      this.mockDevicePath = '/dev/ROBOT';
+      this.virtualDeviceInterval = undefined;
+    }
     this.serialFiles = [];
 
     this.writerInstances = {};
+  }
+
+  init() {
+    if (this.virtualDeviceMode) {
+      MockBinding.createPort(this.mockDevicePath, {
+        echo: true, record: true,
+      });
+      SerialPort.Binding = MockBinding;
+    }
   }
 
   readOutputFiles() {
@@ -95,7 +97,6 @@ class SerialPortController extends ControllerBase {
     this.appendData(obj);
     this.sendMessageCallback(this, obj);
   }
-
 
   handleMessage(obj) {
     // { serial: { action: "openDevice", path, baudRate } };
@@ -187,7 +188,8 @@ class SerialPortController extends ControllerBase {
   openWriteStream(portpath) {
     // export serial stream to txt
     const date = new Date();
-    const serialOutputPath = `../server/public/SerialOut/${portpath}_(${date.toISOString().slice(0, 10)}).txt`;
+    const portPath = portpath.split('/');
+    const serialOutputPath = `../server/public/SerialOut/${portPath[portPath.length - 1]}_(${date.toISOString().slice(0, 10)}).txt`;
     const writer = fs.createWriteStream(serialOutputPath, { flags: 'a' });
     this.writerInstances[portpath] = writer;
   }
@@ -214,7 +216,7 @@ class SerialPortController extends ControllerBase {
     port.pipe(parser);
     parser.on('data', this.onPortDataReceived.bind(this, port));
 
-    if (virtualDeviceMode) {
+    if (this.virtualDeviceMode) {
       this.startVirtualDevice(devicePath);
     }
   }
@@ -247,7 +249,7 @@ class SerialPortController extends ControllerBase {
     if (writer !== undefined) {
       writer.close();
     }
-    if (virtualDeviceMode) {
+    if (this.virtualDeviceMode) {
       this.stopVirtualDevice();
     }
   }

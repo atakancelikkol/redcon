@@ -127,12 +127,12 @@ export default {
         const deviceItem = {
           value: item.path,
           text:
-            `${item.path
-            } (${
-              item.manufacturer.substring(0, 10)
-            }) [${
-              isOpen ? 'opened' : 'closed'
-            }]`,
+             `${item.path
+             } (${
+               item.manufacturer ? item.manufacturer.substring(0, 10) : 'N/A'
+             }) [${
+               isOpen ? 'opened' : 'closed'
+             }]`,
         };
         deviceList.push(deviceItem);
       });
