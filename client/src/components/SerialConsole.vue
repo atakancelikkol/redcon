@@ -126,16 +126,13 @@ export default {
         const { isOpen } = this.receivedData.serial.portStatus[item.path];
         const deviceItem = {
           value: item.path,
-          text: (item.manufacturer
-            ? `${item.path
-            } (${
-              item.manufacturer.substring(0, 10)
-            }) [${
-              isOpen ? 'opened' : 'closed'
-            }]` : `${item.path
-            } [${
-              isOpen ? 'opened' : 'closed'
-            }]`),
+          text:
+             `${item.path
+             } (${
+               item.manufacturer ? item.manufacturer.substring(0, 10) : 'N/A'
+             }) [${
+               isOpen ? 'opened' : 'closed'
+             }]`,
         };
         deviceList.push(deviceItem);
       });

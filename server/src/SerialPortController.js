@@ -7,7 +7,7 @@ const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('./util/KeyMapping');
 
 class SerialPortController extends ControllerBase {
-  constructor() {
+  constructor(options) {
     super('SerialPortController');
 
     /* [
@@ -33,10 +33,14 @@ class SerialPortController extends ControllerBase {
     // Port objects are stored here
     this.portInstances = {};
 
-    this.virtualDeviceMode = false;
-    this.mockDevicePath = '/dev/ROBOT';
-    this.virtualDeviceInterval = undefined;
-
+    if (options && options.useVirtualDevice) {
+      this.virtualDeviceMode = true;
+      this.mockDevicePath = '/dev/ROBOT';
+      this.virtualDeviceInterval = undefined;
+    }
+    // this.virtualDeviceMode = true;
+    // this.mockDevicePath = '/dev/ROBOT';
+    // this.virtualDeviceInterval = undefined;
     this.serialFiles = [];
 
     this.writerInstances = {};
@@ -96,7 +100,6 @@ class SerialPortController extends ControllerBase {
     this.appendData(obj);
     this.sendMessageCallback(this, obj);
   }
-
 
   handleMessage(obj) {
     // { serial: { action: "openDevice", path, baudRate } };

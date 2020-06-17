@@ -1,23 +1,15 @@
 const fs = require('fs');
 const SerialPort = require('serialport');
+const MockBinding = require('@serialport/binding-mock');
 const SerialPortController = require('../../src/SerialPortController');
 const logger = require('../../src/util/Logger');
 
 jest.genMockFromModule('serialport');
 jest.mock('serialport');
-// const SerialPortStream = require('@serialport/stream');
-// const MockBinding = require('@serialport/binding-mock');
 
-// const virtualDeviceMode = false;
-// const mockDevicePath = '/dev/ROBOT';
 // jest.mock('fs');
 // const ControllerBase = require('./ControllerBase');
 const KeyMapping = require('../../src/util/KeyMapping');
-
-// if (virtualDeviceMode) {
-//  MockBinding.createPort(mockDevicePath, { echo: true, record: true });
-//  SerialPortStream.Binding = MockBinding;
-// }
 
 jest.useFakeTimers();
 
@@ -41,35 +33,6 @@ describe('SerialPortController', () => {
     expect(spyReadDirSync).toHaveBeenCalled();
     expect(serialPortController.serialFiles).toEqual(mockFiles);
     expect(mockUpdatePortStatus).toHaveBeenCalled();
-  });
-
-  test('startVirtualDevice', () => {
-    const serialPortController = new SerialPortController();
-    const mockPort = { emit: jest.fn() };
-    serialPortController.portInstances.COM7 = mockPort;
-    // fail
-    serialPortController.virtualDeviceInterval = true;
-    serialPortController.startVirtualDevice('COM7');
-    expect(setInterval).not.toHaveBeenCalled();
-    // success
-    serialPortController.virtualDeviceInterval = false;
-    serialPortController.startVirtualDevice('COM7');
-    expect(setInterval).toHaveBeenCalled();
-    jest.advanceTimersByTime(700);
-    expect(mockPort.emit).toHaveBeenCalled();
-  });
-
-  test('stopVirtualDevice', () => {
-    const serialPortController = new SerialPortController();
-    // fail
-    serialPortController.virtualDeviceInterval = false;
-    serialPortController.stopVirtualDevice();
-    expect(clearInterval).not.toHaveBeenCalled();
-    // success
-    serialPortController.virtualDeviceInterval = true;
-    serialPortController.stopVirtualDevice();
-    expect(clearInterval).toHaveBeenCalled();
-    expect(serialPortController.virtualDeviceInterval).toBeUndefined();
   });
 
   test('getCopyState', () => {
@@ -117,9 +80,11 @@ describe('SerialPortController', () => {
 
   describe('handleMessage', () => {
     test('handleMessage openDevice', () => {
-      const obj = { serial: {
-        action: 'openDevice', path: '', baudRate: '',
-      } };
+      const obj = {
+        serial: {
+          action: 'openDevice', path: '', baudRate: '',
+        },
+      };
       const serialPortController = new SerialPortController();
       //
       const mockOpenSerialPort = jest.fn();
@@ -129,9 +94,11 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage listDevices', () => {
-      const obj = { serial: {
-        action: 'listDevices', path: '', baudRate: '',
-      } };
+      const obj = {
+        serial: {
+          action: 'listDevices', path: '', baudRate: '',
+        },
+      };
       const serialPortController = new SerialPortController();
       const mockListPorts = jest.fn();
       serialPortController.listPorts = mockListPorts;
@@ -140,9 +107,11 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage closeDevice', () => {
-      const obj = { serial: {
-        action: 'closeDevice', path: '', baudRate: '',
-      } };
+      const obj = {
+        serial: {
+          action: 'closeDevice', path: '', baudRate: '',
+        },
+      };
       const serialPortController = new SerialPortController();
       const mockCloseSerialPort = jest.fn();
       serialPortController.closeSerialPort = mockCloseSerialPort;
@@ -151,9 +120,11 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage writeDevice', () => {
-      const obj = { serial: {
-        action: 'writeDevice', path: '', baudRate: '',
-      } };
+      const obj = {
+        serial: {
+          action: 'writeDevice', path: '', baudRate: '',
+        },
+      };
       const serialPortController = new SerialPortController();
       const mockWriteSerialPort = jest.fn();
       serialPortController.writeSerialPort = mockWriteSerialPort;
@@ -162,9 +133,11 @@ describe('SerialPortController', () => {
     });
 
     test('handleMessage writeKeyDevice', () => {
-      const obj = { serial: {
-        action: 'writeKeyDevice', path: '', baudRate: '',
-      } };
+      const obj = {
+        serial: {
+          action: 'writeKeyDevice', path: '', baudRate: '',
+        },
+      };
       const serialPortController = new SerialPortController();
       const mockWriteKeySerialPort = jest.fn();
       serialPortController.writeKeySerialPort = mockWriteKeySerialPort;
@@ -265,8 +238,6 @@ describe('SerialPortController', () => {
     //
     const spyLogger = jest.spyOn(logger, 'error');
     //
-    serialPortController.virtualDeviceMode = false;
-
     const mockStartVirtualDevice = jest.fn();
     serialPortController.startVirtualDevice = mockStartVirtualDevice;
     //
@@ -329,7 +300,6 @@ describe('SerialPortController', () => {
     const serialPortController = new SerialPortController();
     serialPortController.portStatusObj = { COM7: { isOpen: true } };
     //
-    serialPortController.virtualDeviceMode = false;
     const mockUpdatePortStatus = jest.fn();
     serialPortController.updatePortStatus = mockUpdatePortStatus;
     //
@@ -351,5 +321,61 @@ describe('SerialPortController', () => {
     //
     expect(mockUpdatePortStatus).toHaveBeenCalledTimes(2);
     expect(mockStopVirtualDevice).not.toHaveBeenCalled();
+  });
+
+  describe('when virtualDeviceMode is equal to true', () => {
+    test('init', () => {
+      const serialPortController = new SerialPortController({ useVirtualDevice: true });
+      serialPortController.init();
+      expect(SerialPort.Binding).toBe(MockBinding);
+    });
+
+    test('openSerialPort', () => {
+      const serialPortController = new SerialPortController({ useVirtualDevice: true });
+      const mockStartVirtualDevice = jest.fn();
+      serialPortController.startVirtualDevice = mockStartVirtualDevice;
+      serialPortController.openSerialPort('/dev/ROBOT', 115200);
+      expect(mockStartVirtualDevice).toHaveBeenCalledWith('/dev/ROBOT');
+    });
+
+    test('onPortClosed', () => {
+      const serialPortController = new SerialPortController({ useVirtualDevice: true });
+      const port = { path: '/dev/ROBOT' };
+      serialPortController.portStatusObj[port.path] = { isOpen: false };
+
+      const mockStopVirtualDevice = jest.fn();
+      serialPortController.stopVirtualDevice = mockStopVirtualDevice;
+      serialPortController.onPortClosed(port);
+      expect(mockStopVirtualDevice).toHaveBeenCalled();
+    });
+
+    test('startVirtualDevice', () => {
+      const serialPortController = new SerialPortController();
+      const devicePath = '/dev/ROBOT';
+      serialPortController.portInstances[devicePath] = { emit: jest.fn() };
+      // fail
+      serialPortController.virtualDeviceInterval = true;
+      serialPortController.startVirtualDevice(devicePath);
+      expect(setInterval).not.toHaveBeenCalled();
+      // success
+      serialPortController.virtualDeviceInterval = undefined;
+      serialPortController.startVirtualDevice(devicePath);
+      expect(setInterval).toHaveBeenCalled();
+      jest.advanceTimersByTime(700);
+      expect(serialPortController.portInstances[devicePath].emit).toHaveBeenCalled();
+    });
+
+    test('stopVirtualDevice', () => {
+      const serialPortController = new SerialPortController();
+      // fail
+      serialPortController.stopVirtualDevice();
+      expect(serialPortController.virtualDeviceInterval).toBeUndefined();
+      expect(clearInterval).not.toHaveBeenCalled();
+      // success
+      serialPortController.virtualDeviceInterval = true;
+      serialPortController.stopVirtualDevice();
+      expect(clearInterval).toHaveBeenCalled();
+      expect(serialPortController.virtualDeviceInterval).toBeUndefined();
+    });
   });
 });
