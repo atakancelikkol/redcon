@@ -384,7 +384,7 @@ class USBController extends ControllerBase {
 
     await this.platformObjects.getUSBUtility().unmountUSBDrive(this.usbState).then(async () => {
       await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState).then(async () => {
-        await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
+        await this.platformObjects.getUSBUtility().mountUSBDrive(this.usbState);
       });
     });
   }
