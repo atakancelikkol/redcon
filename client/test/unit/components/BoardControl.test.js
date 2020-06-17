@@ -44,11 +44,11 @@ describe('BoardControl', () => {
     state.receivedData.gpio = undefined;
     expect(wrapper.vm.eventItems).toStrictEqual([]);
     // success
-    state.receivedData.gpio = { state: {}, history: [{ port: 3, state: 0, date: 0 }] };
-    expect(wrapper.vm.eventItems).toStrictEqual([{ port: 'PORT #3', state: 'ON', date: '02:00:00 GMT+0200 (GMT+03:00)' }]);
+    state.receivedData.gpio = { state: {}, history: [{ port: 3, state: 0, date: (new Date(0)) }] };
+    expect(wrapper.vm.eventItems).toStrictEqual([{ port: 'PORT #3', state: 'ON', date: new Date(0).toTimeString() }]);
     //
-    state.receivedData.gpio = { state: {}, history: [{ port: 3, state: 1, date: 0 }] };
-    expect(wrapper.vm.eventItems).toStrictEqual([{ port: 'PORT #3', state: 'OFF', date: '02:00:00 GMT+0200 (GMT+03:00)' }]);
+    state.receivedData.gpio = { state: {}, history: [{ port: 3, state: 1, date: (new Date(0)) }] };
+    expect(wrapper.vm.eventItems).toStrictEqual([{ port: 'PORT #3', state: 'OFF', date: new Date(0).toTimeString() }]);
     wrapper.destroy();
   });
 
