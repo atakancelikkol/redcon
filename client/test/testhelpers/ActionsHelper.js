@@ -18,6 +18,8 @@ const actions = {
   createFolderUSBDevice: jest.fn(),
   // Utility
   rebootDevice: jest.fn(),
+  // BoardControl
+  changeGPIOPort: jest.fn(),
   // NetworkConfig
   updateNetworkInterfaceConfiguration: jest.fn(),
   addUdpExtToIntNetworkRule: jest.fn(),
