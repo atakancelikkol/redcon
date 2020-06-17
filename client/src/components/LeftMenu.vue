@@ -13,8 +13,8 @@
         </router-link>
       </b-list-group-item>
       <b-list-group-item>
-        <router-link to="/port-mapping">
-          Port Mapping
+        <router-link to="/network-config">
+          Network Config
         </router-link>
       </b-list-group-item>
       <b-list-group-item>

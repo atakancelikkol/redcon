@@ -39,7 +39,7 @@ class NetworkConfigController extends ControllerBase {
 
   appendData(obj) {
     // this function returns the initial state
-    obj.networkConfig = {...this.dataStorage.getNetworkConfiguration()}; // eslint-disable-line
+    obj.networkConfig = { ...this.dataStorage.getNetworkConfiguration() }; // eslint-disable-line
     obj.networkConfig.networkInterfaces = this.getNetworkInterfaces(); // eslint-disable-line
   }
 

@@ -20,5 +20,15 @@ const actions = {
   rebootDevice: jest.fn(),
   // BoardControl
   changeGPIOPort: jest.fn(),
+  // NetworkConfig
+  updateNetworkInterfaceConfiguration: jest.fn(),
+  addUdpExtToIntNetworkRule: jest.fn(),
+  removeUdpExtToIntNetworkRule: jest.fn(),
+  addUdpIntToExtNetworkRule: jest.fn(),
+  removeUdpIntToExtNetworkRule: jest.fn(),
+  addTcpExtToIntNetworkRule: jest.fn(),
+  removeTcpExtToIntNetworkRule: jest.fn(),
+  addTcpIntToExtNetworkRule: jest.fn(),
+  removeTcpIntToExtNetworkRule: jest.fn(),
 };
 export default actions;

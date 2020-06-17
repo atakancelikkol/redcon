@@ -20,6 +20,9 @@ const state = {
     gpio: {
       state: { 3: 1, 5: 1 },
       history: [{ port: {}, state: {}, date: {} }],
+    networkConfig: {
+      networkInterfaces: [{}, {}],
+      interfaceConfiguration: { internalInterfaceName: 'testInterface', externalInterfaceName: 'anotherTestInterface', internalInterfaceSubnet: '10.32.0.0/16' },
     },
   },
   serialData: {},
