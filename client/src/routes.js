@@ -9,7 +9,7 @@ import Utility from './components/Utility.vue';
 const routes = [
   { path: '/', component: Home, meta: { auth: true } },
   { path: '/board-control', component: BoardControl, meta: { auth: true } },
-  { path: '/port-mapping', component: NetworkConfig, meta: { auth: true } },
+  { path: '/network-config', component: NetworkConfig, meta: { auth: true } },
   { path: '/serial-console', component: SerialConsole, meta: { auth: true } },
   { path: '/usb-storage', component: USBStorage, meta: { auth: true } },
   { path: '/utility', component: Utility, meta: { auth: true } },
