@@ -16,15 +16,10 @@ class USBUtility {
     return platformUsbState;
   }
 
-  formatUSBDrive(usbState) {
-    return new Promise(async (resolve) => {
-      await this.unmountSelectedPartition(usbState).then(async () => {
-        await this.formatSelectedPartition(usbState).then(async () => {
-          await this.mountSelectedPartition(usbState);
-          resolve();
-        });
-      });
-    });
+  async formatUSBDrive(usbState) {
+    await this.unmountSelectedPartition(usbState);
+    await this.formatSelectedPartition(usbState);
+    await this.mountSelectedPartition(usbState);
   }
 
   getPartitionName(mountPath, usbAvailability) {
@@ -33,12 +28,14 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`df -h | grep ${mountPath} | awk '{print $1}'`, (err, stdout /* , stderr */) => {
+      exec(`df -h | grep ${mountPath} | awk '{print $1}'`, (err, stdout, stderr) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant getPartitionNameLinux`;
           reject(usbErrorString);
           return;
         }
+        logger.info('stdout', stdout);
+        logger.info('stderr', stderr);
         const partitionName = stdout.trim();
         logger.info('Partition Name obtained');
         logger.debug('partitionName', partitionName);
@@ -54,7 +51,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`sync ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
+      exec(`sudo sync ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant syncUsbDeviceLinux`;
           reject(usbErrorString);
@@ -72,7 +69,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`eject ${usbState.device}`, (err/* , stdout, stderr */) => {
+      exec(`sudo eject ${usbState.device}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
           reject(usbErrorString);
@@ -90,12 +87,14 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`umount ${usbState.partition}`, (err) => {
+      exec(`sudo umount ${usbState.partition}`, (err, stdout, stderr) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
           reject(usbErrorString);
           return;
         }
+        logger.info('stdout', stdout);
+        logger.info('stderr', stderr);
         logger.info('unmounted usb drive');
         resolve();
       });
@@ -109,12 +108,14 @@ class USBUtility {
       //  return;
       //  }
       await this.createMountPointForSelectedPartition(usbState);
-      exec(`mount ${usbState.partition} ${usbState.mountedPath}`, (err) => {
+      exec(`sudo mount ${usbState.partition} ${usbState.mountedPath}`, (err, stdout, stderr) => {
         if (err) { // Handle error
-          const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
+          const usbErrorString = `${err.message} Cant mountSelectedPartition`;
           reject(usbErrorString);
           return;
         }
+        logger.info('stdout', stdout);
+        logger.info('stderr', stderr);
         logger.info('mounted usb drive to the mount point');
         resolve();
       });
@@ -123,12 +124,14 @@ class USBUtility {
 
   createMountPointForSelectedPartition(usbState) {
     return new Promise((resolve, reject) => {
-      exec(`mkdir ${usbState.mountedPath}`, (err) => {
+      exec(`sudo mkdir ${usbState.mountedPath}`, (err, stdout, stderr) => {
         if (err) { // Handle error
-          const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
+          const usbErrorString = `${err.message} Cant createMountPointForSelectedPartition`;
           reject(usbErrorString);
           return;
         }
+        logger.info('stdout', stdout);
+        logger.info('stderr', stderr);
         logger.info('created Mount Point');
         resolve();
       });
@@ -141,12 +144,14 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`mkfs -t vfat -n ${usbState.usbName} ${usbState.partition}`, (err) => {
+      exec(`mkfs -t vfat -n ${usbState.usbName} ${usbState.partition}`, (err, stdout, stderr) => {
         if (err) { // Handle error
-          const usbErrorString = `${err.message} Cant formatUSBDriveLinux`;
+          const usbErrorString = `${err.message} Cant formatSelectedPartition`;
           reject(usbErrorString);
           return;
         }
+        logger.info('stdout', stdout);
+        logger.info('stderr', stderr);
         logger.info('formatted usb drive');
         resolve();
       });
