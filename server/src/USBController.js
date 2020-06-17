@@ -382,11 +382,7 @@ class USBController extends ControllerBase {
       return;
     }
 
-    await this.platformObjects.getUSBUtility().unmountUSBDrive(this.usbState).then(async () => {
-      await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState).then(async () => {
-        await this.platformObjects.getUSBUtility().mountUSBDrive(this.usbState);
-      });
-    });
+    await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState);
   }
 
   toggleUsbDevice() {

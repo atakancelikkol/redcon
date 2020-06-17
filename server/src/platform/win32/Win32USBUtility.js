@@ -76,17 +76,6 @@ class USBUtility {
     });
   }
 
-  unmountUSBDrive(usbAvailability) {
-    return new Promise((resolve) => {
-      if (!usbAvailability) {
-        resolve();
-        return;
-      }
-      logger.info('unmounted usb drive');
-      resolve();
-    });
-  }
-
   formatUSBDrive(usbAvailability) {
     return new Promise((resolve) => {
       if (!usbAvailability) {

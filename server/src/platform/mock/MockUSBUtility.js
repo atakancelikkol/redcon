@@ -27,14 +27,6 @@ class MockUSBUtility extends IUSBUtility {
     });
   }
 
-  unmountUSBDrive(usbState) {
-    logger.info('MockUSBUtility unmountUSBDrive: ', usbState.isAvailable);
-    return new Promise((resolve) => {
-      resolve();
-      return true;
-    });
-  }
-
   formatUSBDrive(usbState) {
     logger.info('MockUSBUtility formatUSBDrive: ', usbState.isAvailable);
     return new Promise((resolve) => {

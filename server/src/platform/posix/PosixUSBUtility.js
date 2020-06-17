@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 const nodePath = require('path');
 const { exec } = require('child_process');
 const logger = require('../../util/Logger');
@@ -13,6 +14,17 @@ class USBUtility {
       isAvailable: true,
     };
     return platformUsbState;
+  }
+
+  formatUSBDrive(usbState) {
+    return new Promise(async (resolve) => {
+      await this.unmountSelectedPartition(usbState).then(async () => {
+        await this.formatSelectedPartition(usbState).then(async () => {
+          await this.mountSelectedPartition(usbState);
+          resolve();
+        });
+      });
+    });
   }
 
   getPartitionName(mountPath, usbAvailability) {
@@ -60,7 +72,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`sudo eject ${usbState.device}`, (err/* , stdout, stderr */) => {
+      exec(`eject ${usbState.device}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
           reject(usbErrorString);
@@ -72,13 +84,13 @@ class USBUtility {
     });
   }
 
-  unmountUSBDrive(usbState) {
+  unmountSelectedPartition(usbState) {
     return new Promise((resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
         return;
       }
-      exec(`sudo umount ${usbState.partition}`, (err) => {
+      exec(`umount ${usbState.partition}`, (err) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
           reject(usbErrorString);
@@ -90,31 +102,46 @@ class USBUtility {
     });
   }
 
-  mountUSBDrive(usbState) {
-    return new Promise((resolve, reject) => {
+  mountSelectedPartition(usbState) {
+    return new Promise(async (resolve, reject) => {
       //  if (!usbState.isAvailable) {
       //  resolve();
       //  return;
       //  }
-      exec(`sudo mount ${usbState.partition} ${usbState.mountedPath}`, (err) => {
+      await this.createMountPointForSelectedPartition(usbState);
+      exec(`mount ${usbState.partition} ${usbState.mountedPath}`, (err) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
           reject(usbErrorString);
           return;
         }
-        logger.info('unmounted usb drive');
+        logger.info('mounted usb drive to the mount point');
         resolve();
       });
     });
   }
 
-  formatUSBDrive(usbState) {
+  createMountPointForSelectedPartition(usbState) {
     return new Promise((resolve, reject) => {
+      exec(`mkdir ${usbState.mountedPath}`, (err) => {
+        if (err) { // Handle error
+          const usbErrorString = `${err.message} Cant unmountUSBDriveLinux`;
+          reject(usbErrorString);
+          return;
+        }
+        logger.info('created Mount Point');
+        resolve();
+      });
+    });
+  }
+
+  formatSelectedPartition(usbState) {
+    return new Promise(async (resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
         return;
       }
-      exec(`sudo mkfs -t vfat -n REDCONX ${usbState.partition}`, (err) => {
+      exec(`mkfs -t vfat -n ${usbState.usbName} ${usbState.partition}`, (err) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant formatUSBDriveLinux`;
           reject(usbErrorString);
