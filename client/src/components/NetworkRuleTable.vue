@@ -97,12 +97,21 @@ export default {
   },
   computed: {
     checkValidOption2() {
+      if (this.currentOption2 === '') {
+        return null;
+      }
       return this.parameterCheckIp(this.currentOption2);
     },
     checkValidOption1() {
+      if (this.currentOption1 === '') {
+        return null;
+      }
       return this.parameterCheckPort(this.currentOption1);
     },
     checkValidOption3() {
+      if (this.currentOption3 === '') {
+        return null;
+      }
       return this.parameterCheckPort(this.currentOption3);
     },
     fieldContents() {
