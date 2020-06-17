@@ -155,47 +155,47 @@ class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendUpdateNetworkInterfaceConfigurationMessege(configuration) {
+  sendUpdateNetworkInterfaceConfigurationMessage(configuration) {
     const obj = { networkConfig: { action: 'updateNetworkInterfaceConfiguration', configuration } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendAddUdpExtToIntNetworkRuleMessege(rule) {
+  sendAddUdpExtToIntNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'addUdpExtToIntNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendRemoveUdpExtToIntNetworkRuleMessege(rule) {
+  sendRemoveUdpExtToIntNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'removeUdpExtToIntNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendAddUdpIntToExtNetworkRuleMessege(rule) {
+  sendAddUdpIntToExtNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'addUdpIntToExtNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendRemoveUdpIntToExtNetworkRuleMessege(rule) {
+  sendRemoveUdpIntToExtNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'removeUdpIntToExtNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendAddTcpExtToIntNetworkRuleMessege(rule) {
+  sendAddTcpExtToIntNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'addTcpExtToIntNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendRemoveTcpExtToIntNetworkRuleMessege(rule) {
+  sendRemoveTcpExtToIntNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'removeTcpExtToIntNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendAddTcpIntToExtNetworkRuleMessege(rule) {
+  sendAddTcpIntToExtNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'addTcpIntToExtNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendRemoveTcpIntToExtNetworkRuleMessege(rule) {
+  sendRemoveTcpIntToExtNetworkRuleMessage(rule) {
     const obj = { networkConfig: { action: 'removeTcpIntToExtNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }

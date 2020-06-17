@@ -168,97 +168,97 @@ describe('WebSocketConnector', () => {
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"utility":{"action":"reboot"}}');
   });
 
-  it('checks sendUpdateNetworkInterfaceConfigurationMessege', () => {
+  it('checks sendUpdateNetworkInterfaceConfigurationMessage', () => {
     const configuration = { internalInterfaceName: 'testName', externalInterfaceName: 'testInterface', internalInterfaceSubnet: 'anotherTestInterface' };
-    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessege(configuration);
+    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessage(configuration);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"updateNetworkInterfaceConfiguration","configuration":{"internalInterfaceName":"testName","externalInterfaceName":"testInterface","internalInterfaceSubnet":"anotherTestInterface"}}}');
   });
 
-  it('checks sendAddUdpExtToIntNetworkRuleMessege', () => {
+  it('checks sendAddUdpExtToIntNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"addUdpExtToIntNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendRemoveUdpExtToIntNetworkRuleMessege', () => {
+  it('checks sendRemoveUdpExtToIntNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"removeUdpExtToIntNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendAddUdpIntToExtNetworkRuleMessege', () => {
+  it('checks sendAddUdpIntToExtNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"addUdpIntToExtNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendRemoveUdpIntToExtNetworkRuleMessege', () => {
+  it('checks sendRemoveUdpIntToExtNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"removeUdpIntToExtNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendAddTcpExtToIntNetworkRuleMessege', () => {
+  it('checks sendAddTcpExtToIntNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"addTcpExtToIntNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendRemoveTcpExtToIntNetworkRuleMessege', () => {
+  it('checks sendRemoveTcpExtToIntNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"removeTcpExtToIntNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendAddTcpIntToExtNetworkRuleMessege', () => {
+  it('checks sendAddTcpIntToExtNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"addTcpIntToExtNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 
-  it('checks sendRemoveTcpIntToExtNetworkRuleMessege', () => {
+  it('checks sendRemoveTcpIntToExtNetworkRuleMessage', () => {
     const rule = {
       internalPort: '3000',
       internalIp: '10.32.0.0',
       externalPort: '2000',
       name: 'test',
     };
-    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessage(rule);
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"networkConfig":{"action":"removeTcpIntToExtNetworkRule","rule":{"internalPort":"3000","internalIp":"10.32.0.0","externalPort":"2000","name":"test"}}}');
   });
 });

@@ -68,31 +68,31 @@ const actions = {
     webSocketConnector.sendRebootDeviceMessage();
   },
   updateNetworkInterfaceConfiguration({ commit },  configuration ) { // eslint-disable-line
-    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessege(configuration);
+    webSocketConnector.sendUpdateNetworkInterfaceConfigurationMessage(configuration);
   },
   addUdpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
-    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendAddUdpExtToIntNetworkRuleMessage(rule);
   },
   removeUdpExtToIntNetworkRule({ commit }, rule ) { // eslint-disable-line
-    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveUdpExtToIntNetworkRuleMessage(rule);
   },
   addUdpIntToExtNetworkRule({ commit }, rule ) { // eslint-disable-line
-    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendAddUdpIntToExtNetworkRuleMessage(rule);
   },
   removeUdpIntToExtNetworkRule({ commit },  rule ) { // eslint-disable-line
-    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveUdpIntToExtNetworkRuleMessage(rule);
   },
   addTcpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
-    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendAddTcpExtToIntNetworkRuleMessage(rule);
   },
   removeTcpExtToIntNetworkRule({ commit },  rule ) { // eslint-disable-line
-    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveTcpExtToIntNetworkRuleMessage(rule);
   },
   addTcpIntToExtNetworkRule({ commit }, rule ) { // eslint-disable-line
-    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendAddTcpIntToExtNetworkRuleMessage(rule);
   },
   removeTcpIntToExtNetworkRule({ commit },  rule ) { // eslint-disable-line
-    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessege(rule);
+    webSocketConnector.sendRemoveTcpIntToExtNetworkRuleMessage(rule);
   },
 };
 
