@@ -17,6 +17,10 @@ const state = {
       currentItemInfo: {},
       usbErrorString: '',
     },
+    gpio: {
+      state: { 3: 1, 5: 1 },
+      history: [{ port: {}, state: {}, date: {} }],
+    },
   },
   serialData: {},
   user: {
@@ -24,6 +28,5 @@ const state = {
     id: 'id',
     ip: '::1',
   },
-
 };
 export default state;

@@ -8,7 +8,10 @@
         v-for="(gpioPort, index) in GPIOPorts"
         :key="index"
       >
-        <div @click="onSwitchClicked($event, gpioPort)">
+        <div
+          id="switch"
+          @click="onSwitchClicked($event, gpioPort)"
+        >
           <b-form-checkbox
             :checked="receivedData.gpio.state[gpioPort] == 0"
             name="check-button"

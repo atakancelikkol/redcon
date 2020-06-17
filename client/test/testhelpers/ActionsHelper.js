@@ -18,5 +18,7 @@ const actions = {
   createFolderUSBDevice: jest.fn(),
   // Utility
   rebootDevice: jest.fn(),
+  // BoardControl
+  changeGPIOPort: jest.fn(),
 };
 export default actions;
