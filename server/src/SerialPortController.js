@@ -38,9 +38,6 @@ class SerialPortController extends ControllerBase {
       this.mockDevicePath = '/dev/ROBOT';
       this.virtualDeviceInterval = undefined;
     }
-    // this.virtualDeviceMode = true;
-    // this.mockDevicePath = '/dev/ROBOT';
-    // this.virtualDeviceInterval = undefined;
     this.serialFiles = [];
 
     this.writerInstances = {};
