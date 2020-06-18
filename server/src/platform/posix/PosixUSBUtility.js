@@ -2,6 +2,7 @@
 const nodePath = require('path');
 const { exec } = require('child_process');
 const logger = require('../../util/Logger');
+const ServerConfig = require('../../ServerConfig');
 
 class USBUtility {
   extractUsbState(mountPath, device) {
@@ -108,7 +109,7 @@ class USBUtility {
       //  return;
       //  }
       await this.createMountPointForSelectedPartition(usbState);
-      exec(`sudo mount ${usbState.partition} ${usbState.mountedPath}`, (err, stdout, stderr) => {
+      exec(`sudo mount ${usbState.partition} ${ServerConfig.MountPoint}`, (err, stdout, stderr) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant mountSelectedPartition`;
           reject(usbErrorString);
@@ -124,12 +125,13 @@ class USBUtility {
 
   createMountPointForSelectedPartition(usbState) {
     return new Promise((resolve, reject) => {
-      exec(`sudo mkdir ${usbState.mountedPath}`, (err, stdout, stderr) => {
+      exec(`sudo mkdir -p ${ServerConfig.MountPoint}`, (err, stdout, stderr) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant createMountPointForSelectedPartition`;
           reject(usbErrorString);
           return;
         }
+        usbState.mountedPath = ServerConfig.MountPoint;
         logger.info('stdout', stdout);
         logger.info('stderr', stderr);
         logger.info('created Mount Point');
@@ -144,7 +146,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`mkfs -t vfat -n ${usbState.usbName} ${usbState.partition}`, (err, stdout, stderr) => {
+      exec(`sudo mkfs -t vfat -n ${usbState.usbName} ${usbState.partition}`, (err, stdout, stderr) => {
         if (err) { // Handle error
           const usbErrorString = `${err.message} Cant formatSelectedPartition`;
           reject(usbErrorString);

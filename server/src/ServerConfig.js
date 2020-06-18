@@ -6,6 +6,9 @@ const ServerConfig = {
   LoggerLevel: 'debug', // importance: error > warning > info > verbose > debug > silly
   LoggerMaxFileSize: undefined, // units of bytes
   LoggerCallerModuleDepth: 3,
+
+  // PosixUSBUtility
+  MountPoint: '/media/pi/REDCONMOUNTPOINT',
 };
 
 module.exports = ServerConfig;

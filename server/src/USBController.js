@@ -383,6 +383,8 @@ class USBController extends ControllerBase {
     }
 
     await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState);
+    logger.debug('mountedPath:', this.usbState.mountedPath);
+    this.listUsbDeviceItems('');
   }
 
   toggleUsbDevice() {
