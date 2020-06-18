@@ -93,6 +93,10 @@ describe('PosixUSBUtility test', () => {
 
   it('test method 3 for ejectUSBDriveSafely', () => new Promise((done) => { // eslint-disable-line
     const posixUSBtility = new PosixUSBUtility();
+    const tempUnmountAllPartitionsOfTheDevice = posixUSBtility.unmountAllPartitionsOfTheDevice;
+    posixUSBtility.unmountAllPartitionsOfTheDevice = () => new Promise((resolve) => {
+      resolve();
+    });
     mockExecErrorParameter = true;
     const usbState = {
       isAvailable: true,
@@ -103,5 +107,6 @@ describe('PosixUSBUtility test', () => {
     }, () => {
       done();
     });
+    posixUSBtility.unmountAllPartitionsOfTheDevice = tempUnmountAllPartitionsOfTheDevice;
   }));
 });

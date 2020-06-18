@@ -70,13 +70,35 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`sudo eject ${usbState.device}`, (err/* , stdout, stderr */) => {
+      this.unmountAllPartitionsOfTheDevice(usbState).then(() => {
+        exec(`sudo eject ${usbState.device}`, (err/* , stdout, stderr */) => {
+          if (err) { // Handle error
+            const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
+            reject(usbErrorString);
+            return;
+          }
+          logger.info('ejected usb drive');
+          resolve();
+        });
+      });
+    });
+  }
+
+  unmountAllPartitionsOfTheDevice(usbState) {
+    return new Promise((resolve, reject) => {
+      if (!usbState.isAvailable) {
+        resolve();
+        return;
+      }
+      exec(`sudo umount ${usbState.device}?*`, (err, stdout, stderr) => {
         if (err) { // Handle error
-          const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`;
+          const usbErrorString = `${err.message} Cant unmountAllPartitionsOfTheDevice`;
           reject(usbErrorString);
           return;
         }
-        logger.info('ejected usb drive');
+        logger.info('stdout', stdout);
+        logger.info('stderr', stderr);
+        logger.info('unmounted all the partitions of the usb drive');
         resolve();
       });
     });
@@ -96,7 +118,7 @@ class USBUtility {
         }
         logger.info('stdout', stdout);
         logger.info('stderr', stderr);
-        logger.info('unmounted usb drive');
+        logger.info('unmounted the selected partition of the usb drive');
         resolve();
       });
     });
@@ -131,7 +153,7 @@ class USBUtility {
           reject(usbErrorString);
           return;
         }
-        usbState.mountedPath = ServerConfig.MountPoint;
+        usbState.mountedPath = ServerConfig.MountPoint; // eslint-disable-line no-param-reassign
         logger.info('stdout', stdout);
         logger.info('stderr', stderr);
         logger.info('created Mount Point');
