@@ -1,17 +1,15 @@
 /* eslint-disable no-async-promise-executor */
-const nodePath = require('path');
 const { exec } = require('child_process');
 const logger = require('../../util/Logger');
 const ServerConfig = require('../../ServerConfig');
 
 class USBUtility {
-  extractUsbState(mountPath, device) {
-    const USBName = nodePath.basename(mountPath);
+  extractUsbState(mountPath, labelName, device) {
     const platformUsbState = {
 
       device, // For safe eject, device = '/dev/sda' ...
       mountedPath: mountPath,
-      usbName: USBName,
+      usbName: labelName,
       isAvailable: true,
     };
     return platformUsbState;

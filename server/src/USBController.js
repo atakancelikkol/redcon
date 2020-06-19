@@ -146,7 +146,8 @@ class USBController extends ControllerBase {
       if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
         const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
         const { device } = driveList[index];
-        const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device); // eslint-disable-line
+        const labelName = driveList[index].mountpoints[0].label;
+        const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, labelName, device); // eslint-disable-line
         this.usbState.partition = await this.platformObjects.getUSBUtility().getPartitionName(mountPath, platformUsbState.isAvailable); // eslint-disable-line
         this.usbState.usbErrorString = platformUsbState.usbErrorString;
         this.usbState.device = platformUsbState.device;

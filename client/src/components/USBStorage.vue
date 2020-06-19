@@ -315,6 +315,7 @@ export default {
     },
     onFormatButtonClicked() {
       this.formatUSBDevice();
+      this.currentDirectory = '.';
     },
     clearFiles() {
       this.$refs['file-input'].reset();

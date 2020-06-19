@@ -8,7 +8,7 @@ const ServerConfig = {
   LoggerCallerModuleDepth: 3,
 
   // PosixUSBUtility
-  MountPoint: '/media/pi/REDCONMOUNTPOINT',
+  MountPoint: '/media/REDCONMOUNTPOINT',
 };
 
 module.exports = ServerConfig;
