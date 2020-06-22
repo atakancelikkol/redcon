@@ -19,7 +19,7 @@ describe('Win32USBUtility test', () => {
     const mountPath = 'testPath';
     win32USBtility.extractUsbState(mountPath).then((platformUsbState) => {
       expect(platformUsbState).toStrictEqual({
-        device: '', isAvailable: true, mountedPath: 'testPat', usbErrorString: '', usbName: 'a2',
+        device: '', isAvailable: true, mountedPath: 'testPath', usbErrorString: '', usbName: 'a2',
       });
       done();
     }, () => {

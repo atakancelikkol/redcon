@@ -148,7 +148,6 @@ class USBController extends ControllerBase {
         const { device } = driveList[index];
         const labelName = driveList[index].mountpoints[0].label;
         const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, labelName, device); // eslint-disable-line
-        this.usbState.partition = await this.platformObjects.getUSBUtility().getPartitionName(mountPath, platformUsbState.isAvailable); // eslint-disable-line
         this.usbState.usbErrorString = platformUsbState.usbErrorString;
         this.usbState.device = platformUsbState.device;
         this.usbState.usbName = platformUsbState.usbName;

@@ -22,6 +22,14 @@ class IUSBUtility {
   ejectUSBDriveSafely() {
     throw new Error('ejectUSBDriveSafely() not implemented');
   }
+
+  /**
+   * formatUSBDrive
+   * formats usb drive
+   */
+  formatUSBDrive() {
+    throw new Error('formatUSBDrive() not implemented');
+  }
 }
 
 module.exports = IUSBUtility;
