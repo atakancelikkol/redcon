@@ -147,7 +147,7 @@ describe('USBController Usb Flash Operations', () => {
   test('formatUsbDevice if is available', async () => {
     usbController.usbState.isAvailable = true;
     const formatUSBDriveSpy = jest.spyOn(usbUtility, 'formatUSBDrive');
-    tempListUsbDeviceItems = usbController.listUsbDeviceItems;
+    const tempListUsbDeviceItems = usbController.listUsbDeviceItems;
     usbController.listUsbDeviceItems = jest.fn();
     await usbController.formatUsbDevice();
     expect(formatUSBDriveSpy).toBeCalled();
@@ -158,7 +158,7 @@ describe('USBController Usb Flash Operations', () => {
   test('formatUsbDevice if usb is not available', async () => {
     usbController.usbState.isAvailable = false;
     const formatUSBDriveSpy = jest.spyOn(usbUtility, 'formatUSBDrive');
-    tempListUsbDeviceItems = usbController.listUsbDeviceItems;
+    const tempListUsbDeviceItems = usbController.listUsbDeviceItems;
     usbController.listUsbDeviceItems = jest.fn();
     await usbController.formatUsbDevice();
     expect(formatUSBDriveSpy).not.toBeCalled();
@@ -583,7 +583,7 @@ describe('USBController', () => {
     usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 
-    obj = { usb: { action: 'formatUsbDevice'} };
+    obj = { usb: { action: 'formatUsbDevice' } };
     usbControllerMsgHandler.formatUsbDevice = mocktfunc;
     usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
