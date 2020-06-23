@@ -125,9 +125,9 @@ class USBUtility {
     return diskPartFileContentLines.join(EOL);
   }
 
-  editDiskpartFileContent(usbState, newDiskParFileContent) {
+  editDiskpartFileContent(usbState, newDiskPartFileContent) {
     return new Promise((resolve, reject) => {
-      fs.writeFile('..\\scripts\\win32\\diskpart.txt', newDiskParFileContent, (err) => {
+      fs.writeFile('..\\scripts\\win32\\diskpart.txt', newDiskPartFileContent, (err) => {
         if (err) {
           usbState.usbErrorString = `${err.message} Cant editDiskpartFileContent`; // eslint-disable-line no-param-reassign
           reject();
