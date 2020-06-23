@@ -8,10 +8,10 @@ const ServerConfig = {
   LoggerCallerModuleDepth: 3,
 
   // PosixUSBUtility
-  MountPoint: '/media/REDCONMOUNTPOINT',
+  USBMountPoint: '/media/REDCONMOUNTPOINT',
 
   // Win32USBUtility
-  LabelName: 'REDCON',
+  USBLabelName: 'REDCON',
 };
 
 module.exports = ServerConfig;

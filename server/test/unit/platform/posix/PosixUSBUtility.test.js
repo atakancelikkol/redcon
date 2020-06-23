@@ -273,9 +273,11 @@ describe('PosixUSBUtility test', () => {
       usbErrorString: '',
     };
     const tempcreateMountPointForSelectedPartition = posixUSBtility.createMountPointForSelectedPartition;
-    posixUSBtility.createMountPointForSelectedPartition = jest.fn();
+    posixUSBtility.createMountPointForSelectedPartition = () => new Promise((resolve) => {
+      resolve();
+    });
     posixUSBtility.mountSelectedPartition(usbState).then(() => {
-      expect(usbState.mountedPath).toBe(ServerConfig.MountPoint);
+      expect(usbState.mountedPath).toBe(ServerConfig.USBMountPoint);
       done();
     }, () => {
       throw new Error();

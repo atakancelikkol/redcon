@@ -275,7 +275,7 @@ describe('Win32USBUtility test', () => {
     };
     const usbVolumeToBeFormatted = 'mockValue';
     const fileContent = win32USBtility.setNewFileContentToDiskpartFile(usbState, usbVolumeToBeFormatted);
-    expect(fileContent).toBe(`select volume mockValue${EOL}format fs=fat32 quick label=${ServerConfig.LabelName}${EOL}exit`);
+    expect(fileContent).toBe(`select volume mockValue${EOL}format fs=fat32 quick label=${ServerConfig.USBLabelName}${EOL}exit`);
   });
 
   test('editDiskpartFileContent err', () => new Promise((done) => { // eslint-disable-line
@@ -343,7 +343,7 @@ describe('Win32USBUtility test', () => {
       usbName: '',
     };
     win32USBtility.runEditedDiskpartFile(usbState).then(() => {
-      expect(usbState.usbName).toBe(ServerConfig.LabelName);
+      expect(usbState.usbName).toBe(ServerConfig.USBLabelName);
       done();
     }, () => {
       throw new Error();

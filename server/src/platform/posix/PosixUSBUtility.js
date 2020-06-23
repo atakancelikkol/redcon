@@ -1,4 +1,3 @@
-/* eslint-disable no-async-promise-executor */
 const { exec } = require('child_process');
 const logger = require('../../util/Logger');
 const ServerConfig = require('../../ServerConfig');
@@ -50,7 +49,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`sudo sync ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
+      exec(`sync ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           usbState.usbErrorString = `${err.message} Cant syncUsbDeviceLinux`; // eslint-disable-line no-param-reassign
           reject();
@@ -69,7 +68,7 @@ class USBUtility {
         return;
       }
       this.unmountAllPartitionsOfTheDevice(usbState).then(() => {
-        exec(`sudo eject ${usbState.device}`, (err/* , stdout, stderr */) => {
+        exec(`eject ${usbState.device}`, (err/* , stdout, stderr */) => {
           if (err) { // Handle error
             usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyLinux`; // eslint-disable-line no-param-reassign
             reject();
@@ -78,6 +77,8 @@ class USBUtility {
           logger.info('ejected usb drive');
           resolve();
         });
+      }).catch((err) => {
+        logger.error(err);
       });
     });
   }
@@ -88,7 +89,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`sudo umount ${usbState.device}?*`, (err/* , stdout, stderr */) => {
+      exec(`umount ${usbState.device}?*`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           usbState.usbErrorString = `${err.message} Cant unmountAllPartitionsOfTheDevice`; // eslint-disable-line no-param-reassign
           reject();
@@ -106,7 +107,7 @@ class USBUtility {
         resolve();
         return;
       }
-      exec(`sudo umount ${this.partition}`, (err/* , stdout, stderr */) => {
+      exec(`umount ${this.partition}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           usbState.usbErrorString = `${err.message} Cant unmountUSBDriveLinux`; // eslint-disable-line no-param-reassign
           reject();
@@ -119,28 +120,31 @@ class USBUtility {
   }
 
   mountSelectedPartition(usbState) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       //  if (!usbState.isAvailable) {
       //  resolve();
       //  return;
       //  }
-      await this.createMountPointForSelectedPartition(usbState);
-      exec(`sudo mount ${this.partition} ${ServerConfig.MountPoint}`, (err/* , stdout, stderr */) => {
-        if (err) { // Handle error
-          usbState.usbErrorString = `${err.message} Cant mountSelectedPartition`; // eslint-disable-line no-param-reassign
-          reject();
-          return;
-        }
-        usbState.mountedPath = ServerConfig.MountPoint; // eslint-disable-line no-param-reassign
-        logger.info('mounted usb drive to the mount point');
-        resolve();
+      this.createMountPointForSelectedPartition(usbState).then(() => {
+        exec(`mount ${this.partition} ${ServerConfig.USBMountPoint}`, (err/* , stdout, stderr */) => {
+          if (err) { // Handle error
+            usbState.usbErrorString = `${err.message} Cant mountSelectedPartition`; // eslint-disable-line no-param-reassign
+            reject();
+            return;
+          }
+          usbState.mountedPath = ServerConfig.USBMountPoint; // eslint-disable-line no-param-reassign
+          logger.info('mounted usb drive to the mount point');
+          resolve();
+        });
+      }).catch((err) => {
+        logger.error(err);
       });
     });
   }
 
   createMountPointForSelectedPartition(usbState) {
     return new Promise((resolve, reject) => {
-      exec(`sudo mkdir -p ${ServerConfig.MountPoint}`, (err/* , stdout, stderr */) => {
+      exec(`mkdir -p ${ServerConfig.USBMountPoint}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           usbState.usbErrorString = `${err.message} Cant createMountPointForSelectedPartition`; // eslint-disable-line no-param-reassign
           reject();
@@ -153,12 +157,12 @@ class USBUtility {
   }
 
   formatSelectedPartition(usbState) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (!usbState.isAvailable) {
         resolve();
         return;
       }
-      exec(`sudo mkfs -t vfat -n ${usbState.usbName} ${this.partition}`, (err/* , stdout, stderr */) => {
+      exec(`mkfs -t vfat -n ${usbState.usbName} ${this.partition}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
           usbState.usbErrorString = `${err.message} Cant formatSelectedPartition`; // eslint-disable-line no-param-reassign
           reject();

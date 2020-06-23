@@ -125,7 +125,7 @@ class USBUtility {
     }
     const diskPartFileContentLines = [];
     diskPartFileContentLines.push(`select volume ${usbVolumeToBeFormatted}`);
-    diskPartFileContentLines.push(`format fs=fat32 quick label=${ServerConfig.LabelName}`);
+    diskPartFileContentLines.push(`format fs=fat32 quick label=${ServerConfig.USBLabelName}`);
     diskPartFileContentLines.push('exit');
     return diskPartFileContentLines.join(EOL);
   }
@@ -156,7 +156,7 @@ class USBUtility {
           return;
         }
         // logger.debug(stdout);
-        usbState.usbName = ServerConfig.LabelName; // eslint-disable-line no-param-reassign
+        usbState.usbName = ServerConfig.USBLabelName; // eslint-disable-line no-param-reassign
         logger.info('formatted usb drive');
         resolve();
       });
