@@ -26,10 +26,15 @@ describe('Win32USBUtility test', () => {
     mockExecErrorParameter = undefined;
     mockexecStdOutParameter = `a1${EOL} a2${EOL} a3`;
     const win32USBtility = new Win32USBUtility();
-    const mountPath = 'testPath';
-    win32USBtility.extractUsbState(mountPath).then((platformUsbState) => {
+    const mockDriveListIndex = {
+      mountpoints: [{
+        path: 'mockMountPoint',
+      }],
+      device: 'mockDevice',
+    };
+    win32USBtility.extractUsbState(mockDriveListIndex).then((platformUsbState) => {
       expect(platformUsbState).toStrictEqual({
-        device: '', isAvailable: true, mountedPath: 'testPath', usbErrorString: '', usbName: 'a2',
+        device: 'mockDevice', isAvailable: true, mountedPath: 'mockMountPoint', usbErrorString: '', usbName: 'a2',
       });
       done();
     }, () => {

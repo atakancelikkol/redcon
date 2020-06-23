@@ -5,31 +5,35 @@ const logger = require('../../util/Logger');
 const ServerConfig = require('../../ServerConfig');
 
 class USBUtility {
-  extractUsbState(mountPath) {
+  extractUsbState(driveListIndex) {
     return new Promise((resolve, reject) => {
       let platformUsbState;
+      const mountPath = driveListIndex.mountpoints[0].path;
       /* Output= D: for windows */
       const mountPathSubStringToExtractVolumeName = mountPath.slice(0, -1); // eslint-disable-line
       exec(`wmic logicaldisk where "deviceid='${mountPathSubStringToExtractVolumeName}'" get volumename`, (err, stdout/* , stderr */) => {
         if (err) { // Handle error
+          logger.info('here!!!');
           platformUsbState = { usbErrorString: `${err.message}Cant extractUsbStateWin32` };
           reject(platformUsbState);
           return;
         }
         const usbName = stdout;
+        logger.info(usbName);
         if (!usbName) {
           reject();
           return;
         }
 
         const splittedUsbName = usbName.toString().split('\n');
+        logger.info(splittedUsbName);
         if (splittedUsbName.length < 2) {
           reject();
           return;
         }
 
         platformUsbState = {
-          device: '',
+          device: driveListIndex.device,
           usbName: splittedUsbName[1].trim(),
           mountedPath: mountPath,
           isAvailable: true,

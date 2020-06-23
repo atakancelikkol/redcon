@@ -8,12 +8,12 @@ class USBUtility {
     this.partition = '';
   }
 
-  extractUsbState(mountPath, labelName, device) {
+  extractUsbState(driveListIndex) {
     const platformUsbState = {
 
-      device, // For safe eject, device = '/dev/sda' ...
-      mountedPath: mountPath,
-      usbName: labelName,
+      device: driveListIndex.device, // For safe eject, device = '/dev/sda' ...
+      mountedPath: driveListIndex.mountpoints[0].path,
+      usbName: driveListIndex.mountpoints[0].label,
       isAvailable: true,
     };
     return platformUsbState;

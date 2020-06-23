@@ -15,11 +15,15 @@ jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
 describe('PosixUSBUtility test', () => {
   it('tests extractUsbState', () => {
     const posixUSBtility = new PosixUSBUtility();
-    const mountPath = 'testPath';
-    const labelName = 'testName';
-    const device = 'testDevice';
-    expect(posixUSBtility.extractUsbState(mountPath, labelName, device)).toMatchObject({
-      device: 'testDevice', isAvailable: true, mountedPath: 'testPath', usbName: 'testName',
+    const mockDriveListIndex = {
+      mountpoints: [{
+        path: 'mockMountPoint',
+        label: 'mockLabel',
+      }],
+      device: 'mockDevice',
+    };
+    expect(posixUSBtility.extractUsbState(mockDriveListIndex)).toMatchObject({
+      device: 'mockDevice', isAvailable: true, mountedPath: 'mockMountPoint', usbName: 'mockLabel',
     });
   });
 
