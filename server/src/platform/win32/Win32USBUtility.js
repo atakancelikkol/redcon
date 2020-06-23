@@ -13,20 +13,17 @@ class USBUtility {
       const mountPathSubStringToExtractVolumeName = mountPath.slice(0, -1); // eslint-disable-line
       exec(`wmic logicaldisk where "deviceid='${mountPathSubStringToExtractVolumeName}'" get volumename`, (err, stdout/* , stderr */) => {
         if (err) { // Handle error
-          logger.info('here!!!');
           platformUsbState = { usbErrorString: `${err.message}Cant extractUsbStateWin32` };
           reject(platformUsbState);
           return;
         }
         const usbName = stdout;
-        logger.info(usbName);
         if (!usbName) {
           reject();
           return;
         }
 
         const splittedUsbName = usbName.toString().split('\n');
-        logger.info(splittedUsbName);
         if (splittedUsbName.length < 2) {
           reject();
           return;
