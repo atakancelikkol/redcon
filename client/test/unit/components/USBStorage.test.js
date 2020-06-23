@@ -133,6 +133,15 @@ describe('USBStorage', () => {
     wrapper.destroy();
   });
 
+  test('if format USB Device button is clicked, formatUSBDevice should be called ', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonFormat' });
+    await buttonClicked.trigger('click');
+    expect(actions.formatUSBDevice).toHaveBeenCalled();
+    expect(actions.formatUSBDevice).toHaveBeenCalled();
+    wrapper.destroy();
+  });
+
   test(' of mounted listItemsUSBDevice control', () => {
     const wrapper = mount(USBStorage, { store, localVue });
     expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(1);

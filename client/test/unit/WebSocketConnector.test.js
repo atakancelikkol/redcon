@@ -158,6 +158,11 @@ describe('WebSocketConnector', () => {
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"usb":{"action":"detectUsbDevice"}}');
   });
 
+  it('checks sendFormatUSBDeviceMessage', () => {
+    webSocketConnector.sendFormatUSBDeviceMessage();
+    expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"usb":{"action":"formatUsbDevice"}}');
+  });
+
   it('checks sendListItemsUSBDeviceMessage', () => {
     webSocketConnector.sendListItemsUSBDeviceMessage({ path: 'test_path' });
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"usb":{"action":"listItems","path":"test_path"}}');

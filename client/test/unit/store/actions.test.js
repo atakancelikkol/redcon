@@ -61,6 +61,12 @@ describe('store actions', () => {
     expect(webSocketConnector.sendDetectUSBDeviceMessage).toHaveBeenCalled();
   });
 
+  it('format USB device should call proper function', () => {
+    const mockCommit = jest.fn().mockName('mockCommit');
+    actions.formatUSBDevice({ commit: mockCommit });
+    expect(webSocketConnector.sendFormatUSBDeviceMessage).toHaveBeenCalled();
+  });
+
   it('list items USB device should call proper function', () => {
     const mockCommit = jest.fn().mockName('mockCommit');
     actions.listItemsUSBDevice({ commit: mockCommit }, { path: 'test_path' });
