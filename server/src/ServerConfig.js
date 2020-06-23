@@ -9,6 +9,9 @@ const ServerConfig = {
 
   // PosixUSBUtility
   MountPoint: '/media/REDCONMOUNTPOINT',
+
+  // Win32USBUtility
+  LabelName: 'REDCON',
 };
 
 module.exports = ServerConfig;

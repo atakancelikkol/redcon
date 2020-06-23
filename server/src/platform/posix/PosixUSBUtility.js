@@ -131,6 +131,7 @@ class USBUtility {
           reject();
           return;
         }
+        usbState.mountedPath = ServerConfig.MountPoint; // eslint-disable-line no-param-reassign
         logger.info('mounted usb drive to the mount point');
         resolve();
       });
@@ -145,7 +146,6 @@ class USBUtility {
           reject();
           return;
         }
-        usbState.mountedPath = ServerConfig.MountPoint; // eslint-disable-line no-param-reassign
         logger.info('created Mount Point');
         resolve();
       });

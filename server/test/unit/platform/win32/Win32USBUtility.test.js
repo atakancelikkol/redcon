@@ -1,5 +1,6 @@
 const { EOL } = require('os');
 const Win32USBUtility = require('../../../../src/platform/win32/Win32USBUtility');
+const ServerConfig = require('../../../../src/ServerConfig');
 
 let mockExecErrorParameter = true;
 let mockexecStdOutParameter = `a1${EOL} a2${EOL} a3`;
@@ -251,11 +252,10 @@ describe('Win32USBUtility test', () => {
     const win32USBtility = new Win32USBUtility();
     const usbState = {
       isAvailable: true,
-      usbName: 'mockName',
     };
     const usbVolumeToBeFormatted = 'mockValue';
     const fileContent = win32USBtility.setNewFileContentToDiskpartFile(usbState, usbVolumeToBeFormatted);
-    expect(fileContent).toBe(`select volume mockValue${EOL}format fs=fat32 quick label=mockName${EOL}exit`);
+    expect(fileContent).toBe(`select volume mockValue${EOL}format fs=fat32 quick label=${ServerConfig.LabelName}${EOL}exit`);
   });
 
   test('editDiskpartFileContent err', () => new Promise((done) => { // eslint-disable-line

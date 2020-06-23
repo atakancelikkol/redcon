@@ -265,11 +265,13 @@ describe('PosixUSBUtility test', () => {
     const posixUSBtility = new PosixUSBUtility();
     mockExecErrorParameter = undefined;
     const usbState = {
+      mountedPath: '',
       usbErrorString: '',
     };
     const tempcreateMountPointForSelectedPartition = posixUSBtility.createMountPointForSelectedPartition;
     posixUSBtility.createMountPointForSelectedPartition = jest.fn();
     posixUSBtility.mountSelectedPartition(usbState).then(() => {
+      expect(usbState.mountedPath).toBe(ServerConfig.MountPoint);
       done();
     }, () => {
       throw new Error();
@@ -298,10 +300,8 @@ describe('PosixUSBUtility test', () => {
     mockExecErrorParameter = undefined;
     const usbState = {
       usbErrorString: '',
-      mountedPath: '',
     };
     posixUSBtility.createMountPointForSelectedPartition(usbState).then(() => {
-      expect(usbState.mountedPath).toBe(ServerConfig.MountPoint);
       done();
     }, () => {
       throw new Error();

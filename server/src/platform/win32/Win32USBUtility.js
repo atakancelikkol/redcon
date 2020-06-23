@@ -2,6 +2,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const { EOL } = require('os');
 const logger = require('../../util/Logger');
+const ServerConfig = require('../../ServerConfig');
 
 class USBUtility {
   extractUsbState(mountPath) {
@@ -120,7 +121,7 @@ class USBUtility {
     }
     const diskPartFileContentLines = [];
     diskPartFileContentLines.push(`select volume ${usbVolumeToBeFormatted}`);
-    diskPartFileContentLines.push(`format fs=fat32 quick label=${usbState.usbName}`);
+    diskPartFileContentLines.push(`format fs=fat32 quick label=${ServerConfig.LabelName}`);
     diskPartFileContentLines.push('exit');
     return diskPartFileContentLines.join(EOL);
   }
@@ -151,6 +152,7 @@ class USBUtility {
           return;
         }
         // logger.debug(stdout);
+        usbState.usbName = ServerConfig.LabelName; // eslint-disable-line no-param-reassign
         logger.info('formatted usb drive');
         resolve();
       });
