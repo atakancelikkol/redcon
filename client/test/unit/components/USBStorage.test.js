@@ -20,6 +20,7 @@ describe('USBStorage', () => {
       actions, state,
     });
     jest.resetAllMocks();
+    state.receivedData.usb = undefined;
   });
 
   test('default values', () => {
@@ -63,13 +64,15 @@ describe('USBStorage', () => {
 
   test('computed ecuLedState', () => {
     const wrapper = mount(USBStorage, { store, localVue });
-    expect(wrapper.vm.ecuLedState).toEqual(state.receivedData.usb.kvmLedStateECU);
+    state.receivedData.usb = { kvmLedStateECU: false };
+    expect(wrapper.vm.ecuLedState).toEqual(false);
     wrapper.destroy();
   });
 
   test('computed rpiLedState', () => {
     const wrapper = mount(USBStorage, { store, localVue });
-    expect(wrapper.vm.rpiLedState).toEqual(state.receivedData.usb.rpiLedState);
+    state.receivedData.usb = { kvmLedStateRPI: false };
+    expect(wrapper.vm.rpiLedState).toEqual(false);
     wrapper.destroy();
   });
 

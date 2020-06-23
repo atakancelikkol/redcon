@@ -79,21 +79,6 @@ class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
-  sendFetchPortMappingConfigurationMessage() {
-    const obj = { portconfig: { action: 'readConfigFile' } };
-    this.connectionSocket.send(JSON.stringify(obj));
-  }
-
-  sendSetPortMappingConfigurationMessage({ configContents }) {
-    const obj = { portconfig: { action: 'setConfigFile', configContents } };
-    this.connectionSocket.send(JSON.stringify(obj));
-  }
-
-  sendResetPortMappingConfigurationMessage() {
-    const obj = { portconfig: { action: 'resetConfigFile' } };
-    this.connectionSocket.send(JSON.stringify(obj));
-  }
-
   sendOpenSerialDeviceMessage({ devicePath, baudRate }) {
     const obj = { serial: { action: 'openDevice', path: devicePath, baudRate } };
     this.connectionSocket.send(JSON.stringify(obj));
@@ -172,6 +157,51 @@ class WebSocketConnector {
 
   sendRebootDeviceMessage() {
     const obj = { utility: { action: 'reboot' } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendUpdateNetworkInterfaceConfigurationMessage(configuration) {
+    const obj = { networkConfig: { action: 'updateNetworkInterfaceConfiguration', configuration } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendAddUdpExtToIntNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'addUdpExtToIntNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendRemoveUdpExtToIntNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'removeUdpExtToIntNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendAddUdpIntToExtNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'addUdpIntToExtNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendRemoveUdpIntToExtNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'removeUdpIntToExtNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendAddTcpExtToIntNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'addTcpExtToIntNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendRemoveTcpExtToIntNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'removeTcpExtToIntNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendAddTcpIntToExtNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'addTcpIntToExtNetworkRule', rule } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
+  sendRemoveTcpIntToExtNetworkRuleMessage(rule) {
+    const obj = { networkConfig: { action: 'removeTcpIntToExtNetworkRule', rule } };
     this.connectionSocket.send(JSON.stringify(obj));
   }
 }
