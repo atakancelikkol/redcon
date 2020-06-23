@@ -137,7 +137,22 @@ describe('USBStorage', () => {
     const wrapper = mount(USBStorage, { store, localVue });
     const buttonClicked = wrapper.findComponent({ ref: 'buttonFormat' });
     await buttonClicked.trigger('click');
-    expect(actions.formatUSBDevice).toHaveBeenCalled();
+
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+
+    const modal = document.querySelector('#formatUSBDeviceModalConfirmation');
+    expect(modal).toBeDefined();
+    const $modal = createWrapper(modal);
+
+    const buttonDanger = $modal.find('.modal-content .btn-danger');
+    expect(buttonDanger.text()).toBe('YES');
+    await buttonDanger.trigger('click');
+
     expect(actions.formatUSBDevice).toHaveBeenCalled();
     wrapper.destroy();
   });
@@ -239,15 +254,6 @@ describe('USBStorage', () => {
     await waitNT(wrapper.vm);
     await buttonClicked.trigger('click');
     expect(wrapper.vm.showUploadError).toBeTruthy();
-    // success
-    wrapper.vm.showUploadError = true;
-    state.receivedData.usb = { isAvailable: true };
-    //
-    const file = new File([''], 'fileName');
-    wrapper.vm.selectedFiles = [file];
-    await waitNT(wrapper.vm);
-    await buttonClicked.trigger('click');
-    expect(wrapper.vm.showUploadError).toBeFalsy();
     wrapper.destroy();
   });
 

@@ -15,7 +15,7 @@
 
         <b-button
           ref="buttonFormat"
-          variant="outline-primary"
+          variant="danger"
           style="margin-left: 10px"
           @click="onFormatButtonClicked"
         >
@@ -314,8 +314,29 @@ export default {
       this.detectUSBDevice();
     },
     onFormatButtonClicked() {
-      this.formatUSBDevice();
-      this.currentDirectory = '.';
+      this.$bvModal
+        .msgBoxConfirm(
+          'Please confirm that you want to format USB Device.',
+          {
+            id: 'formatUSBDeviceModalConfirmation',
+            title: 'Please Confirm',
+            size: 'sm',
+            buttonSize: 'sm',
+            okVariant: 'danger',
+            okTitle: 'YES',
+            cancelTitle: 'NO',
+            footerClass: 'p-2',
+            hideHeaderClose: false,
+            centered: true,
+          },
+        )
+        .then(() => {
+          this.formatUSBDevice();
+          this.currentDirectory = '.';
+        })
+        .catch((err) => {
+          logger.error(err);
+        });
     },
     clearFiles() {
       this.$refs['file-input'].reset();
