@@ -2,7 +2,7 @@ const PosixUSBUtility = require('../../../../src/platform/posix/PosixUSBUtility'
 const ServerConfig = require('../../../../src/ServerConfig');
 
 let mockExecErrorParameter = true;
-const mockexecStdOutParameter = 'a1\r\n a2\r\n a3';
+const mockexecStdOutParameter = 'a1\n a2\n a3';
 let execCommandString = ''; // eslint-disable-line
 
 jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
