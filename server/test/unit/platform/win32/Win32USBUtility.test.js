@@ -46,8 +46,13 @@ describe('Win32USBUtility test', () => {
     mockExecErrorParameter = true;
     mockexecStdOutParameter = `a1${EOL} a2${EOL} a3`;
     const win32USBtility = new Win32USBUtility();
-    const mountPath = 'testPath';
-    win32USBtility.extractUsbState(mountPath).then(() => {
+    const mockDriveListIndex = {
+      mountpoints: [{
+        path: 'mockMountPoint',
+      }],
+      device: 'mockDevice',
+    };
+    win32USBtility.extractUsbState(mockDriveListIndex).then(() => {
       throw new Error();
     }, () => {
       done();
@@ -58,8 +63,13 @@ describe('Win32USBUtility test', () => {
     mockExecErrorParameter = undefined;
     mockexecStdOutParameter = undefined;
     const win32USBtility = new Win32USBUtility();
-    const mountPath = 'testPath';
-    win32USBtility.extractUsbState(mountPath).then(() => {
+    const mockDriveListIndex = {
+      mountpoints: [{
+        path: 'mockMountPoint',
+      }],
+      device: 'mockDevice',
+    };
+    win32USBtility.extractUsbState(mockDriveListIndex).then(() => {
       throw new Error();
     }, () => {
       done();
@@ -70,8 +80,13 @@ describe('Win32USBUtility test', () => {
     mockExecErrorParameter = undefined;
     mockexecStdOutParameter = 'invalid';
     const win32USBtility = new Win32USBUtility();
-    const mountPath = 'testPath';
-    win32USBtility.extractUsbState(mountPath).then(() => {
+    const mockDriveListIndex = {
+      mountpoints: [{
+        path: 'mockMountPoint',
+      }],
+      device: 'mockDevice',
+    };
+    win32USBtility.extractUsbState(mockDriveListIndex).then(() => {
       throw new Error();
     }, () => {
       done();
@@ -295,8 +310,9 @@ describe('Win32USBUtility test', () => {
     const usbState = {
       isAvailable: false,
       usbErrorString: '',
+      usbName: '',
     };
-    win32USBtility.editDiskpartFileContent(usbState, 'mockFileContent').then(() => {
+    win32USBtility.runEditedDiskpartFile(usbState).then(() => {
       done();
     }, () => {
       throw new Error();
@@ -309,11 +325,12 @@ describe('Win32USBUtility test', () => {
     const usbState = {
       isAvailable: true,
       usbErrorString: '',
+      usbName: '',
     };
-    win32USBtility.editDiskpartFileContent(usbState, 'mockFileContent').then(() => {
-      done();
-    }, () => {
+    win32USBtility.runEditedDiskpartFile(usbState).then(() => {
       throw new Error();
+    }, () => {
+      done();
     });
   }));
 
@@ -323,8 +340,10 @@ describe('Win32USBUtility test', () => {
     const usbState = {
       isAvailable: true,
       usbErrorString: '',
+      usbName: '',
     };
-    win32USBtility.editDiskpartFileContent(usbState, 'mockFileContent').then(() => {
+    win32USBtility.runEditedDiskpartFile(usbState).then(() => {
+      expect(usbState.usbName).toBe(ServerConfig.LabelName);
       done();
     }, () => {
       throw new Error();
