@@ -116,7 +116,7 @@ describe('USBController Usb Flash Operations', () => {
     expect(usbController.usbState.kvmLedStateECU).toBe(true);
   });
 
-  test('detectDriveChanges', () => new Promise((done) => {
+  test('detectDriveChanges', () => new Promise((done) => { // eslint-disable-line
     usbController.usbState.isAvailable = false;
     usbController.detectDriveChanges().then(() => {
       expect(usbController.usbState.isAvailable).toBe(true);
@@ -126,7 +126,7 @@ describe('USBController Usb Flash Operations', () => {
     });
   }));
 
-  test('detectUsbDevice isDriveFound = true;', async () => {
+  test('detectUsbDevice isDriveFound = true;', async () => { // eslint-disable-line
     const extractUsbStateSpy = jest.spyOn(usbUtility, 'extractUsbState');
     await usbController.detectUsbDevice();
     expect(extractUsbStateSpy).toBeCalled();
@@ -142,6 +142,28 @@ describe('USBController Usb Flash Operations', () => {
     }];
     await usbController.detectUsbDevice();
     expect(usbController.usbState.isAvailable).toBe(false);
+  });
+
+  test('formatUsbDevice if is available', async () => {
+    usbController.usbState.isAvailable = true;
+    const formatUSBDriveSpy = jest.spyOn(usbUtility, 'formatUSBDrive');
+    const tempListUsbDeviceItems = usbController.listUsbDeviceItems;
+    usbController.listUsbDeviceItems = jest.fn();
+    await usbController.formatUsbDevice();
+    expect(formatUSBDriveSpy).toBeCalled();
+    expect(usbController.listUsbDeviceItems).toBeCalled();
+    usbController.listUsbDeviceItems = tempListUsbDeviceItems;
+  });
+
+  test('formatUsbDevice if usb is not available', async () => {
+    usbController.usbState.isAvailable = false;
+    const formatUSBDriveSpy = jest.spyOn(usbUtility, 'formatUSBDrive');
+    const tempListUsbDeviceItems = usbController.listUsbDeviceItems;
+    usbController.listUsbDeviceItems = jest.fn();
+    await usbController.formatUsbDevice();
+    expect(formatUSBDriveSpy).not.toBeCalled();
+    expect(usbController.listUsbDeviceItems).not.toBeCalled();
+    usbController.listUsbDeviceItems = tempListUsbDeviceItems;
   });
 
   test('isSafeToToggleUsbDevice ', () => {
@@ -558,6 +580,11 @@ describe('USBController', () => {
       action: 'createFolder', path: 'testpath', itemName: 'testname',
     } };
     usbControllerMsgHandler.createUsbDeviceFolder = mocktfunc;
+    usbControllerMsgHandler.handleMessage(obj);
+    expect(mocktfunc).toHaveBeenCalled();
+
+    obj = { usb: { action: 'formatUsbDevice' } };
+    usbControllerMsgHandler.formatUsbDevice = mocktfunc;
     usbControllerMsgHandler.handleMessage(obj);
     expect(mocktfunc).toHaveBeenCalled();
 

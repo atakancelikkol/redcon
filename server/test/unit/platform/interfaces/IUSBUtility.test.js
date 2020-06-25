@@ -12,5 +12,8 @@ describe('IUSBUtility interface test', () => {
     expect(() => {
       iUSBUtility.ejectUSBDriveSafely();
     }).toThrow(Error);
+    expect(() => {
+      iUSBUtility.formatUSBDrive();
+    }).toThrow(Error);
   });
 });

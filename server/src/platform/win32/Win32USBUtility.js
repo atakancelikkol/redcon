@@ -1,16 +1,19 @@
 const { exec } = require('child_process');
+const fs = require('fs');
+const { EOL } = require('os');
 const logger = require('../../util/Logger');
+const ServerConfig = require('../../ServerConfig');
 
 class USBUtility {
-  extractUsbState(mountPath) {
+  extractUsbState(driveListIndex) {
     return new Promise((resolve, reject) => {
       let platformUsbState;
+      const mountPath = driveListIndex.mountpoints[0].path;
       /* Output= D: for windows */
-      mountPath = mountPath.slice(0, -1); // eslint-disable-line
-      exec(`wmic logicaldisk where "deviceid='${mountPath}'" get volumename`, (err, stdout/* , stderr */) => {
+      const mountPathSubStringToExtractVolumeName = mountPath.slice(0, -1); // eslint-disable-line
+      exec(`wmic logicaldisk where "deviceid='${mountPathSubStringToExtractVolumeName}'" get volumename`, (err, stdout/* , stderr */) => {
         if (err) { // Handle error
           platformUsbState = { usbErrorString: `${err.message}Cant extractUsbStateWin32` };
-
           reject(platformUsbState);
           return;
         }
@@ -26,9 +29,8 @@ class USBUtility {
           return;
         }
 
-
         platformUsbState = {
-          device: '',
+          device: driveListIndex.device,
           usbName: splittedUsbName[1].trim(),
           mountedPath: mountPath,
           isAvailable: true,
@@ -36,6 +38,44 @@ class USBUtility {
         };
 
         resolve(platformUsbState);
+      });
+    });
+  }
+
+  async formatUSBDrive(usbState) {
+    let usbVolumeToBeFormatted = '';
+    await this.getVolumeNumber(usbState).then((volumeNumber) => {
+      usbVolumeToBeFormatted = volumeNumber;
+    }).catch((err) => {
+      logger.error(err);
+    });
+    const newDiskPartFileContent = this.setNewFileContentToDiskpartFile(usbState, usbVolumeToBeFormatted);
+    await this.editDiskpartFileContent(usbState, newDiskPartFileContent).catch((err) => {
+      logger.error(err);
+    });
+    await this.runEditedDiskpartFile(usbState).catch((err) => {
+      logger.error(err);
+    });
+  }
+
+  getVolumeNumber(usbState) {
+    return new Promise((resolve, reject) => {
+      if (!usbState.isAvailable) {
+        resolve();
+        return;
+      }
+      // It gets the second parameter of the corresponding line which has the usbName
+      exec(`diskpart /s ..\\scripts\\win32\\listvolume.txt | for /f "tokens=2" %a in ('findstr ${usbState.usbName}') do @echo %a`, (err, stdout) => {
+        if (err) { // Handle error
+          const usbErrorString = `${err.message} Cant getVolumeNumber on diskpart listvolume.txt file`;
+          usbState.usbErrorString = usbErrorString; // eslint-disable-line no-param-reassign
+          reject(usbErrorString);
+          return;
+        }
+        // if other lines contain usbName, it gives a stream with eols.
+        // Get rid of these eols and select the first usbNamecontained part
+        const volumeNumber = stdout.split(EOL)[0].trim();
+        resolve(volumeNumber);
       });
     });
   }
@@ -48,8 +88,8 @@ class USBUtility {
       }
       exec(`.\\.\\.\\bin\\win32\\sync -r ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
-          const usbErrorString = `${err.message} Cant syncUsbDeviceWin32`;
-          reject(usbErrorString);
+          usbState.usbErrorString = `${err.message} Cant syncUsbDeviceWin32`; // eslint-disable-line no-param-reassign
+          reject();
           return;
         }
         logger.info('synchronized usb drive');
@@ -66,11 +106,55 @@ class USBUtility {
       }
       exec(`.\\.\\.\\bin\\win32\\sync -e ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
-          const usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`;
-          reject(usbErrorString);
+          usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`; // eslint-disable-line no-param-reassign
+          reject();
           return;
         }
         logger.info('ejected usb drive from windows');
+        resolve();
+      });
+    });
+  }
+
+  setNewFileContentToDiskpartFile(usbState, usbVolumeToBeFormatted) {
+    if (!usbState.isAvailable) {
+      return 'usb is not available!';
+    }
+    const diskPartFileContentLines = [];
+    diskPartFileContentLines.push(`select volume ${usbVolumeToBeFormatted}`);
+    diskPartFileContentLines.push(`format fs=fat32 quick label=${ServerConfig.USBLabelName}`);
+    diskPartFileContentLines.push('exit');
+    return diskPartFileContentLines.join(EOL);
+  }
+
+  editDiskpartFileContent(usbState, newDiskPartFileContent) {
+    return new Promise((resolve, reject) => {
+      fs.writeFile('..\\scripts\\win32\\diskpart.txt', newDiskPartFileContent, (err) => {
+        if (err) {
+          usbState.usbErrorString = `${err.message} Cant editDiskpartFileContent`; // eslint-disable-line no-param-reassign
+          reject();
+          return;
+        }
+        resolve();
+      });
+    });
+  }
+
+  runEditedDiskpartFile(usbState) {
+    return new Promise((resolve, reject) => {
+      if (!usbState.isAvailable) {
+        resolve();
+        return;
+      }
+      exec('diskpart /s ..\\scripts\\win32\\diskpart.txt', (err/* , stdout, stderr */) => {
+        if (err) { // Handle error
+          usbState.usbErrorString = `${err.message} Cant executeEditedDiskpartFile`; // eslint-disable-line no-param-reassign
+          reject();
+          return;
+        }
+        // logger.debug(stdout);
+        usbState.usbName = ServerConfig.USBLabelName; // eslint-disable-line no-param-reassign
+        logger.info('formatted usb drive');
         resolve();
       });
     });

@@ -105,6 +105,8 @@ class USBController extends ControllerBase {
         this.getItemInfo(obj.usb.path, obj.usb.itemName);
       } else if (obj.usb.action === 'createFolder') {
         this.createUsbDeviceFolder(obj.usb.path, obj.usb.folderName);
+      } else if (obj.usb.action === 'formatUsbDevice') {
+        this.formatUsbDevice();
       }
     }
   }
@@ -141,10 +143,8 @@ class USBController extends ControllerBase {
     let isDriveFound = false;
     for (let index = 0; index < driveList.length; index += 1) {
       if (driveList[index].isUSB && driveList[index].mountpoints && (typeof driveList[index].mountpoints[0] !== 'undefined')) {
-        const mountPath = driveList[index].mountpoints[0].path; // Output= D:\ for windows. For now its mountpoints[0], since does not matter if it has 2 mount points
-        const { device } = driveList[index];
-        const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(mountPath, device); // eslint-disable-line
-        this.usbState.usbErrorStrin = platformUsbState.usbErrorStrin;
+        const platformUsbState = await this.platformObjects.getUSBUtility().extractUsbState(driveList[index]); // eslint-disable-line
+        this.usbState.usbErrorString = platformUsbState.usbErrorString;
         this.usbState.device = platformUsbState.device;
         this.usbState.usbName = platformUsbState.usbName;
         this.usbState.mountedPath = platformUsbState.mountedPath;
@@ -371,6 +371,16 @@ class USBController extends ControllerBase {
       this.listUsbDeviceItems(path);
       resolve();
     });
+  }
+
+  async formatUsbDevice() {
+    if (!this.usbState.isAvailable) {
+      return;
+    }
+
+    await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState);
+    logger.debug('mountedPath:', this.usbState.mountedPath);
+    this.listUsbDeviceItems('');
   }
 
   toggleUsbDevice() {

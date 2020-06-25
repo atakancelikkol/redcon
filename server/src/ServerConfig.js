@@ -6,6 +6,12 @@ const ServerConfig = {
   LoggerLevel: 'debug', // importance: error > warning > info > verbose > debug > silly
   LoggerMaxFileSize: undefined, // units of bytes
   LoggerCallerModuleDepth: 3,
+
+  // PosixUSBUtility
+  USBMountPoint: '/media/REDCONMOUNTPOINT',
+
+  // Win32USBUtility
+  USBLabelName: 'REDCON',
 };
 
 module.exports = ServerConfig;

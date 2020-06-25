@@ -136,6 +136,30 @@ describe('USBStorage', () => {
     wrapper.destroy();
   });
 
+  test('if format USB Device button is clicked, formatUSBDevice should be called ', async () => {
+    const wrapper = mount(USBStorage, { store, localVue });
+    const buttonClicked = wrapper.findComponent({ ref: 'buttonFormat' });
+    await buttonClicked.trigger('click');
+
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+    await waitNT(wrapper.vm);
+    await waitRAF();
+
+    const modal = document.querySelector('#formatUSBDeviceModalConfirmation');
+    expect(modal).toBeDefined();
+    const $modal = createWrapper(modal);
+
+    const buttonDanger = $modal.find('.modal-content .btn-danger');
+    expect(buttonDanger.text()).toBe('YES');
+    await buttonDanger.trigger('click');
+
+    expect(actions.formatUSBDevice).toHaveBeenCalled();
+    wrapper.destroy();
+  });
+
   test(' of mounted listItemsUSBDevice control', () => {
     const wrapper = mount(USBStorage, { store, localVue });
     expect(actions.listItemsUSBDevice).toHaveBeenCalledTimes(1);

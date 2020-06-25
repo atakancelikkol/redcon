@@ -150,6 +150,11 @@ class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
+  sendFormatUSBDeviceMessage() {
+    const obj = { usb: { action: 'formatUsbDevice' } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
   sendRebootDeviceMessage() {
     const obj = { utility: { action: 'reboot' } };
     this.connectionSocket.send(JSON.stringify(obj));

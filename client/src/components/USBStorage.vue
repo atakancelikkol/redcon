@@ -10,7 +10,16 @@
           variant="outline-primary"
           @click="onDetectButtonClicked"
         >
-          Detect USB Devices
+          Detect USB Device
+        </b-button>
+
+        <b-button
+          ref="buttonFormat"
+          variant="danger"
+          style="margin-left: 10px"
+          @click="onFormatButtonClicked"
+        >
+          Format USB Device
         </b-button>
 
         <b-button
@@ -296,12 +305,38 @@ export default {
       'deleteItemUSBDevice',
       'getItemInfoUSBDevice',
       'createFolderUSBDevice',
+      'formatUSBDevice',
     ]),
     onToggleButtonClicked() {
       this.toggleUSBPort();
     },
     onDetectButtonClicked() {
       this.detectUSBDevice();
+    },
+    onFormatButtonClicked() {
+      this.$bvModal
+        .msgBoxConfirm(
+          'Please confirm that you want to format USB Device.',
+          {
+            id: 'formatUSBDeviceModalConfirmation',
+            title: 'Please Confirm',
+            size: 'sm',
+            buttonSize: 'sm',
+            okVariant: 'danger',
+            okTitle: 'YES',
+            cancelTitle: 'NO',
+            footerClass: 'p-2',
+            hideHeaderClose: false,
+            centered: true,
+          },
+        )
+        .then(() => {
+          this.formatUSBDevice();
+          this.currentDirectory = '.';
+        })
+        .catch((err) => {
+          logger.error(err);
+        });
     },
     clearFiles() {
       this.$refs['file-input'].reset();
