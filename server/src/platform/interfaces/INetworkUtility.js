@@ -1,12 +1,8 @@
 class INetworkUtility {
   /**
-   * applyPortConfiguration
-   * runs port forwarding script
+   * applyNetworkConfiguration
+   * applies network configuration
    */
-  applyPortConfiguration() {
-    throw new Error('applyPortConfiguration() not implemented');
-  }
-
   async applyNetworkConfiguration(config) {
     throw new Error('applyNetworkConfiguration() not implemented', config);
   }

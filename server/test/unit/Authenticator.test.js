@@ -17,7 +17,7 @@ describe('Authenticator', () => {
       authenticator.registerSendMessageCallback((h, o) => {
         sentObject = o;
       });
-      const obj = { portconfig: { action: 'readConfigFile' } };
+      const obj = { serial: { action: 'openDevice' } };
       const client = {
         id: '0d1ad828-5a6f-45cb-ba3e-f3cbec980125',
         ip: '::ffff:127.0.0.1',
@@ -47,7 +47,7 @@ describe('Authenticator', () => {
       authenticator.registerSendMessageCallback((h, o) => {
         sentObject = o;
       });
-      const obj = { portconfig: { action: 'readConfigFile' } };
+      const obj = { serial: { action: 'openDevice' } };
       const client = {
         id: '0d1ad828-5a6f-45cb-ba3e-f3cbec980125',
         ip: '::ffff:127.0.0.1',

@@ -3,7 +3,6 @@ const GPIOController = require('./GPIOController');
 const USBController = require('./USBController');
 const HttpServer = require('./HttpServer');
 const SerialPortController = require('./SerialPortController');
-const PortConfigController = require('./PortConfigController');
 const UtilityDataHandler = require('./UtilityDataHandler');
 const Authenticator = require('./Authenticator');
 const NetworkConfigController = require('./NetworkConfigController');
@@ -21,7 +20,6 @@ class Server {
     this.usbController = new USBController();
     this.controllers.push(this.usbController);
     this.controllers.push(new SerialPortController());
-    this.controllers.push(new PortConfigController());
     this.controllers.push(new UtilityDataHandler());
     this.controllers.push(new NetworkConfigController());
 

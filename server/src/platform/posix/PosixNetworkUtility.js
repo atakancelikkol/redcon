@@ -10,22 +10,6 @@ const execPromise = (command) => new Promise((resolve) => {
 });
 
 class PosixNetworkUtility extends INetworkUtility {
-  applyPortConfiguration() {
-    return new Promise((resolve) => {
-      const platformPortConfig = {
-        shellOutput: '',
-        shellError: '',
-      };
-      exec('cd ../scripts/port_forwarding/ && ./port_forward.sh', (error, stdout, stderr) => {
-        platformPortConfig.shellOutput = stdout;
-        platformPortConfig.shellError = stderr;
-        logger.info(error, stdout, stderr);
-        resolve(platformPortConfig);
-      });
-    });
-  }
-
-
   async applyNetworkConfiguration(config) {
     logger.info('applying configuration!', config);
     const status = IPTableRuleGenerator.generateScript(config);

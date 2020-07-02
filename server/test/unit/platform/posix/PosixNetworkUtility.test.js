@@ -1,4 +1,3 @@
-const { exec } = require('child_process');
 const PosixNetworkUtility = require('../../../../src/platform/posix/PosixNetworkUtility');
 const DefaultData = require('../../../../src/dataStorage/DefaultData');
 
@@ -19,18 +18,6 @@ jest.mock('child_process', () => ({ exec: jest.fn((commandString, callback) => {
 }) }));
 
 describe('PosixNetworkUtility test', () => {
-  test('exec should called once', () => new Promise((done) => {
-    const posixNetworkUtility = new PosixNetworkUtility();
-    posixNetworkUtility.applyPortConfiguration().then((platformPortConfig) => {
-      expect(platformPortConfig).toStrictEqual({
-        shellError: 'testStdError', shellOutput: 'testStdOut',
-      });
-      done();
-    });
-
-    expect(exec.mock.calls[0][0]).toBe(execCommandString);
-  }));
-
   test('applyNetworkConfiguration wrong configuration', async () => {
     execCommandString = '';
     const posixNetworkUtility = new PosixNetworkUtility();
