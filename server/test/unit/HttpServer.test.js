@@ -121,12 +121,18 @@ describe('HttpServer ', () => {
     it('tests sending initial message', () => {
       const testObject = { testMember: 'test' };
       const controllers = [];
-      const mockController = {appendData: (obj) => { obj.testMember = 'test'; }}; // eslint-disable-line      
+      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
+      const mockController = {appendData: (obj) => { obj.testMember = 'test'; },isAuthRequired: () => true}; // eslint-disable-line      
+      const mockClient = {
+        connection: mockConnection,
+        isAuthenticated: () => true,
+        id: 'sendInitialMessageId',
+        getId: () => mockClient.id,
+      };
       controllers.push(mockController);
       const httpServer = new HttpServer({ controllers });
       let sendObject;
-      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      const mockClient = { connection: mockConnection };
+      
       httpServer.sendInitialMessage(mockClient);
       expect(sendObject).toStrictEqual(JSON.stringify(testObject));
     });
