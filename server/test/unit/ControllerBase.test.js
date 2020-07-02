@@ -1,9 +1,7 @@
 const ControllerBase = require('../../src/ControllerBase');
-const PlatformObjects = require('../../src/platform/PlatformObjects');
-const DataStorage = require('../../src/dataStorage/LowDBDataStorage');
-const HttpServer = require('../../src/HttpServer');
 
 const controllerBase = new ControllerBase('testName');
+const obj = {};
 
 describe('ControllerBase', () => {
   it('Constructor', () => {
@@ -14,25 +12,20 @@ describe('ControllerBase', () => {
   });
 
   it('registerSendMessageCallback', () => {
-    const controllers = [];
-    const httpServer = new HttpServer({ controllers });
-    const callback = httpServer.sendToAllClients.bind(httpServer);
-    controllerBase.registerSendMessageCallback(callback);
-    expect(controllerBase.sendMessageCallback).toBe(callback);
+    controllerBase.registerSendMessageCallback(obj);
+    expect(controllerBase.sendMessageCallback).toBe(obj);
   });
 
   it('registerPlatformObjects', () => {
-    const platformObjects = new PlatformObjects();
-    controllerBase.registerPlatformObjects(platformObjects);
-    expect(controllerBase.platformObjects).toBe(platformObjects);
-    expect(() => { controllerBase.registerPlatformObjects(platformObjects); }).toThrow(Error);
+    controllerBase.registerPlatformObjects(obj);
+    expect(controllerBase.platformObjects).toBe(obj);
+    expect(() => { controllerBase.registerPlatformObjects(obj); }).toThrow(Error);
   });
 
   it('registerDataStorage', () => {
-    const dataStorage = new DataStorage();
-    controllerBase.registerDataStorage(dataStorage);
-    expect(controllerBase.dataStorage).toBe(dataStorage);
-    expect(() => { controllerBase.registerDataStorage(dataStorage); }).toThrow(Error);
+    controllerBase.registerDataStorage(obj);
+    expect(controllerBase.dataStorage).toBe(obj);
+    expect(() => { controllerBase.registerDataStorage(obj); }).toThrow(Error);
   });
 
   it('isAuthRequired', () => {
