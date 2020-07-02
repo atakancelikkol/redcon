@@ -121,6 +121,7 @@ describe('HttpServer ', () => {
     it('tests sending initial message', () => {
       const testObject = { testMember: 'test' };
       const controllers = [];
+      let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
       const mockController = {appendData: (obj) => { obj.testMember = 'test'; },isAuthRequired: () => true}; // eslint-disable-line      
       const mockClient = {
@@ -131,8 +132,6 @@ describe('HttpServer ', () => {
       };
       controllers.push(mockController);
       const httpServer = new HttpServer({ controllers });
-      let sendObject;
-      
       httpServer.sendInitialMessage(mockClient);
       expect(sendObject).toStrictEqual(JSON.stringify(testObject));
     });
