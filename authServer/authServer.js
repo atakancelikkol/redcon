@@ -1,14 +1,9 @@
-import { createServer } from 'http';
-import { createReadStream, readFileSync } from 'fs';
+var http = require('http');
+var fs = require('fs');
 
-var server = createServer(function (req, res) {
+var server = http.createServer(function (req, res) {
 
-  if (req.method === "GET") {
-    res.writeHead(200, { "Content-Type": "text/html" });
-    createReadStream("test_http.html", "UTF-8").pipe(res);
-    console.log("here is get");
-  }
-  else if (req.method === "POST") {
+  if (req.method === "POST") {
     console.log("here is post");
 
     var body = "";
@@ -31,7 +26,7 @@ var server = createServer(function (req, res) {
       console.log(email);
       console.log(password);
 
-      var content = readFileSync("users.json");
+      var content = fs.readFileSync("users.json");
       var jsonarray = JSON.parse(content);
       var emailFound = false;
       var token1 = false;
@@ -57,10 +52,10 @@ var server = createServer(function (req, res) {
       else {
         preStr = '';
       }
-      res.write('{"isAuth":"' + token1 + '"}');
+      res.write('{"isAuth":' + token1 + '}');
       res.end();
-      console.log("here is end");
+      console.log("authResult === ", token1);
     });
   }
 
-}).listen(3000);
+}).listen(3010);

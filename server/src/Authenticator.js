@@ -3,6 +3,7 @@ const ServerConfig = require('./ServerConfig');
 const ControllerBase = require('./ControllerBase');
 const logger = require('./util/Logger');
 const { request } = require('http');
+var rp = require('request-promise');
 
 class Authenticator extends ControllerBase {
   constructor() {
@@ -85,37 +86,34 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  checkAuthenticationServer(username, password) {
-    return new Promise((resolve, reject) => {
-      var request = require('request');
-      var myJSONObject = { "email": username, "password": password };
-      const isAuth = false;
-      request({
-        url: "http://localhost:3010",
-        method: "POST",
-        json: true,
-        body: myJSONObject
-      }, function (error, body) {
-        if (error) {
-          reject();
-          console.log('reject');
-          return (false); 
-        }
-        else {
-          isAuth = body.isAuth;
-          console.log(body.isAuth);
-          resolve();
-          console.log('resolve');
-          return (isAuth);
-        }
-      });
-    })
-} // remove promise part
+  async checkAuthenticationServer(username, password) {
+    var myJSONObject = { "email": username, "password": password };
+    var isAuth = false;
+    console.log('request creating==============');
+    const options = {
+      url: "http://localhost:3010",
+      method: "POST",
+      json: true,
+      body: myJSONObject
+    }
+    await rp(options
+    ).then(function (body) {
+      console.log('body of the response ==== ', body.isAuth);
+      isAuth = body.isAuth;
+    }).catch(function (error) {
+      console.log(error);
+    });
+    console.log('request ended==============', isAuth);
+    return (isAuth);
+  }
 
-  loginUser(client, username, password) {
-    var isAuthenticated = this.checkAuthenticationServer(username, password);
-    //const isAuthenticated = true;
+  async loginUser(client, username, password) {
+    console.log('login user func ===========');
+    let isAuthenticated = false;
+    isAuthenticated = await this.checkAuthenticationServer(username, password);
+    console.log('isauth ??? =======', isAuthenticated);
     if (isAuthenticated === true) {
+      console.log('authenticted =====================');
       client.setAuthentication(true);
       client.setUserObject({
         username, id: 'id', ip: client.getIp(),
@@ -124,7 +122,7 @@ class Authenticator extends ControllerBase {
       this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');
     } else {
-      console.log('loginUser Else');
+      console.log('loginUser Else=====================not authenticated');
       this.logoutUser(client, 'login-error');
     }
   }
