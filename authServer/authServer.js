@@ -26,8 +26,7 @@ var server = http.createServer(function (req, res) {
       console.log(email);
       console.log(password);
 
-      var content = fs.readFileSync("users.json");
-      var jsonarray = JSON.parse(content);
+      var jsonarray = require('./users.json');
       var emailFound = false;
       var token1 = false;
       var preStr = '';

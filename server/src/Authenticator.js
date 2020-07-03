@@ -97,7 +97,6 @@ class Authenticator extends ControllerBase {
     await rp(options).then((body) => {
       isAuth = body.isAuth;
     }).catch((error) => {
-      console.log(error);
     });
     return (isAuth);
   }
