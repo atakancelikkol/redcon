@@ -11,10 +11,12 @@ class ClientConnection {
   }
 
   setAuthentication(authentication) {
-    if (authentication !== this.authenticated && this.onUserAuthChanged) {
-      this.onUserAuthChanged();
+    if (authentication !== this.authenticated) {
+      this.authenticated = authentication;
+      if (this.onUserAuthChanged) {
+        this.onUserAuthChanged();
+      }
     }
-    this.authenticated = authentication;
   }
 
   send(obj) {
