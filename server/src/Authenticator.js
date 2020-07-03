@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const ServerConfig = require('./ServerConfig');
 const ControllerBase = require('./ControllerBase');
 const logger = require('./util/Logger');
+const { request } = require('http');
 
 class Authenticator extends ControllerBase {
   constructor() {
@@ -84,9 +85,37 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username/* , password */) {
-    const isAuthenticated = true;
-    if (isAuthenticated) {
+  checkAuthenticationServer(username, password) {
+    return new Promise((resolve, reject) => {
+      var request = require('request');
+      var myJSONObject = { "email": username, "password": password };
+      const isAuth = false;
+      request({
+        url: "http://localhost:3010",
+        method: "POST",
+        json: true,
+        body: myJSONObject
+      }, function (error, body) {
+        if (error) {
+          reject();
+          console.log('reject');
+          return (false); 
+        }
+        else {
+          isAuth = body.isAuth;
+          console.log(body.isAuth);
+          resolve();
+          console.log('resolve');
+          return (isAuth);
+        }
+      });
+    })
+} // remove promise part
+
+  loginUser(client, username, password) {
+    const isAuthenticated = this.checkAuthenticationServer(username, password);
+    //const isAuthenticated = true;
+    if (isAuthenticated == true) {
       client.setAuthentication(true);
       client.setUserObject({
         username, id: 'id', ip: client.getIp(),
@@ -95,6 +124,7 @@ class Authenticator extends ControllerBase {
       this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');
     } else {
+      console.log('loginUser Else');
       this.logoutUser(client, 'login-error');
     }
   }
@@ -107,9 +137,11 @@ class Authenticator extends ControllerBase {
   }
 
   sendUserToClient(client, user, authStatus, token) {
-    client.send({ auth: {
-      user, authStatus, token,
-    } });
+    client.send({
+      auth: {
+        user, authStatus, token,
+      }
+    });
   }
 }
 
