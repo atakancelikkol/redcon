@@ -113,9 +113,9 @@ class Authenticator extends ControllerBase {
 } // remove promise part
 
   loginUser(client, username, password) {
-    const isAuthenticated = this.checkAuthenticationServer(username, password);
+    var isAuthenticated = this.checkAuthenticationServer(username, password);
     //const isAuthenticated = true;
-    if (isAuthenticated == true) {
+    if (isAuthenticated === true) {
       client.setAuthentication(true);
       client.setUserObject({
         username, id: 'id', ip: client.getIp(),

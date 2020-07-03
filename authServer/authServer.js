@@ -1,11 +1,11 @@
-var http = require('http');
-var fs = require('fs');
+import { createServer } from 'http';
+import { createReadStream, readFileSync } from 'fs';
 
-var server = http.createServer(function (req, res) {
+var server = createServer(function (req, res) {
 
   if (req.method === "GET") {
     res.writeHead(200, { "Content-Type": "text/html" });
-    fs.createReadStream("test_http.html", "UTF-8").pipe(res);
+    createReadStream("test_http.html", "UTF-8").pipe(res);
     console.log("here is get");
   }
   else if (req.method === "POST") {
@@ -31,7 +31,7 @@ var server = http.createServer(function (req, res) {
       console.log(email);
       console.log(password);
 
-      var content = fs.readFileSync("users.json");
+      var content = readFileSync("users.json");
       var jsonarray = JSON.parse(content);
       var emailFound = false;
       var token1 = false;
