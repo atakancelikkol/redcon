@@ -1,13 +1,13 @@
 class ClientConnection {
   constructor({
-    id, ip, connection, isAuthenticated, authChangedCalled,
+    id, ip, connection, isAuthenticated, onUserAuthChanged,
   }) {
     this.id = id;
     this.ip = ip;
     this.connection = connection;
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
-    this.onUserAuthChanged = authChangedCalled;
+    this.onUserAuthChanged = onUserAuthChanged;
   }
 
   setAuthentication(authentication) {

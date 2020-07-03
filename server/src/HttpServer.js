@@ -62,7 +62,7 @@ class HttpServer {
       ip: req.connection.remoteAddress,
       connection,
       isAuthenticated: false,
-      authChangedCalled: () => {
+      onUserAuthChanged: () => {
         this.sendInitialMessage(client);
       },
     });
