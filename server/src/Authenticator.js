@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const { request } = require('http');
 const rp = require('request-promise');
 const ServerConfig = require('./ServerConfig');
 const ControllerBase = require('./ControllerBase');
@@ -89,7 +88,6 @@ class Authenticator extends ControllerBase {
   async checkAuthenticationServer(username, password) {
     const myJSONObject = { email: username, password };
     let isAuth = false;
-    console.log('request creating==============');
     const options = {
       url: 'http://localhost:3010',
       method: 'POST',
@@ -97,22 +95,17 @@ class Authenticator extends ControllerBase {
       body: myJSONObject,
     };
     await rp(options).then((body) => {
-      console.log('body of the response ==== ', body.isAuth);
       isAuth = body.isAuth;
     }).catch((error) => {
       console.log(error);
     });
-    console.log('request ended==============', isAuth);
     return (isAuth);
   }
 
   async loginUser(client, username, password) {
-    console.log('login user func ===========');
     let isAuthenticated = false;
     isAuthenticated = await this.checkAuthenticationServer(username, password);
-    console.log('isauth ??? =======', isAuthenticated);
     if (isAuthenticated === true) {
-      console.log('authenticted =====================');
       client.setAuthentication(true);
       client.setUserObject({
         username, id: 'id', ip: client.getIp(),
@@ -121,7 +114,6 @@ class Authenticator extends ControllerBase {
       this.sendUserToClient(client, client.getUserObject(), 'success', token);
       this.logUserActivity(client, 'login');
     } else {
-      console.log('loginUser Else=====================not authenticated');
       this.logoutUser(client, 'login-error');
     }
   }
