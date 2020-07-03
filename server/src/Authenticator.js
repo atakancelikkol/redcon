@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
+const { request } = require('http');
+const rp = require('request-promise');
 const ServerConfig = require('./ServerConfig');
 const ControllerBase = require('./ControllerBase');
 const logger = require('./util/Logger');
-const { request } = require('http');
-var rp = require('request-promise');
 
 class Authenticator extends ControllerBase {
   constructor() {
@@ -87,20 +87,19 @@ class Authenticator extends ControllerBase {
   }
 
   async checkAuthenticationServer(username, password) {
-    var myJSONObject = { "email": username, "password": password };
-    var isAuth = false;
+    const myJSONObject = { email: username, password };
+    let isAuth = false;
     console.log('request creating==============');
     const options = {
-      url: "http://localhost:3010",
-      method: "POST",
+      url: 'http://localhost:3010',
+      method: 'POST',
       json: true,
-      body: myJSONObject
-    }
-    await rp(options
-    ).then(function (body) {
+      body: myJSONObject,
+    };
+    await rp(options).then((body) => {
       console.log('body of the response ==== ', body.isAuth);
       isAuth = body.isAuth;
-    }).catch(function (error) {
+    }).catch((error) => {
       console.log(error);
     });
     console.log('request ended==============', isAuth);
@@ -138,7 +137,7 @@ class Authenticator extends ControllerBase {
     client.send({
       auth: {
         user, authStatus, token,
-      }
+      },
     });
   }
 }
