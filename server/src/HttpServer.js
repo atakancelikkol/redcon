@@ -62,6 +62,9 @@ class HttpServer {
       ip: req.connection.remoteAddress,
       connection,
       isAuthenticated: false,
+      onUserAuthChanged: () => {
+        this.sendInitialMessage(client);
+      },
     });
     logger.info('New connection request received! id: ', client.getId());
     logger.info('Remote client address:', client.getIp());
@@ -97,9 +100,10 @@ class HttpServer {
     // collect data from data controllers
     const obj = {};
     this.controllers.forEach((controller) => {
-      controller.appendData(obj);
+      if (!controller.isAuthRequired() || client.isAuthenticated()) {
+        controller.appendData(obj);
+      }
     });
-
     client.connection.send(JSON.stringify(obj));
   }
 

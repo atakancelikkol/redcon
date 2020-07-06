@@ -1,12 +1,22 @@
 class ClientConnection {
   constructor({
-    id, ip, connection, isAuthenticated,
+    id, ip, connection, isAuthenticated, onUserAuthChanged,
   }) {
     this.id = id;
     this.ip = ip;
     this.connection = connection;
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
+    this.onUserAuthChanged = onUserAuthChanged;
+  }
+
+  setAuthentication(authentication) {
+    if (authentication !== this.authenticated) {
+      this.authenticated = authentication;
+      if (this.onUserAuthChanged) {
+        this.onUserAuthChanged();
+      }
+    }
   }
 
   send(obj) {
@@ -15,10 +25,6 @@ class ClientConnection {
 
   isAuthenticated() {
     return this.authenticated;
-  }
-
-  setAuthentication(authentication) {
-    this.authenticated = authentication;
   }
 
   getId() {
