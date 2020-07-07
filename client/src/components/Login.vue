@@ -46,6 +46,8 @@
         <b-alert
           :show="authStatus == 'login-error'"
           variant="danger"
+          style="margin-top: 10px"
+          dismissible
         >
           Error ocurred on login
         </b-alert>

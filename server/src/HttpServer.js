@@ -81,7 +81,11 @@ class HttpServer {
     const obj = JSON.parse(message);
     this.controllers.forEach((controller) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
-        controller.handleMessage(obj, client);
+        if (controller.name === 'Authenticator') {
+          controller.handleMessage(obj, client, this.clients);
+        } else {
+          controller.handleMessage(obj, client);
+        }
       }
     });
   }
