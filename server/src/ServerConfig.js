@@ -7,6 +7,9 @@ const ServerConfig = {
   LoggerMaxFileSize: undefined, // units of bytes
   LoggerCallerModuleDepth: 3,
 
+  // Authenticator
+  AuthenticatorTimeout: 1, // units of minutes
+
   // PosixUSBUtility
   USBMountPoint: '/media/REDCONMOUNTPOINT',
 

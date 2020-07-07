@@ -7,6 +7,7 @@ class Authenticator extends ControllerBase {
   constructor() {
     super('Authenticator');
     this.history = [];
+    this.activeUser = undefined;
   }
 
   isAuthRequired() {
@@ -52,6 +53,7 @@ class Authenticator extends ControllerBase {
         client.setAuthentication(true);
         client.setUserObject(result.userObject);
         this.sendUserToClient(client, result.userObject, 'success', receivedToken);
+        // this.activeUser = result.userObject.username;
       } else {
         logger.debug('Token ip is invalid');
       }
@@ -87,16 +89,44 @@ class Authenticator extends ControllerBase {
   loginUser(client, username/* , password */) {
     const isAuthenticated = true;
     if (isAuthenticated) {
-      client.setAuthentication(true);
-      client.setUserObject({
-        username, id: 'id', ip: client.getIp(),
-      });
-      const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
-      this.sendUserToClient(client, client.getUserObject(), 'success', token);
-      this.logUserActivity(client, 'login');
+      if (this.checkLoginStatus(username)) {
+        client.setAuthentication(true);
+        client.setUserObject({
+          username, id: 'id', ip: client.getIp(),
+        });
+        const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
+        this.sendUserToClient(client, client.getUserObject(), 'success', token);
+        this.logUserActivity(client, 'login');
+        this.activeUser = username;
+      } else { // Error: a user exists and its username doesn't match with the entered one
+      }
     } else {
       this.logoutUser(client, 'login-error');
     }
+  }
+
+  checkLoginStatus(username) {
+    if (this.doesUserExists()) {
+      if (this.doesEnteredUsernameMatchWithExistingOne(username)) {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  doesUserExists() {
+    if (this.activeUser) {
+      return true;
+    }
+    return false;
+  }
+
+  doesEnteredUsernameMatchWithExistingOne(username) {
+    if (this.activeUser === username) {
+      return true;
+    }
+    return false;
   }
 
   logoutUser(client, status) {
@@ -104,6 +134,7 @@ class Authenticator extends ControllerBase {
     client.setAuthentication(false);
     client.setUserObject(null);
     this.sendUserToClient(client, null, status);
+    this.activeUser = undefined;
   }
 
   sendUserToClient(client, user, authStatus, token) {
