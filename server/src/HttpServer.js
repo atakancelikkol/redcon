@@ -91,6 +91,11 @@ class HttpServer {
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
+      for (let controllersIndex = 0; controllersIndex < this.controllers.length; controllersIndex += 1) {
+        if (this.controllers[controllersIndex].name === 'Authenticator') {
+          this.controllers[controllersIndex].onConnectionClosed(this.clients);
+        }
+      }
     } else {
       logger.info(`Error on closing connection ${client.getId()}`);
     }
