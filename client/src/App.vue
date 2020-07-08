@@ -28,7 +28,14 @@ export default {
     LeftMenu,
   },
   computed: {
-    ...mapState(['isConnected']),
+    ...mapState(['user', 'authStatus', 'isConnected']),
+  },
+  watch: {
+    user() {
+      if (this.user == null) {
+        this.$router.push({ path: '/login' });
+      }
+    },
   },
 };
 </script>
