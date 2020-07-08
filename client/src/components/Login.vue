@@ -44,7 +44,7 @@
           Login
         </button>
         <b-alert
-          v-model="loginError"
+          :show="loginError"
           variant="danger"
           style="margin-top: 10px"
           dismissible
@@ -105,7 +105,6 @@ export default {
       return history;
     },
     loginError() {
-      console.log('I am here'); // eslint-disable-line
       if (!this.authStatus) {
         return false;
       }

@@ -57,7 +57,7 @@ class Authenticator extends ControllerBase {
           this.activeUsername = result.userObject.username;
         } else {
           // Error: a user exists and its username doesn't match with the stored one
-          this.sendUserToClient(client, null, 'login-error');
+          this.sendUserToClient(client, null, `Stored Token have been checked, but there is another user: ${this.activeUsername} has logged in`);
         }
       } else {
         logger.debug('Token ip is invalid');
@@ -105,10 +105,10 @@ class Authenticator extends ControllerBase {
         this.activeUsername = username;
       } else {
         // Error: a user exists and its username doesn't match with the entered one
-        this.sendUserToClient(client, null, 'login-error');
+        this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
       }
     } else {
-      this.logoutUser(client, 'login-error');
+      this.logoutUser(client, 'login-error'); // Never enters here for now due to authentication implementation
     }
   }
 
