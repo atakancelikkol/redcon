@@ -1,4 +1,4 @@
-const ServerConfig = require('./ServerConfig')
+const ServerConfig = require('./ServerConfig');
 
 const raspberryPinDef = {
   // definitions for relays
@@ -22,6 +22,6 @@ const otherPinDef = {
   KVM_TOGGLE_PIN: 104,
 };
 
-const GPIOPins = { raspberry: raspberryPinDef , other: otherPinDef };
+const GPIOPins = { raspberry: raspberryPinDef, other: otherPinDef };
 
 module.exports = GPIOPins[ServerConfig.GPIOPinConfigName];

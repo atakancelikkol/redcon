@@ -130,7 +130,7 @@ describe('GPIOController', () => {
   });
 
   describe('handleMessage', () => {
-    it("Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_POWER_PIN,state: false}}", () => {
+    it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_POWER_PIN,state: false}}', () => {
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
@@ -141,7 +141,7 @@ describe('GPIOController', () => {
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
     });
 
-    it("Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_CONTACT_PIN,state: false}}", () => {
+    it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_CONTACT_PIN,state: false}}', () => {
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
@@ -152,7 +152,7 @@ describe('GPIOController', () => {
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(0);
     });
 
-    it("Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_POWER_PIN,state: true}}", () => {
+    it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_POWER_PIN,state: true}}', () => {
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
@@ -163,7 +163,7 @@ describe('GPIOController', () => {
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
     });
 
-    it("Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_CONTACT_PIN,state: true}}", () => {
+    it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_CONTACT_PIN,state: true}}', () => {
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.init();
@@ -176,7 +176,7 @@ describe('GPIOController', () => {
   });
 
   describe('setGPIOPort', () => {
-    it("Parameters passing to setGPIOPort = (GPIOPins.RELAY_POWER_PIN, 1)", () => {
+    it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_POWER_PIN, 1)', () => {
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
@@ -189,7 +189,7 @@ describe('GPIOController', () => {
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
     });
 
-    it("Parameters passing to setGPIOPort = (GPIOPins.RELAY_CONTACT_PIN, 1)", () => {
+    it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_CONTACT_PIN, 1)', () => {
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
@@ -202,7 +202,7 @@ describe('GPIOController', () => {
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
     });
 
-    it("Parameters passing to setGPIOPort = (GPIOPins.RELAY_POWER_PIN, 0)", () => {
+    it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_POWER_PIN, 0)', () => {
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);
@@ -215,7 +215,7 @@ describe('GPIOController', () => {
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
     });
 
-    it("Parameters passing to setGPIOPort = (GPIOPins.RELAY_CONTACT_PIN, 0)", () => {
+    it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_CONTACT_PIN, 0)', () => {
       let obj;
       const gpioController = new GPIOController();
       gpioController.registerPlatformObjects(platformObjects);

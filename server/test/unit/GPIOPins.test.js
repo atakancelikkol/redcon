@@ -1,4 +1,5 @@
 const ServerConfig = require('../../src/ServerConfig');
+
 const tempGPIOConfigName = ServerConfig.GPIOPinConfigName;
 ServerConfig.GPIOPinConfigName = 'raspberry';
 
