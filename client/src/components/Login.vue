@@ -105,17 +105,11 @@ export default {
       return history;
     },
     loginError() {
-      // console.log(this.receivedData.auth); // eslint-disable-line
-      // console.log(this.receivedData.auth.authStatus); // eslint-disable-line
       console.log('I am here'); // eslint-disable-line
-      /* if (!this.receivedData.auth) {
+      if (!this.authStatus) {
         return false;
-      } */
-      // console.log(this.receivedData.auth.authStatus); // eslint-disable-line
-      // if (!this.receivedData.auth) {
-      // return this.receivedData.auth.authStatus;
-      // }
-      return '';
+      }
+      return this.authStatus;
     },
   },
   watch: {
