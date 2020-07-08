@@ -13,13 +13,13 @@ const raspberryPinDef = {
 
 const otherPinDef = {
   // definitions for relays
-  RELAY_POWER_PIN: 0,
-  RELAY_CONTACT_PIN: 0,
+  RELAY_POWER_PIN: 100,
+  RELAY_CONTACT_PIN: 101,
 
   // definitions for kvm switch
-  KVM_LED_RPI: 0,
-  KVM_LED_ECU: 0,
-  KVM_TOGGLE_PIN: 0,
+  KVM_LED_RPI: 102,
+  KVM_LED_ECU: 103,
+  KVM_TOGGLE_PIN: 104,
 };
 
 const GPIOPins = { raspberry: raspberryPinDef , other: otherPinDef };
