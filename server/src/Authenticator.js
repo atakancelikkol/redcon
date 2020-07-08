@@ -30,20 +30,20 @@ class Authenticator extends ControllerBase {
     if (obj.auth) {
       const { action } = obj.auth;
       if (action === 'loginUser') {
-        this.loginUser(client, obj.auth.username, obj.auth.password, obj.auth.receivedToken);
+        this.loginUser(client, obj.auth.username, /* obj.auth.password, obj.auth.receivedToken, */ clients);
       } else if (action === 'logoutUser') {
-        this.logoutUser(client, 'logged-out', clients);
+        this.logoutByButton(client, 'logged-out', clients);
       } else if (action === 'checkStoredToken') {
-        this.checkStoredToken(client, obj.auth.storedToken);
+        this.checkStoredToken(client, obj.auth.storedToken, clients);
       }
     }
   }
 
-  checkStoredToken(client, receivedToken) {
+  checkStoredToken(client, receivedToken, clients) {
     if (receivedToken) {
       let result;
       try {
-        result = jwt.verify(receivedToken, ServerConfig.TokenSecret);
+        result = jwt.verify(receivedToken, ServerConfig.AuthenticatorTokenSecret);
       } catch (ex) {
         logger.debug(ex);
       }
@@ -55,6 +55,8 @@ class Authenticator extends ControllerBase {
           client.setUserObject(result.userObject);
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
           this.activeUsername = result.userObject.username;
+          client.setRegisterForInactivityValue(true);
+          this.registerInactivityCheck(client, clients);
         } else {
           // Error: a user exists and its username doesn't match with the stored one
           this.sendUserToClient(client, null, `Stored Token have been checked, but there is another user: ${this.activeUsername} has logged in`);
@@ -91,7 +93,7 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username/* , password */) {
+  loginUser(client, username/* , password */, clients) {
     const isAuthenticated = true;
     if (isAuthenticated) {
       if (this.checkLoginStatus(username)) {
@@ -99,17 +101,38 @@ class Authenticator extends ControllerBase {
         client.setUserObject({
           username, id: 'id', ip: client.getIp(),
         });
-        const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
+        const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.AuthenticatorTokenSecret, { expiresIn: '24h' });
         this.sendUserToClient(client, client.getUserObject(), 'success', token);
         this.logUserActivity(client, 'login');
         this.activeUsername = username;
+        client.setRegisterForInactivityValue(true);
+        this.registerInactivityCheck(client, clients);
       } else {
         // Error: a user exists and its username doesn't match with the entered one
         this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
       }
     } else {
-      this.logoutUser(client, 'login-error'); // Never enters here for now due to authentication implementation
+      this.logoutByButton(client, 'login-error'); // Never enters here for now due to authentication implementation
     }
+  }
+
+  registerInactivityCheck(client, clients) {
+    const inactivityCheck = () => {
+      logger.debug(client.getRegisterForInactivityValue());
+      client.inactivityTime += 1; // eslint-disable-line
+      if (client.getRegisterForInactivityValue()) {
+        client.setRegisterForInactivityValue(client.inactivityTime < ServerConfig.AuthenticatorTimeoutDuration);
+        if (client.getRegisterForInactivityValue()) {
+          setTimeout(inactivityCheck, 1000);
+          logger.debug(`${client.inactivityTime}sec`);
+        } else {
+          this.logoutByTimeout(client, 'timeout', clients);
+        }
+      } else {
+        this.updateActiveUsername(clients);
+      }
+    };
+    inactivityCheck();
   }
 
   updateActiveUsername(clients) {
@@ -154,7 +177,8 @@ class Authenticator extends ControllerBase {
     return false;
   }
 
-  logoutUser(client, status, clients) {
+  logoutByButton(client, status, clients) {
+    client.setRegisterForInactivityValue(false);
     const loggedOutClientsUsername = client.getUserObject().username;
     for (let index = 0; index < clients.length; index += 1) {
       const clientUserObject = clients[index].getUserObject();
@@ -167,6 +191,15 @@ class Authenticator extends ControllerBase {
     }
     this.updateActiveUsername(clients);
   }
+
+  logoutByTimeout(client, status, clients) {
+    this.logUserActivity(client, 'interaction');
+    client.setAuthentication(false);
+    client.setUserObject(null);
+    this.sendUserToClient(client, null, status);
+    this.updateActiveUsername(clients);
+  }
+
 
   sendUserToClient(client, user, authStatus, token) {
     client.send({ auth: {

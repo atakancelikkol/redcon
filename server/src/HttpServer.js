@@ -79,19 +79,17 @@ class HttpServer {
 
   onMessageHandler(client, message) {
     const obj = JSON.parse(message);
+    client.inactivityTime = 0; // eslint-disable-line
     this.controllers.forEach((controller) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
-        if (controller.name === 'Authenticator') {
-          controller.handleMessage(obj, client, this.clients);
-        } else {
-          controller.handleMessage(obj, client);
-        }
+        controller.handleMessage(obj, client, this.clients);
       }
     });
   }
 
   onCloseHandler(client/* , connection */) {
     logger.info('connection closed! id: ', client.getId());
+    client.setRegisterForInactivityValue(false);
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
