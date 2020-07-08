@@ -115,11 +115,10 @@ class Authenticator extends ControllerBase {
   updateActiveUsername(clients) {
     let allConnectionsClosedSameWithCurrentActiveUsername = true;
     for (let index = 0; index < clients.length; index += 1) {
-      if (clients[index].getUserObject() !== undefined && clients[index].getUserObject() !== null) {
-        if (clients[index].getUserObject().username === this.activeUsername) {
-          allConnectionsClosedSameWithCurrentActiveUsername = false;
-          break;
-        }
+      const clientUserObject = clients[index].getUserObject();
+      if (clientUserObject && clientUserObject.username === this.activeUsername) {
+        allConnectionsClosedSameWithCurrentActiveUsername = false;
+        break;
       }
     }
     if (allConnectionsClosedSameWithCurrentActiveUsername) {
@@ -158,13 +157,12 @@ class Authenticator extends ControllerBase {
   logoutUser(client, status, clients) {
     const loggedOutClientsUsername = client.getUserObject().username;
     for (let index = 0; index < clients.length; index += 1) {
-      if (clients[index].getUserObject() !== undefined && clients[index].getUserObject() !== null) {
-        if (clients[index].getUserObject().username === loggedOutClientsUsername) {
-          this.logUserActivity(clients[index], 'interaction');
-          clients[index].setAuthentication(false);
-          clients[index].setUserObject(null);
-          this.sendUserToClient(clients[index], null, status);
-        }
+      const clientUserObject = clients[index].getUserObject();
+      if (clientUserObject && clientUserObject.username === loggedOutClientsUsername) {
+        this.logUserActivity(clients[index], 'interaction');
+        clients[index].setAuthentication(false);
+        clients[index].setUserObject(null);
+        this.sendUserToClient(clients[index], null, status);
       }
     }
     this.updateActiveUsername(clients);

@@ -44,12 +44,12 @@
           Login
         </button>
         <b-alert
-          :show="authStatus == 'login-error'"
+          v-model="loginError"
           variant="danger"
           style="margin-top: 10px"
           dismissible
         >
-          Error ocurred on login
+          {{ loginError }}
         </b-alert>
       </div>
       <b-table
@@ -103,6 +103,19 @@ export default {
         item.activityDate = `${itemActivityDate.toLocaleString()} ( ${timeAgo.format(itemActivityDate)} )`;
       });
       return history;
+    },
+    loginError() {
+      // console.log(this.receivedData.auth); // eslint-disable-line
+      // console.log(this.receivedData.auth.authStatus); // eslint-disable-line
+      console.log('I am here'); // eslint-disable-line
+      /* if (!this.receivedData.auth) {
+        return false;
+      } */
+      // console.log(this.receivedData.auth.authStatus); // eslint-disable-line
+      // if (!this.receivedData.auth) {
+      // return this.receivedData.auth.authStatus;
+      // }
+      return '';
     },
   },
   watch: {
