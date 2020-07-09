@@ -85,8 +85,8 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  async checkAuthenticationServer(username, password) {
-    const myJSONObject = { email: username, password };
+  async checkAuthenticationServer(username, pass) {
+    const myJSONObject = { email: username, password: pass };
     let isAuth = false;
     const options = {
       url: 'http://localhost:3010',
@@ -97,6 +97,7 @@ class Authenticator extends ControllerBase {
     await rp(options).then((body) => {
       isAuth = body.isAuth;
     }).catch((error) => {
+      logger.error(error);
     });
     return (isAuth);
   }
