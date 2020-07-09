@@ -12,6 +12,11 @@ const ServerConfig = {
 
   // Win32USBUtility
   USBLabelName: 'REDCON',
+
+  // Authentication configurations
+
+  useAuthentication: true,
+  authServer: 'http://localhost:3010',
 };
 
 module.exports = ServerConfig;

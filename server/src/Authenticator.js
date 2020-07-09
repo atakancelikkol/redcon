@@ -89,7 +89,7 @@ class Authenticator extends ControllerBase {
     const myJSONObject = { email: username, password: pass };
     let isAuth = false;
     const options = {
-      url: 'http://localhost:3010',
+      url: ServerConfig.authServer,
       method: 'POST',
       json: true,
       body: myJSONObject,
@@ -104,7 +104,11 @@ class Authenticator extends ControllerBase {
 
   async loginUser(client, username, password) {
     let isAuthenticated = false;
-    isAuthenticated = await this.checkAuthenticationServer(username, password);
+    if (ServerConfig.useAuthentication) {
+      isAuthenticated = await this.checkAuthenticationServer(username, password);
+    } else {
+      isAuthenticated = true;
+    }
     if (isAuthenticated === true) {
       client.setAuthentication(true);
       client.setUserObject({
