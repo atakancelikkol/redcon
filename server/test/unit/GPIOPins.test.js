@@ -1,6 +1,11 @@
+const ServerConfig = require('../../src/ServerConfig');
+
+const tempGPIOConfigName = ServerConfig.GPIOPinConfigName;
+ServerConfig.GPIOPinConfigName = 'raspberry';
+
 const GPIOPins = require('../../src/GPIOPins');
 
-describe('GPIOPins', () => {
+describe('GPIOPins for raspberry configuration', () => {
   test('RELAY_POWER_PIN should be equal to 3', () => {
     expect(GPIOPins.RELAY_POWER_PIN).toBe(3);
   });
@@ -21,3 +26,5 @@ describe('GPIOPins', () => {
     expect(GPIOPins.KVM_TOGGLE_PIN).toBe(33);
   });
 });
+
+ServerConfig.GPIOPinConfigName = tempGPIOConfigName;
