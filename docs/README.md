@@ -18,6 +18,8 @@ REDCON is written in Javascript, it requires nodejs and npm to run.
 sudo apt-get install nodejs npm
 ```
 
+REDCON requires sync.exe for Microsoft Windows win32 platform USB synchronization issues. sync.exe should be located in ..\server\bin\win32 folder. sync.exe can be downloaded from https://docs.microsoft.com/en-us/sysinternals/downloads/sync .
+
 ## How to Run
 Build and run script can be found on <project_dir>/scripts/buildandrun.sh. This script builds the client project and copies it to server's public directory. Then starts the server in the background.
 ```
