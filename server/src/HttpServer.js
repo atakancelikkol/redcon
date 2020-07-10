@@ -55,6 +55,10 @@ class HttpServer {
     return this.app;
   }
 
+  getClients() {
+    return this.clients;
+  }
+
   onConnectionHandler(connection, req) {
     // request handler
     const client = new ClientConnection({
@@ -79,7 +83,6 @@ class HttpServer {
 
   onMessageHandler(client, message) {
     const obj = JSON.parse(message);
-    client.inactivityTime = 0; // eslint-disable-line
     this.controllers.forEach((controller) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
         controller.handleMessage(obj, client, this.clients);
@@ -89,15 +92,12 @@ class HttpServer {
 
   onCloseHandler(client/* , connection */) {
     logger.info('connection closed! id: ', client.getId());
-    client.setRegisterForInactivityValue(false);
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
-      for (let controllersIndex = 0; controllersIndex < this.controllers.length; controllersIndex += 1) {
-        if (this.controllers[controllersIndex].name === 'Authenticator') {
-          this.controllers[controllersIndex].onConnectionClosed(this.clients);
-        }
-      }
+      this.controllers.forEach((controller) => {
+        controller.onConnectionClosed(client, this.clients);
+      });
     } else {
       logger.info(`Error on closing connection ${client.getId()}`);
     }

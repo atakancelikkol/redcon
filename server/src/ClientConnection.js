@@ -8,8 +8,7 @@ class ClientConnection {
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
     this.onUserAuthChanged = onUserAuthChanged;
-    this.registerForInactivity = undefined;
-    this.inactivityTime = undefined;
+    this.lastActivityTime = undefined;
   }
 
   setAuthentication(authentication) {
@@ -41,16 +40,16 @@ class ClientConnection {
     return this.userObject;
   }
 
-  getRegisterForInactivityValue() {
-    return this.registerForInactivity;
+  getLastActivityTime() {
+    return this.lastActivityTime;
   }
 
   setUserObject(userInf) {
     this.userObject = userInf;
   }
 
-  setRegisterForInactivityValue(value) {
-    this.registerForInactivity = value;
+  setLastActivityTime(time) {
+    this.lastActivityTime = time;
   }
 }
 

@@ -24,13 +24,13 @@ class Authenticator extends ControllerBase {
 
   handleMessage(obj, client, clients) {
     if (obj && client.getUserObject()) {
-      this.logUserActivity(client, 'interaction');
+      this.logClientActivity(client, 'interaction', clients);
     }
 
     if (obj.auth) {
       const { action } = obj.auth;
       if (action === 'loginUser') {
-        this.loginUser(client, obj.auth.username, /* obj.auth.password, obj.auth.receivedToken, */ clients);
+        this.loginUser(client, obj.auth.username, /* obj.auth.password, obj.auth.receivedToken, */clients);
       } else if (action === 'logoutUser') {
         this.logoutByButton(client, 'logged-out', clients);
       } else if (action === 'checkStoredToken') {
@@ -54,9 +54,8 @@ class Authenticator extends ControllerBase {
           client.setAuthentication(true);
           client.setUserObject(result.userObject);
           this.sendUserToClient(client, result.userObject, 'success', receivedToken);
+          this.logClientActivity(client, 'login', clients);
           this.activeUsername = result.userObject.username;
-          client.setRegisterForInactivityValue(true);
-          this.registerInactivityCheck(client, clients);
         } else {
           // Error: a user exists and its username doesn't match with the stored one
           this.sendUserToClient(client, null, `Stored Token have been checked, but there is another user: ${this.activeUsername} has logged in`);
@@ -67,9 +66,11 @@ class Authenticator extends ControllerBase {
     }
   }
 
-  logUserActivity(client, activityType) {
+  logClientActivity(client, activityType, clients) {
     const insertHistoryItem = (historyClient) => {
       const currentDate = new Date();
+      historyClient.setLastActivityTime(currentDate);
+      this.makeLastActivityTimesEqualOnSameUsers(client, clients);
       const historyObject = {
         username: historyClient.getUserObject().username, date: currentDate, activityDate: currentDate,
       };
@@ -83,6 +84,8 @@ class Authenticator extends ControllerBase {
       const historyItem = this.history.find((h) => h.username === client.getUserObject().username);
       if (historyItem) {
         historyItem.activityDate = new Date();
+        client.setLastActivityTime(historyItem.activityDate);
+        this.makeLastActivityTimesEqualOnSameUsers(client, clients);
       } else {
         insertHistoryItem(client);
       }
@@ -93,7 +96,7 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username/* , password */, clients) {
+  loginUser(client, username, /* , password */clients) {
     const isAuthenticated = true;
     if (isAuthenticated) {
       if (this.checkLoginStatus(username)) {
@@ -103,10 +106,8 @@ class Authenticator extends ControllerBase {
         });
         const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.AuthenticatorTokenSecret, { expiresIn: '24h' });
         this.sendUserToClient(client, client.getUserObject(), 'success', token);
-        this.logUserActivity(client, 'login');
+        this.logClientActivity(client, 'login', clients);
         this.activeUsername = username;
-        client.setRegisterForInactivityValue(true);
-        this.registerInactivityCheck(client, clients);
       } else {
         // Error: a user exists and its username doesn't match with the entered one
         this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
@@ -116,23 +117,24 @@ class Authenticator extends ControllerBase {
     }
   }
 
-  registerInactivityCheck(client, clients) {
-    const inactivityCheck = () => {
-      logger.debug(client.getRegisterForInactivityValue());
-      client.inactivityTime += 1; // eslint-disable-line
-      if (client.getRegisterForInactivityValue()) {
-        client.setRegisterForInactivityValue(client.inactivityTime < ServerConfig.AuthenticatorTimeoutDuration);
-        if (client.getRegisterForInactivityValue()) {
-          setTimeout(inactivityCheck, 1000);
-          logger.debug(`${client.inactivityTime}sec`);
-        } else {
-          this.logoutByTimeout(client, 'timeout', clients);
+  checkIdleConnections(clients) {
+    const currentDate = new Date();
+    // logger.debug('clients.length: ',clients.length);
+    for (let index = 0; index < clients.length; index += 1) {
+      if (clients[index] && clients[index].isAuthenticated() && clients[index].getLastActivityTime()) {
+        const idleTime = (currentDate.getTime() - clients[index].getLastActivityTime().getTime()) / 1000;
+        // logger.debug('idleTime: ', idleTime);
+        if ((idleTime > ServerConfig.AuthenticatorTimeoutDuration) /* && this.checkInactivityOfOtherClientsWithSameUsername(currentDate, index ,clients) */) { // TODO: Check if that username is active on another tab
+          this.logoutByTimeout(clients[index], 'timeout', clients);
         }
-      } else {
-        this.updateActiveUsername(clients);
       }
-    };
-    inactivityCheck();
+    }
+  }
+
+  makeLastActivityTimesEqualOnSameUsers(client, clients) {
+    for (let index = 0; index < clients.length; index += 1) {
+      clients[index].setLastActivityTime(client.getLastActivityTime());
+    }
   }
 
   updateActiveUsername(clients) {
@@ -149,13 +151,13 @@ class Authenticator extends ControllerBase {
     }
   }
 
-  onConnectionClosed(clients) {
+  onConnectionClosed(client, clients) {
     this.updateActiveUsername(clients);
   }
 
   checkLoginStatus(username) {
-    if (this.doesUserExists()) {
-      if (this.doesEnteredUsernameMatchWithExistingOne(username)) {
+    if (this.activeUsername) {
+      if (this.activeUsername === username) {
         return true;
       }
       return false;
@@ -163,27 +165,12 @@ class Authenticator extends ControllerBase {
     return true;
   }
 
-  doesUserExists() {
-    if (this.activeUsername) {
-      return true;
-    }
-    return false;
-  }
-
-  doesEnteredUsernameMatchWithExistingOne(username) {
-    if (this.activeUsername === username) {
-      return true;
-    }
-    return false;
-  }
-
   logoutByButton(client, status, clients) {
-    client.setRegisterForInactivityValue(false);
     const loggedOutClientsUsername = client.getUserObject().username;
     for (let index = 0; index < clients.length; index += 1) {
       const clientUserObject = clients[index].getUserObject();
       if (clientUserObject && clientUserObject.username === loggedOutClientsUsername) {
-        this.logUserActivity(clients[index], 'interaction');
+        this.logClientActivity(clients[index], 'interaction', clients);
         clients[index].setAuthentication(false);
         clients[index].setUserObject(null);
         this.sendUserToClient(clients[index], null, status);
@@ -193,13 +180,13 @@ class Authenticator extends ControllerBase {
   }
 
   logoutByTimeout(client, status, clients) {
-    this.logUserActivity(client, 'interaction');
+    // this.logClientActivity(client, 'logout by timeout', clients);
     client.setAuthentication(false);
     client.setUserObject(null);
     this.sendUserToClient(client, null, status);
+    client.setLastActivityTime(undefined);
     this.updateActiveUsername(clients);
   }
-
 
   sendUserToClient(client, user, authStatus, token) {
     client.send({ auth: {

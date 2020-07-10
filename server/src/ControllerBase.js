@@ -65,14 +65,6 @@ class ControllerBase {
   }
 
   /**
-   * onConnectionOpened
-   * If the controller needs to make arrangements when closing connection, override this function.
-   */
-  onConnectionOpened() {
-
-  }
-
-  /**
    * appendData
    * appendData is called by HttpServer when a new client is connected.
    * If the controller needs to send data to every new client, override this function.
