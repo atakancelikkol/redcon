@@ -13,6 +13,9 @@ const ServerConfig = {
 
   // Win32USBUtility
   USBLabelName: 'REDCON',
+
+  //
+  GPIOPinConfigName: 'raspberry',
 };
 
 module.exports = ServerConfig;

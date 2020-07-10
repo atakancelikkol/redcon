@@ -88,8 +88,9 @@ class USBUtility {
       }
       exec(`.\\.\\.\\bin\\win32\\sync -r ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
+          logger.error('sync.exe must be added. Please refer to ..\\redcon\\docs\\README.md');
           usbState.usbErrorString = `${err.message} Cant syncUsbDeviceWin32`; // eslint-disable-line no-param-reassign
-          reject();
+          reject('sync promise rejection'); // eslint-disable-line prefer-promise-reject-errors
           return;
         }
         logger.info('synchronized usb drive');
@@ -106,8 +107,9 @@ class USBUtility {
       }
       exec(`.\\.\\.\\bin\\win32\\sync -e ${usbState.mountedPath}`, (err/* , stdout, stderr */) => {
         if (err) { // Handle error
+          logger.error('sync.exe must be added. Please refer to ..\\redcon\\docs\\README.md');
           usbState.usbErrorString = `${err.message} Cant ejectUSBDriveSafelyWin32`; // eslint-disable-line no-param-reassign
-          reject();
+          reject('eject promise rejection'); // eslint-disable-line prefer-promise-reject-errors
           return;
         }
         logger.info('ejected usb drive from windows');
