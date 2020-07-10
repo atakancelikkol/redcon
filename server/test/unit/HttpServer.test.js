@@ -30,6 +30,14 @@ describe('HttpServer ', () => {
     });
   });
 
+  describe('getClients ', () => {
+    it('should get the clients array', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      httpServer.clients = [{ myClient: 'test' }];
+      expect(httpServer.getClients()).toStrictEqual([{ myClient: 'test' }]);
+    });
+  });
+
   describe('getApp ', () => {
     it('gets app', () => {
       const httpServer = new HttpServer({ controllers: [] });
@@ -94,8 +102,9 @@ describe('HttpServer ', () => {
   });
 
   describe('onCloseHandler', () => {
-    it.skip('handles on Close if index !== -1', () => { // eslint-disable-line
-      const httpServer = new HttpServer({ controllers: [] });
+    it('handles on Close if index !== -1', () => { // eslint-disable-line
+      const controllers = [{ onConnectionClosed: () => {} }];
+      const httpServer = new HttpServer({ controllers });
       const mockClient = {
         id: 'myConnectionClosingId',
         getId: () => mockClient.id,
@@ -105,7 +114,7 @@ describe('HttpServer ', () => {
       expect(httpServer.clients.length).toBe(0);
     });
 
-    it.skip('handles on Close if index === -1', () => { // eslint-disable-line
+    it('handles on Close if index === -1', () => { // eslint-disable-line
       const httpServer = new HttpServer({ controllers: [] });
       const mockClient = {
         id: 'myConnectionClosingId',
