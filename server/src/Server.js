@@ -9,6 +9,8 @@ const NetworkConfigController = require('./NetworkConfigController');
 const PlatformObjects = require('./platform/PlatformObjects');
 const DataStorage = require('./dataStorage/LowDBDataStorage');
 
+const idleConnectionCheckInterval = 1000; // ms
+
 class Server {
   constructor() {
     this.platformObjects = new PlatformObjects();
@@ -46,7 +48,7 @@ class Server {
     this.httpServer.getApp().post('/uploadFileToUsbDevice', this.usbController.uploadFileToUsbDevice.bind(this.usbController));
     this.httpServer.getApp().get('/getFileFromUsbDevice', this.usbController.getFileFromUsbDevice.bind(this.usbController));
 
-    this.idleConnectionCheckIntervalHandle = setInterval(this.idleConnectionChecker.bind(this), 1000);
+    this.idleConnectionCheckIntervalHandle = setInterval(this.idleConnectionChecker.bind(this), idleConnectionCheckInterval);
   }
 
   onExit() {
