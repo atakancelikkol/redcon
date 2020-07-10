@@ -40,10 +40,10 @@ When REDCON web interface is opened, features of REDCON which are listed below w
 7. Logout
 
 ## Home
-At the home page, user can get informations as to devices IP addresses, operating systems running different hosts etc.
+At the home page, user can get informations as to devices.
 
 ## Board Control
-Power switch is controlled by Raspberry PI's GPIO ports. At the Board Control page,user can switch on/off ECU boards and can observe state of ECU boards.
+Power switch is controlled by Raspberry PI's GPIO ports. At the Board Control page, user can switch on/off ECU boards and can observe state of ECU boards.
 
 ## Network Config
 Configurable packet forwarding is used for directly accessing ECU boards and development tools. This is practical for using multiple ECU boards in the same network with predefined static IPs. An example is given below.
