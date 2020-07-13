@@ -120,15 +120,15 @@ class Authenticator extends ControllerBase {
   checkIdleConnections(clients) {
     const currentDate = new Date();
     // logger.debug('clients.length: ',clients.length);
-    for (let index = 0; index < clients.length; index += 1) {
-      if (clients[index] && clients[index].isAuthenticated() && clients[index].getLastActivityTime()) {
-        const idleTime = (currentDate.getTime() - clients[index].getLastActivityTime().getTime()) / 1000;
+    clients.forEach((client) => {
+      if (client && client.isAuthenticated() && client.getLastActivityTime()) {
+        const idleTime = (currentDate.getTime() - client.getLastActivityTime().getTime()) / 1000;
         // logger.debug('idleTime: ', idleTime);
         if ((idleTime > ServerConfig.AuthenticatorTimeoutDuration) /* && this.checkInactivityOfOtherClientsWithSameUsername(currentDate, index ,clients) */) { // TODO: Check if that username is active on another tab
-          this.logoutByTimeout(clients[index], 'timeout', clients);
+          this.logoutByTimeout(client, 'timeout', clients);
         }
       }
-    }
+    });
   }
 
   makeLastActivityTimesEqualOnSameUsers(client, clients) {
@@ -176,6 +176,20 @@ class Authenticator extends ControllerBase {
         this.sendUserToClient(clients[index], null, status);
       }
     }
+    this.updateActiveUsername(clients);
+  }
+
+  logoutByButton(client, status, clients) {
+    const loggedOutClientsUsername = client.getUserObject().username;
+    clients.forEach((clientIndex) => {
+      const clientUserObject = clientIndex.getUserObject();
+      if (clientUserObject && clientUserObject.username === loggedOutClientsUsername) {
+        this.logClientActivity(clientIndex, 'interaction', clients);
+        clientIndex.setAuthentication(false);
+        clientIndex.setUserObject(null);
+        this.sendUserToClient(clientIndex, null, status);
+      }
+    });
     this.updateActiveUsername(clients);
   }
 
