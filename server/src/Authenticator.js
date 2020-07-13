@@ -30,7 +30,7 @@ class Authenticator extends ControllerBase {
     if (obj.auth) {
       const { action } = obj.auth;
       if (action === 'loginUser') {
-        this.loginUser(client, obj.auth.username, /* obj.auth.password, obj.auth.receivedToken, */clients);
+        this.loginUser(client, obj.auth.username, obj.auth.password, clients);
       } else if (action === 'logoutUser') {
         this.logoutByButton(client, 'logged-out', clients);
       } else if (action === 'checkStoredToken') {
@@ -96,7 +96,7 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username, /* , password */clients) {
+  loginUser(client, username, password, clients) {
     const isAuthenticated = true;
     if (isAuthenticated) {
       if (this.checkLoginStatus(username)) {

@@ -9,7 +9,7 @@ const NetworkConfigController = require('./NetworkConfigController');
 const PlatformObjects = require('./platform/PlatformObjects');
 const DataStorage = require('./dataStorage/LowDBDataStorage');
 
-const idleConnectionCheckInterval = 1000; // ms
+const idleConnectionCheckInterval = 5 * 60 * 1000; // units of ms 5 * 60 * 1000 = 5 minutes
 
 class Server {
   constructor() {
