@@ -8,32 +8,6 @@ REDCON is a utility that makes it easier to connect and debug ECU boards. This p
 ## REDCON Overview 
 ![alt text](docs/diagrams/redcon-overview.png "Overview" )
 
-## Packet Forwarding
-Configurable packet forwarding is used for directly accessing ECU boards. This is practical for using multiple ECU boards in the same network with predefined static IPs. An example is given below.
-
-| Device Name | IP Address
-|-------------|-----------
-|Raspberry PI | 10.0.3.15
-|ECU1         | 192.168.0.1
-|ECU2         | 192.168.0.2
-
-
-| IP       | PORT  | DESTINATION
-|----------|-------|------------------
-| 10.0.3.15| 3000  | 192.168.0.1:8000
-| 10.0.3.15| 3001  | 192.168.0.1:23
-| 10.0.3.15| 4000  | 192.168.0.2:8000
-| 10.0.3.15| 4001  | 192.168.0.2:23
-
-## Power Switch
-Power switch is controlled by Raspberry PI's GPIO ports. This functionality is exposed by a web interface. Users can switch on/off ECU boards.
-
-## UART Data
-
-
-## USB Storage Device
-(Some of) ECU Boards have to be updated by the help of USB Devices. The main aim is to realize that function remotely.
-
 # How to run
 Please see the document at docs/README.md
 
@@ -53,3 +27,49 @@ git push --set-upstream origin feature/redcon-<issue number>
 
 # Coding Standarts
 Please check [the coding standards document](docs/CodingStandards.md).
+
+# REDCON Web Interface
+When REDCON web interface is opened, features of REDCON which are listed below will be seen at the left menu.
+
+1. Home
+2. Board Control
+3. Network Config
+4. Serial Console
+5. USB Storage
+6. Utility
+7. Logout
+
+## Home
+At the home page, user can get informations as to devices.
+
+## Board Control
+Power switch is controlled by Raspberry PI's GPIO ports. At the Board Control page, user can switch on/off ECU boards and can observe state of ECU boards.
+
+## Network Config
+Configurable packet forwarding is used for directly accessing ECU boards and development tools. This is practical for using multiple ECU boards in the same network with predefined static IPs. An example is given below.
+
+| Device Name | IP Address
+|-------------|-----------
+|Raspberry PI | 10.0.3.15
+|ECU1         | 192.168.0.1
+|ECU2         | 192.168.0.2
+
+
+| IP       | PORT  | DESTINATION
+|----------|-------|------------------
+| 10.0.3.15| 3000  | 192.168.0.1:8000
+| 10.0.3.15| 3001  | 192.168.0.1:23
+| 10.0.3.15| 4000  | 192.168.0.2:8000
+| 10.0.3.15| 4001  | 192.168.0.2:23
+
+## Serial Console
+The purpose of this page is to observe UART data. At serial console page, serial devices which are mounted to Raspberry PI are listed and user can activate/deactivate them. Log messages which come from activated device can be downloaded as a text file. Also, user can send messages via serial console.
+
+## USB Storage
+(Some of) ECU Boards have to be updated by the help of USB Devices. The main aim is to realize that function remotely. Also, user can create folder on USB device and delete folder from USB device. In addition, USB device can be formatted in this section.
+
+## Utility
+At the utility page, additional services are included. For example, target computer which is run REDCON can be rebooted in this section.
+
+## Logout
+REDCON allows to login only one user. User can be logged out via this section.

@@ -16,7 +16,10 @@ class MockUSBUtility extends IUSBUtility {
 
   syncUsbDevice(usbState) {
     logger.info('MockUSBUtility syncUsbDevice: ', usbState.isAvailable);
-    return true;
+    return new Promise((resolve) => {
+      resolve();
+      return true;
+    });
   }
 
   ejectUSBDriveSafely(usbState) {

@@ -308,7 +308,9 @@ class USBController extends ControllerBase {
         reject();
         return;
       }
-      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState).catch((error) => {
+        logger.error(error);
+      });
       this.listUsbDeviceItems(path);
       resolve();
     });
@@ -346,7 +348,9 @@ class USBController extends ControllerBase {
         reject();
         return;
       }
-      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
+      this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState).catch((error) => {
+        logger.error(error);
+      });
       this.listUsbDeviceItems(path);
       resolve();
     });
@@ -367,7 +371,9 @@ class USBController extends ControllerBase {
         reject();
         return;
       }
-      await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
+      await this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState).catch((error) => {
+        logger.error(error);
+      });
       this.listUsbDeviceItems(path);
       resolve();
     });
@@ -378,7 +384,9 @@ class USBController extends ControllerBase {
       return;
     }
 
-    await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState);
+    await this.platformObjects.getUSBUtility().formatUSBDrive(this.usbState).catch((error) => {
+      logger.error(error);
+    });
     logger.debug('mountedPath:', this.usbState.mountedPath);
     this.listUsbDeviceItems('');
   }
@@ -390,6 +398,8 @@ class USBController extends ControllerBase {
 
     this.platformObjects.getUSBUtility().ejectUSBDriveSafely(this.usbState).then(() => {
       this.pinToggleSequence();
+    }).catch((err) => {
+      logger.error(err);
     });
   }
 
@@ -458,7 +468,9 @@ class USBController extends ControllerBase {
             res.status(500).send(er.toString());
             return;
           }
-          this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState);
+          this.platformObjects.getUSBUtility().syncUsbDevice(this.usbState).catch((error) => {
+            logger.error(error);
+          });
           this.listUsbDeviceItems(fields.currentDirectory);
 
           currentFileCounter += 1;
