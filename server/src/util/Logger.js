@@ -100,8 +100,9 @@ class Logger {
     return '?';
   }
 
+
   concatenateArguments(callerModule, lineNumberMessage, arg) {
-    let message = `${callerModule}:${lineNumberMessage} | `;
+    let message = `${callerModule}:${lineNumberMessage} |`;
     for (let i = 0; i < arg.length; i += 1) {
       if (arg[i] == null) {
         message = `${message} ${arg[i]} |`;
@@ -116,8 +117,10 @@ class Logger {
         }
         if (hasItToStringProperty) {
           message = `${message} ${arg[i].toString()} |`;
-        } else {
+        } else if (typeof (arg[i]) === 'object') {
           message = `${message} ${JSON.stringify(arg[i])} |`;
+        } else {
+          message = `${message} ${arg[i]} |`;
         }
       }
     }
