@@ -167,20 +167,6 @@ class Authenticator extends ControllerBase {
 
   logoutByButton(client, status, clients) {
     const loggedOutClientsUsername = client.getUserObject().username;
-    for (let index = 0; index < clients.length; index += 1) {
-      const clientUserObject = clients[index].getUserObject();
-      if (clientUserObject && clientUserObject.username === loggedOutClientsUsername) {
-        this.logClientActivity(clients[index], 'interaction', clients);
-        clients[index].setAuthentication(false);
-        clients[index].setUserObject(null);
-        this.sendUserToClient(clients[index], null, status);
-      }
-    }
-    this.updateActiveUsername(clients);
-  }
-
-  logoutByButton(client, status, clients) {
-    const loggedOutClientsUsername = client.getUserObject().username;
     clients.forEach((clientIndex) => {
       const clientUserObject = clientIndex.getUserObject();
       if (clientUserObject && clientUserObject.username === loggedOutClientsUsername) {
