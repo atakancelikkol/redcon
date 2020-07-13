@@ -7,6 +7,7 @@ class Authenticator extends ControllerBase {
   constructor() {
     super('Authenticator');
     this.history = [];
+    this.activeUsername = undefined;
   }
 
   isAuthRequired() {
@@ -21,46 +22,55 @@ class Authenticator extends ControllerBase {
     return { history: [...this.history] };
   }
 
-  handleMessage(obj, client) {
+  handleMessage(obj, client, clients) {
     if (obj && client.getUserObject()) {
-      this.logUserActivity(client, 'interaction');
+      this.logClientActivity(client, 'interaction', clients);
     }
 
     if (obj.auth) {
       const { action } = obj.auth;
       if (action === 'loginUser') {
-        this.loginUser(client, obj.auth.username, obj.auth.password, obj.auth.receivedToken);
+        this.loginUser(client, obj.auth.username, obj.auth.password, clients);
       } else if (action === 'logoutUser') {
-        this.logoutUser(client, 'logged-out');
+        this.logoutByButton(client, 'logged-out', clients);
       } else if (action === 'checkStoredToken') {
-        this.checkStoredToken(client, obj.auth.storedToken);
+        this.checkStoredToken(client, obj.auth.storedToken, clients);
       }
     }
   }
 
-  checkStoredToken(client, receivedToken) {
+  checkStoredToken(client, receivedToken, clients) {
     if (receivedToken) {
       let result;
       try {
-        result = jwt.verify(receivedToken, ServerConfig.TokenSecret);
+        result = jwt.verify(receivedToken, ServerConfig.AuthenticatorTokenSecret);
       } catch (ex) {
         logger.debug(ex);
       }
 
       if (result && result.userObject && client.getIp() === result.userObject.ip) {
-        logger.info('Token ip verified with client ip.');
-        client.setAuthentication(true);
-        client.setUserObject(result.userObject);
-        this.sendUserToClient(client, result.userObject, 'success', receivedToken);
+        if (this.checkLoginStatus(result.userObject.username)) {
+          logger.info('Token ip verified with client ip.');
+          client.setAuthentication(true);
+          client.setUserObject(result.userObject);
+          this.sendUserToClient(client, result.userObject, 'success', receivedToken);
+          this.logClientActivity(client, 'login', clients);
+          this.activeUsername = result.userObject.username;
+        } else {
+          // Error: a user exists and its username doesn't match with the stored one
+          this.sendUserToClient(client, null, `Stored Token have been checked, but there is another user: ${this.activeUsername} has logged in`);
+        }
       } else {
         logger.debug('Token ip is invalid');
       }
     }
   }
 
-  logUserActivity(client, activityType) {
+  logClientActivity(client, activityType, clients) {
     const insertHistoryItem = (historyClient) => {
       const currentDate = new Date();
+      historyClient.setLastActivityTime(currentDate);
+      this.makeLastActivityTimesEqualOnSameUsers(client, clients);
       const historyObject = {
         username: historyClient.getUserObject().username, date: currentDate, activityDate: currentDate,
       };
@@ -74,6 +84,8 @@ class Authenticator extends ControllerBase {
       const historyItem = this.history.find((h) => h.username === client.getUserObject().username);
       if (historyItem) {
         historyItem.activityDate = new Date();
+        client.setLastActivityTime(historyItem.activityDate);
+        this.makeLastActivityTimesEqualOnSameUsers(client, clients);
       } else {
         insertHistoryItem(client);
       }
@@ -84,26 +96,96 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username/* , password */) {
+  loginUser(client, username, password, clients) {
     const isAuthenticated = true;
     if (isAuthenticated) {
-      client.setAuthentication(true);
-      client.setUserObject({
-        username, id: 'id', ip: client.getIp(),
-      });
-      const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.TokenSecret, { expiresIn: '24h' });
-      this.sendUserToClient(client, client.getUserObject(), 'success', token);
-      this.logUserActivity(client, 'login');
+      if (this.checkLoginStatus(username)) {
+        client.setAuthentication(true);
+        client.setUserObject({
+          username, id: 'id', ip: client.getIp(),
+        });
+        const token = jwt.sign({ userObject: client.getUserObject() }, ServerConfig.AuthenticatorTokenSecret, { expiresIn: '24h' });
+        this.sendUserToClient(client, client.getUserObject(), 'success', token);
+        this.logClientActivity(client, 'login', clients);
+        this.activeUsername = username;
+      } else {
+        // Error: a user exists and its username doesn't match with the entered one
+        this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
+      }
     } else {
-      this.logoutUser(client, 'login-error');
+      this.logoutByButton(client, 'login-error'); // Never enters here for now due to authentication implementation
     }
   }
 
-  logoutUser(client, status) {
-    this.logUserActivity(client, 'interaction');
+  checkIdleConnections(clients) {
+    const currentDate = new Date();
+    // logger.debug('clients.length: ',clients.length);
+    clients.forEach((client) => {
+      if (client && client.isAuthenticated() && client.getLastActivityTime()) {
+        const idleTime = (currentDate.getTime() - client.getLastActivityTime().getTime()) / 1000;
+        // logger.debug('idleTime: ', idleTime);
+        if ((idleTime > ServerConfig.AuthenticatorTimeoutDuration) /* && this.checkInactivityOfOtherClientsWithSameUsername(currentDate, index ,clients) */) { // TODO: Check if that username is active on another tab
+          this.logoutByTimeout(client, 'timeout', clients);
+        }
+      }
+    });
+  }
+
+  makeLastActivityTimesEqualOnSameUsers(client, clients) {
+    for (let index = 0; index < clients.length; index += 1) {
+      clients[index].setLastActivityTime(client.getLastActivityTime());
+    }
+  }
+
+  updateActiveUsername(clients) {
+    let allConnectionsClosedSameWithCurrentActiveUsername = true;
+    for (let index = 0; index < clients.length; index += 1) {
+      const clientUserObject = clients[index].getUserObject();
+      if (clientUserObject && clientUserObject.username === this.activeUsername) {
+        allConnectionsClosedSameWithCurrentActiveUsername = false;
+        break;
+      }
+    }
+    if (allConnectionsClosedSameWithCurrentActiveUsername) {
+      this.activeUsername = undefined;
+    }
+  }
+
+  onConnectionClosed(client, clients) {
+    this.updateActiveUsername(clients);
+  }
+
+  checkLoginStatus(username) {
+    if (this.activeUsername) {
+      if (this.activeUsername === username) {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  logoutByButton(client, status, clients) {
+    const loggedOutClientsUsername = client.getUserObject().username;
+    clients.forEach((clientIndex) => {
+      const clientUserObject = clientIndex.getUserObject();
+      if (clientUserObject && clientUserObject.username === loggedOutClientsUsername) {
+        this.logClientActivity(clientIndex, 'interaction', clients);
+        clientIndex.setAuthentication(false);
+        clientIndex.setUserObject(null);
+        this.sendUserToClient(clientIndex, null, status);
+      }
+    });
+    this.updateActiveUsername(clients);
+  }
+
+  logoutByTimeout(client, status, clients) {
+    // this.logClientActivity(client, 'logout by timeout', clients);
     client.setAuthentication(false);
     client.setUserObject(null);
     this.sendUserToClient(client, null, status);
+    client.setLastActivityTime(undefined);
+    this.updateActiveUsername(clients);
   }
 
   sendUserToClient(client, user, authStatus, token) {

@@ -8,6 +8,7 @@ class ClientConnection {
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
     this.onUserAuthChanged = onUserAuthChanged;
+    this.lastActivityTime = undefined;
   }
 
   setAuthentication(authentication) {
@@ -39,8 +40,16 @@ class ClientConnection {
     return this.userObject;
   }
 
+  getLastActivityTime() {
+    return this.lastActivityTime;
+  }
+
   setUserObject(userInf) {
     this.userObject = userInf;
+  }
+
+  setLastActivityTime(time) {
+    this.lastActivityTime = time;
   }
 }
 

@@ -76,6 +76,19 @@ describe('ClientConnection', () => {
     });
   });
 
+  describe('lastActivityTime', () => {
+    it('tests getLastActivityTime fnc works properly or not', () => {
+      const clientConnection = new ClientConnection({});
+      expect(clientConnection.getLastActivityTime()).toEqual(undefined);
+    });
+
+    it('tests setLastActivityTime fnc works properly or not', () => {
+      const clientConnection = new ClientConnection({});
+      clientConnection.setLastActivityTime('myTime');
+      expect(clientConnection.lastActivityTime).toEqual('myTime');
+    });
+  });
+
   describe('setUserObject', () => {
     it("Parameter passing to setUserObject = { username: 'user', id: 'id', ip: '::ffff:127.0.0.1' }", () => {
       const userInf = {

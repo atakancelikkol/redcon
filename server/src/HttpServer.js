@@ -55,6 +55,10 @@ class HttpServer {
     return this.app;
   }
 
+  getClients() {
+    return this.clients;
+  }
+
   onConnectionHandler(connection, req) {
     // request handler
     const client = new ClientConnection({
@@ -81,7 +85,7 @@ class HttpServer {
     const obj = JSON.parse(message);
     this.controllers.forEach((controller) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
-        controller.handleMessage(obj, client);
+        controller.handleMessage(obj, client, this.clients);
       }
     });
   }
@@ -91,6 +95,9 @@ class HttpServer {
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
+      this.controllers.forEach((controller) => {
+        controller.onConnectionClosed(client, this.clients);
+      });
     } else {
       logger.info(`Error on closing connection ${client.getId()}`);
     }
