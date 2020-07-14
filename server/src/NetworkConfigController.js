@@ -65,6 +65,7 @@ class NetworkConfigController extends ControllerBase {
     configuration.internalInterfaceName = this.normalizeString(configuration.internalInterfaceName); // eslint-disable-line
     configuration.externalInterfaceName = this.normalizeString(configuration.externalInterfaceName); // eslint-disable-line
     if (configuration.internalInterfaceName && configuration.externalInterfaceName && this.parameterCheckIsSubNet(configuration.internalInterfaceSubnet)) {
+      await this.removeConfiguration();
       await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
       await this.onConfigurationUpdated();
     }
@@ -72,6 +73,7 @@ class NetworkConfigController extends ControllerBase {
 
   async addUdpExtToIntNetworkRule({ name, externalPort, internalIp, internalPort }) {
     if (this.parameterCheckPort(externalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.addUdpExtToIntNetworkRule({ name: this.normalizeString(name), externalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
@@ -79,6 +81,7 @@ class NetworkConfigController extends ControllerBase {
 
   async removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort }) {
     if (this.parameterCheckPort(externalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.removeUdpExtToIntNetworkRule({ externalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
@@ -86,6 +89,7 @@ class NetworkConfigController extends ControllerBase {
 
   async addUdpIntToExtNetworkRule({ name, internalPort, externalIp, externalPort }) {
     if (this.parameterCheckPort(internalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.addUdpIntToExtNetworkRule({ name: this.normalizeString(name), internalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
@@ -93,6 +97,7 @@ class NetworkConfigController extends ControllerBase {
 
   async removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort }) {
     if (this.parameterCheckPort(internalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.removeUdpIntToExtNetworkRule({ internalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
@@ -100,6 +105,7 @@ class NetworkConfigController extends ControllerBase {
 
   async addTcpExtToIntNetworkRule({ name, deviceExternalPort, internalIp, internalPort }) {
     if (this.parameterCheckPort(deviceExternalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.addTcpExtToIntNetworkRule({ name: this.normalizeString(name), deviceExternalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
@@ -107,6 +113,7 @@ class NetworkConfigController extends ControllerBase {
 
   async removeTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort }) {
     if (this.parameterCheckPort(deviceExternalPort) && this.parameterCheckIp(internalIp) && this.parameterCheckPort(internalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.removeTcpExtToIntNetworkRule({ deviceExternalPort, internalIp, internalPort });
       await this.onConfigurationUpdated();
     }
@@ -114,6 +121,7 @@ class NetworkConfigController extends ControllerBase {
 
   async addTcpIntToExtNetworkRule({ name, deviceInternalPort, externalIp, externalPort }) {
     if (this.parameterCheckPort(deviceInternalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.addTcpIntToExtNetworkRule({ name: this.normalizeString(name), deviceInternalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
@@ -121,6 +129,7 @@ class NetworkConfigController extends ControllerBase {
 
   async removeTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort }) {
     if (this.parameterCheckPort(deviceInternalPort) && this.parameterCheckIp(externalIp) && this.parameterCheckPort(externalPort)) {
+      await this.removeConfiguration();
       await this.dataStorage.removeTcpIntToExtNetworkRule({ deviceInternalPort, externalIp, externalPort });
       await this.onConfigurationUpdated();
     }
@@ -178,6 +187,12 @@ class NetworkConfigController extends ControllerBase {
     }
 
     return normalizedString;
+  }
+
+  async removeConfiguration() {
+    const configuration = { ...this.dataStorage.getNetworkConfiguration() };
+    configuration.networkInterfaces = this.getNetworkInterfaces();
+    await this.platformObjects.getNetworkUtility().removeNetworkConfiguration(configuration);
   }
 
   async onConfigurationUpdated() {

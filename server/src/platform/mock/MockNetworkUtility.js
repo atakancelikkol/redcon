@@ -5,6 +5,10 @@ class MockNetworkUtility extends INetworkUtility {
   async applyNetworkConfiguration(/* config */) {
     logger.info('mock applyNetworkConfiguration');
   }
+
+  async removeNetworkConfiguration(/* config */) {
+    logger.info('mock removeNetworkConfiguration');
+  }
 }
 
 module.exports = MockNetworkUtility;
