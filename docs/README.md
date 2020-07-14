@@ -21,23 +21,11 @@ sudo apt-get install nodejs npm
 REDCON requires sync.exe for Microsoft Windows win32 platform USB synchronization issues. sync.exe should be located in ..\server\bin\win32 folder. sync.exe can be downloaded from https://docs.microsoft.com/en-us/sysinternals/downloads/sync .
 
 ## How to Run
-Build and run script can be found on <project_dir>/scripts/buildandrun.sh. This script builds the client project and copies it to server's public directory. Then starts the server in the background.
+Build script can be found on <project_dir>/scripts/build.sh. This script builds the client project and copies it to server's public directory.
 ```
 cd scripts
 # sudo is required as server will listen to port 80
-sudo ./buildandrun.sh
-
-# if you dont want to build it 
-sudo ./buildandrun.sh --no-build
-
-# if you dont want to run at the end
-sudo ./buildandrun.sh --no-run
-```
-Server should be accesible at http://localhost
-
-Note: If port 80 is already in use, script fill fail silently as it starts the server in the background. In an error case, please check the log file.
-```
-<project_dir>/server/server-log.txt
+sudo ./build.sh
 ```
 
 ## Run server automatically on startup
@@ -52,10 +40,19 @@ After copying service file, run following commands to test the service file whet
 ```
 #Service can be started with this line
 systemctl start redcon-server.service
+```
+Server should be accesible at http://localhost
+Note: If port 80 is already in use, script fill fail silently as it starts the server in the background. In an error case, please check the log file.
+```
+<project_dir>/server/logs/Server.log
+```
 
+```
 #To Control status of this service
 systemctl status redcon-server.service
+```
 
+```
 #Service can be stopped with this line
 systemctl stop redcon-server.service
 ```
