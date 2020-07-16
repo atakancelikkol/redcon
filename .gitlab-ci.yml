@@ -26,7 +26,9 @@ client:
 
 release:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli
+  image: 
+    - registry.gitlab.com/gitlab-org/release-cli
+    - node:12.16.1
   when: manual
   # We recommend the use of `except: tags` to prevent these pipelines
   # from running. See the notes section below for details.
