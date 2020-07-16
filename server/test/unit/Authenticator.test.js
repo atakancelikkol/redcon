@@ -1,6 +1,24 @@
 const jwt = require('jsonwebtoken');
+const rp = require('request-promise');
 const Authenticator = require('../../src/Authenticator');
 const ServerConfig = require('../../src/ServerConfig');
+
+jest.mock('request-promise');
+let mockErr;
+let mockAuth;
+
+jest.mock('request-promise', () => jest.fn(() => {
+  const err = mockErr;
+  const body = {
+    isAuth: mockAuth,
+  };
+
+  if (err) {
+    return Promise.reject();
+  }
+
+  return Promise.resolve(body);
+}));
 
 describe('Authenticator', () => {
   describe('isAuthRequired', () => {
@@ -71,6 +89,50 @@ describe('Authenticator', () => {
       expect(sentObject.authHistory).toStrictEqual({ history: authenticator.history });
     });
 
+    it('checkAuthServer Function Success Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+      const mockmyJSONObject = { email: username, password: pass };
+      const options = {
+        url: ServerConfig.authServer,
+        method: 'POST',
+        json: true,
+        body: mockmyJSONObject,
+      };
+      mockErr = undefined;
+      mockAuth = true;
+      expect(await authenticator.checkAuthenticationServer(username, pass))
+        .toStrictEqual(true);
+      await authenticator.checkAuthenticationServer(username, pass);
+      expect(rp).toHaveBeenCalledWith(options);
+    });
+
+    it('checkAuthServer Function Fail Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+
+      mockErr = undefined;
+      mockAuth = false;
+      expect(await authenticator.checkAuthenticationServer(username, pass))
+        .toStrictEqual(false);
+    });
+
+    it('checkAuthServer Function Error Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+
+      mockErr = true;
+      mockAuth = undefined;
+      expect(await authenticator.checkAuthenticationServer(username, pass))
+        .toStrictEqual(false);
+    });
+
     it('loginUser Function', async () => {
       const authenticator = new Authenticator();
       let sentObject;
@@ -79,7 +141,7 @@ describe('Authenticator', () => {
       });
       authenticator.checkAuthenticationServer = jest.fn();
       authenticator.checkAuthenticationServer.mockReturnValueOnce(true);
-
+      authenticator.logoutUser = jest.fn();
       const client = {
         id: '0d1ad828-5a6f-45cb-ba3e-f3cbec980125',
         ip: '::ffff:127.0.0.1',
@@ -115,6 +177,16 @@ describe('Authenticator', () => {
         },
       ];
 
+      await authenticator.loginUser(mockClient, 'user', 'pass');
+      expect(client.userObject).toStrictEqual(userInf);
+      expect(authenticator.history[0].username).toBe(client.userObject.username);
+      expect(sentObject.authHistory).toStrictEqual({ history: authenticator.history });
+
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(false);
+      await authenticator.loginUser(mockClient, 'user', 'pass');
+      expect(authenticator.logoutUser).toHaveBeenCalled();
+
+      ServerConfig.useAuthentication = false;
       await authenticator.loginUser(mockClient, 'user', 'pass');
       expect(client.userObject).toStrictEqual(userInf);
       expect(authenticator.history[0].username).toBe(client.userObject.username);
