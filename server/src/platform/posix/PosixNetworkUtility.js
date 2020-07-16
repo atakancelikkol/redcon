@@ -21,6 +21,18 @@ class PosixNetworkUtility extends INetworkUtility {
     const output = await execPromise(status.script);
     return output;
   }
+
+  async removeNetworkConfiguration(config) {
+    logger.info('removing configuration!', config);
+    const status = IPTableRuleGenerator.generateRemoveScript(config);
+    if (status.error) {
+      logger.error('error occurred during remove network rule !');
+      return { error: true };
+    }
+
+    const output = await execPromise(status.script);
+    return output;
+  }
 }
 
 module.exports = PosixNetworkUtility;

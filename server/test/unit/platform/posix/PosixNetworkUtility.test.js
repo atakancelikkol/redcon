@@ -34,4 +34,22 @@ describe('PosixNetworkUtility test', () => {
     await posixNetworkUtility.applyNetworkConfiguration(config);
     expect(execCommandString.length).not.toBe(0);
   });
+
+  test('removeNetworkConfiguration wrong configuration', async () => {
+    execCommandString = '';
+    config.interfaceConfiguration.externalInterfaceName = '';
+    const posixNetworkUtility = new PosixNetworkUtility();
+    await posixNetworkUtility.removeNetworkConfiguration(config);
+    expect(execCommandString).toBe('');
+  });
+
+  test('removeNetworkConfiguration with correct configuration', async () => {
+    execCommandString = '';
+    config.interfaceConfiguration.externalInterfaceName = 'eth0';
+    config.interfaceConfiguration.internalInterfaceName = 'eth1';
+    config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+    const posixNetworkUtility = new PosixNetworkUtility();
+    await posixNetworkUtility.removeNetworkConfiguration(config);
+    expect(execCommandString.length).not.toBe(0);
+  });
 });
