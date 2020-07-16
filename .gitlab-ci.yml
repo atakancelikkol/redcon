@@ -30,10 +30,10 @@ release:
   when: manual
   # We recommend the use of `except: tags` to prevent these pipelines
   # from running. See the notes section below for details.
-  except:
-    - tags
+  tags:
+    - linux
   script:
-    -  cd scripts
+    - cd scripts
     - sudo ./build.sh
     - release-cli create --name "v1.0.0" --description "Tis is a new release of 18.30" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
 
