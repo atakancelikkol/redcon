@@ -5,4 +5,9 @@ describe('MockNetworkUtility test', () => {
     const mockNetworkUtility = new MockNetworkUtility();
     return expect(mockNetworkUtility.applyNetworkConfiguration()).resolves.toBe();
   });
+
+  it('removeNetworkConfiguration should resolve withtout error', () => {
+    const mockNetworkUtility = new MockNetworkUtility();
+    return expect(mockNetworkUtility.removeNetworkConfiguration()).resolves.toBe();
+  });
 });

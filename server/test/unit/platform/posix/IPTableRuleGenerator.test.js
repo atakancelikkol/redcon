@@ -12,7 +12,7 @@ const config = {
 };
 
 describe('IPTableRuleGenerator test', () => {
-  it('it should fail when interface configuration is not done', () => {
+  it('generateScript should fail when interface configuration is not done', () => {
     const script = IPTableRuleGenerator.generateScript(config, false);
     expect(script).toStrictEqual({ error: true, script: '' });
   });
@@ -73,5 +73,23 @@ describe('IPTableRuleGenerator test', () => {
     expect(script.error).toBe(false);
     expect(script.script).toContain('iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 3000 -j DNAT --to-destination 10.0.0.60:8000');
     expect(script.script).toContain('iptables -A FORWARD -p tcp -d 10.0.0.60 --dport 8000 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT');
+  });
+
+  it('generateRemoveScript should fail when interface configuration is not done', () => {
+    config.interfaceConfiguration.externalInterfaceName = '';
+    const script = IPTableRuleGenerator.generateRemoveScript(config, false);
+    expect(script).toStrictEqual({ error: true, script: '' });
+  });
+
+  it('it should generate remove script ', () => {
+    config.interfaceConfiguration.externalInterfaceName = 'eth0';
+    config.interfaceConfiguration.internalInterfaceName = 'eth1';
+    config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+
+    const script = IPTableRuleGenerator.generateRemoveScript(config);
+    expect(script.error).toBe(false);
+    expect(script.script).toContain('ip route del 192.168.0.0/16 dev eth1');
+    expect(script.script).toContain('iptables -t nat -F');
+    expect(script.script).toContain('iptables -F');
   });
 });
