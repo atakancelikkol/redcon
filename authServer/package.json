@@ -1,0 +1,28 @@
+{
+  "name": "redcon-authserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "node src/authServer.js",
+    "test": "npx jest",
+    "coverage": "jest --coverage",
+    "lint": "npx eslint src/. && npx eslint test/.",
+    "fix": "npx eslint --fix src/. && npx eslint --fix test/unit/.",
+    "prepush": "npm audit fix && npx eslint src/. && npx eslint test/. && jest --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "eslint-plugin-jest": "^23.13.2",
+    "eslint-plugin-jest-formatting": "^1.2.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "jest": "^26.0.1"
+  }
+}

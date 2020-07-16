@@ -7,6 +7,7 @@
     "doc": "docs"
   },
   "dependencies": {
+    "eslint": "^7.4.0",
     "express": "^4.17.1"
   },
   "devDependencies": {
@@ -14,7 +15,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepush-hook": "cd client && npm run prepush && cd ../server && npm run prepush"
+    "prepush-hook": "cd client && npm run prepush && cd ../server && npm run prepush && cd ../authServer && npm run prepush"
   },
   "repository": {
     "type": "git",
