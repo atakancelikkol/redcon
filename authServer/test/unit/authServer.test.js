@@ -1,60 +1,36 @@
-var http = require('http');
-var fs = require('fs');
+const http = require('http');
+const express = require('express');
+const AuthServer = require('../../src/authServer.js');
 
-var server = http.createServer(function (req, res) {
+const httpServerInstance = new AuthServer();
 
-  if (req.method === "POST") {
-    console.log("here is post");
+afterAll(() => { httpServerInstance.closeConnection(); });
 
-    var body = "";
-    req.on("data", function (chunk) {
-      console.log(chunk);
-      body += chunk;
-      console.log(body);
-      console.log("here is data chunk");
+describe('AuthServer ', () => {
+  describe('Constructor ', () => {
+    it('constructs', () => {
+      const httpServer = new AuthServer();
+      expect(httpServer.port).toBe(3010);
+      expect(httpServer.app).toBe(null);
+      expect(httpServer.httpServer).toBe(null);
+      expect(httpServer.body).toBe('');
     });
+  });
 
-    req.on("end", function () {
-      res.writeHead(200, { "Content-Type": "text/html" });
-
-      console.log(body);
-      var user = JSON.parse(body)
-
-      var email = user.email;
-      var password = user.password;
-
-      console.log(email);
-      console.log(password);
-
-      var jsonarray = require('./users.json');
-      var emailFound = false;
-      var token1 = false;
-      var preStr = '';
-
-      for (var i = 0; i < jsonarray.length; i++) {
-        if (email == jsonarray[i].email) {
-          emailFound = true;
-          console.log("found email: " + jsonarray[i].email);
-          if (password == jsonarray[i].password) {
-            console.log("correct password: " + jsonarray[i].password);
-            token1 = true;
-          }
-          else {
-            console.log('wrong password')
-            token1 = false;
-          }
-        }
-      }
-      if (!emailFound) {
-        preStr = 'no such email in database : ';
-      }
-      else {
-        preStr = '';
-      }
-      res.write('{"isAuth":' + token1 + '}');
-      res.end();
-      console.log("authResult === ", token1);
+  describe('init ', () => {
+    it('should invoke express once', () => {
+      const createServerSpy = jest.spyOn(http, 'createServer');
+      httpServerInstance.init();
+      expect(createServerSpy).toHaveBeenCalledWith(httpServerInstance.app);
     });
-  }
+  });
 
-}).listen(3010);
+  describe('onDataHandler', () => {
+    it('chunk must be added to body', () => {
+      const httpServer = new AuthServer();
+      httpServer.body = 'test body';
+      httpServer.onDataHandler('test chunk');
+      expect(httpServer.body).toBe('test bodytest chunk');
+    });
+  });
+});

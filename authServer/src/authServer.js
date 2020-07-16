@@ -1,49 +1,74 @@
 const express = require('express');
+const http = require('http');
+const jsonarray = require('./utils/users.json');
+const logger = require('./utils/Logger.js');
 
-const app = express();
-const port = 3010;
+class AuthServer {
+  constructor() {
+    this.port = 3010;
+    this.app = null;
+    this.httpServer = null;
+    this.body = '';
+    this.token = undefined;
+  }
 
-app.post('/', (req, res) => {
-  let body = '';
-  req.on('data', (chunk) => {
-    console.log(chunk);
-    body += chunk;
-    console.log(body);
-    console.log('here is data chunk');
-  });
-  req.on('end', () => {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+  init() {
+    // logger.info('initializing HttpServer...');
+    this.app = express();
 
-    console.log(body);
-    const user = JSON.parse(body);
+    // start web server
+
+    this.httpServer = http.createServer(this.app);
+
+    // create http server
+
+    this.app.post('/', (req, res) => {
+      req.on('data', this.onDataHandler.bind(this));
+      req.on('end', this.onEndHandler.bind(this, res));
+    });
+    this.httpServer.listen(this.port, () => logger.info(`AuthServer listening at http://localhost:${this.port}`));
+  }
+
+  onDataHandler(chunk) {
+    // get data from client
+    logger.info('chunk == ', chunk);
+    this.body += chunk;
+    logger.info('body of the request == ', this.body);
+  }
+
+  onEndHandler(res) {
+    logger.info('body of the request == ', this.body);
+    const user = JSON.parse(this.body);
 
     const { email } = user;
     const { password } = user;
 
-    console.log(email);
-    console.log(password);
-
-    const jsonarray = require('../utils/users.json');
-    let emailFound = false;
-    let token1 = false;
-
+    // search and match from json
     for (let i = 0; i < jsonarray.length; i += 1) {
       if (email === jsonarray[i].email) {
-        emailFound = true;
-        console.log(`found email: ${jsonarray[i].email}`);
+        logger.info(`found email: ${jsonarray[i].email}`);
         if (password === jsonarray[i].password) {
-          console.log(`correct password: ${jsonarray[i].password}`);
-          token1 = true;
+          logger.info(`correct password: ${jsonarray[i].password}`);
+          this.token = true;
         } else {
-          console.log('wrong password');
-          token1 = false;
+          logger.info('wrong password');
+          this.token = false;
         }
       }
     }
-
-    res.write(`{"isAuth":${token1}}`);
+    this.body = '';
+    res.write(`{"isAuth":${this.token}}`);
     res.end();
-    console.log('authResult === ', token1);
-  });
-});
-app.listen(port, () => console.log(`AuthServer listening at http://localhost:${port}`));
+    logger.info('authResult === ', this.token);
+  }
+
+  closeConnection() {
+    this.httpServer.close();
+  }
+
+  onExit() {
+
+  }
+}
+
+module.exports = AuthServer;
