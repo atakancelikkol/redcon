@@ -34,7 +34,7 @@ release:
     - linux
   script:
     - cd scripts
-    - sudo ./build.sh
+    - ./build.sh
     - release-cli create --name "v1.0.0" --description "Tis is a new release of 18.30" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
 
 
