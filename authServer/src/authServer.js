@@ -1,15 +1,18 @@
 const express = require('express');
 const http = require('http');
-const jsonarray = require('./utils/users.json');
 const logger = require('./utils/Logger.js');
 
 class AuthServer {
-  constructor() {
+  constructor(options) {
     this.port = 3010;
     this.app = null;
     this.httpServer = null;
     this.body = '';
     this.token = undefined;
+    if (options && options.useMockUsers)
+      this.jsonarray = [{"email": "test","password": "test123"}];
+    else
+      this.jsonarray = require('./utils/users.json');
   }
 
   init() {
@@ -39,16 +42,15 @@ class AuthServer {
   onEndHandler(res) {
     logger.info('body of the request == ', this.body);
     const user = JSON.parse(this.body);
-
     const { email } = user;
     const { password } = user;
 
     // search and match from json
-    for (let i = 0; i < jsonarray.length; i += 1) {
-      if (email === jsonarray[i].email) {
-        logger.info(`found email: ${jsonarray[i].email}`);
-        if (password === jsonarray[i].password) {
-          logger.info(`correct password: ${jsonarray[i].password}`);
+    for (let i = 0; i < this.jsonarray.length; i += 1) {
+      if (email === this.jsonarray[i].email) {
+        logger.info(`found email: ${this.jsonarray[i].email}`);
+        if (password === this.jsonarray[i].password) {
+          logger.info(`correct password: ${this.jsonarray[i].password}`);
           this.token = true;
         } else {
           logger.info('wrong password');
@@ -56,6 +58,7 @@ class AuthServer {
         }
       }
     }
+    
     this.body = '';
     res.write(`{"isAuth":${this.token}}`);
     res.end();

@@ -1,8 +1,15 @@
 const http = require('http');
 const express = require('express');
 const AuthServer = require('../../src/authServer.js');
-
 const httpServerInstance = new AuthServer();
+
+const mockRes = {
+  write(input){
+    return(input);
+  },
+  end(){
+  }
+};
 
 afterAll(() => { httpServerInstance.closeConnection(); });
 
@@ -22,6 +29,7 @@ describe('AuthServer ', () => {
       const createServerSpy = jest.spyOn(http, 'createServer');
       httpServerInstance.init();
       expect(createServerSpy).toHaveBeenCalledWith(httpServerInstance.app);
+      httpServerInstance.closeConnection();
     });
   });
 
@@ -33,4 +41,22 @@ describe('AuthServer ', () => {
       expect(httpServer.body).toBe('test bodytest chunk');
     });
   });
+
+  describe('onEndHandler', () => {
+    it('body must be checked from mock database as true', () => {
+
+      const httpServer = new AuthServer({useMockUsers: true});
+      httpServer.body = '{"email": "test","password": "test123"}';
+      httpServer.onEndHandler(mockRes);
+      expect(httpServer.token).toBe(true);
+    });
+
+    it('body must be checked from mock database as false', () => {
+      const httpServer = new AuthServer({useMockUsers: true});
+      httpServer.body = '{"email": "test","password": "test"}';
+      httpServer.onEndHandler(mockRes);
+      expect(httpServer.token).toBe(false);
+    });
+  });
+
 });
