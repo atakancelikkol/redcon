@@ -15,35 +15,23 @@ server:
     - npm run lint
     - npm run coverage
 
-client:
-  stage: test
-  tags:
-    - linux
-  script:
-    - cd ./client/
-    - npm ci
-    - npm run lint
-    - npm run coverage
-
 build:
   stage: build
   tags:
     - linux
+  artifacts:
+    untracked: true
   script:
     - cd scripts
     - ./build.sh
-  cache:
-    paths:
-      - $CI_PROJECT_DIR/server/public
 
 release:
   stage: release
+  dependencies: 
+    - build
   when: manual
   # We recommend the use of `except: tags` to prevent these pipelines
   # from running. See the notes section below for details.
   image: registry.gitlab.com/gitlab-org/release-cli
   script:
-    - release-cli create --name "v1.0.0" --description "This is a new release of 17.07.2020" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
-  cache:
-    paths:
-      - $CI_PROJECT_DIR/server/public
+  - release-cli create --name "v1.0.0" --description "This is a new release of 17.07.2020" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
