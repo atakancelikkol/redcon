@@ -26,17 +26,15 @@ client:
 
 release:
   stage: release
-  image: 
-    - registry.gitlab.com/gitlab-org/release-cli
-    - node:12.16.1
   when: manual
   # We recommend the use of `except: tags` to prevent these pipelines
   # from running. See the notes section below for details.
   tags:
     - linux
+  image: node:12.16.1
   script:
-    - cd scripts
-    - ./build.sh
-    - release-cli create --name "v1.0.0" --description "Tis is a new release of 18.30" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
-
-
+  - cd scripts
+  - ./build.sh
+  image: registry.gitlab.com/gitlab-org/release-cli
+  script:
+  - release-cli create --name "v1.0.0" --description "Tis is a new release of 18.30" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
