@@ -9,10 +9,8 @@ class AuthServer {
     this.httpServer = null;
     this.body = '';
     this.token = undefined;
-    if (options && options.useMockUsers)
-      this.jsonarray = [{"email": "test","password": "test123"}];
-    else
-      this.jsonarray = require('./utils/users.json');
+    if (options && options.useMockUsers) this.jsonarray = [{ email: 'test', password: 'test123' }];
+    else this.jsonarray = require('./utils/users.json');
   }
 
   init() {
@@ -58,7 +56,7 @@ class AuthServer {
         }
       }
     }
-    
+
     this.body = '';
     res.write(`{"isAuth":${this.token}}`);
     res.end();
