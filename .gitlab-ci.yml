@@ -44,3 +44,6 @@ release:
   image: registry.gitlab.com/gitlab-org/release-cli
   script:
   - release-cli create --name "v1.0.0" --description "This is a new release of 17.07.2020" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
+    cache:
+      paths:
+        - $CI_PROJECT_DIR/server/public
