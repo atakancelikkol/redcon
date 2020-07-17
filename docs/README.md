@@ -60,7 +60,7 @@ If the service is working correctly, run following line to start server automati
 ```
 sudo systemctl enable redcon-server.service
 ```
-If the you do not want to start server automatically on boot up after enabling the service, simply you can disable it by this line
+If you do not want to start server automatically on boot up after enabling the service, simply you can disable it by this line
 ```
 sudo systemctl disable redcon-server.service
 ```

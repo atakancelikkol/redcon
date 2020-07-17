@@ -3,7 +3,6 @@ image: node:12.16.1
 stages:
   - test
   - build
-  - release
 
 server:
   stage: test
@@ -19,19 +18,6 @@ build:
   stage: build
   tags:
     - linux
-  artifacts:
-    untracked: true
   script:
     - cd scripts
     - ./build.sh
-
-release:
-  stage: release
-  dependencies: 
-    - build
-  when: manual
-  # We recommend the use of `except: tags` to prevent these pipelines
-  # from running. See the notes section below for details.
-  image: registry.gitlab.com/gitlab-org/release-cli
-  script:
-  - release-cli create --name "v1.0.0" --description "This is a new release of 17.07.2020" --tag-name "v1.0.0" --ref $CI_COMMIT_SHA
