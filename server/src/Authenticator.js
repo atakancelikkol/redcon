@@ -136,7 +136,7 @@ class Authenticator extends ControllerBase {
         this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
       }
     } else {
-      this.logoutByButton(client, 'login-error',clients); // Never enters here for now due to authentication implementation
+      this.logoutByButton(client, 'login-error', clients);
     }
   }
 

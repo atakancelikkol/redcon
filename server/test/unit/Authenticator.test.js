@@ -299,10 +299,11 @@ describe('Authenticator', () => {
       authenticator.makeLastActivityTimesEqualOnSameUsers = tempmakeLastActivityTimesEqualOnSameUsers;
     });
   });
+
   describe('checkAuthServer', () => {
     it('checkAuthServer Function Success Case', async () => {
       const authenticator = new Authenticator();
-    
+
       const username = 'user';
       const pass = 'pass';
       const mockmyJSONObject = { email: username, password: pass };
@@ -319,34 +320,34 @@ describe('Authenticator', () => {
       await authenticator.checkAuthenticationServer(username, pass);
       expect(rp).toHaveBeenCalledWith(options);
     });
-    
+
     it('checkAuthServer Function Fail Case', async () => {
       const authenticator = new Authenticator();
-    
+
       const username = 'user';
       const pass = 'pass';
-    
+
       mockErr = undefined;
       mockAuth = false;
       expect(await authenticator.checkAuthenticationServer(username, pass))
         .toStrictEqual(false);
     });
-    
+
     it('checkAuthServer Function Error Case', async () => {
       const authenticator = new Authenticator();
-    
+
       const username = 'user';
       const pass = 'pass';
-    
+
       mockErr = true;
       mockAuth = undefined;
       expect(await authenticator.checkAuthenticationServer(username, pass))
         .toStrictEqual(false);
     });
-  })
-  
+  });
+
   describe('loginUser', () => {
-    it('tests when isAuthenticated = true but else cond', async() => {
+    it('tests when isAuthenticated = true but else cond', async () => {
       const authenticator = new Authenticator();
       authenticator.activeUsername = 'mockUsername2';
       const tempsendUserToClient = authenticator.sendUserToClient;
@@ -359,7 +360,7 @@ describe('Authenticator', () => {
       authenticator.sendUserToClient = tempsendUserToClient;
     });
 
-    it('tests when isAuthenticated = true', async() => {
+    it('tests when isAuthenticated = true', async () => {
       const authenticator = new Authenticator();
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
