@@ -14,6 +14,16 @@ server:
     - npm run lint
     - npm run coverage
 
+client:
+  stage: test
+  tags:
+    - linux
+  script:
+    - cd ./client/
+    - npm ci
+    - npm run lint
+    - npm run coverage
+
 build:
   stage: build
   tags:
