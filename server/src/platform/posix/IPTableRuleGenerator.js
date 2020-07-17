@@ -104,4 +104,40 @@ function generateScript(config, useLegacyIpTables = false) {
   return { error: false, script: generatedScript };
 }
 
-module.exports = { generateScript };
+function generateRemoveScript(config, useLegacyIpTables = false) {
+  const iptablesCommand = useLegacyIpTables ? 'iptables-legacy' : 'iptables';
+
+  const interfaces = {};
+  interfaces.external = config.networkInterfaces.find((item) => item.name === config.interfaceConfiguration.externalInterfaceName);
+  interfaces.internal = config.networkInterfaces.find((item) => item.name === config.interfaceConfiguration.internalInterfaceName);
+  if (!interfaces.external || !interfaces.internal) {
+    logger.error('can not find external or internal interface!');
+    return { error: true, script: '' };
+  }
+
+  const iptableCommand = {
+    routeCommand: '',
+    clearNatCommand: '',
+    clearForwardCommand: '',
+  };
+
+  // remove static route
+  const { internalInterfaceSubnet } = config.interfaceConfiguration;
+  iptableCommand.routeCommands = `# ROUTE RULES - Remove gateway
+  ip route del ${internalInterfaceSubnet} dev ${interfaces.internal.name}
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  ${iptablesCommand} -t nat -D POSTROUTING ! -d ${internalInterfaceSubnet} -o ${interfaces.external.name} -j SNAT --to-source ${interfaces.external.ip}
+  `;
+
+  // remove nat rules
+  iptableCommand.clearNatCommand = `# NAT Rules - Clear iptables 
+  ${iptablesCommand} -t nat -F`;
+
+  iptableCommand.clearForwardCommand = `# FORWARD Rules - Clear iptables 
+  ${iptablesCommand} -F`;
+
+  const generatedScript = [iptableCommand.routeCommands, iptableCommand.clearNatCommand, iptableCommand.clearForwardCommand].join(EOL);
+  return { error: false, script: generatedScript };
+}
+
+module.exports = { generateScript, generateRemoveScript };

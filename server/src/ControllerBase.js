@@ -56,6 +56,15 @@ class ControllerBase {
   }
 
   /**
+   * onConnectionClosed
+   * onConnectionClosed is called by HttpServer when a new client connection is closed.
+   * If the controller needs to make arrangements when closing connection, override this function.
+   */
+  onConnectionClosed(/* clients */) {
+
+  }
+
+  /**
    * appendData
    * appendData is called by HttpServer when a new client is connected.
    * If the controller needs to send data to every new client, override this function.

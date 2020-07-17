@@ -148,24 +148,24 @@ describe('Logger', () => {
       const callerModule = 'callerModule.js';
       const callerLineNumber = 'callerLineNumber';
       const arg = ['argument1', 'argument2'];
-      const returnedCominedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
-      expect(returnedCominedMessage).toBe(`callerModule.js:callerLineNumber |  ${JSON.stringify(arg[0])} | ${JSON.stringify(arg[1])} |`);
+      const returnedCombinedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
+      expect(returnedCombinedMessage).toBe('callerModule.js:callerLineNumber | argument1 | argument2 |');
     });
 
     it('tests combining logger arguments if arg is a function', () => {
       const callerModule = 'callerModule.js';
       const callerLineNumber = 'callerLineNumber';
       const arg = ['argument1', loggerInstance.debug];
-      const returnedCominedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
-      expect(returnedCominedMessage).toBe(`callerModule.js:callerLineNumber |  ${JSON.stringify(arg[0])} | ${typeof arg[1]} |`);
+      const returnedCombinedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
+      expect(returnedCombinedMessage).toBe('callerModule.js:callerLineNumber | argument1 | function |');
     });
 
     it('tests combining logger arguments if arg is a null', () => {
       const callerModule = 'callerModule.js';
       const callerLineNumber = 'callerLineNumber';
       const arg = ['argument1', null];
-      const returnedCominedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
-      expect(returnedCominedMessage).toBe(`callerModule.js:callerLineNumber |  ${JSON.stringify(arg[0])} | ${arg[1]} |`);
+      const returnedCombinedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
+      expect(returnedCombinedMessage).toBe(`callerModule.js:callerLineNumber | argument1 | ${arg[1]} |`);
     });
 
     it('tests combining logger arguments if arg has its own toString Property', () => {
@@ -173,8 +173,8 @@ describe('Logger', () => {
       const callerLineNumber = 'callerLineNumber';
       const obj = { toString: () => 'Object is Converted to String' };
       const arg = ['argument1', obj];
-      const returnedCominedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
-      expect(returnedCominedMessage).toBe(`callerModule.js:callerLineNumber |  ${JSON.stringify(arg[0])} | Object is Converted to String |`);
+      const returnedCombinedMessage = loggerInstance.concatenateArguments(callerModule, callerLineNumber, arg);
+      expect(returnedCombinedMessage).toBe('callerModule.js:callerLineNumber | argument1 | Object is Converted to String |');
     });
   });
 });

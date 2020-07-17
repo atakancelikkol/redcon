@@ -1,12 +1,23 @@
 class ClientConnection {
   constructor({
-    id, ip, connection, isAuthenticated,
+    id, ip, connection, isAuthenticated, onUserAuthChanged,
   }) {
     this.id = id;
     this.ip = ip;
     this.connection = connection;
     this.authenticated = isAuthenticated;
     this.userObject = undefined;
+    this.onUserAuthChanged = onUserAuthChanged;
+    this.lastActivityTime = undefined;
+  }
+
+  setAuthentication(authentication) {
+    if (authentication !== this.authenticated) {
+      this.authenticated = authentication;
+      if (this.onUserAuthChanged) {
+        this.onUserAuthChanged();
+      }
+    }
   }
 
   send(obj) {
@@ -15,10 +26,6 @@ class ClientConnection {
 
   isAuthenticated() {
     return this.authenticated;
-  }
-
-  setAuthentication(authentication) {
-    this.authenticated = authentication;
   }
 
   getId() {
@@ -33,8 +40,16 @@ class ClientConnection {
     return this.userObject;
   }
 
+  getLastActivityTime() {
+    return this.lastActivityTime;
+  }
+
   setUserObject(userInf) {
     this.userObject = userInf;
+  }
+
+  setLastActivityTime(time) {
+    this.lastActivityTime = time;
   }
 }
 

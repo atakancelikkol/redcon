@@ -55,6 +55,10 @@ class HttpServer {
     return this.app;
   }
 
+  getClients() {
+    return this.clients;
+  }
+
   onConnectionHandler(connection, req) {
     // request handler
     const client = new ClientConnection({
@@ -62,6 +66,9 @@ class HttpServer {
       ip: req.connection.remoteAddress,
       connection,
       isAuthenticated: false,
+      onUserAuthChanged: () => {
+        this.sendInitialMessage(client);
+      },
     });
     logger.info('New connection request received! id: ', client.getId());
     logger.info('Remote client address:', client.getIp());
@@ -78,7 +85,7 @@ class HttpServer {
     const obj = JSON.parse(message);
     this.controllers.forEach((controller) => {
       if (!controller.isAuthRequired() || client.isAuthenticated()) {
-        controller.handleMessage(obj, client);
+        controller.handleMessage(obj, client, this.clients);
       }
     });
   }
@@ -88,6 +95,9 @@ class HttpServer {
     const index = this.clients.indexOf(client);
     if (index !== -1) {
       this.clients.splice(index, 1);
+      this.controllers.forEach((controller) => {
+        controller.onConnectionClosed(client, this.clients);
+      });
     } else {
       logger.info(`Error on closing connection ${client.getId()}`);
     }
@@ -97,9 +107,10 @@ class HttpServer {
     // collect data from data controllers
     const obj = {};
     this.controllers.forEach((controller) => {
-      controller.appendData(obj);
+      if (!controller.isAuthRequired() || client.isAuthenticated()) {
+        controller.appendData(obj);
+      }
     });
-
     client.connection.send(JSON.stringify(obj));
   }
 

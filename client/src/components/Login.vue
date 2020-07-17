@@ -44,10 +44,12 @@
           Login
         </button>
         <b-alert
-          :show="authStatus == 'login-error'"
+          :show="loginError"
           variant="danger"
+          style="margin-top: 10px"
+          dismissible
         >
-          Error ocurred on login
+          {{ loginError }}
         </b-alert>
       </div>
       <b-table
@@ -101,6 +103,12 @@ export default {
         item.activityDate = `${itemActivityDate.toLocaleString()} ( ${timeAgo.format(itemActivityDate)} )`;
       });
       return history;
+    },
+    loginError() {
+      if (!this.authStatus) {
+        return false;
+      }
+      return this.authStatus;
     },
   },
   watch: {

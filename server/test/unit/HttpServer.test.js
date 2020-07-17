@@ -30,6 +30,14 @@ describe('HttpServer ', () => {
     });
   });
 
+  describe('getClients ', () => {
+    it('should get the clients array', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      httpServer.clients = [{ myClient: 'test' }];
+      expect(httpServer.getClients()).toStrictEqual([{ myClient: 'test' }]);
+    });
+  });
+
   describe('getApp ', () => {
     it('gets app', () => {
       const httpServer = new HttpServer({ controllers: [] });
@@ -94,8 +102,9 @@ describe('HttpServer ', () => {
   });
 
   describe('onCloseHandler', () => {
-    it('handles on Close if index !== -1', () => {
-      const httpServer = new HttpServer({ controllers: [] });
+    it('handles on Close if index !== -1', () => { // eslint-disable-line
+      const controllers = [{ onConnectionClosed: () => {} }];
+      const httpServer = new HttpServer({ controllers });
       const mockClient = {
         id: 'myConnectionClosingId',
         getId: () => mockClient.id,
@@ -105,7 +114,7 @@ describe('HttpServer ', () => {
       expect(httpServer.clients.length).toBe(0);
     });
 
-    it('handles on Close if index === -1', () => {
+    it('handles on Close if index === -1', () => { // eslint-disable-line
       const httpServer = new HttpServer({ controllers: [] });
       const mockClient = {
         id: 'myConnectionClosingId',
@@ -121,12 +130,17 @@ describe('HttpServer ', () => {
     it('tests sending initial message', () => {
       const testObject = { testMember: 'test' };
       const controllers = [];
-      const mockController = {appendData: (obj) => { obj.testMember = 'test'; }}; // eslint-disable-line      
-      controllers.push(mockController);
-      const httpServer = new HttpServer({ controllers });
       let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      const mockClient = { connection: mockConnection };
+      const mockController = {appendData: (obj) => { obj.testMember = 'test'; },isAuthRequired: () => true}; // eslint-disable-line      
+      const mockClient = {
+        connection: mockConnection,
+        isAuthenticated: () => true,
+        id: 'sendInitialMessageId',
+        getId: () => mockClient.id,
+      };
+      controllers.push(mockController);
+      const httpServer = new HttpServer({ controllers });
       httpServer.sendInitialMessage(mockClient);
       expect(sendObject).toStrictEqual(JSON.stringify(testObject));
     });
