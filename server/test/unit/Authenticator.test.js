@@ -164,12 +164,6 @@ describe('Authenticator', () => {
         send: () => { },
       };
 
-      const obj = {
-        auth: {
-          action: 'loginUser', username: 'user', password: 'pass',
-        },
-      };
-
       const currentDate = new Date();
       authenticator.history = [
         {

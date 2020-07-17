@@ -10,7 +10,7 @@ class AuthServer {
     this.body = '';
     this.token = undefined;
     if (options && options.useMockUsers) this.jsonarray = [{ email: 'test', password: 'test123' }];
-    else this.jsonarray = require('./utils/users.json');
+    else this.jsonarray = require('./utils/users.json'); // eslint-disable-line
   }
 
   init() {
@@ -61,6 +61,7 @@ class AuthServer {
     res.write(`{"isAuth":${this.token}}`);
     res.end();
     logger.info('authResult === ', this.token);
+    this.token = undefined;
   }
 
   closeConnection() {
