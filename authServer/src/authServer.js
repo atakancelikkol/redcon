@@ -35,6 +35,7 @@ class AuthServer {
     logger.info('chunk == ', chunk);
     this.body += chunk;
     logger.info('body of the request == ', this.body);
+    this.token = undefined;
   }
 
   onEndHandler(res) {
@@ -61,7 +62,6 @@ class AuthServer {
     res.write(`{"isAuth":${this.token}}`);
     res.end();
     logger.info('authResult === ', this.token);
-    this.token = undefined;
   }
 
   closeConnection() {
