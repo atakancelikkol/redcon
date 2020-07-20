@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const logger = require('./utils/Logger.js');
+const logger = require('../../server/src/util/Logger.js');
 
 class AuthServer {
   constructor(options) {
@@ -9,8 +9,8 @@ class AuthServer {
     this.httpServer = null;
     this.body = '';
     this.token = undefined;
-    if (options && options.useMockUsers) this.jsonarray = [{ email: 'test', password: 'test123' }];
-    else this.jsonarray = require('./utils/users.json'); // eslint-disable-line
+    if (options && options.useMockUsers) this.userArray = [{ email: 'test', password: 'test123' }];
+    else this.userArray = require('./utils/users.json'); // eslint-disable-line
   }
 
   init() {
@@ -32,24 +32,23 @@ class AuthServer {
 
   onDataHandler(chunk) {
     // get data from client
-    logger.info('chunk == ', chunk);
+    logger.info('chunk received');
     this.body += chunk;
-    logger.info('body of the request == ', this.body);
     this.token = undefined;
   }
 
   onEndHandler(res) {
-    logger.info('body of the request == ', this.body);
     const user = JSON.parse(this.body);
     const { email } = user;
     const { password } = user;
+    logger.info('email of the request == ', email);
 
     // search and match from json
-    for (let i = 0; i < this.jsonarray.length; i += 1) {
-      if (email === this.jsonarray[i].email) {
-        logger.info(`found email: ${this.jsonarray[i].email}`);
-        if (password === this.jsonarray[i].password) {
-          logger.info(`correct password: ${this.jsonarray[i].password}`);
+    for (let i = 0; i < this.userArray.length; i += 1) {
+      if (email === this.userArray[i].email) {
+        logger.info(`found email: ${this.userArray[i].email}`);
+        if (password === this.userArray[i].password) {
+          logger.info(`correct password for  ${this.userArray[i].email}`);
           this.token = true;
         } else {
           logger.info('wrong password');
