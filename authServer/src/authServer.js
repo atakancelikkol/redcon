@@ -1,10 +1,11 @@
 const express = require('express');
 const http = require('http');
 const logger = require('../../server/src/util/Logger.js');
+const AuthServerConfig = require('./AuthServerConfig');
 
 class AuthServer {
   constructor(options) {
-    this.port = 3010;
+    this.port = AuthServerConfig.ServerPort;
     this.app = null;
     this.httpServer = null;
     this.body = '';
