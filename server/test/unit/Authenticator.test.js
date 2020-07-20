@@ -306,12 +306,12 @@ describe('Authenticator', () => {
 
       const username = 'user';
       const pass = 'pass';
-      const mockmyJSONObject = { email: username, password: pass };
+      const mockUserInfo = { email: username, password: pass };
       const options = {
         url: ServerConfig.authServer,
         method: 'POST',
         json: true,
-        body: mockmyJSONObject,
+        body: mockUserInfo,
       };
       mockErr = undefined;
       mockAuth = true;

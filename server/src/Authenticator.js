@@ -98,13 +98,13 @@ class Authenticator extends ControllerBase {
   }
 
   async checkAuthenticationServer(username, pass) {
-    const myJSONObject = { email: username, password: pass };
+    const userInfo = { email: username, password: pass };
     let isAuth = false;
     const options = {
       url: ServerConfig.authServer,
       method: 'POST',
       json: true,
-      body: myJSONObject,
+      body: userInfo,
     };
     await rp(options).then((body) => {
       isAuth = body.isAuth;
