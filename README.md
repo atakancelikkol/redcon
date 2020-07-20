@@ -29,7 +29,7 @@ git push --set-upstream origin feature/redcon-<issue number>
 1. To create a release, go to "Project overwiev>Releases" from left menu in Gitlab.
 2. Choose New releases.
 3. Add a release tag name for your application. (Ex: v1.0.0)
-4. Select a branch. Release will be created from selected branch. (Ex: development)
+4. Select a branch. Release will be created from selected branch. (Ex: master)
 5. Add a message as to your release. (Ex: Release v1.0.0)
 6. Add release notes. This section is not optional. Changes can be defined in this section.
 7. After choose "Create tag", created release can be seen under "Project overview>Releases".
