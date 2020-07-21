@@ -308,10 +308,11 @@ describe('Authenticator', () => {
       const pass = 'pass';
       const mockUserInfo = { email: username, password: pass };
       const options = {
-        url: ServerConfig.authServer,
+        url: `${ServerConfig.authServer}/checkUserAuth`,
         method: 'POST',
         json: true,
         body: mockUserInfo,
+        headers: { 'Content-Type': 'application/json' },
       };
       mockErr = undefined;
       mockAuth = true;
