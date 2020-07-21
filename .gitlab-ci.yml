@@ -12,7 +12,7 @@ server:
     - npm ci
     - npm run lint
     - npm run coverage
-    - cd ./authServer/
+    - cd ../authServer/
     - npm ci
     - npm run lint
     - npm run coverage
