@@ -22,3 +22,13 @@ client:
     - npm ci
     - npm run lint
     - npm run coverage
+    
+authServer:
+  stage: test
+  tags:
+    - linux
+  script:
+    - cd ./authServer/
+    - npm ci
+    - npm run lint
+    - npm run coverage
