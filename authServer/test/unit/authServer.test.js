@@ -1,5 +1,6 @@
 const http = require('http');
 const AuthServer = require('../../src/authServer.js');
+const AuthServerConfig = require('../../src/AuthServerConfig');
 
 const httpServerInstance = new AuthServer();
 
@@ -9,7 +10,7 @@ describe('AuthServer ', () => {
   describe('Constructor ', () => {
     it('constructs', () => {
       const httpServer = new AuthServer();
-      expect(httpServer.port).toBe(3010);
+      expect(httpServer.port).toBe(AuthServerConfig.ServerPort);
       expect(httpServer.app).toBe(null);
       expect(httpServer.httpServer).toBe(null);
     });
