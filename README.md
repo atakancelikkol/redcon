@@ -25,6 +25,15 @@ git push --set-upstream origin feature/redcon-<issue number>
 ```
 4. Open a merge request to the development branch. After review it will be merged to the development by the reviewer.
 
+# How to create release using Gitlab User Interface
+1. To create a release, go to "Project overwiev>Releases" from left menu in Gitlab.
+2. Choose New releases.
+3. Add a release tag name for your application. (Ex: v1.0.0)
+4. Select a branch. Release will be created from selected branch. (Ex: master)
+5. Add a message as to your release. (Ex: Release v1.0.0)
+6. Add release notes. This section is not optional. Changes can be defined in this section.
+7. After choose "Create tag", created release can be seen under "Project overview>Releases".
+
 # Coding Standarts
 Please check [the coding standards document](docs/CodingStandards.md).
 
