@@ -33,7 +33,7 @@ class Authenticator extends ControllerBase {
       if (action === 'loginUser') {
         this.loginUser(client, obj.auth.username, obj.auth.password, clients);
       } else if (action === 'logoutUser') {
-        this.logoutByButton(client, 'logged-out', clients);
+        this.logoutByButton(client, 'Logged-out', clients);
       } else if (action === 'checkStoredToken') {
         this.checkStoredToken(client, obj.auth.storedToken, clients);
       }
@@ -134,10 +134,14 @@ class Authenticator extends ControllerBase {
         this.activeUsername = username;
       } else {
         // Error: a user exists and its username doesn't match with the entered one
-        this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
+        this.sendUserToClient(client, null, `Can't login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
       }
+    } else if (isAuthenticated === false) {
+      // this.logoutByButton(client, 'login-error', clients);
+      this.sendUserToClient(client, null, `Can't login '${username}', Wrong password Try again!`);
     } else {
-      this.logoutByButton(client, 'login-error', clients);
+      // this.logoutByButton(client, 'login-error', clients);
+      this.sendUserToClient(client, null, 'Can\'t login, Check username!');
     }
   }
 

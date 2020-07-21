@@ -380,6 +380,46 @@ describe('Authenticator', () => {
       authenticator.sendUserToClient = tempsendUserToClient;
       authenticator.logClientActivity = templogClientActivity;
     });
+
+    it('tests when isAuthenticated = false', async () => {
+      const authenticator = new Authenticator();
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+      const templogClientActivity = authenticator.logClientActivity;
+      authenticator.logClientActivity = jest.fn();
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+      authenticator.checkAuthenticationServer = jest.fn();
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(false);
+      await authenticator.loginUser(mockClient, 'mockUsername', []);
+      expect(authenticator.sendUserToClient).toHaveBeenCalledWith(expect.anything(), null, 'Can\'t login \'mockUsername\', Wrong password Try again!');
+      authenticator.sendUserToClient = tempsendUserToClient;
+      authenticator.logClientActivity = templogClientActivity;
+    });
+
+    it('tests when isAuthenticated = undefined', async () => {
+      const authenticator = new Authenticator();
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+      const templogClientActivity = authenticator.logClientActivity;
+      authenticator.logClientActivity = jest.fn();
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+      authenticator.checkAuthenticationServer = jest.fn();
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(undefined);
+      await authenticator.loginUser(mockClient, 'mockUsername', []);
+      expect(authenticator.sendUserToClient).toHaveBeenCalledWith(expect.anything(), null, 'Can\'t login, Check username!');
+      authenticator.sendUserToClient = tempsendUserToClient;
+      authenticator.logClientActivity = templogClientActivity;
+    });
   });
 
   describe('checkIdleConnections', () => {
