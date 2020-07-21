@@ -1,17 +1,18 @@
 const express = require('express');
 const http = require('http');
+const bodyParser = require('body-parser');
 const logger = require('../../server/src/util/Logger.js');
 const AuthServerConfig = require('./AuthServerConfig');
+const usersJson = require('./utils/users.json');
 
 class AuthServer {
   constructor(options) {
     this.port = AuthServerConfig.ServerPort;
     this.app = null;
     this.httpServer = null;
-    this.body = '';
     this.token = undefined;
-    if (options && options.useMockUsers) this.userArray = [{ email: 'test', password: 'test123' }];
-    else this.userArray = require('./utils/users.json'); // eslint-disable-line
+    if (options && options.useMockUsers) this.userArray = [{ email: 'test', password: 'validPass' }];
+    else this.userArray = usersJson;
   }
 
   init() {
@@ -24,22 +25,17 @@ class AuthServer {
 
     // create http server
 
-    this.app.post('/', (req, res) => {
-      req.on('data', this.onDataHandler.bind(this));
-      req.on('end', this.onEndHandler.bind(this, res));
+    this.app.use(bodyParser.json());
+
+    this.app.post('/checkUserAuth', (req, res) => {
+      this.token = undefined;
+      this.onDataHandler(req, res);
     });
     this.httpServer.listen(this.port, () => logger.info(`AuthServer listening at http://localhost:${this.port}`));
   }
 
-  onDataHandler(chunk) {
-    // get data from client
-    logger.info('chunk received');
-    this.body += chunk;
-    this.token = undefined;
-  }
-
-  onEndHandler(res) {
-    const user = JSON.parse(this.body);
+  onDataHandler(req, res) {
+    const user = req.body;
     const { email } = user;
     const { password } = user;
     logger.info('email of the request == ', email);
@@ -58,7 +54,6 @@ class AuthServer {
       }
     }
 
-    this.body = '';
     res.write(`{"isAuth":${this.token}}`);
     res.end();
     logger.info('authResult === ', this.token);

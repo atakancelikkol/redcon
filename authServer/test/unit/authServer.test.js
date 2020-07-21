@@ -3,14 +3,6 @@ const AuthServer = require('../../src/authServer.js');
 
 const httpServerInstance = new AuthServer();
 
-const mockRes = {
-  write(input) {
-    return (input);
-  },
-  end() {
-  },
-};
-
 afterAll(() => { httpServerInstance.closeConnection(); });
 
 describe('AuthServer ', () => {
@@ -20,7 +12,6 @@ describe('AuthServer ', () => {
       expect(httpServer.port).toBe(3010);
       expect(httpServer.app).toBe(null);
       expect(httpServer.httpServer).toBe(null);
-      expect(httpServer.body).toBe('');
     });
   });
 
@@ -34,26 +25,37 @@ describe('AuthServer ', () => {
   });
 
   describe('onDataHandler', () => {
-    it('chunk must be added to body', () => {
-      const httpServer = new AuthServer();
-      httpServer.body = 'test body';
-      httpServer.onDataHandler('test chunk');
-      expect(httpServer.body).toBe('test bodytest chunk');
-    });
-  });
-
-  describe('onEndHandler', () => {
     it('body must be checked from mock database as true', () => {
       const httpServer = new AuthServer({ useMockUsers: true });
-      httpServer.body = '{"email": "test","password": "test123"}';
-      httpServer.onEndHandler(mockRes);
+      const mockRes = {
+        write(input) {
+          return (input);
+        },
+        end() {
+        },
+      };
+      const mockReq = {
+        body: { email: 'test', password: 'validPass' },
+      };
+      httpServer.onDataHandler(mockReq, mockRes);
+
       expect(httpServer.token).toBe(true);
     });
 
     it('body must be checked from mock database as false', () => {
       const httpServer = new AuthServer({ useMockUsers: true });
-      httpServer.body = '{"email": "test","password": "test"}';
-      httpServer.onEndHandler(mockRes);
+      const mockRes = {
+        write(input) {
+          return (input);
+        },
+        end() {
+        },
+      };
+      const mockReq = {
+        body: { email: 'test', password: 'invalidPass' },
+      };
+      httpServer.onDataHandler(mockReq, mockRes);
+
       expect(httpServer.token).toBe(false);
     });
   });

@@ -101,10 +101,11 @@ class Authenticator extends ControllerBase {
     const userInfo = { email: username, password: pass };
     let isAuth = false;
     const options = {
-      url: ServerConfig.authServer,
+      url: ServerConfig.authServer+'/checkUserAuth',
       method: 'POST',
       json: true,
       body: userInfo,
+      headers: {"Content-Type": "application/json"}
     };
     await rp(options).then((body) => {
       isAuth = body.isAuth;
