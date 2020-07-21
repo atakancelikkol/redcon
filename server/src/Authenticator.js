@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const rp = require('request-promise');
 const ServerConfig = require('./ServerConfig');
 const ControllerBase = require('./ControllerBase');
 const logger = require('./util/Logger');
@@ -96,9 +97,32 @@ class Authenticator extends ControllerBase {
     this.sendMessageCallback(this, obj);
   }
 
-  loginUser(client, username, password, clients) {
-    const isAuthenticated = true;
-    if (isAuthenticated) {
+  async checkAuthenticationServer(username, pass) {
+    const userInfo = { email: username, password: pass };
+    let isAuth = false;
+    const options = {
+      url: `${ServerConfig.authServer}/checkUserAuth`,
+      method: 'POST',
+      json: true,
+      body: userInfo,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    await rp(options).then((body) => {
+      isAuth = body.isAuth;
+    }).catch((error) => {
+      logger.error(error);
+    });
+    return (isAuth);
+  }
+
+  async loginUser(client, username, password, clients) {
+    let isAuthenticated = false;
+    if (ServerConfig.useAuthentication) {
+      isAuthenticated = await this.checkAuthenticationServer(username, password);
+    } else {
+      isAuthenticated = true;
+    }
+    if (isAuthenticated === true) {
       if (this.checkLoginStatus(username)) {
         client.setAuthentication(true);
         client.setUserObject({
@@ -113,7 +137,7 @@ class Authenticator extends ControllerBase {
         this.sendUserToClient(client, null, `Cant login with '${username}' username, since another user: ${this.activeUsername} has logged in`);
       }
     } else {
-      this.logoutByButton(client, 'login-error'); // Never enters here for now due to authentication implementation
+      this.logoutByButton(client, 'login-error', clients);
     }
   }
 
@@ -189,9 +213,11 @@ class Authenticator extends ControllerBase {
   }
 
   sendUserToClient(client, user, authStatus, token) {
-    client.send({ auth: {
-      user, authStatus, token,
-    } });
+    client.send({
+      auth: {
+        user, authStatus, token,
+      },
+    });
   }
 }
 

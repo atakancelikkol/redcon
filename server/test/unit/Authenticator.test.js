@@ -1,6 +1,24 @@
 const jwt = require('jsonwebtoken');
+const rp = require('request-promise');
 const Authenticator = require('../../src/Authenticator');
 const ServerConfig = require('../../src/ServerConfig');
+
+jest.mock('request-promise');
+let mockErr;
+let mockAuth;
+
+jest.mock('request-promise', () => jest.fn(() => {
+  const err = mockErr;
+  const body = {
+    isAuth: mockAuth,
+  };
+
+  if (err) {
+    return Promise.reject();
+  }
+
+  return Promise.resolve(body);
+}));
 
 describe('Authenticator', () => {
   describe('isAuthRequired', () => {
@@ -58,6 +76,7 @@ describe('Authenticator', () => {
       const mockObj = {
         auth: { action: 'checkStoredToken', storedToken: 'mockToken' },
       };
+
       const mockClient = {
         getUserObject: () => undefined,
       };
@@ -134,7 +153,7 @@ describe('Authenticator', () => {
         setAuthentication: () => { client.authenticated = true; },
         getIp: () => client.ip,
         setUserObject: (o) => { client.userObject.username = o.username; client.id = 'id'; client.ip = '::ffff:127.0.0.1'; },
-        send: () => {},
+        send: () => { },
       };
       authenticator.result = {
         userObject: {
@@ -173,7 +192,7 @@ describe('Authenticator', () => {
         setAuthentication: () => { client.authenticated = true; },
         getIp: () => client.ip,
         setUserObject: (o) => { client.userObject.username = o.username; client.id = 'id'; client.ip = '::ffff:127.0.0.1'; },
-        send: () => {},
+        send: () => { },
       };
       authenticator.result = {
         userObject: {
@@ -281,18 +300,68 @@ describe('Authenticator', () => {
     });
   });
 
+  describe('checkAuthServer', () => {
+    it('checkAuthServer Function Success Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+      const mockUserInfo = { email: username, password: pass };
+      const options = {
+        url: `${ServerConfig.authServer}/checkUserAuth`,
+        method: 'POST',
+        json: true,
+        body: mockUserInfo,
+        headers: { 'Content-Type': 'application/json' },
+      };
+      mockErr = undefined;
+      mockAuth = true;
+      expect(await authenticator.checkAuthenticationServer(username, pass))
+        .toStrictEqual(true);
+      await authenticator.checkAuthenticationServer(username, pass);
+      expect(rp).toHaveBeenCalledWith(options);
+    });
+
+    it('checkAuthServer Function Fail Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+
+      mockErr = undefined;
+      mockAuth = false;
+      expect(await authenticator.checkAuthenticationServer(username, pass))
+        .toStrictEqual(false);
+    });
+
+    it('checkAuthServer Function Error Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+
+      mockErr = true;
+      mockAuth = undefined;
+      expect(await authenticator.checkAuthenticationServer(username, pass))
+        .toStrictEqual(false);
+    });
+  });
+
   describe('loginUser', () => {
-    it('tests when isAuthenticated = true but else cond', () => {
+    it('tests when isAuthenticated = true but else cond', async () => {
       const authenticator = new Authenticator();
       authenticator.activeUsername = 'mockUsername2';
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
-      authenticator.loginUser({}, 'mockUsername', []);
+      authenticator.checkAuthenticationServer = jest.fn();
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(true);
+
+      await authenticator.loginUser({}, 'mockUsername', []);
       expect(authenticator.sendUserToClient).toHaveBeenCalled();
       authenticator.sendUserToClient = tempsendUserToClient;
     });
 
-    it('tests when isAuthenticated = true', () => {
+    it('tests when isAuthenticated = true', async () => {
       const authenticator = new Authenticator();
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
@@ -304,7 +373,9 @@ describe('Authenticator', () => {
         getUserObject: () => {},
         getIp: () => 'mockIp',
       };
-      authenticator.loginUser(mockClient, 'mockUsername', []);
+      authenticator.checkAuthenticationServer = jest.fn();
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(true);
+      await authenticator.loginUser(mockClient, 'mockUsername', []);
       expect(authenticator.activeUsername).toBe('mockUsername');
       authenticator.sendUserToClient = tempsendUserToClient;
       authenticator.logClientActivity = templogClientActivity;

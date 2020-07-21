@@ -14,6 +14,10 @@ const ServerConfig = {
   // Win32USBUtility
   USBLabelName: 'REDCON',
 
+  // Authentication configurations
+
+  useAuthentication: false,
+  authServer: 'http://localhost:3010',
   //
   GPIOPinConfigName: 'raspberry',
 };

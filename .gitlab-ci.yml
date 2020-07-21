@@ -13,6 +13,10 @@ server:
     - npm ci
     - npm run lint
     - npm run coverage
+    - cd ../authServer/
+    - npm ci
+    - npm run lint
+    - npm run coverage
 
 client:
   stage: test
