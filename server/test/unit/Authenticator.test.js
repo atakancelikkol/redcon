@@ -350,6 +350,7 @@ describe('Authenticator', () => {
   describe('loginUser', () => {
     it('tests when isAuthenticated = true but else cond', async () => {
       const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
       authenticator.activeUsername = 'mockUsername2';
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
@@ -363,6 +364,8 @@ describe('Authenticator', () => {
 
     it('tests when isAuthenticated = true', async () => {
       const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
+
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
       const templogClientActivity = authenticator.logClientActivity;
@@ -383,6 +386,8 @@ describe('Authenticator', () => {
 
     it('tests when isAuthenticated = false', async () => {
       const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
+
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
       const templogClientActivity = authenticator.logClientActivity;
@@ -403,6 +408,7 @@ describe('Authenticator', () => {
 
     it('tests when isAuthenticated = undefined', async () => {
       const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
       const templogClientActivity = authenticator.logClientActivity;
