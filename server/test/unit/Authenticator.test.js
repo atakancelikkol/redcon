@@ -350,6 +350,7 @@ describe('Authenticator', () => {
   describe('loginUser', () => {
     it('tests when isAuthenticated = true but else cond', async () => {
       const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
       authenticator.activeUsername = 'mockUsername2';
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
@@ -363,6 +364,8 @@ describe('Authenticator', () => {
 
     it('tests when isAuthenticated = true', async () => {
       const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
+
       const tempsendUserToClient = authenticator.sendUserToClient;
       authenticator.sendUserToClient = jest.fn();
       const templogClientActivity = authenticator.logClientActivity;
@@ -377,6 +380,49 @@ describe('Authenticator', () => {
       authenticator.checkAuthenticationServer.mockReturnValueOnce(true);
       await authenticator.loginUser(mockClient, 'mockUsername', []);
       expect(authenticator.activeUsername).toBe('mockUsername');
+      authenticator.sendUserToClient = tempsendUserToClient;
+      authenticator.logClientActivity = templogClientActivity;
+    });
+
+    it('tests when isAuthenticated = false', async () => {
+      const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
+
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+      const templogClientActivity = authenticator.logClientActivity;
+      authenticator.logClientActivity = jest.fn();
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+      authenticator.checkAuthenticationServer = jest.fn();
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(false);
+      await authenticator.loginUser(mockClient, 'mockUsername', []);
+      expect(authenticator.sendUserToClient).toHaveBeenCalledWith(expect.anything(), null, 'Can\'t login \'mockUsername\', Wrong password Try again!');
+      authenticator.sendUserToClient = tempsendUserToClient;
+      authenticator.logClientActivity = templogClientActivity;
+    });
+
+    it('tests when isAuthenticated = undefined', async () => {
+      const authenticator = new Authenticator();
+      ServerConfig.useAuthentication = true;
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+      const templogClientActivity = authenticator.logClientActivity;
+      authenticator.logClientActivity = jest.fn();
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+      authenticator.checkAuthenticationServer = jest.fn();
+      authenticator.checkAuthenticationServer.mockReturnValueOnce(undefined);
+      await authenticator.loginUser(mockClient, 'mockUsername', []);
+      expect(authenticator.sendUserToClient).toHaveBeenCalledWith(expect.anything(), null, 'Can\'t login, Check username!');
       authenticator.sendUserToClient = tempsendUserToClient;
       authenticator.logClientActivity = templogClientActivity;
     });
