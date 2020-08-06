@@ -1,9 +1,11 @@
 const http = require('http');
 const HttpServer = require('../../src/HttpServer');
+const ServerConfig = require('../../src/ServerConfig');
 
 const httpServerInstance = new HttpServer({ controllers: [] });
+const useAuthenticationTemp = ServerConfig.useAuthentication;
 
-afterAll(() => { httpServerInstance.httpServer.close(); });
+afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; });
 
 describe('HttpServer ', () => {
   describe('Constructor ', () => {
@@ -51,13 +53,15 @@ describe('HttpServer ', () => {
       const httpServer = new HttpServer({ controllers: [] });
       let secondParameterMessageEvent;
       let secondParameterCloseEvent;
-      const mockConnection = { on: (p1, p2) => {
-        if (p1 === 'message') {
-          secondParameterMessageEvent = p2;
-        } else if (p1 === 'close') {
-          secondParameterCloseEvent = p2;
-        }
-      } };
+      const mockConnection = {
+        on: (p1, p2) => {
+          if (p1 === 'message') {
+            secondParameterMessageEvent = p2;
+          } else if (p1 === 'close') {
+            secondParameterCloseEvent = p2;
+          }
+        },
+      };
       const onSpy = jest.spyOn(mockConnection, 'on');
       const mockReq = { connection: { remoteAddress: 'mockRemoteAdress' } };
       httpServer.sendInitialMessage = jest.fn();
@@ -70,7 +74,7 @@ describe('HttpServer ', () => {
   });
 
   describe('onMessageHandler', () => {
-    it('handles the message when isAuthReq:1 , isAuthed:1', () => {
+    it('handles the message when useAuthentication: true, isAuthReq:1 , isAuthed:1', () => {
       const mockObject = { mockMember: 'mockValue' };
       let handleMessageHasBeenCalled = false;
       const controller = {
@@ -81,11 +85,28 @@ describe('HttpServer ', () => {
       controllers.push(controller);
       const mockClient = { isAuthenticated: () => true };
       const httpServer = new HttpServer({ controllers });
+      ServerConfig.useAuthentication = true;
       httpServer.onMessageHandler(mockClient, JSON.stringify(mockObject));
       expect(handleMessageHasBeenCalled).toBe(true);
     });
 
-    it('handles the message when isAuthReq:1 , isAuthed:0', () => {
+    it('handles the message when useAuthentication: false, isAuthReq:1 , isAuthed:1', () => {
+      const mockObject = { mockMember: 'mockValue' };
+      let handleMessageHasBeenCalled = false;
+      const controller = {
+        isAuthRequired: () => true,
+        handleMessage: () => { handleMessageHasBeenCalled = true; },
+      };
+      const controllers = [];
+      controllers.push(controller);
+      const mockClient = { isAuthenticated: () => true };
+      const httpServer = new HttpServer({ controllers });
+      ServerConfig.useAuthentication = false;
+      httpServer.onMessageHandler(mockClient, JSON.stringify(mockObject));
+      expect(handleMessageHasBeenCalled).toBe(true);
+    });
+
+    it('handles the message when useAuthentication: true, isAuthReq:1 , isAuthed:0', () => {
       const mockObject = { mockMember: 'mockValue' };
       let handleMessageHasBeenCalled = false;
       const controller = {
@@ -96,14 +117,31 @@ describe('HttpServer ', () => {
       controllers.push(controller);
       const mockClient = { isAuthenticated: () => false };
       const httpServer = new HttpServer({ controllers });
+      ServerConfig.useAuthentication = true;
       httpServer.onMessageHandler(mockClient, JSON.stringify(mockObject));
       expect(handleMessageHasBeenCalled).toBe(false);
+    });
+
+    it('handles the message when useAuthentication: false, isAuthReq:1 , isAuthed:0', () => {
+      const mockObject = { mockMember: 'mockValue' };
+      let handleMessageHasBeenCalled = false;
+      const controller = {
+        isAuthRequired: () => true,
+        handleMessage: () => { handleMessageHasBeenCalled = true; },
+      };
+      const controllers = [];
+      controllers.push(controller);
+      const mockClient = { isAuthenticated: () => false };
+      const httpServer = new HttpServer({ controllers });
+      ServerConfig.useAuthentication = false;
+      httpServer.onMessageHandler(mockClient, JSON.stringify(mockObject));
+      expect(handleMessageHasBeenCalled).toBe(true);
     });
   });
 
   describe('onCloseHandler', () => {
     it('handles on Close if index !== -1', () => { // eslint-disable-line
-      const controllers = [{ onConnectionClosed: () => {} }];
+      const controllers = [{ onConnectionClosed: () => { } }];
       const httpServer = new HttpServer({ controllers });
       const mockClient = {
         id: 'myConnectionClosingId',
@@ -132,7 +170,7 @@ describe('HttpServer ', () => {
       const controllers = [];
       let sendObject;
       const mockConnection = { send: (objStr) => { sendObject = objStr; } };
-      const mockController = {appendData: (obj) => { obj.testMember = 'test'; },isAuthRequired: () => true}; // eslint-disable-line      
+      const mockController = { appendData: (obj) => { obj.testMember = 'test'; }, isAuthRequired: () => true }; // eslint-disable-line      
       const mockClient = {
         connection: mockConnection,
         isAuthenticated: () => true,
@@ -146,9 +184,8 @@ describe('HttpServer ', () => {
     });
   });
 
-
   describe('sendToAllClients', () => {
-    it('sends to all clients when isAuthReq:1 , isAuthed:1', () => {
+    it('sends to all clients when useAuthentication: false, trueisAuthReq:1 , isAuthed:1', () => {
       const testObject = { testMember: 'testString' };
 
       const mockController = { isAuthRequired: () => true };
@@ -163,11 +200,32 @@ describe('HttpServer ', () => {
       };
       httpServer.clients.push(mockClient);
       const obj = { testMember: 'testString' };
+      ServerConfig.useAuthentication = false;
       httpServer.sendToAllClients(mockController, obj);
       expect(sendObject).toStrictEqual(JSON.stringify(testObject));
     });
 
-    it('sends to all clients when isAuthReq:1 , isAuthed:0', () => {
+    it('sends to all clients when useAuthentication: true, isAuthReq:1 , isAuthed:1', () => {
+      const testObject = { testMember: 'testString' };
+
+      const mockController = { isAuthRequired: () => true };
+      const httpServer = new HttpServer({ controllers: [] });
+      let sendObject;
+      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
+      const mockClient = {
+        connection: mockConnection,
+        isAuthenticated: () => true,
+        id: 'sendToAllClientsId',
+        getId: () => mockClient.id,
+      };
+      httpServer.clients.push(mockClient);
+      const obj = { testMember: 'testString' };
+      ServerConfig.useAuthentication = true;
+      httpServer.sendToAllClients(mockController, obj);
+      expect(sendObject).toStrictEqual(JSON.stringify(testObject));
+    });
+
+    it('sends to all clients when useAuthentication:false isAuthReq:1 , isAuthed:0', () => {
       const mockController = { isAuthRequired: () => true };
       const httpServer = new HttpServer({ controllers: [] });
       let sendObject;
@@ -180,6 +238,25 @@ describe('HttpServer ', () => {
       };
       httpServer.clients.push(mockClient);
       const obj = { testMember: 'testString' };
+      ServerConfig.useAuthentication = false;
+      httpServer.sendToAllClients(mockController, obj);
+      expect(sendObject).toStrictEqual('{"testMember":"testString"}');
+    });
+
+    it('sends to all clients when useAuthentication:true isAuthReq:1 , isAuthed:0', () => {
+      const mockController = { isAuthRequired: () => true };
+      const httpServer = new HttpServer({ controllers: [] });
+      let sendObject;
+      const mockConnection = { send: (objStr) => { sendObject = objStr; } };
+      const mockClient = {
+        connection: mockConnection,
+        isAuthenticated: () => false,
+        id: 'sendToAllClientsId',
+        getId: () => mockClient.id,
+      };
+      httpServer.clients.push(mockClient);
+      const obj = { testMember: 'testString' };
+      ServerConfig.useAuthentication = true;
       httpServer.sendToAllClients(mockController, obj);
       expect(sendObject).toStrictEqual(undefined);
     });
