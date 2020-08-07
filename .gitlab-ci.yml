@@ -33,5 +33,6 @@ build:
   tags:
     - linux
   script:
-    - cd scripts
-    - ./build.sh
+    - cd ./client/
+    - npm ci
+    - npm run build
