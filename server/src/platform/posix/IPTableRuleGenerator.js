@@ -7,6 +7,7 @@ function generateRouteCommands(iptablesCommand, interfaces, interfaceConfigurati
 ip route add ${internalInterfaceSubnet} dev ${interfaces.internal.name}
 echo 1 > /proc/sys/net/ipv4/ip_forward
 ${iptablesCommand} -t nat -A POSTROUTING ! -d ${internalInterfaceSubnet} -o ${interfaces.external.name} -j SNAT --to-source ${interfaces.external.ip}
+${iptablesCommand} -t nat -A POSTROUTING -d ${internalInterfaceSubnet} -o ${interfaces.internal.name} -j SNAT --to-source ${interfaces.internal.ip}
 `;
   return iptableRule;
 }
