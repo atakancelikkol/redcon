@@ -68,6 +68,7 @@
 import { mapActions, mapState } from 'vuex';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
+import logger from '../helpers/Logger';
 
 const cloneDeep = require('clone-deep');
 
@@ -93,7 +94,6 @@ export default {
       if (!this.receivedData.authHistory) {
         return [];
       }
-
       const history = cloneDeep(this.receivedData.authHistory.history);
       const timeAgo = new TimeAgo('en-US');
       history.forEach((item) => {
@@ -112,14 +112,40 @@ export default {
     },
   },
   watch: {
+    ...mapState(['receivedData']),
+    ...mapActions(['logoutUser', 'loginUser']),
+
     user() {
       if (this.user != null) {
         this.$router.push({ path: '/' });
+        logger.info('user red if ======', this.receivedData.useAuthentication);
+        logger.info('user user if ======', this.user);
+        logger.info('user user if ======', this.user.username);
+        if (this.receivedData.useAuthentication) {
+          if (this.user.username === 'anonim') {
+            this.logoutUser({ user: this.user.username });
+          }
+        }
+      }
+    },
+    receivedData() {
+      if (this.receivedData.useAuthentication) {
+        this.$router.push({ path: '/login' });
+        logger.info('received data if ======', this.receivedData.useAuthentication);
+        logger.info('red user if ======', this.user);
+        if (this.user != null && this.user.username === 'anonim') {
+          this.logoutUser({ user: this.user.username });
+        }
+      } else {
+        this.$router.push({ path: '/' });
+        this.loginUser({ username: 'anonim', password: 'anonim' });
+        logger.info('received data elsee ======', this.receivedData.useAuthentication);
+        logger.info('red user else ======', this.user);
       }
     },
   },
   methods: {
-    ...mapActions(['loginUser']),
+    ...mapActions(['logoutUser', 'loginUser']),
     login() {
       this.loginUser({ username: this.username, password: this.pass });
     },

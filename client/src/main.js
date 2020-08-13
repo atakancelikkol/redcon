@@ -8,8 +8,6 @@ import store from './store/store';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
-const ServerConfig = require('../../server/src/ServerConfig.js');
-
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -26,13 +24,13 @@ new Vue({
   render: (h) => h(App),
 }).$mount('#app');
 
-if (ServerConfig.useAuthentication && !store.state.user && router.currentRoute.path !== '/login') {
+if (!store.state.user && router.currentRoute.path !== '/login') {
   router.push({ path: '/login' });
 }
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((route) => route.meta.auth)) {
-    if (ServerConfig.useAuthentication && !store.state.user) {
+    if (!store.state.user) {
       next('/login');
     } else {
       next();
