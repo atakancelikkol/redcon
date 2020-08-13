@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const logger = require('../../server/src/util/Logger.js');
 const AuthServerConfig = require('./AuthServerConfig');
 const LowDBDataStorage = require('./dataStorage/LowDBDataStorage.js');
-//const usersJson = require('./utils/usersDb.json');
+// const usersJson = require('./utils/usersDb.json');
 
 class AuthServer {
   constructor(options) {
@@ -43,7 +43,7 @@ class AuthServer {
     logger.info('email of the request == ', email);
 
     // search and match from json
-    /*for (let i = 0; i < this.userArray.length; i += 1) {
+    /* for (let i = 0; i < this.userArray.length; i += 1) {
       if (email === this.userArray[i].email) {
         logger.info(`found email: ${this.userArray[i].email}`);
         if (password === this.userArray[i].password) {
@@ -54,19 +54,18 @@ class AuthServer {
           this.token = false;
         }
       }
-    }*/
-    let foundUser = this.dbStorage.findUser(email);
-    console.log(foundUser);
-    if(foundUser){
+    } */
+    const foundUser = this.dbStorage.findUser(email);
+    if (foundUser) {
       logger.info(`found email: ${foundUser.email}`);
-      if(foundUser.password === password){
+      if (foundUser.password === password) {
         logger.info(`correct password for  ${foundUser.email}`);
         this.token = true;
-      }else{
+      } else {
         logger.info('wrong password');
         this.token = false;
       }
-    }else{
+    } else {
       logger.info('user not found');
       this.token = false;
     }

@@ -1,5 +1,5 @@
 const DefaultData = {
-  users: []
+  users: [],
 };
 
 module.exports = DefaultData;
