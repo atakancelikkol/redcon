@@ -26,23 +26,6 @@ describe('AuthServer ', () => {
   });
 
   describe('onDataHandler', () => {
-    it('body must be checked from mock database as true', () => {
-      const httpServer = new AuthServer({ useMockUsers: true });
-      const mockRes = {
-        write(input) {
-          return (input);
-        },
-        end() {
-        },
-      };
-      const mockReq = {
-        body: { email: 'test', password: 'validPass' },
-      };
-      httpServer.onDataHandler(mockReq, mockRes);
-
-      expect(httpServer.token).toBe(true);
-    });
-
     it('body must be checked from mock database as false', () => {
       const httpServer = new AuthServer({ useMockUsers: true });
       const mockRes = {

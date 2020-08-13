@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const logger = require('../../server/src/util/Logger.js');
 const AuthServerConfig = require('./AuthServerConfig');
 const LowDBDataStorage = require('./dataStorage/LowDBDataStorage.js');
-// const usersJson = require('./utils/usersDb.json');
 
 class AuthServer {
   constructor(options) {
@@ -13,8 +12,6 @@ class AuthServer {
     this.httpServer = null;
     this.token = undefined;
     this.dbStorage = new LowDBDataStorage();
-    if (options && options.useMockUsers) this.userArray = [{ email: 'test', password: 'validPass' }];
-    else this.userArray = this.dbStorage.getUsers();
   }
 
   init() {
@@ -42,19 +39,6 @@ class AuthServer {
     const { password } = user;
     logger.info('email of the request == ', email);
 
-    // search and match from json
-    /* for (let i = 0; i < this.userArray.length; i += 1) {
-      if (email === this.userArray[i].email) {
-        logger.info(`found email: ${this.userArray[i].email}`);
-        if (password === this.userArray[i].password) {
-          logger.info(`correct password for  ${this.userArray[i].email}`);
-          this.token = true;
-        } else {
-          logger.info('wrong password');
-          this.token = false;
-        }
-      }
-    } */
     const foundUser = this.dbStorage.findUser(email);
     if (foundUser) {
       logger.info(`found email: ${foundUser.email}`);
