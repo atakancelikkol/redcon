@@ -5,6 +5,7 @@ import SerialConsole from './components/SerialConsole.vue';
 import USBStorage from './components/USBStorage.vue';
 import Login from './components/Login.vue';
 import Utility from './components/Utility.vue';
+import Register from './components/Register.vue';
 
 const routes = [
   { path: '/', component: Home, meta: { auth: true } },
@@ -13,6 +14,7 @@ const routes = [
   { path: '/serial-console', component: SerialConsole, meta: { auth: true } },
   { path: '/usb-storage', component: USBStorage, meta: { auth: true } },
   { path: '/utility', component: Utility, meta: { auth: true } },
+  { path: '/register', component: Register },
   { path: '/login', component: Login },
 ];
 

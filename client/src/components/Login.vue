@@ -43,6 +43,14 @@
         >
           Login
         </button>
+        <button
+          ref="register"
+          class="btn btn-primary"
+          style="margin-top:13px; margin-left: 150px"
+          @click="register"
+        >
+          Register
+        </button>
         <b-alert
           :show="loginError"
           variant="danger"
@@ -153,6 +161,9 @@ export default {
       if (evt.keyCode === 13) {
         this.loginUser({ username: this.username, password: this.pass });
       }
+    },
+    register() {
+      this.$router.push({ path: '/register' });
     },
   },
 };
