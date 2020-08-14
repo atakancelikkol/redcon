@@ -37,6 +37,8 @@ class Authenticator extends ControllerBase {
         this.logoutByButton(client, 'Logged-out', clients);
       } else if (action === 'checkStoredToken') {
         this.checkStoredToken(client, obj.auth.storedToken, clients);
+      } else if (action === 'registerUser') {
+        this.registerUser(client,obj.auth.username, obj.auth.password);
       }
     }
   }
@@ -99,10 +101,10 @@ class Authenticator extends ControllerBase {
   }
 
   async checkAuthenticationServer(username, pass) {
-    const userInfo = { email: username, password: pass };
+    const userInfo = { email: username, password: pass, action: 'authentication' };
     let isAuth = false;
     const options = {
-      url: `${ServerConfig.authServer}/checkUserAuth`,
+      url: `${ServerConfig.authServer}/authServer`,
       method: 'POST',
       json: true,
       body: userInfo,
@@ -116,10 +118,38 @@ class Authenticator extends ControllerBase {
     return (isAuth);
   }
 
+  async registerAuthenticationServer(username, pass) {
+    const userInfo = { email: username, password: pass, action: 'register' };
+    let isRegistered = false;
+    
+    const options = {
+      url: `${ServerConfig.authServer}/authServer`,
+      method: 'POST',
+      json: true,
+      body: userInfo,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    await rp(options).then((body) => {
+      isRegistered = body.isRegistered;
+    }).catch((error) => {
+      logger.error(error);
+    });
+    return (isRegistered);
+  }
+
+  async registerUser(client,username,password) {
+
+    let isRegistered = false;
+    isRegistered = await this.registerAuthenticationServer(username,password);
+
+
+  }
+
   async loginUser(client, username, password, clients) {
     let isAuthenticated = false;
     if (ServerConfig.useAuthentication) {
       isAuthenticated = await this.checkAuthenticationServer(username, password);
+      //isAuthenticated = await this.registerAuthenticationServer(username, password);
     } else {
       isAuthenticated = true;
     }

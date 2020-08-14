@@ -25,8 +25,8 @@ class AuthServer {
     // create http server
 
     this.app.use(bodyParser.json());
-
-    this.app.post('/checkUserAuth', (req, res) => {
+    //checkUserAuth
+    this.app.post('/authServer', (req, res) => {
       this.token = undefined;
       this.onDataHandler(req, res);
     });
@@ -38,26 +38,39 @@ class AuthServer {
     const { email } = user;
     const { password } = user;
     logger.info('email of the request == ', email);
+    const reqAction = req.body.action;
+    logger.info('action of the request == ', reqAction);
 
-    const foundUser = this.dbStorage.findUser(email);
-    if (foundUser) {
-      logger.info(`found email: ${foundUser.email}`);
-      if (foundUser.password === password) {
-        logger.info(`correct password for  ${foundUser.email}`);
-        this.token = true;
+    if (reqAction === 'authentication'){
+      const foundUser = this.dbStorage.findUser(email);
+      if (foundUser) {
+        logger.info(`found email: ${foundUser.email}`);
+        if (foundUser.password === password) {
+          logger.info(`correct password for  ${foundUser.email}`);
+          this.token = true;
+        } else {
+          logger.info('wrong password');
+          this.token = false;
+        }
       } else {
-        logger.info('wrong password');
+        logger.info('user not found');
         this.token = false;
       }
-    } else {
-      logger.info('user not found');
-      this.token = false;
-    }
 
-    res.write(`{"isAuth":${this.token}}`);
-    res.end();
-    logger.info('authResult === ', this.token);
-  }
+      res.write(`{"isAuth":${this.token}}`);
+      res.end();
+      logger.info('authResult === ', this.token);
+    } 
+    else if(reqAction === 'register'){
+
+      let isRegistered = this.dbStorage.registerNewUser(email,password);
+      res.write(`{"isRegistered":${isRegistered}}`);
+      res.end();
+      logger.info('registerResult === ', isRegistered);
+    } else {
+      logger.info('Unexpected Action!');
+    }
+}
 
   closeConnection() {
     this.httpServer.close();
