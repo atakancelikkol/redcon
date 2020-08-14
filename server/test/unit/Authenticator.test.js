@@ -306,9 +306,9 @@ describe('Authenticator', () => {
 
       const username = 'user';
       const pass = 'pass';
-      const mockUserInfo = { email: username, password: pass };
+      const mockUserInfo = { email: username, password: pass , action: 'authentication'};
       const options = {
-        url: `${ServerConfig.authServer}/checkUserAuth`,
+        url: `${ServerConfig.authServer}/authServer`,
         method: 'POST',
         json: true,
         body: mockUserInfo,

@@ -38,7 +38,7 @@ class Authenticator extends ControllerBase {
       } else if (action === 'checkStoredToken') {
         this.checkStoredToken(client, obj.auth.storedToken, clients);
       } else if (action === 'registerUser') {
-        this.registerUser(client,obj.auth.username, obj.auth.password);
+        this.registerUser(client, obj.auth.username, obj.auth.password);
       }
     }
   }
@@ -121,7 +121,6 @@ class Authenticator extends ControllerBase {
   async registerAuthenticationServer(username, pass) {
     const userInfo = { email: username, password: pass, action: 'register' };
     let isRegistered = false;
-    
     const options = {
       url: `${ServerConfig.authServer}/authServer`,
       method: 'POST',
@@ -137,19 +136,16 @@ class Authenticator extends ControllerBase {
     return (isRegistered);
   }
 
-  async registerUser(client,username,password) {
-
+  async registerUser(client, username, password) {
     let isRegistered = false;
-    isRegistered = await this.registerAuthenticationServer(username,password);
-
-
+    isRegistered = await this.registerAuthenticationServer(username, password);
   }
 
   async loginUser(client, username, password, clients) {
     let isAuthenticated = false;
     if (ServerConfig.useAuthentication) {
       isAuthenticated = await this.checkAuthenticationServer(username, password);
-      //isAuthenticated = await this.registerAuthenticationServer(username, password);
+      // isAuthenticated = await this.registerAuthenticationServer(username, password);
     } else {
       isAuthenticated = true;
     }
