@@ -138,7 +138,7 @@ export default {
     },
     receivedData() {
       if (this.receivedData.useAuthentication) {
-        this.$router.push({ path: '/login' });
+        if (this.$router.currentRoute.path !== '/login') this.$router.push({ path: '/login' });
         logger.info('received data if ======', this.receivedData.useAuthentication);
         logger.info('red user if ======', this.user);
         if (this.user != null && this.user.username === 'anonim') {

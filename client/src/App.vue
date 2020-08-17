@@ -33,7 +33,7 @@ export default {
   watch: {
     user() {
       if (this.user == null) {
-        this.$router.push({ path: '/login' });
+        if (this.$router.currentRoute.path !== '/login') this.$router.push({ path: '/login' });
       }
     },
   },
