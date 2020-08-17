@@ -25,7 +25,7 @@ class AuthServer {
     // create http server
 
     this.app.use(bodyParser.json());
-    //checkUserAuth
+    // checkUserAuth
     this.app.post('/authServer', (req, res) => {
       this.token = undefined;
       this.onDataHandler(req, res);
@@ -41,7 +41,7 @@ class AuthServer {
     const reqAction = req.body.action;
     logger.info('action of the request == ', reqAction);
 
-    if (reqAction === 'authentication'){
+    if (reqAction === 'authentication') {
       const foundUser = this.dbStorage.findUser(email);
       if (foundUser) {
         logger.info(`found email: ${foundUser.email}`);
@@ -60,17 +60,15 @@ class AuthServer {
       res.write(`{"isAuth":${this.token}}`);
       res.end();
       logger.info('authResult === ', this.token);
-    } 
-    else if(reqAction === 'register'){
-
-      let isRegistered = this.dbStorage.registerNewUser(email,password);
+    } else if (reqAction === 'register') {
+      const isRegistered = this.dbStorage.registerNewUser(email, password);
       res.write(`{"isRegistered":${isRegistered}}`);
       res.end();
       logger.info('registerResult === ', isRegistered);
     } else {
       logger.info('Unexpected Action!');
     }
-}
+  }
 
   closeConnection() {
     this.httpServer.close();
