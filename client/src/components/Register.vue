@@ -103,7 +103,7 @@ export default {
   computed: {
   },
   watch: {
-    pass() {
+    passReg() {
       if (this.passReg === this.passReg2) {
         this.errorMsg = 'passwords are same';
         this.flag = true;
@@ -113,7 +113,7 @@ export default {
         this.flag = false;
       }
     },
-    pass2() {
+    passReg2() {
       if (this.passReg === this.passReg2) {
         this.errorMsg = 'passwords are same';
         this.flag = true;
