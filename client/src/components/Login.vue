@@ -59,6 +59,14 @@
         >
           {{ loginError }}
         </b-alert>
+        <b-alert
+          :show="registeryMsg"
+          variant="success"
+          style="margin-top: 10px"
+          dismissible
+        >
+          {{ registeryMsg }}
+        </b-alert>
       </div>
       <b-table
         striped
@@ -97,7 +105,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['user', 'authStatus', 'token', 'receivedData']),
+    ...mapState(['user', 'authStatus', 'token', 'receivedData', 'regStatus']),
     eventItems() {
       if (!this.receivedData.authHistory) {
         return [];
@@ -117,6 +125,12 @@ export default {
         return false;
       }
       return this.authStatus;
+    },
+    registeryMsg() {
+      if (!this.regStatus) {
+        return false;
+      }
+      return this.regStatus;
     },
   },
   watch: {
@@ -146,7 +160,7 @@ export default {
         }
       } else {
         this.$router.push({ path: '/' });
-        this.loginUser({ username: 'anonim', password: 'anonim' });
+        this.loginUser({ username: 'anonymous', password: 'anonim' });
         logger.info('received data elsee ======', this.receivedData.useAuthentication);
         logger.info('red user else ======', this.user);
       }

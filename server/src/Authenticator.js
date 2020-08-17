@@ -135,9 +135,9 @@ class Authenticator extends ControllerBase {
     });
 
     if (isRegistered) {
-      this.sendUserToClient(client, null, null, null, `Register Succesfull'${username}'`);
+      this.sendUserToClient(client, null, null, null, `'${username}' Succesfully Registered.`);
     } else {
-      this.sendUserToClient(client, null, null, null, `Can't register '${username}'`);
+      this.sendUserToClient(client, null, null, null, `'${username}' Has Already Registered, Please Try Another Username.`);
     }
     return (isRegistered);
   }

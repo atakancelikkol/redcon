@@ -45,22 +45,22 @@
             @keydown="onEnterKey"
           />
           <b-alert
-            v-if="!flag"
-            :show="errorMsg"
-            variant="danger"
-            style="margin-top: 10px"
-            dismissible
-          >
-            {{ errorMsg }}
-          </b-alert>
-          <b-alert
             v-if="flag"
-            :show="errorMsg"
+            :show="passValidate"
             variant="success"
             style="margin-top: 10px"
             dismissible
           >
-            {{ errorMsg }}
+            {{ valid }}
+          </b-alert>
+          <b-alert
+            v-if="flag"
+            :show="!passValidate"
+            variant="danger"
+            style="margin-top: 10px"
+            dismissible
+          >
+            {{ notValid }}
           </b-alert>
         </b-form>
       </div>
@@ -69,34 +69,34 @@
           ref="register"
           class="btn btn-primary"
           style="margin-top:13px"
-          :disabled="!flag"
+          :disabled="!passValidate"
           @click="register"
         >
           Register
         </button>
         <router-link
           to="/login"
-          style="margin-left:20px"
+          style="margin-left:155px;"
         >
           Cancel
         </router-link>
         <b-alert
-          v-if="loginError == `Register Succesfull'${usernameReg}'`"
-          :show="loginError"
+          v-if="registerError == `'${usernameReg}' Succesfully Registered.`"
+          :show="registerError"
           variant="success"
           style="margin-top: 10px"
           dismissible
         >
-          {{ loginError }}
+          {{ registerError }}
         </b-alert>
         <b-alert
-          v-if="loginError == `Can't register '${usernameReg}'`"
-          :show="loginError"
+          v-if="registerError == `'${usernameReg}' Has Already Registered, Please Try Another Username.`"
+          :show="registerError"
           variant="danger"
           style="margin-top: 10px"
           dismissible
         >
-          {{ loginError }}
+          {{ registerError }}
         </b-alert>
       </div>
     </b-card>
@@ -114,40 +114,37 @@ export default {
       passReg: '',
       passReg2: '',
       errorMsg: null,
-      flag: null,
+      flag: false,
       regErrorFlag: null,
       regError: null,
       displayErrorMessage: false,
+      valid: 'Passwords are same.',
+      notValid: 'Passwords are not same, try again!',
     };
   },
   computed: {
     ...mapState(['regStatus']),
-    loginError() {
-      if (this.regStatus === `Register Succesfull'${this.usernameReg}'`) {
-        return this.regStatus;
-      }
+    registerError() {
       return this.regStatus;
+    },
+    passValidate() {
+      if (this.passReg === this.passReg2) {
+        if (this.passReg === '' && this.passReg2 === '') {
+          return null;
+        }
+        return true;
+      }
+      return false;
     },
   },
   watch: {
+    ...mapState(['regStatus']),
     passReg() {
-      if (this.passReg === this.passReg2) {
-        this.errorMsg = 'passwords are same';
-        this.flag = true;
-      }
-      if (this.passReg !== this.passReg2) {
-        this.errorMsg = 'passwords are not same';
-        this.flag = false;
-      }
+      this.flag = true;
     },
-    passReg2() {
-      if (this.passReg === this.passReg2) {
-        this.errorMsg = 'passwords are same';
-        this.flag = true;
-      }
-      if (this.passReg !== this.passReg2) {
-        this.errorMsg = 'passwords are not same';
-        this.flag = false;
+    regStatus() {
+      if (this.regStatus === `'${this.usernameReg}' Succesfully Registered.`) {
+        this.$router.push('/login');
       }
     },
   },
