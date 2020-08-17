@@ -38,7 +38,7 @@ class Authenticator extends ControllerBase {
       } else if (action === 'checkStoredToken') {
         this.checkStoredToken(client, obj.auth.storedToken, clients);
       } else if (action === 'registerUser') {
-        this.registerAuthenticationServer(obj.auth.username, obj.auth.password);
+        this.registerAuthenticationServer(client, obj.auth.username, obj.auth.password);
       }
     }
   }
@@ -118,7 +118,7 @@ class Authenticator extends ControllerBase {
     return (isAuth);
   }
 
-  async registerAuthenticationServer(client,username, pass) {
+  async registerAuthenticationServer(client, username, pass) {
     const userInfo = { email: username, password: pass, action: 'register' };
     let isRegistered = false;
     const options = {
@@ -134,16 +134,15 @@ class Authenticator extends ControllerBase {
       logger.error(error);
     });
 
-    if(isRegistered){
+    if (isRegistered) {
       this.sendUserToClient(client, null, `Register Succesfull'${username}'`);
-    } else{
+    } else {
       this.sendUserToClient(client, null, `Can't register '${username}'`);
     }
-
     return (isRegistered);
   }
 
-  
+
   async loginUser(client, username, password, clients) {
     let isAuthenticated = false;
     if (ServerConfig.useAuthentication) {

@@ -12,7 +12,7 @@
           >Username</label>
           <b-input
             id="text-username"
-            v-model="username"
+            v-model="usernameReg"
             type="text"
             style="max-width: 300px;"
           />
@@ -27,7 +27,7 @@
           <b-input
             id="text-password"
             ref="passForm"
-            v-model="pass"
+            v-model="passReg"
             type="password"
             style="max-width: 300px;"
             @keydown="onEnterKey"
@@ -39,7 +39,7 @@
           <b-input
             id="text-password2"
             ref="pass2Form"
-            v-model="pass2"
+            v-model="passReg2"
             type="password"
             style="max-width: 300px;"
             @keydown="onEnterKey"
@@ -74,6 +74,12 @@
         >
           Register
         </button>
+        <router-link
+          to="/login"
+          style="margin-left:20px"
+        >
+          Cancel
+        </router-link>
       </div>
     </b-card>
   </div>
@@ -86,9 +92,9 @@ export default {
   name: 'Login',
   data() {
     return {
-      username: '',
-      pass: '',
-      pass2: '',
+      usernameReg: '',
+      passReg: '',
+      passReg2: '',
       errorMsg: null,
       flag: null,
       displayErrorMessage: false,
@@ -98,35 +104,35 @@ export default {
   },
   watch: {
     pass() {
-      if (this.pass === this.pass2) {
+      if (this.passReg === this.passReg2) {
         this.errorMsg = 'passwords are same';
         this.flag = true;
       }
-      if (this.pass !== this.pass2) {
+      if (this.passReg !== this.passReg2) {
         this.errorMsg = 'passwords are not same';
         this.flag = false;
       }
     },
     pass2() {
-      if (this.pass === this.pass2) {
+      if (this.passReg === this.passReg2) {
         this.errorMsg = 'passwords are same';
         this.flag = true;
       }
-      if (this.pass !== this.pass2) {
+      if (this.passReg !== this.passReg2) {
         this.errorMsg = 'passwords are not same';
         this.flag = false;
       }
     },
   },
   methods: {
-    ...mapActions(['logoutUser', 'loginUser']),
+    ...mapActions(['registerUser']),
     onEnterKey(evt) {
       if (evt.keyCode === 13) {
-        this.loginUser({ username: this.username, password: this.pass });
+        this.registerUser({ username: this.usernameReg, password: this.passReg });
       }
     },
     register() {
-      this.$router.push({ path: '/register' });
+      this.registerUser({ username: this.usernameReg, password: this.passReg });
     },
   },
 };

@@ -105,6 +105,11 @@ class WebSocketConnector {
     this.connectionSocket.send(JSON.stringify(obj));
   }
 
+  sendRegisterUserMessage({ username, password }) {
+    const obj = { auth: { action: 'registerUser', username, password } };
+    this.connectionSocket.send(JSON.stringify(obj));
+  }
+
   sendLoginUserMessage({ username, password }) {
     const obj = { auth: { action: 'loginUser', username, password } };
     this.connectionSocket.send(JSON.stringify(obj));
