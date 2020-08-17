@@ -80,16 +80,34 @@
         >
           Cancel
         </router-link>
+        <b-alert
+          v-if="loginError == `Register Succesfull'${usernameReg}'`"
+          :show="loginError"
+          variant="success"
+          style="margin-top: 10px"
+          dismissible
+        >
+          {{ loginError }}
+        </b-alert>
+        <b-alert
+          v-if="loginError == `Can't register '${usernameReg}'`"
+          :show="loginError"
+          variant="danger"
+          style="margin-top: 10px"
+          dismissible
+        >
+          {{ loginError }}
+        </b-alert>
       </div>
     </b-card>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 
 export default {
-  name: 'Login',
+  name: 'Register',
   data() {
     return {
       usernameReg: '',
@@ -97,10 +115,19 @@ export default {
       passReg2: '',
       errorMsg: null,
       flag: null,
+      regErrorFlag: null,
+      regError: null,
       displayErrorMessage: false,
     };
   },
   computed: {
+    ...mapState(['regStatus']),
+    loginError() {
+      if (this.regStatus === `Register Succesfull'${this.usernameReg}'`) {
+        return this.regStatus;
+      }
+      return this.regStatus;
+    },
   },
   watch: {
     passReg() {

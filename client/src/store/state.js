@@ -4,6 +4,7 @@ const state = {
   isConnected: true, // dont show a warning at the beginning
   user: null,
   authStatus: '',
+  regStatus: '',
   token: '',
 };
 

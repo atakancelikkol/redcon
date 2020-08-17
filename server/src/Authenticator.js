@@ -135,9 +135,9 @@ class Authenticator extends ControllerBase {
     });
 
     if (isRegistered) {
-      this.sendUserToClient(client, null, `Register Succesfull'${username}'`);
+      this.sendUserToClient(client, null, null, null, `Register Succesfull'${username}'`);
     } else {
-      this.sendUserToClient(client, null, `Can't register '${username}'`);
+      this.sendUserToClient(client, null, null, null, `Can't register '${username}'`);
     }
     return (isRegistered);
   }
@@ -244,10 +244,10 @@ class Authenticator extends ControllerBase {
     this.updateActiveUsername(clients);
   }
 
-  sendUserToClient(client, user, authStatus, token) {
+  sendUserToClient(client, user, authStatus, token, regStatus) {
     client.send({
       auth: {
-        user, authStatus, token,
+        user, authStatus, token, regStatus,
       },
     });
   }

@@ -26,6 +26,7 @@ const mutations = {
   SET_AUTH_DATA(state, authData) {
     state.user = authData.user;
     state.authStatus = authData.authStatus;
+    state.regStatus = authData.regStatus;
     state.token = authData.token;
   },
 };
