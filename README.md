@@ -9,7 +9,7 @@ REDCON is a utility that makes it easier to connect and debug ECU boards. This p
 ![alt text](docs/diagrams/redcon-overview.png "Overview" )
 
 # How to run
-Please see the document at docs/README.md
+Please see the document at [docs/README.md](docs/README.md)
 
 # How to commit
 1. Checkout a new branch from development to your feature branch
@@ -57,19 +57,19 @@ Power switch is controlled by Raspberry PI's GPIO ports. At the Board Control pa
 ## Network Config
 Configurable packet forwarding is used for directly accessing ECU boards and development tools. This is practical for using multiple ECU boards in the same network with predefined static IPs. An example is given below.
 
-| Device Name | IP Address
-|-------------|-----------
-|Raspberry PI | 10.0.3.15
-|ECU1         | 192.168.0.1
-|ECU2         | 192.168.0.2
+| Device Name  | IP Address  |
+| ------------ | ----------- |
+| Raspberry PI | 10.0.3.15   |
+| ECU1         | 192.168.0.1 |
+| ECU2         | 192.168.0.2 |
 
 
-| IP       | PORT  | DESTINATION
-|----------|-------|------------------
-| 10.0.3.15| 3000  | 192.168.0.1:8000
-| 10.0.3.15| 3001  | 192.168.0.1:23
-| 10.0.3.15| 4000  | 192.168.0.2:8000
-| 10.0.3.15| 4001  | 192.168.0.2:23
+| IP        | PORT | DESTINATION      |
+| --------- | ---- | ---------------- |
+| 10.0.3.15 | 3000 | 192.168.0.1:8000 |
+| 10.0.3.15 | 3001 | 192.168.0.1:23   |
+| 10.0.3.15 | 4000 | 192.168.0.2:8000 |
+| 10.0.3.15 | 4001 | 192.168.0.2:23   |
 
 ## Serial Console
 The purpose of this page is to observe UART data. At serial console page, serial devices which are mounted to Raspberry PI are listed and user can activate/deactivate them. Log messages which come from activated device can be downloaded as a text file. Also, user can send messages via serial console.

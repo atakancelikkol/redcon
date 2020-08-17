@@ -1,4 +1,4 @@
-# server
+# Server
 
 ## Project setup
 ```
@@ -20,7 +20,7 @@ npm run fix
 npm run test
 ```
 
-### Run unit tests and Get code coverage
+### Run unit tests and get code coverage
 ```
 npm run coverage
 ```
