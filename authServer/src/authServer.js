@@ -61,7 +61,7 @@ class AuthServer {
       res.end();
       logger.info('authResult === ', this.token);
     } else if (reqAction === 'register') {
-      if((email === null || email ==='' || email === undefined) || (password === null || password ==='' || password === undefined)){
+      if ((email === null || email === '' || email === undefined) || (password === null || password === '' || password === undefined)) {
         logger.info('email or password is null, empty or undefined, please check');
       } else {
         logger.info('email of the reg request == ', email);
