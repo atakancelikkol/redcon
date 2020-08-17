@@ -61,10 +61,16 @@ class AuthServer {
       res.end();
       logger.info('authResult === ', this.token);
     } else if (reqAction === 'register') {
-      const isRegistered = this.dbStorage.registerNewUser(email, password);
-      res.write(`{"isRegistered":${isRegistered}}`);
-      res.end();
-      logger.info('registerResult === ', isRegistered);
+      if((email === null || email ==='' || email === undefined) || (password === null || password ==='' || password === undefined)){
+        logger.info('email or password is null, empty or undefined, please check');
+      } else {
+        logger.info('email of the reg request == ', email);
+        logger.info('pass of the reg request == ', password);
+        const isRegistered = this.dbStorage.registerNewUser(email, password);
+        res.write(`{"isRegistered":${isRegistered}}`);
+        res.end();
+        logger.info('registerResult === ', isRegistered);
+      }
     } else {
       logger.info('Unexpected Action!');
     }

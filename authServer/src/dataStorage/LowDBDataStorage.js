@@ -23,7 +23,7 @@ class LowDBDataStorage {
     });
     this.db = low(adapter);
     this.db.defaults(DefaultData).write();
-    this.registerNewUser('darco@gmail.com', 'darco');
+    // this.registerNewUser('boraks0135@gmail.com', 'bora123');
   }
 
   /* async init() {
