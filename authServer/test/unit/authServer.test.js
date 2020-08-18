@@ -25,7 +25,7 @@ describe('AuthServer ', () => {
     });
   });
 
-  describe('onDataHandler', () => {
+  /* describe('onDataHandler', () => {
     it('body must be checked from mock database as false', () => {
       const httpServer = new AuthServer({ useMockUsers: true });
       const mockRes = {
@@ -38,9 +38,9 @@ describe('AuthServer ', () => {
       const mockReq = {
         body: { email: 'test', password: 'invalidPass' },
       };
-      //httpServer.onDataHandler(mockReq, mockRes);
+      httpServer.onDataHandler(mockReq, mockRes);
 
-      // expect(httpServer.token).toBe(false);
+      expect(httpServer.token).toBe(false);
     });
-  });
+  }); */
 });
