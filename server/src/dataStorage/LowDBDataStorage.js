@@ -2,7 +2,7 @@ const low = require('lowdb');
 const FileAsync = require('lowdb/adapters/FileAsync');
 const Memory = require('lowdb/adapters/Memory');
 const DefaultData = require('./DefaultData');
-
+const logger = require('../util/Logger');
 const DATABASE_FILE = 'database.json';
 
 class LowDBDataStorage {
