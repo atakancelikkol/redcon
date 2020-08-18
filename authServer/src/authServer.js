@@ -1,10 +1,10 @@
 const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 const logger = require('../../server/src/util/Logger.js');
 const AuthServerConfig = require('./AuthServerConfig');
 const LowDBDataStorage = require('./dataStorage/LowDBDataStorage.js');
-const crypto = require('crypto');
 
 class AuthServer {
   constructor(options) {
@@ -45,7 +45,7 @@ class AuthServer {
     const hash = crypto.createHash('sha256');
     hash.update(password);
     const hashedPass = hash.digest('hex');
-    console.log(hashedPass);
+    logger.info('hascoded == ', hashedPass);
 
     if (reqAction === 'authentication') {
       const foundUser = this.dbStorage.findUser(email);
