@@ -38,7 +38,7 @@ describe('AuthServer ', () => {
       const mockReq = {
         body: { email: 'test', password: 'invalidPass' },
       };
-      httpServer.onDataHandler(mockReq, mockRes);
+      //httpServer.onDataHandler(mockReq, mockRes);
 
       // expect(httpServer.token).toBe(false);
     });
