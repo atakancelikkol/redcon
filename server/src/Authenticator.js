@@ -104,7 +104,7 @@ class Authenticator extends ControllerBase {
     const userInfo = { email: username, password: pass, action: 'authentication' };
     let isAuth = false;
     const options = {
-      url: `${ServerConfig.authServer}/authServer`,
+      url: `${ServerConfig.authServer}/authenticate`,
       method: 'POST',
       json: true,
       body: userInfo,
@@ -112,6 +112,7 @@ class Authenticator extends ControllerBase {
     };
     await rp(options).then((body) => {
       isAuth = body.isAuth;
+      logger.info('isauth =====', isAuth);
     }).catch((error) => {
       logger.error(error);
     });
@@ -122,7 +123,7 @@ class Authenticator extends ControllerBase {
     const userInfo = { email: username, password: pass, action: 'register' };
     let isRegistered = false;
     const options = {
-      url: `${ServerConfig.authServer}/authServer`,
+      url: `${ServerConfig.authServer}/register`,
       method: 'POST',
       json: true,
       body: userInfo,
@@ -130,6 +131,7 @@ class Authenticator extends ControllerBase {
     };
     await rp(options).then((body) => {
       isRegistered = body.isRegistered;
+      logger.info('isRegistered =====', isRegistered);
     }).catch((error) => {
       logger.error(error);
     });

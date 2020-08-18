@@ -27,17 +27,24 @@ class AuthServer {
 
     this.app.use(bodyParser.json());
     // checkUserAuth
-    this.app.post('/authServer', (req, res) => {
+    this.app.post('/authenticate', (req, res) => {
       this.token = undefined;
-      this.onDataHandler(req, res);
+      this.Authenticator(req, res);
     });
+    this.app.post('/register', (req, res) => {
+      this.Register(req, res);
+    });
+
     this.httpServer.listen(this.port, () => logger.info(`AuthServer listening at http://localhost:${this.port}`));
   }
 
-  onDataHandler(req, res) {
+  Authenticator(req, res) {
     const user = req.body;
     const { email } = user;
     const { password } = user;
+    const isAuthObj = {
+      isAuth: '',
+    };
     logger.info('email of the request == ', email);
     const reqAction = req.body.action;
     logger.info('action of the request == ', reqAction);
@@ -47,39 +54,57 @@ class AuthServer {
     const hashedPass = hash.digest('hex');
     logger.info('hascoded == ', hashedPass);
 
-    if (reqAction === 'authentication') {
-      const foundUser = this.dbStorage.findUser(email);
-      if (foundUser) {
-        logger.info(`found email: ${foundUser.email}`);
-        if (foundUser.password === hashedPass) {
-          logger.info(`correct password for  ${foundUser.email}`);
-          this.token = true;
-        } else {
-          logger.info('wrong password');
-          this.token = false;
-        }
+    const foundUser = this.dbStorage.findUser(email);
+    if (foundUser) {
+      logger.info(`found email: ${foundUser.email}`);
+      if (foundUser.password === hashedPass) {
+        logger.info(`correct password for  ${foundUser.email}`);
+        this.token = true;
       } else {
-        logger.info('user not found');
+        logger.info('wrong password');
         this.token = false;
       }
-
-      res.write(`{"isAuth":${this.token}}`);
-      res.end();
-      logger.info('authResult === ', this.token);
-    } else if (reqAction === 'register') {
-      if ((email === null || email === '' || email === undefined) || (password === null || password === '' || password === undefined)) {
-        logger.info('email or password is null, empty or undefined, please check');
-      } else {
-        logger.info('email of the reg request == ', email);
-        logger.info('pass of the reg request == ', password);
-
-        const isRegistered = this.dbStorage.registerNewUser(email, hashedPass);
-        res.write(`{"isRegistered":${isRegistered}}`);
-        res.end();
-        logger.info('registerResult === ', isRegistered);
-      }
     } else {
-      logger.info('Unexpected Action!');
+      logger.info('user not found');
+      this.token = false;
+    }
+
+    isAuthObj.isAuth = this.token;
+
+    res.write(JSON.stringify(isAuthObj));
+    res.end();
+    logger.info('authResult === ', this.token);
+  }
+
+  Register(req, res) {
+    const user = req.body;
+    const { email } = user;
+    const { password } = user;
+    const isRegisteredObj = {
+      isRegistered: '',
+    };
+    logger.info('email of the request == ', email);
+    const reqAction = req.body.action;
+    logger.info('action of the request == ', reqAction);
+
+    const hash = crypto.createHash('sha256');
+    hash.update(password);
+    const hashedPass = hash.digest('hex');
+    logger.info('hascoded == ', hashedPass);
+
+    if ((email === null || email === '' || email === undefined) || (password === null || password === '' || password === undefined)) {
+      logger.info('email or password is null, empty or undefined, please check');
+    } else {
+      logger.info('email of the reg request == ', email);
+      logger.info('pass of the reg request == ', password);
+
+      const isRegistered = this.dbStorage.registerNewUser(email, hashedPass);
+
+      isRegisteredObj.isRegistered = isRegistered;
+
+      res.write(JSON.stringify(isRegisteredObj));
+      res.end();
+      logger.info('registerResult === ', isRegistered);
     }
   }
 
@@ -91,5 +116,4 @@ class AuthServer {
 
   }
 }
-
 module.exports = AuthServer;
