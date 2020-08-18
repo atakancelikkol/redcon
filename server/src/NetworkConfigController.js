@@ -1,7 +1,6 @@
 const os = require('os');
 const net = require('net');
 const ControllerBase = require('./ControllerBase');
-const logger = require('./util/Logger');
 
 class NetworkConfigController extends ControllerBase {
   constructor() {
@@ -64,7 +63,7 @@ class NetworkConfigController extends ControllerBase {
     configuration.internalInterfaceName = this.normalizeString(configuration.internalInterfaceName); // eslint-disable-line
     configuration.externalInterfaceName = this.normalizeString(configuration.externalInterfaceName); // eslint-disable-line
     if (configuration.internalInterfaceName && configuration.externalInterfaceName && this.parameterCheckIsSubNet(configuration.internalInterfaceSubnet)) {
-      const networkInterfaces = this.getNetworkInterfaces()
+      const networkInterfaces = this.getNetworkInterfaces();
       configuration.externalInterfaceIP = networkInterfaces.find((item) => item.name === configuration.externalInterfaceName).ip;
       configuration.internalInterfaceIP = networkInterfaces.find((item) => item.name === configuration.internalInterfaceName).ip;
       await this.removeConfiguration();
@@ -194,13 +193,14 @@ class NetworkConfigController extends ControllerBase {
   async removeConfiguration() {
     const configuration = { ...this.dataStorage.getNetworkConfiguration() };
     configuration.networkInterfaces = this.getNetworkInterfaces();
-    //configuration.networkInterfaces = [{"name":configuration.interfaceConfiguration.internalInterfaceName, "ip":configuration.interfaceConfiguration.internalInterfaceIP}, {"name":configuration.interfaceConfiguration.externalInterfaceName, "ip":configuration.interfaceConfiguration.externalInterfaceIP}];
+    // configuration.networkInterfaces = [{"name":configuration.interfaceConfiguration.internalInterfaceName, "ip":configuration.interfaceConfiguration.internalInterfaceIP}, {"name":configuration.interfaceConfiguration.externalInterfaceName, "ip":configuration.interfaceConfiguration.externalInterfaceIP}];
+    
     await this.platformObjects.getNetworkUtility().removeNetworkConfiguration(configuration);
   }
-  
+
   async onConfigurationUpdated() {
     const configuration = { ...this.dataStorage.getNetworkConfiguration() };
-    configuration.networkInterfaces = [{"name":configuration.interfaceConfiguration.internalInterfaceName, "ip":configuration.interfaceConfiguration.internalInterfaceIP}, {"name":configuration.interfaceConfiguration.externalInterfaceName, "ip":configuration.interfaceConfiguration.externalInterfaceIP}];
+    configuration.networkInterfaces = [{ name: configuration.interfaceConfiguration.internalInterfaceName, ip: configuration.interfaceConfiguration.internalInterfaceIP }, { name: configuration.interfaceConfiguration.externalInterfaceName, ip: configuration.interfaceConfiguration.externalInterfaceIP }];
     await this.platformObjects.getNetworkUtility().applyNetworkConfiguration(configuration);
     this.sendCurrentConfiguration();
   }
