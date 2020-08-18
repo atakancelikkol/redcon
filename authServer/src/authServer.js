@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const logger = require('../../server/src/util/Logger.js');
 const AuthServerConfig = require('./AuthServerConfig');
 const LowDBDataStorage = require('./dataStorage/LowDBDataStorage.js');
+const crypto = require('crypto');
 
 class AuthServer {
   constructor(options) {
@@ -41,11 +42,16 @@ class AuthServer {
     const reqAction = req.body.action;
     logger.info('action of the request == ', reqAction);
 
+    const hash = crypto.createHash('sha256');
+    hash.update(password);
+    const hashedPass = hash.digest('hex');
+    console.log(hashedPass);
+
     if (reqAction === 'authentication') {
       const foundUser = this.dbStorage.findUser(email);
       if (foundUser) {
         logger.info(`found email: ${foundUser.email}`);
-        if (foundUser.password === password) {
+        if (foundUser.password === hashedPass) {
           logger.info(`correct password for  ${foundUser.email}`);
           this.token = true;
         } else {
@@ -66,7 +72,8 @@ class AuthServer {
       } else {
         logger.info('email of the reg request == ', email);
         logger.info('pass of the reg request == ', password);
-        const isRegistered = this.dbStorage.registerNewUser(email, password);
+
+        const isRegistered = this.dbStorage.registerNewUser(email, hashedPass);
         res.write(`{"isRegistered":${isRegistered}}`);
         res.end();
         logger.info('registerResult === ', isRegistered);
