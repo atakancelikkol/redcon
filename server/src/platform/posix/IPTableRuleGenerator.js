@@ -53,7 +53,7 @@ ${iptablesCommand} -A FORWARD -p tcp -d ${rule.externalIp} --dport ${rule.extern
 function generateScript(config, useLegacyIpTables = false) {
   const iptablesCommand = useLegacyIpTables ? 'iptables-legacy' : 'iptables';
   // device external ip
-  if ( !(config.interfaceConfiguration.externalInterfaceName && config.interfaceConfiguration.externalInterfaceIP) || !(config.interfaceConfiguration.internalInterfaceName && config.interfaceConfiguration.internalInterfaceIP)) {
+  if (!(config.interfaceConfiguration.externalInterfaceName && config.interfaceConfiguration.externalInterfaceIP) || !(config.interfaceConfiguration.internalInterfaceName && config.interfaceConfiguration.internalInterfaceIP)) {
     logger.error('external or internal interfaces are not configured!');
     return { error: true, script: '' };
   }
@@ -105,7 +105,7 @@ function generateScript(config, useLegacyIpTables = false) {
 function generateRemoveScript(config, useLegacyIpTables = false) {
   const iptablesCommand = useLegacyIpTables ? 'iptables-legacy' : 'iptables';
 
-  if ( !(config.interfaceConfiguration.externalInterfaceName && config.interfaceConfiguration.externalInterfaceIP) || !(config.interfaceConfiguration.internalInterfaceName && config.interfaceConfiguration.internalInterfaceIP)) {
+  if (!(config.interfaceConfiguration.externalInterfaceName && config.interfaceConfiguration.externalInterfaceIP) || !(config.interfaceConfiguration.internalInterfaceName && config.interfaceConfiguration.internalInterfaceIP)) {
     logger.error('external or internal interfaces are not configured!');
     return { error: true, script: '' };
   }
