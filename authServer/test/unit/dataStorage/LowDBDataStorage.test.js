@@ -1,6 +1,6 @@
 const FileSync = require('lowdb/adapters/FileSync');
-const LowDBDataStorage = require('../../src/dataStorage/LowDBDataStorage');
-const DefaultData = require('../../src/dataStorage/DefaultData');
+const LowDBDataStorage = require('../../../src/dataStorage/LowDBDataStorage');
+const DefaultData = require('../../../src/dataStorage/DefaultData');
 
 jest.mock('lowdb/adapters/FileSync');
 
@@ -11,7 +11,6 @@ describe('LowDBDataStorage test', () => {
 
     lowDBDataStorage.init();
     expect(lowDBDataStorage.db).not.toBe(undefined);
-    
   });
 
   test('db should be created with file adapter', () => {
