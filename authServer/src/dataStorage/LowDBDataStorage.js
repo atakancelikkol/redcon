@@ -14,7 +14,7 @@ class LowDBDataStorage {
 
   init() {
     const adapter = LowDBDataStorage.createAdapter(process.env.NODE_ENV);
-    this.db =  low(adapter);
+    this.db = low(adapter);
     this.db.defaults(DefaultData).write();
   }
 
