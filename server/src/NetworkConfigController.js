@@ -1,7 +1,6 @@
 const os = require('os');
 const net = require('net');
 const ControllerBase = require('./ControllerBase');
-const logger = require('./util/Logger');
 
 class NetworkConfigController extends ControllerBase {
   constructor() {
@@ -50,12 +49,14 @@ class NetworkConfigController extends ControllerBase {
     const networkInterfaces = [];
     interfaceNames.forEach((name) => {
       let ip;
+      let mac;
       interfaces[name].forEach((obj) => {
         if (obj.family === 'IPv4') {
           ip = obj.address;
+          mac = obj.mac;
         }
       });
-      networkInterfaces.push({ name, ip });
+      networkInterfaces.push({ name, ip, mac });
     });
     return networkInterfaces;
   }
@@ -63,17 +64,10 @@ class NetworkConfigController extends ControllerBase {
   async updateNetworkInterfaceConfiguration(configuration) {
     configuration.internalInterfaceName = this.normalizeString(configuration.internalInterfaceName); // eslint-disable-line
     configuration.externalInterfaceName = this.normalizeString(configuration.externalInterfaceName); // eslint-disable-line
-    if (configuration.networkInterfaces === undefined) {
-      const networkInterfaces = this.getNetworkInterfaces();
-      configuration.networkInterfaces = networkInterfaces;
-    }
-
     if (configuration.internalInterfaceName && configuration.externalInterfaceName && this.parameterCheckIsSubNet(configuration.internalInterfaceSubnet)) {
-      configuration.externalInterfaceIP = configuration.networkInterfaces.find((item) => item.name === configuration.externalInterfaceName).ip;
-      configuration.internalInterfaceIP = configuration.networkInterfaces.find((item) => item.name === configuration.internalInterfaceName).ip;
-      logger.debug(configuration);
-      delete configuration.networkInterfaces;
-      logger.debug(configuration);
+      const networkInterfaces = this.getNetworkInterfaces();
+      configuration.externalInterfaceIP = networkInterfaces.find((item) => item.name === configuration.externalInterfaceName).ip;
+      configuration.internalInterfaceIP = networkInterfaces.find((item) => item.name === configuration.internalInterfaceName).ip;
       await this.removeConfiguration();
       await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
       await this.onConfigurationUpdated();
