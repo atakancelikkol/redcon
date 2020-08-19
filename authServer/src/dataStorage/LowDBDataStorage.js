@@ -1,5 +1,6 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const Memory = require('lowdb/adapters/Memory');
 
 const DefaultData = require('./DefaultData');
 const logger = require('../../../server/src/util/Logger');
@@ -8,10 +9,20 @@ const DATABASE_FILE = './src/utils/usersDb.json';
 
 class LowDBDataStorage {
   constructor() {
-    const adapter = new FileSync(DATABASE_FILE);
-    this.db = low(adapter);
+    this.db = undefined;
+  }
+
+  init() {
+    const adapter = LowDBDataStorage.createAdapter(process.env.NODE_ENV);
+    this.db =  low(adapter);
     this.db.defaults(DefaultData).write();
-    // this.registerNewUser('boraks0135@gmail.com', 'bora123');
+  }
+
+  static createAdapter(env) {
+    if (env === 'test') {
+      return new Memory();
+    }
+    return new FileSync(DATABASE_FILE);
   }
 
   registerNewUser(newEmail, newPassword) {

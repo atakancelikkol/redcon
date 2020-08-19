@@ -81,6 +81,7 @@
           Cancel
         </router-link>
         <b-alert
+          v-if="registerError"
           :show="registerError"
           variant="danger"
           style="margin-top: 10px"
@@ -115,8 +116,8 @@ export default {
   computed: {
     ...mapState(['regStatus']),
     registerError() {
-      if (!this.regStatus) {
-        return 'This Usename Is Already Registered, Please Try Another Username.';
+      if (this.regStatus === false) {
+        return 'This Username Is Already Registered, Please Try Another Username.';
       }
       return this.regStatus;
     },

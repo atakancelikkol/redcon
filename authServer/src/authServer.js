@@ -26,6 +26,7 @@ class AuthServer {
     // create http server
 
     this.app.use(bodyParser.json());
+    this.dbStorage.init();
     // checkUserAuth
     this.app.post('/authenticate', (req, res) => {
       this.token = undefined;
