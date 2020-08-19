@@ -30,6 +30,8 @@ describe('PosixNetworkUtility test', () => {
     config.interfaceConfiguration.externalInterfaceName = 'eth0';
     config.interfaceConfiguration.internalInterfaceName = 'eth1';
     config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+    config.interfaceConfiguration.externalInterfaceIP = '10.0.0.10';
+    config.interfaceConfiguration.internalInterfaceIP = '192.168.0.10';
     const posixNetworkUtility = new PosixNetworkUtility();
     await posixNetworkUtility.applyNetworkConfiguration(config);
     expect(execCommandString.length).not.toBe(0);
@@ -48,6 +50,8 @@ describe('PosixNetworkUtility test', () => {
     config.interfaceConfiguration.externalInterfaceName = 'eth0';
     config.interfaceConfiguration.internalInterfaceName = 'eth1';
     config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+    config.interfaceConfiguration.externalInterfaceIP = '10.0.0.10';
+    config.interfaceConfiguration.internalInterfaceIP = '192.168.0.10';
     const posixNetworkUtility = new PosixNetworkUtility();
     await posixNetworkUtility.removeNetworkConfiguration(config);
     expect(execCommandString.length).not.toBe(0);
