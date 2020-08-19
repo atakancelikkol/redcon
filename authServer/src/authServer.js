@@ -29,34 +29,29 @@ class AuthServer {
     // checkUserAuth
     this.app.post('/authenticate', (req, res) => {
       this.token = undefined;
-      this.Authenticator(req, res);
+      this.authenticator(req, res);
     });
     this.app.post('/register', (req, res) => {
-      this.Register(req, res);
+      this.register(req, res);
     });
 
     this.httpServer.listen(this.port, () => logger.info(`AuthServer listening at http://localhost:${this.port}`));
   }
 
-  Authenticator(req, res) {
+  authenticator(req, res) {
     const user = req.body;
     const { email } = user;
     const { password } = user;
     const isAuthObj = {
       isAuth: '',
     };
-    logger.info('email of the request == ', email);
-    const reqAction = req.body.action;
-    logger.info('action of the request == ', reqAction);
-
-    const hash = crypto.createHash('sha256');
-    hash.update(password);
-    const hashedPass = hash.digest('hex');
-    logger.info('hascoded == ', hashedPass);
 
     const foundUser = this.dbStorage.findUser(email);
     if (foundUser) {
       logger.info(`found email: ${foundUser.email}`);
+      const hash = crypto.createHash('sha256');
+      hash.update(password);
+      const hashedPass = hash.digest('hex');
       if (foundUser.password === hashedPass) {
         logger.info(`correct password for  ${foundUser.email}`);
         this.token = true;
@@ -76,28 +71,21 @@ class AuthServer {
     logger.info('authResult === ', this.token);
   }
 
-  Register(req, res) {
+  register(req, res) {
     const user = req.body;
     const { email } = user;
     const { password } = user;
     const isRegisteredObj = {
       isRegistered: '',
     };
-    logger.info('email of the request == ', email);
-    const reqAction = req.body.action;
-    logger.info('action of the request == ', reqAction);
 
     const hash = crypto.createHash('sha256');
     hash.update(password);
     const hashedPass = hash.digest('hex');
-    logger.info('hascoded == ', hashedPass);
 
     if ((email === null || email === '' || email === undefined) || (password === null || password === '' || password === undefined)) {
       logger.info('email or password is null, empty or undefined, please check');
     } else {
-      logger.info('email of the reg request == ', email);
-      logger.info('pass of the reg request == ', password);
-
       const isRegistered = this.dbStorage.registerNewUser(email, hashedPass);
 
       isRegisteredObj.isRegistered = isRegistered;

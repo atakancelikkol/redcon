@@ -81,16 +81,6 @@
           Cancel
         </router-link>
         <b-alert
-          v-if="registerError == `'${usernameReg}' Succesfully Registered.`"
-          :show="registerError"
-          variant="success"
-          style="margin-top: 10px"
-          dismissible
-        >
-          {{ registerError }}
-        </b-alert>
-        <b-alert
-          v-if="registerError == `'${usernameReg}' Has Already Registered, Please Try Another Username.`"
           :show="registerError"
           variant="danger"
           style="margin-top: 10px"
@@ -125,6 +115,9 @@ export default {
   computed: {
     ...mapState(['regStatus']),
     registerError() {
+      if (!this.regStatus) {
+        return 'This Usename Is Already Registered, Please Try Another Username.';
+      }
       return this.regStatus;
     },
     passValidate() {
@@ -143,8 +136,12 @@ export default {
       this.flag = true;
     },
     regStatus() {
-      if (this.regStatus === `'${this.usernameReg}' Succesfully Registered.`) {
-        this.$router.push('/login');
+      if (this.regStatus !== null && this.regStatus !== '' && this.regStatus !== undefined) {
+        if (this.regStatus === false) {
+          if (this.$router.currentRoute.path !== '/register') this.$router.push('/register');
+        } else {
+          this.$router.push('/login');
+        }
       }
     },
   },
