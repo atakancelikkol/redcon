@@ -6,7 +6,7 @@ https://google.github.io/styleguide/jsguide.html
 ## Summary and Important Items 
 - Class names should be defined as MyClassName.
 - File names should be defined as MyFileName.js. If it is a class, the file name and the class name should be the same. Ideally, one file should contain a single class definition.
-- Function names should be defined as myFuncitionName.
+- Function names should be defined as myFunctionName.
 - Variable names should be defined as myVariableName.
 - Constants parameters and values should be defined like MY_CONSTANT.
 - the "var" keyword is not allowed to use.
