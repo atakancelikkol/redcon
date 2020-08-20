@@ -100,6 +100,28 @@ describe('componentLogin', () => {
     wrapper.destroy();
   });
 
+  it('computed loginError ', () => {
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+    state.authStatus = 'auth failed';
+
+    expect(wrapper.vm.loginError).toStrictEqual('auth failed');
+    wrapper.destroy();
+  });
+
+  it('computed registeryError ', () => {
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+    state.regStatus = 'registery successful';
+
+    expect(wrapper.vm.registeryMsg).toStrictEqual('registery successful');
+    wrapper.destroy();
+  });
+
   it('watch user() ', () => new Promise((done) => {
     let routePath = '';
     localVue.prototype.$router = {
@@ -111,13 +133,109 @@ describe('componentLogin', () => {
       store,
       localVue,
     });
+    const useAuthTemp = state.receivedData.useAuthentication;
+    state.receivedData.useAuthentication = true;
     state.user = ({
-      username: 'testuser2',
+      username: 'anonymous',
       id: 'id',
       ip: '::1',
     });
     wrapper.vm.$nextTick(() => {
       expect(routePath).toBe('/');
+      expect(actions.logoutUser).toHaveBeenCalled();
+      state.receivedData.useAuthentication = useAuthTemp;
+      done();
+    });
+  }));
+
+  it('method register()', () => new Promise((done) => {
+    let routePath = '';
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath = param.path;
+      },
+    };
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+
+    const button = wrapper.findComponent({ ref: 'register' });
+    button.trigger('click');
+
+    wrapper.vm.$nextTick(() => {
+      expect(routePath).toBe('/register');
+      done();
+    });
+  }));
+
+  it('watch receivedData() ', () => new Promise((done) => {
+    const routePath = [];
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath.push(param.path);
+      },
+      currentRoute: {
+        path: '/test',
+      },
+    };
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+
+    state.user = ({
+      username: 'anonymous',
+      id: 'id',
+      ip: '::1',
+    });
+
+    const useAuthTemp = state.receivedData.useAuthentication;
+    state.receivedData = { useAuthentication: true };
+
+    wrapper.vm.$nextTick(() => {
+      expect(routePath[1]).toBe('/');
+      expect(actions.logoutUser).toHaveBeenCalled();
+      state.receivedData.useAuthentication = useAuthTemp;
+      done();
+    });
+
+    wrapper.vm.$nextTick(() => {
+      expect(routePath[0]).toBe('/login');
+      expect(actions.logoutUser).toHaveBeenCalled();
+      state.receivedData.useAuthentication = useAuthTemp;
+      done();
+    });
+  }));
+
+  it('watch receivedData() else condition ', () => new Promise((done) => {
+    const routePath = [];
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath.push(param.path);
+      },
+      currentRoute: {
+        path: '/test',
+      },
+    };
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+
+    state.user = ({
+      username: 'anonymous',
+      id: 'id',
+      ip: '::1',
+    });
+
+    const useAuthTemp = state.receivedData.useAuthentication;
+
+    state.receivedData = { useAuthentication: false };
+    wrapper.vm.$nextTick(() => {
+      expect(routePath[0]).toBe('/');
+      expect(actions.loginUser).toHaveBeenCalled();
+      state.receivedData.useAuthentication = useAuthTemp;
       done();
     });
   }));

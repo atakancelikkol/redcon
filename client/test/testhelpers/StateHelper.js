@@ -25,8 +25,11 @@ const state = {
       networkInterfaces: [{}, {}],
       interfaceConfiguration: { internalInterfaceName: 'testInterface', externalInterfaceName: 'anotherTestInterface', internalInterfaceSubnet: '10.32.0.0/16' },
     },
+    useAuthentication: false,
   },
   serialData: {},
+  authStatus: '',
+  regStatus: '',
   user: {
     username: 'testuser',
     id: 'id',

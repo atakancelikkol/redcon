@@ -83,17 +83,20 @@ describe('store mutations', () => {
       user: 'test_user',
       authStatus: true,
       token: 'test_token',
+      regStatus: true,
     };
 
     const authData = {
       user: 'test_user_auth',
       authStatus: false,
       token: 'test_token_auth',
+      regStatus: false,
     };
 
     mutations.SET_AUTH_DATA(state, authData);
     expect(authData.user).toStrictEqual(state.user);
     expect(authData.token).toStrictEqual(state.token);
     expect(authData.authStatus).toStrictEqual(state.authStatus);
+    expect(authData.regStatus).toStrictEqual(state.regStatus);
   });
 });
