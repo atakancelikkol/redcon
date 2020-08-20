@@ -47,7 +47,7 @@ class LowDBDataStorage {
   }
 
   getUsers() {
-    if (this.db.get('users').value()) {
+    if (this.db.get('users').value().length !== 0) {
       return this.db.get('users').value();
     }
     return false;

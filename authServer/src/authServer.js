@@ -12,6 +12,7 @@ class AuthServer {
     this.app = null;
     this.httpServer = null;
     this.token = undefined;
+    this.isRegistered = undefined;
     this.dbStorage = new LowDBDataStorage();
   }
 
@@ -77,19 +78,20 @@ class AuthServer {
     const { email } = user;
     const { password } = user;
     const isRegisteredObj = {
-      isRegistered: '',
+      isRegistered: undefined,
     };
 
     if ((email === null || email === '' || email === undefined) || (password === null || password === '' || password === undefined)) {
       logger.info('email or password is null, empty or undefined, please check');
+      this.isRegistered = false;
     } else {
-      const isRegistered = this.dbStorage.registerNewUser(email, password);
+      this.isRegistered = this.dbStorage.registerNewUser(email, password);
 
-      isRegisteredObj.isRegistered = isRegistered;
+      isRegisteredObj.isRegistered = this.isRegistered;
 
       res.write(JSON.stringify(isRegisteredObj));
       res.end();
-      logger.info('registerResult === ', isRegistered);
+      logger.info('registerResult === ', this.isRegistered);
     }
   }
 

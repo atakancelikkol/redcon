@@ -1,11 +1,10 @@
 const FileSync = require('lowdb/adapters/FileSync');
 const crypto = require('crypto');
 const LowDBDataStorage = require('../../../src/dataStorage/LowDBDataStorage');
-const DefaultData = require('../../../src/dataStorage/DefaultData');
 
 jest.mock('lowdb/adapters/FileSync');
 
-describe('LowDBDataStorage test', () => {
+describe('LowDBDataStorage Initializing test', () => {
   test('db should be initialized with default data', () => {
     const lowDBDataStorage = new LowDBDataStorage();
     expect(lowDBDataStorage.db).toBe(undefined);
@@ -132,7 +131,7 @@ describe('LowDBDataStorage Function Tests', () => {
     hash.update('test2');
     const hashedPass2 = hash.digest('hex');
 
-    const testUsers = lowDBDataStorage.getUsers();
+    let testUsers = lowDBDataStorage.getUsers();
     expect(testUsers[0].email).toStrictEqual(testUser.username);
     expect(testUsers[0].password).toStrictEqual(hashedPass);
     expect(testUsers[1].email).toStrictEqual('test2');
@@ -142,6 +141,9 @@ describe('LowDBDataStorage Function Tests', () => {
     expect(removeFlag).toBe(true);
     removeFlag = lowDBDataStorage.removeUser('test2');
     expect(removeFlag).toBe(true);
+
+    testUsers = lowDBDataStorage.getUsers();
+    expect(testUsers).toBe(false);
 
     const getUsersFlag = lowDBDataStorage.removeUser(testUser.username);
     expect(getUsersFlag).toBe(false);
