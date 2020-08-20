@@ -200,7 +200,6 @@ class NetworkConfigController extends ControllerBase {
 
   async onConfigurationUpdated() {
     const configuration = { ...this.dataStorage.getNetworkConfiguration() };
-    configuration.networkInterfaces = [{ name: configuration.interfaceConfiguration.internalInterfaceName, ip: configuration.interfaceConfiguration.internalInterfaceIP }, { name: configuration.interfaceConfiguration.externalInterfaceName, ip: configuration.interfaceConfiguration.externalInterfaceIP }];
     await this.platformObjects.getNetworkUtility().applyNetworkConfiguration(configuration);
     this.sendCurrentConfiguration();
   }
