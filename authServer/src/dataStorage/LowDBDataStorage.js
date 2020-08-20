@@ -2,6 +2,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const Memory = require('lowdb/adapters/Memory');
 
+const crypto = require('crypto');
 const DefaultData = require('./DefaultData');
 const logger = require('../../../server/src/util/Logger');
 
@@ -31,7 +32,10 @@ class LowDBDataStorage {
       return false;
     }
     const currentDate = new Date();
-    this.db.get('users').push({ email: newEmail, password: newPassword, regDate: currentDate }).write();
+    const hash = crypto.createHash('sha256');
+    hash.update(newPassword);
+    const hashedPass = hash.digest('hex');
+    this.db.get('users').push({ email: newEmail, password: hashedPass, regDate: currentDate }).write();
     logger.info('Added user!');
     return true;
   }
@@ -43,7 +47,10 @@ class LowDBDataStorage {
   }
 
   getUsers() {
-    return this.db.get('users').value();
+    if (this.db.get('users').value()) {
+      return this.db.get('users').value();
+    }
+    return false;
   }
 
   removeUser(email) {
