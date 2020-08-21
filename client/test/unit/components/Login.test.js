@@ -136,6 +136,32 @@ describe('componentLogin', () => {
     const useAuthTemp = state.receivedData.useAuthentication;
     state.receivedData.useAuthentication = true;
     state.user = ({
+      username: 'test',
+      id: 'id',
+      ip: '::1',
+    });
+    wrapper.vm.$nextTick(() => {
+      expect(routePath).toBe('/');
+      expect(actions.logoutUser).not.toHaveBeenCalled();
+      state.receivedData.useAuthentication = useAuthTemp;
+      done();
+    });
+  }));
+
+  it('watch user() anonymous ', () => new Promise((done) => {
+    let routePath = '';
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath = param.path;
+      },
+    };
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+    const useAuthTemp = state.receivedData.useAuthentication;
+    state.receivedData.useAuthentication = true;
+    state.user = ({
       username: 'anonymous',
       id: 'id',
       ip: '::1',
@@ -144,6 +170,26 @@ describe('componentLogin', () => {
       expect(routePath).toBe('/');
       expect(actions.logoutUser).toHaveBeenCalled();
       state.receivedData.useAuthentication = useAuthTemp;
+      done();
+    });
+  }));
+
+  it('watch user() null ', () => new Promise((done) => {
+    let routePath = '';
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath = param.path;
+      },
+    };
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+
+    state.user = null;
+
+    wrapper.vm.$nextTick(() => {
+      expect(routePath).toBe('');
       done();
     });
   }));
@@ -203,6 +249,37 @@ describe('componentLogin', () => {
     wrapper.vm.$nextTick(() => {
       expect(routePath[0]).toBe('/login');
       expect(actions.logoutUser).toHaveBeenCalled();
+      state.receivedData.useAuthentication = useAuthTemp;
+      done();
+    });
+  }));
+
+  it('watch receivedData() with non anonymous user ', () => new Promise((done) => {
+    const routePath = [];
+    localVue.prototype.$router = {
+      push: (param) => {
+        routePath.push(param.path);
+      },
+      currentRoute: {
+        path: '/',
+      },
+    };
+    const wrapper = mount(componentLogin, {
+      store,
+      localVue,
+    });
+
+    state.user = ({
+      username: 'test',
+      id: 'id',
+      ip: '::1',
+    });
+
+    const useAuthTemp = state.receivedData.useAuthentication;
+    state.receivedData = { useAuthentication: true };
+
+    wrapper.vm.$nextTick(() => {
+      expect(routePath[0]).toBe('/login');
       state.receivedData.useAuthentication = useAuthTemp;
       done();
     });
