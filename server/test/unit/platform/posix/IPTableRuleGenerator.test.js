@@ -21,6 +21,8 @@ describe('IPTableRuleGenerator test', () => {
     config.interfaceConfiguration.externalInterfaceName = 'eth0';
     config.interfaceConfiguration.internalInterfaceName = 'eth1';
     config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+    config.interfaceConfiguration.externalInterfaceIP = '10.0.0.10';
+    config.interfaceConfiguration.internalInterfaceIP = '192.168.0.10';
     const script = IPTableRuleGenerator.generateScript(config, false);
     const matchString = 'iptables -t nat -A POSTROUTING ! -d 192.168.0.0/16 -o eth0 -j SNAT --to-source 10.0.0.10';
     expect(script.error).toBe(false);
@@ -31,6 +33,8 @@ describe('IPTableRuleGenerator test', () => {
     config.interfaceConfiguration.externalInterfaceName = 'eth0';
     config.interfaceConfiguration.internalInterfaceName = 'eth1';
     config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+    config.interfaceConfiguration.externalInterfaceIP = '10.0.0.10';
+    config.interfaceConfiguration.internalInterfaceIP = '192.168.0.10';
     const script = IPTableRuleGenerator.generateScript(config, true);
     const matchString = 'iptables-legacy -t nat -A POSTROUTING ! -d 192.168.0.0/16 -o eth0 -j SNAT --to-source 10.0.0.10';
     expect(script.error).toBe(false);
@@ -85,6 +89,8 @@ describe('IPTableRuleGenerator test', () => {
     config.interfaceConfiguration.externalInterfaceName = 'eth0';
     config.interfaceConfiguration.internalInterfaceName = 'eth1';
     config.interfaceConfiguration.internalInterfaceSubnet = '192.168.0.0/16';
+    config.interfaceConfiguration.externalInterfaceIP = '10.0.0.10';
+    config.interfaceConfiguration.internalInterfaceIP = '192.168.0.10';
 
     const script = IPTableRuleGenerator.generateRemoveScript(config);
     expect(script.error).toBe(false);
