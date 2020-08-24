@@ -17,7 +17,7 @@ class Authenticator extends ControllerBase {
 
   appendData(obj) {
     obj.authHistory = this.getCopyState(); // eslint-disable-line
-    obj.useAuthentication = ServerConfig.useAuthentication;
+    obj.useAuthentication = ServerConfig.useAuthentication; // eslint-disable-line
   }
 
   getCopyState() {

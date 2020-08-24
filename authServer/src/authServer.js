@@ -7,7 +7,7 @@ const AuthServerConfig = require('./AuthServerConfig');
 const LowDBDataStorage = require('./dataStorage/LowDBDataStorage.js');
 
 class AuthServer {
-  constructor(options) {
+  constructor() {
     this.port = AuthServerConfig.ServerPort;
     this.app = null;
     this.httpServer = null;
@@ -86,13 +86,12 @@ class AuthServer {
       this.isRegistered = false;
     } else {
       this.isRegistered = this.dbStorage.registerNewUser(email, password);
-
-      isRegisteredObj.isRegistered = this.isRegistered;
-
-      res.write(JSON.stringify(isRegisteredObj));
-      res.end();
-      logger.info('registerResult === ', this.isRegistered);
     }
+    isRegisteredObj.isRegistered = this.isRegistered;
+
+    res.write(JSON.stringify(isRegisteredObj));
+    res.end();
+    logger.info('registerResult === ', this.isRegistered);
   }
 
   closeConnection() {
