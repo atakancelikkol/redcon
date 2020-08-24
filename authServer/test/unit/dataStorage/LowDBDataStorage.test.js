@@ -1,5 +1,4 @@
 const FileSync = require('lowdb/adapters/FileSync');
-const crypto = require('crypto');
 const LowDBDataStorage = require('../../../src/dataStorage/LowDBDataStorage');
 
 jest.mock('lowdb/adapters/FileSync');
@@ -62,16 +61,12 @@ describe('LowDBDataStorage Function Tests', () => {
       password: 'test',
     };
 
-    const hash = crypto.createHash('sha256');
-    hash.update(testUser.password);
-    const hashedPass = hash.digest('hex');
-
     if (lowDBDataStorage.findUser(testUser.username)) lowDBDataStorage.removeUser(testUser.username);
     const flag = lowDBDataStorage.registerNewUser(testUser.username, testUser.password);
     expect(flag).toBe(true);
 
     const checkUser = await lowDBDataStorage.findUser(testUser.username);
-    expect(checkUser.password).toStrictEqual(hashedPass);
+    expect(checkUser.password).toStrictEqual(testUser.password);
   });
 
   test('Find User Function ', async () => {
@@ -123,19 +118,11 @@ describe('LowDBDataStorage Function Tests', () => {
     flag = lowDBDataStorage.registerNewUser('test2', 'test2');
     expect(flag).toBe(true);
 
-    let hash = crypto.createHash('sha256');
-    hash.update(testUser.password);
-    const hashedPass = hash.digest('hex');
-
-    hash = crypto.createHash('sha256');
-    hash.update('test2');
-    const hashedPass2 = hash.digest('hex');
-
     let testUsers = lowDBDataStorage.getUsers();
     expect(testUsers[0].email).toStrictEqual(testUser.username);
-    expect(testUsers[0].password).toStrictEqual(hashedPass);
+    expect(testUsers[0].password).toStrictEqual(testUser.password);
     expect(testUsers[1].email).toStrictEqual('test2');
-    expect(testUsers[1].password).toStrictEqual(hashedPass2);
+    expect(testUsers[1].password).toStrictEqual('test2');
 
     let removeFlag = lowDBDataStorage.removeUser(testUser.username);
     expect(removeFlag).toBe(true);
