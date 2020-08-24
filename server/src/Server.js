@@ -1,13 +1,10 @@
 
-const GPIOController = require('./GPIOController');
-const USBController = require('./USBController');
 const HttpServer = require('./HttpServer');
-const SerialPortController = require('./SerialPortController');
 const UtilityDataHandler = require('./UtilityDataHandler');
 const Authenticator = require('./Authenticator');
-const NetworkConfigController = require('./NetworkConfigController');
 const PlatformObjects = require('./platform/PlatformObjects');
 const DataStorage = require('./dataStorage/LowDBDataStorage');
+const ControllerPlugins = require('./ControllerPlugins');
 
 const idleConnectionCheckInterval = 5 * 60 * 1000; // units of ms 5 * 60 * 1000 = 5 minutes
 
@@ -15,16 +12,16 @@ class Server {
   constructor() {
     this.platformObjects = new PlatformObjects();
     this.dataStorage = new DataStorage();
-    this.controllers = [];
+    this.controllerPlugins = new ControllerPlugins();
+    this.controllers = this.controllerPlugins.createControllerInstances();
+    // add to ControllerPlugins
+    this.controllers.push(new UtilityDataHandler());
 
     this.authenticator = new Authenticator();
     this.controllers.push(this.authenticator);
-    this.controllers.push(new GPIOController());
-    this.usbController = new USBController();
-    this.controllers.push(this.usbController);
-    this.controllers.push(new SerialPortController());
-    this.controllers.push(new UtilityDataHandler());
-    this.controllers.push(new NetworkConfigController());
+
+    // find a way to include with ControllerPlugins
+    this.usbController = this.controllers.find((controller) => controller.name === 'USBController');
 
     // create connection manager
     this.httpServer = new HttpServer({ controllers: this.controllers });
