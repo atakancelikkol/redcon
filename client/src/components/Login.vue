@@ -133,7 +133,7 @@ export default {
     },
   },
   watch: {
-    ...mapState(['receivedData']),
+    ...mapState(['receivedData', 'user']),
     ...mapActions(['logoutUser', 'loginUser']),
 
     user() {
@@ -143,6 +143,9 @@ export default {
           if (this.user.username === 'anonymous') {
             this.logoutUser({ user: this.user.username });
           }
+        }
+        if (!this.receivedData.useAuthentication) {
+          if (this.user.username !== 'anonymous') this.logoutUser({ user: this.user.username });
         }
       }
     },
