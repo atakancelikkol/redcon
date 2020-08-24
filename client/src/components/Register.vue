@@ -119,6 +119,9 @@ export default {
       if (this.regStatus === false) {
         return 'This Username Is Already Registered, Please Try Another Username.';
       }
+      if (this.regStatus === undefined) {
+        return 'Please Enter an Username.';
+      }
       return this.regStatus;
     },
     passValidate() {

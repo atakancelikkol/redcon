@@ -83,7 +83,7 @@ class AuthServer {
 
     if ((email === null || email === '' || email === undefined) || (password === null || password === '' || password === undefined)) {
       logger.info('email or password is null, empty or undefined, please check');
-      this.isRegistered = false;
+      this.isRegistered = undefined;
     } else {
       this.isRegistered = this.dbStorage.registerNewUser(email, password);
     }

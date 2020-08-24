@@ -135,7 +135,7 @@ describe('AuthServer ', () => {
   });
 
   describe('register ', () => {
-    it('should return false', () => {
+    it('should return undefined', () => {
       const mockReq = {
         body: {
           email: '',
@@ -155,7 +155,7 @@ describe('AuthServer ', () => {
       httpServerInstance.init();
 
       httpServerInstance.register(mockReq, mockRes);
-      expect(httpServerInstance.isRegistered).toBe(false);
+      expect(httpServerInstance.isRegistered).toBe(undefined);
       httpServerInstance.closeConnection();
     });
 
