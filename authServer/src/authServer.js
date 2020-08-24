@@ -85,7 +85,10 @@ class AuthServer {
       logger.info('email or password is null, empty or undefined, please check');
       this.isRegistered = undefined;
     } else {
-      this.isRegistered = this.dbStorage.registerNewUser(email, password);
+      const hash = crypto.createHash('sha256');
+      hash.update(password);
+      const hashedPass = hash.digest('hex');
+      this.isRegistered = this.dbStorage.registerNewUser(email, hashedPass);
     }
     isRegisteredObj.isRegistered = this.isRegistered;
 
