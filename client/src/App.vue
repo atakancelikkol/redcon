@@ -9,10 +9,37 @@
         Connection is lost! It will try to connect automatically.
       </b-alert>
     </div>
-    <div class="app-left-menu">
+    <div class="app-timeOut-warning">
+      <b-alert
+        :show="timeOut"
+        variant="danger"
+        style="margin: auto; text-align: center"
+      >
+        TimeOut !! Please Refresh The Page.
+      </b-alert>
+    </div>
+    <div
+      v-if="!timeOut"
+      class="app-left-menu"
+    >
       <LeftMenu />
     </div>
-    <div class="app-main-container">
+    <div
+      v-if="timeOut"
+      class="app-left-menu-blur"
+    >
+      <LeftMenu />
+    </div>
+    <div
+      v-if="timeOut"
+      class="app-main-container-blur"
+    >
+      <router-view />
+    </div>
+    <div
+      v-if="!timeOut"
+      class="app-main-container"
+    >
       <router-view />
     </div>
   </div>
@@ -28,9 +55,10 @@ export default {
     LeftMenu,
   },
   computed: {
-    ...mapState(['user', 'authStatus', 'isConnected']),
+    ...mapState(['user', 'authStatus', 'isConnected', 'timeOut']),
   },
   watch: {
+    ...mapState(['timeOut']),
     user() {
       if (this.user == null) {
         if (this.$router.currentRoute.path !== '/login') this.$router.push({ path: '/login' });
@@ -65,6 +93,16 @@ html, body {
   z-index: 1;
 }
 
+.app-timeOut-warning {
+  position: fixed;
+  width: 100%;
+  left:0;
+  top: 50%;
+  display: flex;
+  font-size: 20pt;
+  z-index: 1;
+}
+
 .app-left-menu {
   width: 200px;
   padding: 10px;
@@ -78,5 +116,22 @@ html, body {
   overflow: auto;
   display: flex;
   flex-direction: column;
+}
+
+.app-left-menu-blur {
+  width: 200px;
+  padding: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  filter: blur(5px);
+}
+
+.app-main-container-blur {
+  flex: 1;
+  padding: 10px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  filter: blur(5px);
 }
 </style>

@@ -5,6 +5,7 @@ const state = {
   user: null,
   authStatus: '',
   regStatus: '',
+  timeOut: false,
   token: '',
 };
 

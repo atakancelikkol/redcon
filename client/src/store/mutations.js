@@ -28,6 +28,7 @@ const mutations = {
     state.authStatus = authData.authStatus;
     state.regStatus = authData.regStatus;
     state.token = authData.token;
+    state.timeOut = authData.timeOut;
   },
 };
 

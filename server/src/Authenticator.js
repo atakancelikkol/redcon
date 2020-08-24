@@ -243,15 +243,15 @@ class Authenticator extends ControllerBase {
     // this.logClientActivity(client, 'logout by timeout', clients);
     client.setAuthentication(false);
     client.setUserObject(null);
-    this.sendUserToClient(client, null, status);
+    this.sendUserToClient(client, null, status, null, null, true);
     client.setLastActivityTime(undefined);
     this.updateActiveUsername(clients);
   }
 
-  sendUserToClient(client, user, authStatus, token, regStatus) {
+  sendUserToClient(client, user, authStatus, token, regStatus, timeOut) {
     client.send({
       auth: {
-        user, authStatus, token, regStatus,
+        user, authStatus, token, regStatus, timeOut,
       },
     });
   }
