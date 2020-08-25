@@ -12,7 +12,6 @@ class ControllerPlugins {
   }
 
   findControllers() {
-    // this.contollerFiles = find.fileSync(/([A-Z]\w*)(Controller\.js)/, __dirname);
     this.fileNames = find.fileSync('controllers');
   }
 
