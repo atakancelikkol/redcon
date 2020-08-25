@@ -1,4 +1,5 @@
 const find = require('find');
+const path = require('path');
 
 class ControllerPlugins {
   constructor() {
@@ -12,7 +13,7 @@ class ControllerPlugins {
   }
 
   findControllers() {
-    this.fileNames = find.fileSync(/([A-Z]\w+)(\.js)/, __dirname + '/controllers');
+    this.fileNames = find.fileSync(/([A-Z]\w+)(\.js)/, path.join(__dirname, 'controllers'));
   }
 
   createModuleObjects() {

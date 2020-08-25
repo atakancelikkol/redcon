@@ -4,8 +4,7 @@ const HttpServer = require('../../src/HttpServer.js');
 
 const platformObjects = new PlatformObjects('mock');
 const usbController = new USBController({ useMockUsbDetect: true });
-//const controllers = [usbController];
-const httpServer = new HttpServer ({ controllers: [] });
+const httpServer = new HttpServer({ controllers: [] });
 
 jest.useFakeTimers();
 jest.mock('usb-detection');
@@ -109,7 +108,7 @@ beforeAll(async () => {
   httpServer.init();
 });
 
-afterAll ( () => {
+afterAll(() => {
   httpServer.httpServer.close();
 });
 

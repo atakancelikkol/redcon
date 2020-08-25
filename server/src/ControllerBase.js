@@ -47,7 +47,7 @@ class ControllerBase {
     this.dataStorage = dataStorage;
   }
 
-  registerHttpServer (httpServer) {
+  registerHttpServer(httpServer) {
     if (this.httpServer) {
       throw new Error('httpServer is already defined!');
     }
