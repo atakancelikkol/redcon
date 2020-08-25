@@ -12,19 +12,19 @@ class ControllerPlugins {
   }
 
   findControllers() {
-    this.fileNames = find.fileSync('controllers');
+    this.fileNames = find.fileSync(/([A-Z]\w+)(\.js)/, __dirname + '/controllers');
   }
 
   createModuleObjects() {
     this.findControllers();
     this.fileNames.forEach((plugin) => {
-      this.moduleObjects.push(require(plugin)); // eslint-disable-line
+      this.pluginObjects.push(require(plugin)); // eslint-disable-line
     });
   }
 
   createControllerInstances() {
     this.createModuleObjects();
-    this.moduleObjects.forEach((Plugin) => {
+    this.pluginObjects.forEach((Plugin) => {
       this.instances.push(new Plugin());
     });
     return this.instances;

@@ -17,9 +17,6 @@ class Server {
     this.authenticator = new Authenticator();
     this.controllers.push(this.authenticator);
 
-    // find a way to include with ControllerPlugins
-    this.usbController = this.controllers.find((controller) => controller.name === 'USBController');
-
     // create connection manager
     this.httpServer = new HttpServer({ controllers: this.controllers });
 
@@ -35,12 +32,9 @@ class Server {
       controller.registerSendMessageCallback(this.httpServer.sendToAllClients.bind(this.httpServer));
       controller.registerPlatformObjects(this.platformObjects);
       controller.registerDataStorage(this.dataStorage);
+      controller.registerHttpServer(this.httpServer);
       controller.init();
     });
-
-    // upload handler
-    this.httpServer.getApp().post('/uploadFileToUsbDevice', this.usbController.uploadFileToUsbDevice.bind(this.usbController));
-    this.httpServer.getApp().get('/getFileFromUsbDevice', this.usbController.getFileFromUsbDevice.bind(this.usbController));
 
     this.idleConnectionCheckIntervalHandle = setInterval(this.idleConnectionChecker.bind(this), idleConnectionCheckInterval);
   }

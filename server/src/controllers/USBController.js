@@ -62,6 +62,13 @@ class USBController extends ControllerBase {
     this.detectUsbDevice();
 
     this.ledReadIntervalHandle = setInterval(this.checkKVMLedState.bind(this), LED_CHECK_TIME_INTERVAL);
+
+    this.httpUploadHandler();
+  }
+
+  httpUploadHandler() {
+    this.httpServer.getApp().post('/uploadFileToUsbDevice', this.uploadFileToUsbDevice.bind(this));
+    this.httpServer.getApp().get('/getFileFromUsbDevice', this.getFileFromUsbDevice.bind(this));
   }
 
   checkKVMLedState() {
