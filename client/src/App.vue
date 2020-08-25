@@ -19,26 +19,12 @@
       </b-alert>
     </div>
     <div
-      v-if="!timeOut"
-      class="app-left-menu"
+      :class="{'app-left-menu-blur': timeOut, 'app-left-menu': !timeOut}"
     >
       <LeftMenu />
     </div>
     <div
-      v-if="timeOut"
-      class="app-left-menu-blur"
-    >
-      <LeftMenu />
-    </div>
-    <div
-      v-if="timeOut"
-      class="app-main-container-blur"
-    >
-      <router-view />
-    </div>
-    <div
-      v-if="!timeOut"
-      class="app-main-container"
+      :class="{'app-main-container-blur': timeOut, 'app-main-container': !timeOut}"
     >
       <router-view />
     </div>
