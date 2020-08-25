@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const http = require('http');
 const express = require('express');
-const WebSocketServer = require('ws').Server;
+const WebSocket = require('ws');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const ClientConnection = require('./ClientConnection');
@@ -21,6 +21,8 @@ class HttpServer {
     this.httpServer = null;
     this.webSocketServer = null;
     this.clients = [];
+    this.isAlive = true;
+    this.interval = null;
   }
 
   init() {
@@ -48,8 +50,21 @@ class HttpServer {
     });
 
     // create websocket server
-    this.webSocketServer = new WebSocketServer({ server: this.httpServer });
+    this.webSocketServer = new WebSocket.Server({ server: this.httpServer });
     this.webSocketServer.on('connection', this.onConnectionHandler.bind(this));
+    this.interval = setInterval(this.ping.bind(this), 3000);
+  }
+
+  ping() {
+    this.webSocketServer.clients.forEach((ws) => {
+      logger.info('pinngggggg');
+      ws.ping();
+    });
+  }
+
+  heartbeat(client) {
+    this.isAlive = true;
+    logger.info('this is heartBeat ===', this.isAlive);
   }
 
   getApp() {
@@ -77,9 +92,9 @@ class HttpServer {
     this.clients.push(client);
     // send initial message to the client
     this.sendInitialMessage(client);
-
     connection.on('message', this.onMessageHandler.bind(this, client));
     connection.on('close', this.onCloseHandler.bind(this, client));
+    connection.on('pong', this.heartbeat.bind(this, client));
   }
 
   onMessageHandler(client, message) {
