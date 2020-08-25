@@ -5,7 +5,7 @@ const ServerConfig = require('../../src/ServerConfig');
 const httpServerInstance = new HttpServer({ controllers: [] });
 const useAuthenticationTemp = ServerConfig.useAuthentication;
 
-afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; });
+afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; clearInterval(httpServerInstance.interval) });
 
 describe('HttpServer ', () => {
   describe('Constructor ', () => {
@@ -68,7 +68,7 @@ describe('HttpServer ', () => {
       httpServer.onConnectionHandler(mockConnection, mockReq);
       expect(typeof secondParameterMessageEvent).toBe('function');
       expect(typeof secondParameterCloseEvent).toBe('function');
-      expect(onSpy).toHaveBeenCalledTimes(2);
+      expect(onSpy).toHaveBeenCalledTimes(3);
       expect(httpServer.sendInitialMessage).toHaveBeenCalled();
     });
   });
