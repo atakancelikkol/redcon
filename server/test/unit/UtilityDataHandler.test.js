@@ -1,4 +1,4 @@
-const UtilityDataHandler = require('../../src/UtilityDataHandler');
+const UtilityDataHandler = require('../../src/controllers/UtilityDataHandler');
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 
 const platformObjects = new PlatformObjects('mock');

@@ -1,32 +1,34 @@
 const find = require('find');
 
 class ControllerPlugins {
-  constructor(){
-    this.fileNames=[];
-    this.pluginObjects=[]
-    this.instances=[];
+  constructor() {
+    this.fileNames = [];
+    this.pluginObjects = [];
+    this.instances = [];
   }
+
   init() {
     this.createControllerInstances();
   }
 
-  findControllers(){
-    this.fileNames = find.fileSync(/([A-Z]\w*)(Controller\.js)/, __dirname);
+  findControllers() {
+    // this.contollerFiles = find.fileSync(/([A-Z]\w*)(Controller\.js)/, __dirname);
+    this.fileNames = find.fileSync('controllers');
   }
 
-  createModuleObjects(){
+  createModuleObjects() {
     this.findControllers();
-    this.fileNames.forEach(plugin => {
-      this.moduleObjects.push(require(plugin));
+    this.fileNames.forEach((plugin) => {
+      this.moduleObjects.push(require(plugin)); // eslint-disable-line
     });
   }
 
   createControllerInstances() {
     this.createModuleObjects();
-    this.moduleObjects.forEach(plugin => {
-      this.instances.push(new plugin);
+    this.moduleObjects.forEach((Plugin) => {
+      this.instances.push(new Plugin());
     });
-    return this.instances
+    return this.instances;
   }
 }
 

@@ -1,4 +1,4 @@
-const ControllerBase = require('./ControllerBase');
+const ControllerBase = require('../ControllerBase');
 
 class UtilityDataHandler extends ControllerBase {
   constructor() {

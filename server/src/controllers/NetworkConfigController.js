@@ -1,6 +1,6 @@
 const os = require('os');
 const net = require('net');
-const ControllerBase = require('./ControllerBase');
+const ControllerBase = require('../ControllerBase');
 
 class NetworkConfigController extends ControllerBase {
   constructor() {
@@ -69,8 +69,8 @@ class NetworkConfigController extends ControllerBase {
       const externalInterface = networkInterfaces.find((item) => item.name === configuration.externalInterfaceName);
       const internalInterface = networkInterfaces.find((item) => item.name === configuration.internalInterfaceName);
       if (externalInterface && internalInterface) {
-        configuration.externalInterfaceIP = externalInterface.ip;
-        configuration.internalInterfaceIP = internalInterface.ip;
+        configuration.externalInterfaceIP = externalInterface.ip; // eslint-disable-line
+        configuration.internalInterfaceIP = internalInterface.ip; // eslint-disable-line
         await this.removeConfiguration();
         await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
         await this.onConfigurationUpdated();

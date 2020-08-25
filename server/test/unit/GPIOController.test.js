@@ -1,4 +1,4 @@
-const GPIOController = require('../../src/GPIOController');
+const GPIOController = require('../../src/controllers/GPIOController');
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 const GPIOPins = require('../../src/GPIOPins');
 

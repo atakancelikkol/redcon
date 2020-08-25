@@ -1,5 +1,5 @@
-const GPIOPins = require('./GPIOPins');
-const ControllerBase = require('./ControllerBase');
+const GPIOPins = require('../GPIOPins');
+const ControllerBase = require('../ControllerBase');
 
 class GPIOController extends ControllerBase {
   constructor() {

@@ -1,5 +1,5 @@
 const PlatformObjects = require('../../src/platform/PlatformObjects');
-const USBController = require('../../src/USBController.js');
+const USBController = require('../../src/controllers/USBController.js');
 
 const platformObjects = new PlatformObjects('mock');
 const usbController = new USBController({ useMockUsbDetect: true });

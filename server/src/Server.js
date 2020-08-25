@@ -1,6 +1,5 @@
 
 const HttpServer = require('./HttpServer');
-const UtilityDataHandler = require('./UtilityDataHandler');
 const Authenticator = require('./Authenticator');
 const PlatformObjects = require('./platform/PlatformObjects');
 const DataStorage = require('./dataStorage/LowDBDataStorage');
@@ -14,8 +13,6 @@ class Server {
     this.dataStorage = new DataStorage();
     this.controllerPlugins = new ControllerPlugins();
     this.controllers = this.controllerPlugins.createControllerInstances();
-    // add to ControllerPlugins
-    this.controllers.push(new UtilityDataHandler());
 
     this.authenticator = new Authenticator();
     this.controllers.push(this.authenticator);
