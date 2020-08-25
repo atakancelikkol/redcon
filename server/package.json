@@ -35,7 +35,6 @@
     "md5-file": "^5.0.0",
     "path": "^0.12.7",
     "request-promise": "^4.2.5",
-    "requires-regex": "^1.0.4",
     "rimraf": "^3.0.2",
     "rpio": "^2.1.1",
     "serialport": "^8.0.7",
