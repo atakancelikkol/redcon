@@ -85,7 +85,10 @@ describe('NetworkConfigController', () => {
   test('updateNetworkInterfaceConfiguration test', async () => {
     const controller = createNetworkConfigController();
     const action = 'updateNetworkInterfaceConfiguration';
-    const configuration = { internalInterfaceName: 'testIntName', externalInterfaceName: 'testExtName', internalInterfaceSubnet: '10.0.1.0/8' };
+    const tempgetNetworkInterfaces = controller.getNetworkInterfaces;
+    controller.getNetworkInterfaces = () => [{ name: 'testExtName', ip: '192.168.0.1' }, { name: 'testIntName', ip: '10.0.0.1' }];
+    const configuration = { internalInterfaceName: 'testIntName', externalInterfaceName: 'testExtName', externalInterfaceIP: '192.168.0.1', internalInterfaceIP: '10.0.0.1', internalInterfaceSubnet: '10.0.1.0/8' };
+    configuration.networkInterfaces = [{ name: 'testExtName', ip: '192.168.0.1' }, { name: 'testIntName', ip: '10.0.0.1' }];
     await controller.handleMessage({ networkConfig: { action, configuration } });
     expect(lastSentObject.networkConfig.interfaceConfiguration).toStrictEqual(configuration);
 
@@ -93,6 +96,7 @@ describe('NetworkConfigController', () => {
     const wrongConfiguration = { internalInterfaceName111: 'testIntName11', externalInterfaceName111: 'testExtName11' };
     await controller.handleMessage({ networkConfig: { action, configuration: wrongConfiguration } });
     expect(lastSentObject.networkConfig.interfaceConfiguration).toStrictEqual(configuration);
+    controller.getNetworkInterfaces = tempgetNetworkInterfaces;
   });
 
   test('add/remove UdpExtToIntNetworkRule test', async () => {

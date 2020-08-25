@@ -17,6 +17,11 @@ REDCON is written in Javascript, it requires nodejs and npm to run.
 ```
 sudo apt-get install nodejs npm
 ```
+REDCON also requires libudev.h header file, for Debian based distros (Raspberry Pi OS for example), it can be installed as below:
+
+```
+sudo apt-get install libudev-dev
+```
 
 REDCON requires sync.exe for Microsoft Windows win32 platform USB synchronization issues. sync.exe should be located in ..\server\bin\win32 folder. sync.exe can be downloaded from https://docs.microsoft.com/en-us/sysinternals/downloads/sync .
 
@@ -68,19 +73,19 @@ sudo systemctl disable redcon-server.service
 ## How to run development version
 For development, client and server should be run separately.
 ```
-# if you didnt install the dependencies, call npm install at <project_loc> first 
+# If you didn't install the dependencies, call npm install at <project_loc> first 
 npm install
 
-# frontend will start at port 8080
+# Frontend will start at port 8080
 cd client
-# if you didnt install the dependencies, call npm install first
+# If you didn't install the dependencies, call npm install first
 npm install
 npm run serve
 cd ..
 
-# backend will start at port 3000
+# Backend will start at port 3000
 cd server
-# if you didnt install the dependencies, call npm install first
+# If you didn't install the dependencies, call npm install first
 npm install
 npm run serve
 cd ..

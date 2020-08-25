@@ -65,9 +65,16 @@ class NetworkConfigController extends ControllerBase {
     configuration.internalInterfaceName = this.normalizeString(configuration.internalInterfaceName); // eslint-disable-line
     configuration.externalInterfaceName = this.normalizeString(configuration.externalInterfaceName); // eslint-disable-line
     if (configuration.internalInterfaceName && configuration.externalInterfaceName && this.parameterCheckIsSubNet(configuration.internalInterfaceSubnet)) {
-      await this.removeConfiguration();
-      await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
-      await this.onConfigurationUpdated();
+      const networkInterfaces = this.getNetworkInterfaces();
+      const externalInterface = networkInterfaces.find((item) => item.name === configuration.externalInterfaceName);
+      const internalInterface = networkInterfaces.find((item) => item.name === configuration.internalInterfaceName);
+      if (externalInterface && internalInterface) {
+        configuration.externalInterfaceIP = externalInterface.ip;
+        configuration.internalInterfaceIP = internalInterface.ip;
+        await this.removeConfiguration();
+        await this.dataStorage.updateNetworkInterfaceConfiguration(configuration);
+        await this.onConfigurationUpdated();
+      }
     }
   }
 
@@ -197,7 +204,6 @@ class NetworkConfigController extends ControllerBase {
 
   async onConfigurationUpdated() {
     const configuration = { ...this.dataStorage.getNetworkConfiguration() };
-    configuration.networkInterfaces = this.getNetworkInterfaces();
     await this.platformObjects.getNetworkUtility().applyNetworkConfiguration(configuration);
     this.sendCurrentConfiguration();
   }
