@@ -104,6 +104,12 @@ describe('store actions', () => {
     expect(webSocketConnector.sendLoginUserMessage).toHaveBeenCalled();
   });
 
+  it('register user should call proper function', () => {
+    const mockCommit = jest.fn().mockName('mockCommit');
+    actions.registerUser({ commit: mockCommit }, { username: 'test_username', password: 'test_password' });
+    expect(webSocketConnector.sendRegisterUserMessage).toHaveBeenCalled();
+  });
+
   it('logout should call proper function', () => {
     const testUser = {
       username: 'test_name',

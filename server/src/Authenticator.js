@@ -17,6 +17,7 @@ class Authenticator extends ControllerBase {
 
   appendData(obj) {
     obj.authHistory = this.getCopyState(); // eslint-disable-line
+    obj.useAuthentication = ServerConfig.useAuthentication; // eslint-disable-line
   }
 
   getCopyState() {
@@ -36,6 +37,8 @@ class Authenticator extends ControllerBase {
         this.logoutByButton(client, 'Logged-out', clients);
       } else if (action === 'checkStoredToken') {
         this.checkStoredToken(client, obj.auth.storedToken, clients);
+      } else if (action === 'registerUser') {
+        this.registerAuthenticationServer(client, obj.auth.username, obj.auth.password);
       }
     }
   }
@@ -98,10 +101,10 @@ class Authenticator extends ControllerBase {
   }
 
   async checkAuthenticationServer(username, pass) {
-    const userInfo = { email: username, password: pass };
+    const userInfo = { email: username, password: pass, action: 'authentication' };
     let isAuth = false;
     const options = {
-      url: `${ServerConfig.authServer}/checkUserAuth`,
+      url: `${ServerConfig.authServer}/authenticate`,
       method: 'POST',
       json: true,
       body: userInfo,
@@ -109,11 +112,40 @@ class Authenticator extends ControllerBase {
     };
     await rp(options).then((body) => {
       isAuth = body.isAuth;
+      logger.info('isauth =====', isAuth);
     }).catch((error) => {
       logger.error(error);
     });
     return (isAuth);
   }
+
+  async registerAuthenticationServer(client, username, pass) {
+    const userInfo = { email: username, password: pass, action: 'register' };
+    let isRegistered = false;
+    const options = {
+      url: `${ServerConfig.authServer}/register`,
+      method: 'POST',
+      json: true,
+      body: userInfo,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    await rp(options).then((body) => {
+      isRegistered = body.isRegistered;
+      logger.info('isRegistered =====', isRegistered);
+    }).catch((error) => {
+      logger.error(error);
+    });
+
+    if (isRegistered === true) {
+      this.sendUserToClient(client, null, null, null, `'${username}' Succesfully Registered.`);
+    } else if (isRegistered === false) {
+      this.sendUserToClient(client, null, null, null, false);
+    } else {
+      this.sendUserToClient(client, null, null, null, undefined);
+    }
+    return (isRegistered);
+  }
+
 
   async loginUser(client, username, password, clients) {
     let isAuthenticated = false;
@@ -211,15 +243,15 @@ class Authenticator extends ControllerBase {
     // this.logClientActivity(client, 'logout by timeout', clients);
     client.setAuthentication(false);
     client.setUserObject(null);
-    this.sendUserToClient(client, null, status);
+    this.sendUserToClient(client, null, status, null, null, true);
     client.setLastActivityTime(undefined);
     this.updateActiveUsername(clients);
   }
 
-  sendUserToClient(client, user, authStatus, token) {
+  sendUserToClient(client, user, authStatus, token, regStatus, timeOut) {
     client.send({
       auth: {
-        user, authStatus, token,
+        user, authStatus, token, regStatus, timeOut,
       },
     });
   }

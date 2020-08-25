@@ -7,6 +7,7 @@ const compression = require('compression');
 const ClientConnection = require('./ClientConnection');
 
 const logger = require('./util/Logger');
+const ServerConfig = require('./ServerConfig');
 
 class HttpServer {
   constructor({ controllers }) {
@@ -84,7 +85,11 @@ class HttpServer {
   onMessageHandler(client, message) {
     const obj = JSON.parse(message);
     this.controllers.forEach((controller) => {
-      if (!controller.isAuthRequired() || client.isAuthenticated()) {
+      if (ServerConfig.useAuthentication) {
+        if (!controller.isAuthRequired() || client.isAuthenticated()) {
+          controller.handleMessage(obj, client, this.clients);
+        }
+      } else {
         controller.handleMessage(obj, client, this.clients);
       }
     });
@@ -107,7 +112,11 @@ class HttpServer {
     // collect data from data controllers
     const obj = {};
     this.controllers.forEach((controller) => {
-      if (!controller.isAuthRequired() || client.isAuthenticated()) {
+      if (ServerConfig.useAuthentication) {
+        if (!controller.isAuthRequired() || client.isAuthenticated()) {
+          controller.appendData(obj);
+        }
+      } else {
         controller.appendData(obj);
       }
     });
@@ -116,7 +125,11 @@ class HttpServer {
 
   sendToAllClients(controller, obj) {
     this.clients.forEach((client) => {
-      if (!controller.isAuthRequired() || client.isAuthenticated()) {
+      if (ServerConfig.useAuthentication) {
+        if (!controller.isAuthRequired() || client.isAuthenticated()) {
+          client.connection.send(JSON.stringify(obj));
+        }
+      } else {
         client.connection.send(JSON.stringify(obj));
       }
     });

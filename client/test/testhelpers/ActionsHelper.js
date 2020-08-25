@@ -9,6 +9,8 @@ const actions = {
   logoutUser: jest.fn(),
   // Login
   loginUser: jest.fn(),
+  // Register
+  registerUser: jest.fn(),
   // USBStorage
   toggleUSBPort: jest.fn(),
   detectUSBDevice: jest.fn(),
