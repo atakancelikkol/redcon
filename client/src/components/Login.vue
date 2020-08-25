@@ -43,6 +43,14 @@
         >
           Login
         </button>
+        <button
+          ref="register"
+          class="btn btn-primary"
+          style="margin-top:13px; margin-left: 150px"
+          @click="register"
+        >
+          Register
+        </button>
         <b-alert
           :show="loginError"
           variant="danger"
@@ -50,6 +58,14 @@
           dismissible
         >
           {{ loginError }}
+        </b-alert>
+        <b-alert
+          :show="registeryMsg"
+          variant="success"
+          style="margin-top: 10px"
+          dismissible
+        >
+          {{ registeryMsg }}
         </b-alert>
       </div>
       <b-table
@@ -88,12 +104,11 @@ export default {
     };
   },
   computed: {
-    ...mapState(['user', 'authStatus', 'token', 'receivedData']),
+    ...mapState(['user', 'authStatus', 'token', 'receivedData', 'regStatus']),
     eventItems() {
       if (!this.receivedData.authHistory) {
         return [];
       }
-
       const history = cloneDeep(this.receivedData.authHistory.history);
       const timeAgo = new TimeAgo('en-US');
       history.forEach((item) => {
@@ -110,16 +125,44 @@ export default {
       }
       return this.authStatus;
     },
+    registeryMsg() {
+      if (!this.regStatus) {
+        return false;
+      }
+      return this.regStatus;
+    },
   },
   watch: {
+    ...mapState(['receivedData', 'user']),
+    ...mapActions(['logoutUser', 'loginUser']),
+
     user() {
       if (this.user != null) {
         this.$router.push({ path: '/' });
+        if (this.receivedData.useAuthentication) {
+          if (this.user.username === 'anonymous') {
+            this.logoutUser({ user: this.user.username });
+          }
+        }
+        if (!this.receivedData.useAuthentication) {
+          if (this.user.username !== 'anonymous') this.logoutUser({ user: this.user.username });
+        }
+      }
+    },
+    receivedData() {
+      if (this.receivedData.useAuthentication) {
+        if (this.$router.currentRoute.path !== '/login') this.$router.push({ path: '/login' });
+        if (this.user != null && this.user.username === 'anonymous') {
+          this.logoutUser({ user: this.user.username });
+        }
+      } else {
+        this.$router.push({ path: '/' });
+        this.loginUser({ username: 'anonymous', password: 'anonymous' });
       }
     },
   },
   methods: {
-    ...mapActions(['loginUser']),
+    ...mapActions(['logoutUser', 'loginUser']),
     login() {
       this.loginUser({ username: this.username, password: this.pass });
     },
@@ -127,6 +170,9 @@ export default {
       if (evt.keyCode === 13) {
         this.loginUser({ username: this.username, password: this.pass });
       }
+    },
+    register() {
+      this.$router.push({ path: '/register' });
     },
   },
 };

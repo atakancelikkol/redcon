@@ -43,6 +43,9 @@ const actions = {
   openSerialDevice({ commit }, { devicePath, baudRate }) { // eslint-disable-line
     webSocketConnector.sendOpenSerialDeviceMessage({ devicePath, baudRate });
   },
+  registerUser({ commit }, { username, password }) { // eslint-disable-line
+    webSocketConnector.sendRegisterUserMessage({ username, password });
+  },
   loginUser({ commit }, { username, password }) { // eslint-disable-line
     webSocketConnector.sendLoginUserMessage({ username, password });
   },

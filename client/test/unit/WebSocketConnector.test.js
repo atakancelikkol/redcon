@@ -117,6 +117,11 @@ describe('WebSocketConnector', () => {
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"serial":{"action":"writeKeyDevice","path":"test_path","keyCode":"64","charCode":"95","ctrlKey":false,"shiftKey":false}}');
   });
 
+  it('checks sendRegisterUserMessage', () => {
+    webSocketConnector.sendRegisterUserMessage({ username: 'test_userName', password: 'test_password' });
+    expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"auth":{"action":"registerUser","username":"test_userName","password":"test_password"}}');
+  });
+
   it('checks sendLoginUserMessage', () => {
     webSocketConnector.sendLoginUserMessage({ username: 'test_userName', password: 'test_password' });
     expect(webSocketConnector.connectionSocket.send).toHaveBeenCalledWith('{"auth":{"action":"loginUser","username":"test_userName","password":"test_password"}}');

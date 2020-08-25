@@ -6,11 +6,13 @@ const ServerConfig = require('../../src/ServerConfig');
 jest.mock('request-promise');
 let mockErr;
 let mockAuth;
+let mockReg;
 
 jest.mock('request-promise', () => jest.fn(() => {
   const err = mockErr;
   const body = {
     isAuth: mockAuth,
+    isRegistered: mockReg,
   };
 
   if (err) {
@@ -89,6 +91,29 @@ describe('Authenticator', () => {
       expect(authenticator.checkStoredToken).toHaveBeenCalled();
 
       authenticator.checkStoredToken = tempcheckStoredToken;
+    });
+
+    it('should test the callings of registerUser', () => {
+      const authenticator = new Authenticator();
+      const mockObj = {
+        auth: { action: 'registerUser', username: 'mockUser', password: 'mockPass' },
+      };
+      const mockClient = {
+        getUserObject: () => 'mockObject',
+      };
+      const mockClients = [];
+
+      const templogClientActivity = authenticator.logClientActivity;
+      authenticator.logClientActivity = jest.fn();
+      const tempRegisterUser = authenticator.registerAuthenticationServer;
+      authenticator.registerAuthenticationServer = jest.fn();
+
+      authenticator.handleMessage(mockObj, mockClient, mockClients);
+      expect(authenticator.logClientActivity).toHaveBeenCalled();
+      expect(authenticator.registerAuthenticationServer).toHaveBeenCalled();
+
+      authenticator.logClientActivity = templogClientActivity;
+      authenticator.loginUser = tempRegisterUser;
     });
   });
 
@@ -306,9 +331,9 @@ describe('Authenticator', () => {
 
       const username = 'user';
       const pass = 'pass';
-      const mockUserInfo = { email: username, password: pass };
+      const mockUserInfo = { email: username, password: pass, action: 'authentication' };
       const options = {
-        url: `${ServerConfig.authServer}/checkUserAuth`,
+        url: `${ServerConfig.authServer}/authenticate`,
         method: 'POST',
         json: true,
         body: mockUserInfo,
@@ -344,6 +369,90 @@ describe('Authenticator', () => {
       mockAuth = undefined;
       expect(await authenticator.checkAuthenticationServer(username, pass))
         .toStrictEqual(false);
+    });
+  });
+
+  describe('registerAuthServer', () => {
+    it('registerAuthServer Function Success Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+      const mockUserInfo = { email: username, password: pass, action: 'register' };
+      const options = {
+        url: `${ServerConfig.authServer}/register`,
+        method: 'POST',
+        json: true,
+        body: mockUserInfo,
+        headers: { 'Content-Type': 'application/json' },
+      };
+
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+
+      mockErr = undefined;
+      mockReg = true;
+
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+
+      expect(await authenticator.registerAuthenticationServer(mockClient, username, pass))
+        .toStrictEqual(true);
+      await authenticator.registerAuthenticationServer(mockClient, username, pass);
+      expect(rp).toHaveBeenCalledWith(options);
+      expect(authenticator.sendUserToClient).toHaveBeenCalled();
+      authenticator.sendUserToClient = tempsendUserToClient;
+    });
+
+    it('registerAuthServer Function Fail Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+
+      mockErr = undefined;
+      mockReg = false;
+
+      expect(await authenticator.registerAuthenticationServer(mockClient, username, pass))
+        .toStrictEqual(false);
+      expect(authenticator.sendUserToClient).toHaveBeenCalled();
+      authenticator.sendUserToClient = tempsendUserToClient;
+    });
+
+    it('registerAuthServer Function Error Case', async () => {
+      const authenticator = new Authenticator();
+
+      const username = 'user';
+      const pass = 'pass';
+      const tempsendUserToClient = authenticator.sendUserToClient;
+      authenticator.sendUserToClient = jest.fn();
+      const mockClient = {
+        setUserObject: () => {},
+        setAuthentication: () => {},
+        getUserObject: () => {},
+        getIp: () => 'mockIp',
+      };
+
+      mockErr = true;
+      mockReg = undefined;
+      expect(await authenticator.registerAuthenticationServer(mockClient, username, pass))
+        .toStrictEqual(false);
+      expect(authenticator.sendUserToClient).toHaveBeenCalled();
+      authenticator.sendUserToClient = tempsendUserToClient;
     });
   });
 
