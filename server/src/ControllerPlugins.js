@@ -2,33 +2,35 @@ const find = require('find');
 const path = require('path');
 
 class ControllerPlugins {
-  constructor() {
-    this.fileNames = [];
-    this.pluginObjects = [];
-    this.instances = [];
-  }
-
   init() {
     this.createControllerInstances();
   }
 
-  findControllers() {
-    this.fileNames = find.fileSync(/([A-Z]\w+)(\.js)/, path.join(__dirname, 'controllers'));
+  findControllers(searchPath = path.join(__dirname, 'controllers')) {
+    const objectsToCreate = find.fileSync(/([A-Z]\w+)((\.test)*\.js)/, searchPath);
+    return objectsToCreate;
   }
 
-  createModuleObjects() {
-    this.findControllers();
-    this.fileNames.forEach((plugin) => {
-      this.pluginObjects.push(require(plugin)); // eslint-disable-line
+  loadModules(objectsToCreate = []) {
+    if (!objectsToCreate.length) {
+      objectsToCreate = this.findControllers(); // eslint-disable-line
+    }
+    const instancesToCreate = [];
+    objectsToCreate.forEach((plugin) => {
+      instancesToCreate.push(require(plugin)); // eslint-disable-line
     });
+    return instancesToCreate;
   }
 
-  createControllerInstances() {
-    this.createModuleObjects();
-    this.pluginObjects.forEach((Plugin) => {
-      this.instances.push(new Plugin());
+  createControllerInstances(instancesToCreate = []) {
+    if (!instancesToCreate.length) {
+      instancesToCreate = this.loadModules(); // eslint-disable-line
+    }
+    const instancesCreated = [];
+    instancesToCreate.forEach((Plugin) => {
+      instancesCreated.push(new Plugin());
     });
-    return this.instances;
+    return instancesCreated;
   }
 }
 
