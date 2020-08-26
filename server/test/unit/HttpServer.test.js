@@ -1,11 +1,13 @@
 const http = require('http');
 const HttpServer = require('../../src/HttpServer');
 const ServerConfig = require('../../src/ServerConfig');
+const Authenticator = require('../../src/Authenticator');
 
+const authenticatorInstance = new Authenticator();
 const httpServerInstance = new HttpServer({ controllers: [] });
 const useAuthenticationTemp = ServerConfig.useAuthentication;
 
-afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; clearInterval(httpServerInstance.interval); });
+afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; clearInterval(httpServerInstance.pingPongInterval); });
 
 describe('HttpServer ', () => {
   describe('Constructor ', () => {
@@ -145,7 +147,22 @@ describe('HttpServer ', () => {
       const httpServer = new HttpServer({ controllers });
       const mockClient = {
         id: 'myConnectionClosingId',
+        mockSpec: false,
         getId: () => mockClient.id,
+        setAuthentication(param) {
+          mockClient.mockSpec = param;
+        },
+        setUserObject(param) {
+          mockClient.mockSpec = param;
+        },
+        send(param) {
+          mockClient.mockSpec = param;
+        },
+        setLastActivityTime(param) {
+          mockClient.mockSpec = param;
+        },
+        getUserObject() {
+        },
       };
       httpServer.clients.push(mockClient);
       httpServer.onCloseHandler(mockClient);

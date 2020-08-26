@@ -5,6 +5,9 @@ const WebSocket = require('ws');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const ClientConnection = require('./ClientConnection');
+const Authenticator = require('./Authenticator');
+
+const auth = new Authenticator();
 
 const logger = require('./util/Logger');
 const ServerConfig = require('./ServerConfig');
@@ -21,8 +24,11 @@ class HttpServer {
     this.httpServer = null;
     this.webSocketServer = null;
     this.clients = [];
-    this.isAlive = true;
-    this.interval = null;
+    this.isAlive = null;
+    this.pingPongInterval = null;
+    this.pingPongIntervalMsec = null;
+    this.inactiveTimeIntervalMsec = null;
+    this.maxInactiveTime = null;
   }
 
   init() {
@@ -52,19 +58,58 @@ class HttpServer {
     // create websocket server
     this.webSocketServer = new WebSocket.Server({ server: this.httpServer });
     this.webSocketServer.on('connection', this.onConnectionHandler.bind(this));
-    this.interval = setInterval(this.ping.bind(this), 3000);
+
+    this.maxInactiveTime = 16 * 1000; // 60 secs
+
+    // create intervals
+    this.pingPongIntervalMsec = 3 * 1000; // 15 secs
+    //  this.inactiveTimeIntervalMsec = 10 * 1000; //60 secs
+    this.pingPongInterval = setInterval(this.ping.bind(this), this.pingPongIntervalMsec);
+  //  this.inactiveTimeCheckerInterval = setInterval(this.inactiveClientChecker.bind(this), this.inactiveTimeIntervalMsec);
+  }
+
+  inactiveClientChecker() {
+    if (this.clients.length !== 0) {
+      this.clients.forEach((client) => {
+        const currentDate = new Date();
+        if (client.getLastActivityTime()) {
+          if (((currentDate - client.getLastActivityTime()) / 1000) > (this.maxInactiveTime / 1000)) {
+            logger.info('timeout ========', ((currentDate - client.getLastActivityTime()) / 1000));
+            this.onCloseHandler(client);
+          } else {
+            logger.info('normal ========', client.getLastActivityTime());
+          }
+        } else {
+          client.setLastActivityTime(currentDate);
+        }
+      });
+    }
   }
 
   ping() {
     this.webSocketServer.clients.forEach((ws) => {
-      logger.info('pinngggggg');
-      ws.ping();
+      if (this.clients.length !== 0) {
+        logger.info('pinngggggg');
+        logger.info('last activity before heartbeat ===');
+        /*  logger.info('wss =====', ws._socket.address());
+        logger.info('wss =====', ws._socket.remoteAddress);
+        logger.info('wss =====', ws._socket.remotePort);  */
+        ws.ping();
+      }
     });
+    this.inactiveClientChecker();
   }
 
   heartbeat(client) {
     this.isAlive = true;
+    const newDate = new Date();
+
+    logger.info('inactive time ===', ((newDate - client.getLastActivityTime()) / 1000), 'seconds.');
+    logger.info('from ip ===', client.id);
     logger.info('this is heartBeat ===', this.isAlive);
+
+    client.setLastActivityTime(newDate);
+    logger.info('last activity of ', client.id, '===', client.lastActivityTime);
   }
 
   getApp() {
@@ -94,7 +139,7 @@ class HttpServer {
     this.sendInitialMessage(client);
     connection.on('message', this.onMessageHandler.bind(this, client));
     connection.on('close', this.onCloseHandler.bind(this, client));
-    connection.on('pong', this.heartbeat.bind(this, client));
+    if (this.clients.length !== 0) connection.on('pong', this.heartbeat.bind(this, client));
   }
 
   onMessageHandler(client, message) {
@@ -114,10 +159,12 @@ class HttpServer {
     logger.info('connection closed! id: ', client.getId());
     const index = this.clients.indexOf(client);
     if (index !== -1) {
+      auth.logoutByTimeout(client, 'timeOut', this.clients);
       this.clients.splice(index, 1);
       this.controllers.forEach((controller) => {
         controller.onConnectionClosed(client, this.clients);
       });
+      logger.info(client.id, 'client removed');
     } else {
       logger.info(`Error on closing connection ${client.getId()}`);
     }
