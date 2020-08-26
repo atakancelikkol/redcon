@@ -5,7 +5,7 @@ const ServerConfig = require('../../src/ServerConfig');
 const httpServerInstance = new HttpServer({ controllers: [] });
 const useAuthenticationTemp = ServerConfig.useAuthentication;
 
-afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; clearInterval(httpServerInstance.interval) });
+afterAll(() => { httpServerInstance.httpServer.close(); ServerConfig.useAuthentication = useAuthenticationTemp; clearInterval(httpServerInstance.interval); });
 
 describe('HttpServer ', () => {
   describe('Constructor ', () => {
