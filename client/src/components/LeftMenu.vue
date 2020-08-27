@@ -2,6 +2,7 @@
   <div class="left-menu-container">
     <b-list-group>
       <b-list-group-item>REDCON</b-list-group-item>
+      <!---
       <b-list-group-item>
         <router-link to="/">
           Home
@@ -32,6 +33,22 @@
           Utility
         </router-link>
       </b-list-group-item>
+      -->
+      <div
+        v-for="post in posts"
+        :key="post.id"
+      >
+        <b-list-group-item
+          v-if="post.meta"
+          action
+        >
+          <router-link
+            :to="post.path"
+          >
+            {{ post.title }}
+          </router-link>
+        </b-list-group-item>
+      </div>
       <b-list-group-item v-if="user">
         <b-link
           ref="logout"
@@ -47,9 +64,15 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import { menuComponents } from '../Components';
 
 export default {
   name: 'LeftMenu',
+  data() {
+    return {
+      posts: menuComponents,
+    };
+  },
   computed: {
     ...mapState(['user']),
   },
