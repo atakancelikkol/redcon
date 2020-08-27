@@ -3,7 +3,7 @@ const HttpServer = require('./HttpServer');
 const Authenticator = require('./Authenticator');
 const PlatformObjects = require('./platform/PlatformObjects');
 const DataStorage = require('./dataStorage/LowDBDataStorage');
-const ControllerPlugins = require('./ControllerPlugins');
+const ControllerLoader = require('./ControllerLoader');
 
 const idleConnectionCheckInterval = 5 * 60 * 1000; // units of ms 5 * 60 * 1000 = 5 minutes
 
@@ -11,8 +11,8 @@ class Server {
   constructor() {
     this.platformObjects = new PlatformObjects();
     this.dataStorage = new DataStorage();
-    this.controllerPlugins = new ControllerPlugins();
-    this.controllers = this.controllerPlugins.createControllerInstances();
+    this.controllerLoader = new ControllerLoader();
+    this.controllers = this.controllerLoader.createControllerInstances();
 
     this.authenticator = new Authenticator();
     this.controllers.push(this.authenticator);

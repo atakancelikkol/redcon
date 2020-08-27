@@ -1,28 +1,28 @@
-const ControllerPlugins = require('../../src/ControllerPlugins');
+const ControllerLoader = require('../../src/ControllerLoader');
 
-const controllerPlugins = new ControllerPlugins();
+const controllerLoader = new ControllerLoader();
 
 describe('ControllerBase', () => {
   it('init', () => {
-    const tempcreateControllerInstances = controllerPlugins.createControllerInstances;
-    controllerPlugins.createControllerInstances = jest.fn();
-    controllerPlugins.init();
-    expect(controllerPlugins.createControllerInstances).toHaveBeenCalledTimes(1);
-    controllerPlugins.createControllerInstances = tempcreateControllerInstances;
+    const tempcreateControllerInstances = controllerLoader.createControllerInstances;
+    controllerLoader.createControllerInstances = jest.fn();
+    controllerLoader.init();
+    expect(controllerLoader.createControllerInstances).toHaveBeenCalledTimes(1);
+    controllerLoader.createControllerInstances = tempcreateControllerInstances;
   });
 
   it('should return the name of js files under given folder', () => {
-    expect(controllerPlugins.findControllers(__dirname)).toContain(__filename);
-    expect(controllerPlugins.findControllers()).not.toContain(['./TestPackageObject.js']);
+    expect(controllerLoader.findControllers(__dirname)).toContain(__filename);
+    expect(controllerLoader.findControllers()).not.toContain(['./TestPackageObject.js']);
   });
 
   it('loadModules', () => {
-    expect(controllerPlugins.loadModules(['./ControllerPlugins.js'])).toContain(require('../../src/ControllerPlugins.js')); // eslint-disable-line
-    expect(controllerPlugins.loadModules()).toContainEqual(expect.anything());
+    expect(controllerLoader.loadModules(['./ControllerLoader.js'])).toContain(require('../../src/ControllerLoader.js')); // eslint-disable-line
+    expect(controllerLoader.loadModules()).toContainEqual(expect.anything());
   });
 
   it('createControllerInstances', () => {
-    expect(controllerPlugins.createControllerInstances()[0]).toHaveProperty('dataStorage');
-    expect(controllerPlugins.createControllerInstances(controllerPlugins.loadModules())[0]).toHaveProperty('httpServer');
+    expect(controllerLoader.createControllerInstances()[0]).toHaveProperty('dataStorage');
+    expect(controllerLoader.createControllerInstances(controllerLoader.loadModules())[0]).toHaveProperty('httpServer');
   });
 });
