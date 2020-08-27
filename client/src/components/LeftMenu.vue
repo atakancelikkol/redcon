@@ -3,14 +3,14 @@
     <b-list-group>
       <b-list-group-item>REDCON</b-list-group-item>
       <b-list-group-item
-        v-for="post in posts"
-        :key="post.id"
+        v-for="item in menuItems"
+        :key="item.id"
         action
       >
         <router-link
-          :to="post.path"
+          :to="item.path"
         >
-          {{ post.title }}
+          {{ item.title }}
         </router-link>
       </b-list-group-item>
       <b-list-group-item v-if="user">
@@ -28,13 +28,15 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import { menuComponents } from '../Components';
+import exportObjects from '../Components';
+
+const { menuComponents } = exportObjects;
 
 export default {
   name: 'LeftMenu',
   data() {
     return {
-      posts: menuComponents,
+      menuItems: menuComponents,
     };
   },
   computed: {

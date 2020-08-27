@@ -77,12 +77,15 @@ keys.forEach((key) => {
 });
 
 
-const atMenu = [];
+const menuComponents = [];
 keys.forEach((key) => {
   if (components[key].atMenu) {
-    atMenu.push(components[key]);
+    menuComponents.push(components[key]);
   }
 });
+const exportObjects = {
+  routes,
+  menuComponents,
+};
 
-export default routes;
-export const menuComponents = atMenu;
+export default exportObjects;

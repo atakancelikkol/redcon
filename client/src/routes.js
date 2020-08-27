@@ -1,3 +1,4 @@
-import routes from './Components';
+import exportObjects from './Components';
 
+const { routes } = exportObjects;
 export default routes;
