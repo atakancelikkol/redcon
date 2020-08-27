@@ -2,21 +2,17 @@
   <div class="left-menu-container">
     <b-list-group>
       <b-list-group-item>REDCON</b-list-group-item>
-      <div
+      <b-list-group-item
         v-for="post in posts"
         :key="post.id"
+        action
       >
-        <b-list-group-item
-          v-if="post.meta"
-          action
+        <router-link
+          :to="post.path"
         >
-          <router-link
-            :to="post.path"
-          >
-            {{ post.title }}
-          </router-link>
-        </b-list-group-item>
-      </div>
+          {{ post.title }}
+        </router-link>
+      </b-list-group-item>
       <b-list-group-item v-if="user">
         <b-link
           ref="logout"
