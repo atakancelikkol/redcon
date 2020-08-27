@@ -243,7 +243,8 @@ class Authenticator extends ControllerBase {
     // this.logClientActivity(client, 'logout by timeout', clients);
     client.setAuthentication(false);
     client.setUserObject(null);
-    this.sendUserToClient(client, null, status, null, null, true);
+    // to prevent from errors which can occure trying to send obj while connection is lost. lostConnection status is in use at HttpServer.js onCloseHandler().
+    if (status !== 'lostConnection') this.sendUserToClient(client, null, status, null, null, true);
     client.setLastActivityTime(undefined);
     this.updateActiveUsername(clients);
   }
