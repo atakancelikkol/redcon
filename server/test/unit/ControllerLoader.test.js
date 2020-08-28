@@ -21,7 +21,7 @@ describe('ControllerLoader', () => {
   });
 
   const tempfindController = controllerLoader.findControllers;
-  controllerLoader.findControllers(() => find.fileSync(/([A-Z]\w+)((\.test)*\.js)/, '../../src/controllers'));
+  controllerLoader.findControllers(() => find.fileSync(/([A-Z]\w+)((\.test)?\.js)/, '../../src/controllers'));
 
   it('loadModules', () => {
     const controllerList = controllerLoader.findControllers();

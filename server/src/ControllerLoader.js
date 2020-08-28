@@ -8,7 +8,7 @@ class ControllerLoader {
   }
 
   findControllers() {
-    const objectsToCreate = find.fileSync(/([A-Z]\w+)((\.test)*\.js)/, path.join(__dirname, 'controllers'));
+    const objectsToCreate = find.fileSync(/([A-Z]\w+)((\.test)?\.js)/, path.join(__dirname, 'controllers'));
     return objectsToCreate;
   }
 
