@@ -60,10 +60,10 @@ class HttpServer {
     this.webSocketServer.on('connection', this.onConnectionHandler.bind(this));
 
     // after maxInactiveTime client will be removed.
-    this.maxInactiveTime = 5 * 1000; // 60 secs
+    this.maxInactiveTime = 60; // 60 secs
 
     // create interval
-    this.pingPongIntervalMsec = 1 * 1000; // 15 secs
+    this.pingPongIntervalMsec = 15 * 1000; // 15 secs
     this.pingPongInterval = setInterval(this.ping.bind(this), this.pingPongIntervalMsec);
   }
 
@@ -72,7 +72,7 @@ class HttpServer {
       this.clients.forEach((client) => {
         const currentDate = new Date();
         if (client.getLastActivityTime()) {
-          if (((currentDate - client.getLastActivityTime()) / 1000) > (this.maxInactiveTime / 1000)) {
+          if (((currentDate - client.getLastActivityTime()) / 1000) > (this.maxInactiveTime)) {
             logger.info('timeout ========', ((currentDate - client.getLastActivityTime()) / 1000));
             client.connection.terminate();
           } else {
@@ -153,7 +153,7 @@ class HttpServer {
     logger.info('connection closed! id: ', client.getId());
     const index = this.clients.indexOf(client);
     if (index !== -1) {
-      auth.logoutByTimeout(client, 'lostConnection', this.clients);
+      if (this.isAlive === false) auth.logoutByTimeout(client, 'lostConnection', this.clients); // logOut the client if not responed in maxInactiveTime
       this.clients.splice(index, 1);
       this.controllers.forEach((controller) => {
         controller.onConnectionClosed(client, this.clients);

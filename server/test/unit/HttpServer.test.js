@@ -1,9 +1,7 @@
 const http = require('http');
 const HttpServer = require('../../src/HttpServer');
 const ServerConfig = require('../../src/ServerConfig');
-const Authenticator = require('../../src/Authenticator');
 
-const authenticatorInstance = new Authenticator();
 const httpServerInstance = new HttpServer({ controllers: [] });
 const useAuthenticationTemp = ServerConfig.useAuthentication;
 
@@ -34,6 +32,154 @@ describe('HttpServer ', () => {
     });
   });
 
+  describe('inactiveClientChecker ', () => {
+    it('normal connection', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      const mockClient = {
+        getLastActivityTime: () => new Date(),
+        connection: {
+          terminate() {
+          },
+        },
+      };
+      const terminateSpy = jest.spyOn(mockClient.connection, 'terminate');
+      httpServer.clients.push(mockClient);
+      httpServer.inactiveClientChecker();
+      expect(terminateSpy).not.toHaveBeenCalled();
+    });
+
+    it('lost connection, terminate client', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      const mockClient = {
+        getLastActivityTime: () => new Date('2011-04-11T10:20:30Z'),
+        connection: {
+          terminate() {
+          },
+        },
+      };
+      const terminateSpy = jest.spyOn(mockClient.connection, 'terminate');
+      httpServer.clients.push(mockClient);
+      httpServer.inactiveClientChecker();
+      expect(terminateSpy).toHaveBeenCalled();
+    });
+
+    it('if client has no lastActivity Record', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      const mockClient = {
+        LastActivityTime: null,
+        getLastActivityTime: () => undefined,
+        setLastActivityTime(newTime) {
+          mockClient.LastActivityTime = newTime;
+        },
+      };
+      httpServer.clients.push(mockClient);
+      httpServer.inactiveClientChecker();
+      expect(mockClient.LastActivityTime).not.toBe(null);
+    });
+
+    it('if client already has lastActivity Record', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      const mockClient = {
+        LastActivityTime: new Date('2011-04-11T10:20:30Z'),
+        getLastActivityTime: () => new Date('2011-04-11T10:20:30Z'),
+        setLastActivityTime(newTime) {
+          mockClient.LastActivityTime = newTime;
+        },
+        connection: {
+          terminate() {
+          },
+        },
+      };
+
+      const setLAstSpy = jest.spyOn(mockClient, 'setLastActivityTime');
+      httpServer.clients.push(mockClient);
+      httpServer.inactiveClientChecker();
+      expect(setLAstSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('ping function ', () => {
+    it('should call inactiveClientChecker function', () => {
+      const inactiveClientCheckerSpy = jest.spyOn(httpServerInstance, 'inactiveClientChecker');
+      httpServerInstance.ping();
+      expect(inactiveClientCheckerSpy).toHaveBeenCalled();
+    });
+
+    it('should call should send ping and set isAlive to false', () => {
+      const inactiveClientCheckerSpy = jest.spyOn(httpServerInstance, 'inactiveClientChecker');
+      const mockWebSocketServer = {
+        clients: [
+          {
+            _socket: { // eslint-disable-line
+              remoteAddress: 12,
+            },
+            ping() {
+            },
+          },
+          {
+            _socket: { // eslint-disable-line
+              remoteAddress: 13,
+            },
+            ping() {
+            },
+          },
+        ],
+      };
+      const mockClient = {
+        LastActivityTime: new Date(),
+        getLastActivityTime: () => mockClient.LastActivityTime,
+        setLastActivityTime(newTime) {
+          mockClient.LastActivityTime = newTime;
+        },
+        connection: {
+          terminate() {
+          },
+        },
+      };
+
+      httpServerInstance.clients.push(mockClient);
+
+      const pingSpy = jest.spyOn(mockWebSocketServer.clients[0], 'ping');
+      const pingSpy2 = jest.spyOn(mockWebSocketServer.clients[1], 'ping');
+
+      const tempWebSocketServer = httpServerInstance.webSocketServer;
+      httpServerInstance.isAlive = true;
+      httpServerInstance.webSocketServer = mockWebSocketServer;
+      httpServerInstance.ping();
+      expect(pingSpy).toHaveBeenCalled();
+      expect(pingSpy2).toHaveBeenCalled();
+      expect(inactiveClientCheckerSpy).toHaveBeenCalled();
+      expect(httpServerInstance.isAlive).toBe(false);
+
+      httpServerInstance.webSocketServer = tempWebSocketServer;
+    });
+  });
+
+  describe('heartbeat function ', () => {
+    it('should set to client a new lastActivityTime and should set isAlive as true', () => {
+      const httpServer = new HttpServer({ controllers: [] });
+      const mockClient = {
+        LastActivityTime: new Date('2011-04-11T10:20:30Z'),
+        getLastActivityTime: () => new Date('2011-04-11T10:20:30Z'),
+        setLastActivityTime(newTime) {
+          mockClient.LastActivityTime = newTime;
+        },
+        connection: {
+          terminate() {
+          },
+        },
+      };
+
+      const setLAstSpy = jest.spyOn(mockClient, 'setLastActivityTime');
+      httpServer.clients.push(mockClient);
+      httpServer.isAlive = false;
+      httpServer.heartbeat(mockClient);
+      expect(setLAstSpy).toHaveBeenCalled();
+      expect(mockClient.LastActivityTime).not.toStrictEqual(new Date('2011-04-11T10:20:30Z'));
+      expect(httpServer.isAlive).toStrictEqual(true);
+    });
+  });
+
   describe('getClients ', () => {
     it('should get the clients array', () => {
       const httpServer = new HttpServer({ controllers: [] });
@@ -55,12 +201,15 @@ describe('HttpServer ', () => {
       const httpServer = new HttpServer({ controllers: [] });
       let secondParameterMessageEvent;
       let secondParameterCloseEvent;
+      let secondParameterPongEvent;
       const mockConnection = {
         on: (p1, p2) => {
           if (p1 === 'message') {
             secondParameterMessageEvent = p2;
           } else if (p1 === 'close') {
             secondParameterCloseEvent = p2;
+          } else if (p1 === 'pong') {
+            secondParameterPongEvent = p2;
           }
         },
       };
@@ -70,6 +219,7 @@ describe('HttpServer ', () => {
       httpServer.onConnectionHandler(mockConnection, mockReq);
       expect(typeof secondParameterMessageEvent).toBe('function');
       expect(typeof secondParameterCloseEvent).toBe('function');
+      expect(typeof secondParameterPongEvent).toBe('function');
       expect(onSpy).toHaveBeenCalledTimes(3);
       expect(httpServer.sendInitialMessage).toHaveBeenCalled();
     });
