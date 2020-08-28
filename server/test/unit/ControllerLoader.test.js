@@ -1,5 +1,5 @@
-const ControllerLoader = require('../../src/ControllerLoader');
 const find = require('find');
+const ControllerLoader = require('../../src/ControllerLoader');
 
 const controllerLoader = new ControllerLoader();
 
@@ -15,18 +15,16 @@ describe('ControllerLoader', () => {
   it('should return the name of js files under given folder', () => {
     const tempfileSync = find.fileSync;
     find.fileSync = jest.fn();
-    controllerLoader.findControllers();;
+    controllerLoader.findControllers();
     expect(find.fileSync).toHaveBeenCalledTimes(1);
     find.fileSync = tempfileSync;
   });
 
   const tempfindController = controllerLoader.findControllers;
-  controllerLoader.findControllers(() => {
-    return find.fileSync(/([A-Z]\w+)((\.test)*\.js)/, '../../src/controllers');
-  });
+  controllerLoader.findControllers(() => find.fileSync(/([A-Z]\w+)((\.test)*\.js)/, '../../src/controllers'));
 
   it('loadModules', () => {
-    const controllerList = controllerLoader.findControllers()
+    const controllerList = controllerLoader.findControllers();
     expect(controllerLoader.loadModules()).toContain(require(controllerList[0])); // eslint-disable-line
   });
 
