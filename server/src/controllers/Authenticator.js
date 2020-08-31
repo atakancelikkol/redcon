@@ -25,7 +25,7 @@ class Authenticator extends ControllerBase {
   }
 
   idleConnectionChecker() {
-    this.authenticator.checkIdleConnections(this.httpServer.getClients());
+    this.checkIdleConnections(this.httpServer.getClients());
   }
 
   isAuthRequired() {
