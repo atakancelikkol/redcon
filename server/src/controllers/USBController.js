@@ -66,7 +66,7 @@ class USBController extends ControllerBase {
     this.addHttpUploadHandler();
   }
 
-  addHttpUploadHandler(s) {
+  addHttpUploadHandler() {
     this.httpServer.getApp().post('/uploadFileToUsbDevice', this.uploadFileToUsbDevice.bind(this));
     this.httpServer.getApp().get('/getFileFromUsbDevice', this.getFileFromUsbDevice.bind(this));
   }
