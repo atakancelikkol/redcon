@@ -2,34 +2,15 @@
   <div class="left-menu-container">
     <b-list-group>
       <b-list-group-item>REDCON</b-list-group-item>
-      <b-list-group-item>
-        <router-link to="/">
-          Home
-        </router-link>
-      </b-list-group-item>
-      <b-list-group-item>
-        <router-link to="/board-control">
-          Board Control
-        </router-link>
-      </b-list-group-item>
-      <b-list-group-item>
-        <router-link to="/network-config">
-          Network Config
-        </router-link>
-      </b-list-group-item>
-      <b-list-group-item>
-        <router-link to="/serial-console">
-          Serial Console
-        </router-link>
-      </b-list-group-item>
-      <b-list-group-item>
-        <router-link to="/usb-storage">
-          USB Storage
-        </router-link>
-      </b-list-group-item>
-      <b-list-group-item>
-        <router-link to="/utility">
-          Utility
+      <b-list-group-item
+        v-for="item in menuItems"
+        :key="item.id"
+        action
+      >
+        <router-link
+          :to="item.path"
+        >
+          {{ item.title }}
         </router-link>
       </b-list-group-item>
       <b-list-group-item v-if="user">
@@ -47,9 +28,17 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import exportObjects from '../Components';
+
+const { menuComponents } = exportObjects;
 
 export default {
   name: 'LeftMenu',
+  data() {
+    return {
+      menuItems: menuComponents,
+    };
+  },
   computed: {
     ...mapState(['user']),
   },

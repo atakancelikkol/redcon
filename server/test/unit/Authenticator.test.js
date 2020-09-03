@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const rp = require('request-promise');
-const Authenticator = require('../../src/Authenticator');
+const Authenticator = require('../../src/controllers/Authenticator');
 const ServerConfig = require('../../src/ServerConfig');
 
 jest.mock('request-promise');

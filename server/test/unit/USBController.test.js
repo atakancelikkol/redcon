@@ -1,8 +1,10 @@
 const PlatformObjects = require('../../src/platform/PlatformObjects');
-const USBController = require('../../src/USBController.js');
+const USBController = require('../../src/controllers/USBController.js');
+const HttpServer = require('../../src/HttpServer.js');
 
 const platformObjects = new PlatformObjects('mock');
 const usbController = new USBController({ useMockUsbDetect: true });
+const httpServer = new HttpServer({ controllers: [] });
 
 jest.useFakeTimers();
 jest.mock('usb-detection');
@@ -102,10 +104,19 @@ const mockResponse = () => {
   return res;
 };
 
+beforeAll(async () => {
+  httpServer.init();
+});
+
+afterAll(() => {
+  httpServer.httpServer.close();
+});
+
 describe('USBController Usb Flash Operations', () => {
   test('init should call openForInput', () => {
     const openForInputSpy = jest.spyOn(gpioUtility, 'openForInput');
     usbController.registerPlatformObjects(platformObjects);
+    usbController.registerHttpServer(httpServer);
     usbController.init();
     expect(openForInputSpy).toHaveBeenCalledTimes(2);
   });

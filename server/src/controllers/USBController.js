@@ -7,10 +7,10 @@ const formidable = require('formidable');
 const md5File = require('md5-file');
 const rimraf = require('rimraf');
 const getSize = require('get-folder-size');
-const ControllerBase = require('./ControllerBase');
-const GPIOPins = require('./GPIOPins');
+const ControllerBase = require('../ControllerBase');
+const GPIOPins = require('../GPIOPins');
 
-const logger = require('./util/Logger');
+const logger = require('../util/Logger');
 
 const MAX_TRY_COUNT_DRIVE = 30; // 30 attempts attempts within 1s resulting in appr. 30s
 const MAX_TRY_COUNT_LED = 200; // 200 attempts within 5ms resulting in appr. 1s
@@ -62,6 +62,13 @@ class USBController extends ControllerBase {
     this.detectUsbDevice();
 
     this.ledReadIntervalHandle = setInterval(this.checkKVMLedState.bind(this), LED_CHECK_TIME_INTERVAL);
+
+    this.addHttpUploadHandler();
+  }
+
+  addHttpUploadHandler() {
+    this.httpServer.getApp().post('/uploadFileToUsbDevice', this.uploadFileToUsbDevice.bind(this));
+    this.httpServer.getApp().get('/getFileFromUsbDevice', this.getFileFromUsbDevice.bind(this));
   }
 
   checkKVMLedState() {

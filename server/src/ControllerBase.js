@@ -8,6 +8,7 @@ class ControllerBase {
     this.sendMessageCallback = () => {};
     this.platformObjects = null;
     this.dataStorage = null;
+    this.httpServer = null;
   }
 
   /**
@@ -44,6 +45,14 @@ class ControllerBase {
     }
 
     this.dataStorage = dataStorage;
+  }
+
+  registerHttpServer(httpServer) {
+    if (this.httpServer) {
+      throw new Error('httpServer is already defined!');
+    }
+
+    this.httpServer = httpServer;
   }
 
   /**

@@ -1,5 +1,5 @@
 const os = require('os');
-const NetworkConfigController = require('../../src/NetworkConfigController');
+const NetworkConfigController = require('../../src/controllers/NetworkConfigController');
 const PlatformObjects = require('../../src/platform/PlatformObjects');
 const DataStorage = require('../../src/dataStorage/LowDBDataStorage');
 

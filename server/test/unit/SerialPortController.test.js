@@ -1,7 +1,7 @@
 const fs = require('fs');
 const SerialPort = require('serialport');
 const MockBinding = require('@serialport/binding-mock');
-const SerialPortController = require('../../src/SerialPortController');
+const SerialPortController = require('../../src/controllers/SerialPortController');
 const logger = require('../../src/util/Logger');
 
 jest.genMockFromModule('serialport');

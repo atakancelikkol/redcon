@@ -1,10 +1,10 @@
 const SerialPort = require('serialport');
 const MockBinding = require('@serialport/binding-mock');
 const fs = require('fs');
-const logger = require('./util/Logger');
+const logger = require('../util/Logger');
 
-const ControllerBase = require('./ControllerBase');
-const KeyMapping = require('./util/KeyMapping');
+const ControllerBase = require('../ControllerBase');
+const KeyMapping = require('../util/KeyMapping');
 
 class SerialPortController extends ControllerBase {
   constructor(options) {

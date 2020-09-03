@@ -16,7 +16,7 @@ const ServerConfig = {
 
   // Authentication configurations
 
-  useAuthentication: true,
+  useAuthentication: false,
   authServer: 'http://localhost:3010',
   //
   GPIOPinConfigName: 'raspberry',

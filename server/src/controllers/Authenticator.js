@@ -1,14 +1,31 @@
 const jwt = require('jsonwebtoken');
 const rp = require('request-promise');
-const ServerConfig = require('./ServerConfig');
-const ControllerBase = require('./ControllerBase');
-const logger = require('./util/Logger');
+const ServerConfig = require('../ServerConfig');
+const ControllerBase = require('../ControllerBase');
+const logger = require('../util/Logger');
+
+const idleConnectionCheckInterval = 5 * 60 * 1000; // units of ms 5 * 60 * 1000 = 5 minutes
 
 class Authenticator extends ControllerBase {
   constructor() {
     super('Authenticator');
     this.history = [];
     this.activeUsername = undefined;
+    this.idleConnectionCheckIntervalHandle = undefined;
+  }
+
+  init() {
+    this.idleConnectionCheckIntervalHandle = setInterval(this.idleConnectionChecker.bind(this), idleConnectionCheckInterval);
+  }
+
+  onExit() {
+    if (this.idleConnectionCheckIntervalHandle) {
+      clearInterval(this.idleConnectionCheckIntervalHandle);
+    }
+  }
+
+  idleConnectionChecker() {
+    this.checkIdleConnections(this.httpServer.getClients());
   }
 
   isAuthRequired() {
