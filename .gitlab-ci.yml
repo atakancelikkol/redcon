@@ -1,0 +1,29 @@
+image: node:12.16.1
+
+stages:
+  - test
+  - build
+
+server:
+  stage: test
+  tags:
+    - linux
+  script:
+    - cd ./server/
+    - npm ci
+    - npm run lint
+    - npm run coverage
+    - cd ../authServer/
+    - npm ci
+    - npm run lint
+    - npm run coverage
+
+client:
+  stage: test
+  tags:
+    - linux
+  script:
+    - cd ./client/
+    - npm ci
+    - npm run lint
+    - npm run coverage

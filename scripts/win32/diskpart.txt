@@ -1,0 +1,3 @@
+select volume 2
+format fs=fat32 quick label=REDCON
+exit
