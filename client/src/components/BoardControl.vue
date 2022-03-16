@@ -19,7 +19,8 @@
             switch
           >
             <span v-if="gpioPort == 3">POWER </span>
-            <span v-else-if="gpioPort == 5">CONTACT </span>
+            <span v-else-if="gpioPort == 5">FLASHMODE (Switch ON means FLASH MODE IS OFF FOR C1 BOARD!! You have to switch ON to operate Normal Mode.) </span>
+	          <span v-else-if="gpioPort == 7">WDG PIN </span>
             <span>PORT #{{ gpioPort }}</span>
           </b-form-checkbox>
         </div>

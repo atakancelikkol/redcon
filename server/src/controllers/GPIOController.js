@@ -7,6 +7,7 @@ class GPIOController extends ControllerBase {
     this.gpioState = {};
     this.gpioState[GPIOPins.RELAY_POWER_PIN] = 1;
     this.gpioState[GPIOPins.RELAY_CONTACT_PIN] = 1;
+    this.gpioState[GPIOPins.RELAY_WDG_PIN] = 1;
     this.startTime = 0;
     this.endTime = 0;
     this.history = [];

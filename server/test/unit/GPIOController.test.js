@@ -10,6 +10,7 @@ describe('GPIOController', () => {
     gpioController.registerPlatformObjects(platformObjects);
     expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toEqual(1);
     expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toEqual(1);
+    expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toEqual(1);
   });
 
   it('isAuthRequired should return true', () => {
@@ -24,7 +25,7 @@ describe('GPIOController', () => {
     const openForOutputSpy = jest.spyOn(gpioUtility, 'openForOutput');
     gpioController.registerPlatformObjects(platformObjects);
     gpioController.init();
-    expect(openForOutputSpy).toHaveBeenCalledTimes(2);
+    expect(openForOutputSpy).toHaveBeenCalledTimes(3); // Since 3 pins we do have, can be better to obt. these frın GPIIPins.js
   });
 
   describe('getCopyState', () => {
@@ -33,6 +34,7 @@ describe('GPIOController', () => {
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.gpioState[3] = 0;
       gpioController.gpioState[5] = 1;
+      gpioController.gpioState[7] = 1;
       gpioController.startTime = new Date();
       gpioController.endTime = new Date();
       gpioController.history = [
@@ -84,6 +86,7 @@ describe('GPIOController', () => {
       gpioController.registerPlatformObjects(platformObjects);
       gpioController.gpioState[3] = 1;
       gpioController.gpioState[5] = 0;
+      gpioController.gpioState[7] = 1;
       gpioController.startTime = new Date();
       gpioController.endTime = new Date();
       gpioController.history = [
@@ -139,6 +142,7 @@ describe('GPIOController', () => {
       } });
       expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(0);
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
 
     it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_CONTACT_PIN,state: false}}', () => {
@@ -150,6 +154,7 @@ describe('GPIOController', () => {
       } });
       expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(0);
+      expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
 
     it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_POWER_PIN,state: true}}', () => {
@@ -161,6 +166,7 @@ describe('GPIOController', () => {
       } });
       expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
 
     it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_CONTACT_PIN,state: true}}', () => {
@@ -172,6 +178,31 @@ describe('GPIOController', () => {
       } });
       expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
       expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
+    });
+
+    it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_WDG_PIN,state: false}}', () => {
+      const gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
+      gpioController.init();
+      gpioController.handleMessage({ gpio: {
+        port: GPIOPins.RELAY_WDG_PIN, state: false,
+      } });
+      expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(0);
+    });
+
+    it('Parameters passing to handleMessage = {gpio: {port: GPIOPins.RELAY_WDG_PIN,state: true}}', () => {
+      const gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
+      gpioController.init();
+      gpioController.handleMessage({ gpio: {
+        port: GPIOPins.RELAY_WDG_PIN, state: true,
+      } });
+      expect(gpioController.gpioState[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(gpioController.gpioState[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
   });
 
@@ -187,6 +218,7 @@ describe('GPIOController', () => {
       gpioController.setGPIOPort(GPIOPins.RELAY_POWER_PIN, 1);
       expect(obj.gpio.state[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
 
     it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_CONTACT_PIN, 1)', () => {
@@ -200,6 +232,7 @@ describe('GPIOController', () => {
       gpioController.setGPIOPort(GPIOPins.RELAY_CONTACT_PIN, 1);
       expect(obj.gpio.state[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
 
     it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_POWER_PIN, 0)', () => {
@@ -213,6 +246,7 @@ describe('GPIOController', () => {
       gpioController.setGPIOPort(GPIOPins.RELAY_POWER_PIN, 0);
       expect(obj.gpio.state[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(0);
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
     });
 
     it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_CONTACT_PIN, 0)', () => {
@@ -226,6 +260,35 @@ describe('GPIOController', () => {
       gpioController.setGPIOPort(GPIOPins.RELAY_CONTACT_PIN, 0);
       expect(obj.gpio.state[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
       expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(0);
+      expect(obj.gpio.state[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
+    });
+
+    it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_WDG_PIN, 1)', () => {
+      let obj;
+      const gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
+      gpioController.registerSendMessageCallback((h, o) => {
+        obj = o;
+      });
+      gpioController.init();
+      gpioController.setGPIOPort(GPIOPins.RELAY_WDG_PIN, 1);
+      expect(obj.gpio.state[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(1);
+    });
+
+    it('Parameters passing to setGPIOPort = (GPIOPins.RELAY_WDG_PIN, 0)', () => {
+      let obj;
+      const gpioController = new GPIOController();
+      gpioController.registerPlatformObjects(platformObjects);
+      gpioController.registerSendMessageCallback((h, o) => {
+        obj = o;
+      });
+      gpioController.init();
+      gpioController.setGPIOPort(GPIOPins.RELAY_WDG_PIN, 0);
+      expect(obj.gpio.state[GPIOPins.RELAY_POWER_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_CONTACT_PIN]).toStrictEqual(1);
+      expect(obj.gpio.state[GPIOPins.RELAY_WDG_PIN]).toStrictEqual(0);
     });
   });
 });
