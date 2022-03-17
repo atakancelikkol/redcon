@@ -3,7 +3,7 @@ echo "Building client ..."
 echo "BUILD PROJECT"
 
 # build front end project
-cd ../client 
+cd ../client
 npm install
 npm run build
 if [ $? -ne 0 ]
@@ -17,7 +17,7 @@ cd -
 cp ../client/dist/* ../server/public/ -R
 
 echo "Build Done."
-  
+
 cd ../server
-npm install
+npm install --unsafe-perm=true
 cd -
