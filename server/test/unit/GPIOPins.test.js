@@ -18,6 +18,10 @@ describe('GPIOPins for raspberry configuration', () => {
     expect(GPIOPins.RELAY_WDG_PIN).toBe(7);
   });
 
+  test('RELAY_FLASH2_PIN should be equal to 11', () => {
+    expect(GPIOPins.RELAY_FLASH2_PIN).toBe(11);
+  });
+
   test('KVM_LED_RPI should be equal to 29', () => {
     expect(GPIOPins.KVM_LED_RPI).toBe(29);
   });
